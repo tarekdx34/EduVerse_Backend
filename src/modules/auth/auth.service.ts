@@ -80,7 +80,7 @@ export class AuthService {
     await this.userRepository.save(user);
 
     // Generate tokens and create session
-    return this.generateAuthResponse(user, request);
+    return this.generateAuthResponse(user, request, false);
   }
 
   async login(
@@ -117,8 +117,8 @@ export class AuthService {
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);
 
-    // Generate tokens and create session
-    return this.generateAuthResponse(user, request);
+    // Generate tokens and create session with rememberMe flag
+    return this.generateAuthResponse(user, request, loginDto.rememberMe);
   }
 
   async refreshToken(
@@ -157,13 +157,15 @@ export class AuthService {
         throw new UnauthorizedException('Session expired');
       }
 
-      // Generate new tokens
-      return this.generateAuthResponse(user, request);
+      // Delete old session before creating new one
+      await this.sessionRepository.remove(session);
+
+      // Generate new tokens preserving rememberMe setting
+      return this.generateAuthResponse(user, request, session.rememberMe);
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
-
   async logout(userId: number, sessionToken: string): Promise<void> {
     await this.sessionRepository.delete({
       userId,
@@ -250,6 +252,7 @@ export class AuthService {
   private async generateAuthResponse(
     user: User,
     request: any,
+    rememberMe: boolean = false,
   ): Promise<LoginResponseDto> {
     const payload = {
       sub: user.userId,
@@ -257,14 +260,24 @@ export class AuthService {
       roles: user.roles.map((role) => role.roleName),
     };
 
+    // Dynamic token expiration based on rememberMe
+    const accessTokenExpiration = rememberMe ? '24h' : '1h';
+    const refreshTokenExpiration = rememberMe ? '30d' : '7d';
+
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
+      expiresIn: accessTokenExpiration,
     });
 
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: '7d',
+      expiresIn: refreshTokenExpiration,
     });
+
+    // Calculate session expiration based on rememberMe
+    const sessionExpirationMs = rememberMe
+      ? 30 * 24 * 60 * 60 * 1000 // 30 days
+      : 7 * 24 * 60 * 60 * 1000; // 7 days
 
     // Create session
     const session = this.sessionRepository.create({
@@ -273,7 +286,8 @@ export class AuthService {
       ipAddress: request.ip,
       userAgent: request.headers['user-agent'],
       deviceType: this.detectDeviceType(request.headers['user-agent']),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      expiresAt: new Date(Date.now() + sessionExpirationMs),
+      rememberMe: rememberMe,
     });
 
     await this.sessionRepository.save(session);

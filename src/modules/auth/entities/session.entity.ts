@@ -31,6 +31,9 @@ export class Session {
   @Column({ name: 'expires_at', type: 'datetime' })
   expiresAt: Date;
 
+  @Column({ name: 'remember_me', default: false })
+  rememberMe: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
