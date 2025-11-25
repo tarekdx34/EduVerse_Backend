@@ -1,3 +1,6 @@
+// src/modules/auth/auth.module.ts
+// Updated to import EmailModule
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
@@ -12,6 +15,7 @@ import { Session } from './entities/session.entity';
 import { PasswordReset } from './entities/password-reset.entity';
 import { TwoFactorAuth } from './entities/two-factor-auth.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EmailModule } from '../email/email.module'; // <-- Added
 
 @Module({
   imports: [
@@ -38,11 +42,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         return {
           secret,
           signOptions: {
-            expiresIn: expiresIn as any, // Type assertion to bypass strict typing
+            expiresIn: expiresIn as any,
           },
         };
       },
     }),
+    EmailModule, // <-- Added EmailModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

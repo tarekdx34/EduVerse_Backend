@@ -35,7 +35,11 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-
+.env
+.env.local
+.env.*.local
+.env.test.local
+.env.production.local
 # temp directory
 .temp
 .tmp
