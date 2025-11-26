@@ -1,0 +1,625 @@
+{
+  "info": {
+    "name": "Eduverse Campus Structure API",
+    "description": "Complete API collection for Campus, Department, Program, and Semester management in Eduverse",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@eduverse.com\",\n  \"password\": \"Admin@123456\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@eduverse.com\",\n  \"password\": \"Admin@123456\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campus Management",
+      "item": [
+        {
+          "name": "Get All Campuses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/campuses",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "campuses"]
+            }
+          }
+        },
+        {
+          "name": "Get Campus by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/campuses/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "campuses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Campuses by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/campuses?status=ACTIVE",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "campuses"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Campus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Campus\",\n  \"location\": \"New York\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"country\": \"USA\",\n  \"description\": \"Main campus located in New York\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/campuses",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "campuses"]
+            }
+          }
+        },
+        {
+          "name": "Update Campus",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Campus Updated\",\n  \"location\": \"New York Downtown\",\n  \"description\": \"Updated main campus description\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/campuses/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "campuses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Campus",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/campuses/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "campuses", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Department Management",
+      "item": [
+        {
+          "name": "Get Departments by Campus",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/campuses/1/departments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "campuses", "1", "departments"]
+            }
+          }
+        },
+        {
+          "name": "Get Department by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/departments/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "departments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campusId\": 1,\n  \"name\": \"Computer Science\",\n  \"code\": \"CS\",\n  \"description\": \"Department of Computer Science\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/departments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "departments"]
+            }
+          }
+        },
+        {
+          "name": "Update Department",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Computer Science & Engineering\",\n  \"description\": \"Updated department description\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/departments/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "departments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Department",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/departments/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "departments", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Program Management",
+      "item": [
+        {
+          "name": "Get Programs by Department",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/departments/1/programs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "departments", "1", "programs"]
+            }
+          }
+        },
+        {
+          "name": "Get Program by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/programs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "programs", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"departmentId\": 1,\n  \"name\": \"Bachelor of Science in Computer Science\",\n  \"code\": \"BS-CS\",\n  \"durationInSemesters\": 8,\n  \"description\": \"4-year undergraduate program in Computer Science\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/programs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "programs"]
+            }
+          }
+        },
+        {
+          "name": "Update Program",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bachelor of Science in Computer Science (Updated)\",\n  \"durationInSemesters\": 8\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/programs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "programs", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Program",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/programs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "programs", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Semester Management",
+      "item": [
+        {
+          "name": "Get All Semesters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/semesters",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters"]
+            }
+          }
+        },
+        {
+          "name": "Get Semesters by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/semesters?status=ACTIVE",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Semesters by Year",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/semesters?year=2024",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters"],
+              "query": [
+                {
+                  "key": "year",
+                  "value": "2024"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Current Semester",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/semesters/current",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters", "current"]
+            }
+          }
+        },
+        {
+          "name": "Get Semester by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/semesters/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Semester",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fall 2024\",\n  \"startDate\": \"2024-09-01\",\n  \"endDate\": \"2024-12-15\",\n  \"year\": 2024,\n  \"semesterNumber\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semesters",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters"]
+            }
+          }
+        },
+        {
+          "name": "Update Semester",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fall 2024 Updated\",\n  \"endDate\": \"2024-12-20\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semesters/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Semester",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIwLCJlbWFpbCI6InRhcmVrZHgwQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc2NDE3NjY2MCwiZXhwIjoxNzY0MTgwMjYwfQ.GZx6PspCKN-jQghTuA_2Ekax0xfOYixo6qLLvyk52AU}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/semesters/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "semesters", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
