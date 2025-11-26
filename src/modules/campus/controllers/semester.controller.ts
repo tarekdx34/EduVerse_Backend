@@ -87,7 +87,7 @@ export class SemesterController {
   }
 
   @Delete(':id')
-  @Roles(RoleName.IT_ADMIN)
+  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN)
   @HttpCode(204)
   async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.semesterService.delete(id);
