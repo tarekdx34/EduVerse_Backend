@@ -8,6 +8,8 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { UserManagementController } from './user-management.controller';
+import { UserManagementService } from './user-management.service';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
@@ -51,8 +53,8 @@ import { EmailModule } from '../email/email.module';
     }),
     EmailModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  controllers: [AuthController, UserManagementController],
+  providers: [AuthService, UserManagementService, JwtStrategy],
+  exports: [AuthService, UserManagementService],
 })
 export class AuthModule {}
