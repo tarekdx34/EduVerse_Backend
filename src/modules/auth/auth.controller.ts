@@ -15,6 +15,7 @@ import {
   ForgotPasswordRequestDto,
   ResetPasswordRequestDto,
   TokenRefreshRequestDto,
+  ResendVerificationEmailDto,
 } from './dto/other-dtos';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -85,8 +86,14 @@ export class AuthController {
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
   async verifyEmail(@Body('token') token: string) {
-    await this.authService.verifyEmail(token);
-    return { message: 'Email verified successfully' };
+    return this.authService.verifyEmail(token);
+  }
+
+  @Public()
+  @Post('resend-verification-email')
+  @HttpCode(HttpStatus.OK)
+  async resendVerificationEmail(@Body() resendDto: ResendVerificationEmailDto) {
+    return this.authService.resendVerificationEmail(resendDto.email);
   }
 
   @Get('me')

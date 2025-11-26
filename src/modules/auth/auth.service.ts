@@ -17,6 +17,7 @@ import { User, UserStatus } from './entities/user.entity';
 import { Role, RoleName } from './entities/role.entity';
 import { Session } from './entities/session.entity';
 import { PasswordReset } from './entities/password-reset.entity';
+import { EmailVerification } from './entities/email-verification.entity';
 import { RegisterRequestDto } from './dto/register-request.dto';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LoginResponseDto } from './dto/auth-response.dto';
@@ -35,15 +36,17 @@ export class AuthService {
     private sessionRepository: Repository<Session>,
     @InjectRepository(PasswordReset)
     private passwordResetRepository: Repository<PasswordReset>,
+    @InjectRepository(EmailVerification)
+    private emailVerificationRepository: Repository<EmailVerification>,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private emailService: EmailService, // <-- Added EmailService
+    private emailService: EmailService,
   ) {}
 
   async register(
     registerDto: RegisterRequestDto,
     request: any,
-  ): Promise<LoginResponseDto> {
+  ): Promise<{ message: string; user: UserDto }> {
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
     });
@@ -74,10 +77,23 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
-    // Send verification email
+    // Generate and store verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    // TODO: Store verification token in database (create EmailVerification entity)
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(verificationToken)
+      .digest('hex');
 
+    const emailVerification = this.emailVerificationRepository.create({
+      userId: user.userId,
+      verificationToken: hashedToken,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      used: false,
+    });
+
+    await this.emailVerificationRepository.save(emailVerification);
+
+    // Send verification email
     try {
       await this.emailService.sendVerificationEmail(
         user.email,
@@ -86,15 +102,16 @@ export class AuthService {
       );
     } catch (error) {
       console.error('Failed to send verification email:', error);
-      // Continue with registration even if email fails
+      // Delete user and verification if email fails
+      await this.emailVerificationRepository.remove(emailVerification);
+      await this.userRepository.remove(user);
+      throw new BadRequestException('Failed to send verification email');
     }
 
-    // Auto-activate for now (remove in production after implementing email verification)
-    user.status = UserStatus.ACTIVE;
-    user.emailVerified = true;
-    await this.userRepository.save(user);
-
-    return this.generateAuthResponse(user, request, false);
+    return {
+      message: 'Registration successful! Please check your email to verify your account.',
+      user: this.transformUserToDto(user),
+    };
   }
 
   async login(
@@ -262,14 +279,82 @@ export class AuthService {
     }
   }
 
-  async verifyEmail(token: string): Promise<void> {
-    // TODO: Implement email verification logic
-    // 1. Hash the token
-    // 2. Find user with this verification token
-    // 3. Check expiration
-    // 4. Update user.emailVerified = true
-    // 5. Update user.status = UserStatus.ACTIVE
-    throw new BadRequestException('Email verification not implemented yet');
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const emailVerification = await this.emailVerificationRepository.findOne({
+      where: { verificationToken: hashedToken, used: false },
+      relations: ['user'],
+    });
+
+    if (!emailVerification) {
+      throw new BadRequestException('Invalid or already used verification token');
+    }
+
+    if (new Date() > emailVerification.expiresAt) {
+      throw new BadRequestException('Verification token has expired');
+    }
+
+    const user = emailVerification.user;
+
+    // Update user status
+    user.emailVerified = true;
+    user.status = UserStatus.ACTIVE;
+    await this.userRepository.save(user);
+
+    // Mark token as used
+    emailVerification.used = true;
+    emailVerification.usedAt = new Date();
+    await this.emailVerificationRepository.save(emailVerification);
+
+    return { message: 'Email verified successfully! Your account is now active.' };
+  }
+
+  async resendVerificationEmail(email: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.emailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    // Invalidate previous verification tokens
+    await this.emailVerificationRepository.update(
+      { userId: user.userId, used: false },
+      { used: true, usedAt: new Date() },
+    );
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(verificationToken)
+      .digest('hex');
+
+    const emailVerification = this.emailVerificationRepository.create({
+      userId: user.userId,
+      verificationToken: hashedToken,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      used: false,
+    });
+
+    await this.emailVerificationRepository.save(emailVerification);
+
+    try {
+      await this.emailService.sendVerificationEmail(
+        user.email,
+        verificationToken,
+        user.firstName,
+      );
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      throw new BadRequestException('Failed to send verification email');
+    }
+
+    return { message: 'Verification email has been sent to your email address' };
   }
 
   async getCurrentUser(userId: number): Promise<UserDto> {

@@ -42,3 +42,10 @@ export class VerifyEmailDto {
   @IsNotEmpty({ message: 'Verification token is required' })
   token: string;
 }
+
+// Resend Verification Email DTO
+export class ResendVerificationEmailDto {
+  @IsEmail({}, { message: 'Invalid email format' })
+  @IsNotEmpty({ message: 'Email is required' })
+  email: string;
+}
