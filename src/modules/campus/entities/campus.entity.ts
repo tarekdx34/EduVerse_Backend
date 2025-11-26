@@ -11,40 +11,56 @@ import { Department } from './department.entity';
 
 @Entity('campuses')
 export class Campus {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
+  @PrimaryGeneratedColumn({ name: 'campus_id', type: 'bigint' })
   id: number;
 
-  @Column({ type: 'varchar', length: 100, nullable: false })
+  @Column({
+    name: 'campus_name',
+    type: 'varchar',
+    length: 200,
+    nullable: false,
+  })
   name: string;
 
-  @Column({ type: 'varchar', length: 20, unique: true, nullable: false })
+  @Column({
+    name: 'campus_code',
+    type: 'varchar',
+    length: 20,
+    unique: true,
+    nullable: false,
+  })
   code: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'address', type: 'text', nullable: true })
   address: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ name: 'city', type: 'varchar', length: 100, nullable: true })
   city: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ name: 'country', type: 'varchar', length: 100, nullable: true })
   country: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ name: 'phone', type: 'varchar', length: 20, nullable: true })
   phone: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'email', type: 'varchar', length: 255, nullable: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 50, default: 'UTC' })
+  @Column({ name: 'timezone', type: 'varchar', length: 50, default: 'UTC' })
   timezone: string;
 
-  @Column({ type: 'enum', enum: Status, default: Status.ACTIVE })
+  @Column({
+    name: 'status',
+    type: 'enum',
+    enum: Status,
+    default: Status.ACTIVE,
+  })
   status: Status;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
   @OneToMany(() => Department, (department) => department.campus)
