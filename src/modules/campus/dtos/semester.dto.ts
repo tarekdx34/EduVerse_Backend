@@ -23,19 +23,15 @@ export class CreateSemesterDto {
   })
   code: string;
 
-  @Type(() => Date)
   @IsDateString()
   startDate: string;
 
-  @Type(() => Date)
   @IsDateString()
   endDate: string;
 
-  @Type(() => Date)
   @IsDateString()
   registrationStart: string;
 
-  @Type(() => Date)
   @IsDateString()
   registrationEnd: string;
 }

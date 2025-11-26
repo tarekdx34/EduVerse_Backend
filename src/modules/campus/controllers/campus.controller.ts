@@ -41,7 +41,7 @@ export class CampusController {
   }
 
   @Post()
-  @Roles(RoleName.IT_ADMIN)
+  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN)
   @HttpCode(201)
   async create(@Body() dto: CreateCampusDto): Promise<CampusDto> {
     return this.campusService.create(dto) as Promise<CampusDto>;
@@ -69,7 +69,7 @@ export class CampusController {
   }
 
   @Delete(':id')
-  @Roles(RoleName.IT_ADMIN)
+  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN)
   @HttpCode(204)
   async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.campusService.delete(id);

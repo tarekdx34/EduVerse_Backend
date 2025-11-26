@@ -10,25 +10,25 @@ import { SemesterStatus } from '../enums/semester-status.enum';
 @Entity('semesters')
 @Index('idx_semester_code', ['code'], { unique: true })
 export class Semester {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
+  @PrimaryGeneratedColumn('increment', { type: 'bigint', name: 'semester_id' })
   id: number;
 
-  @Column({ type: 'varchar', length: 100, nullable: false })
+  @Column({ type: 'varchar', length: 100, nullable: false, name: 'semester_name' })
   name: string;
 
-  @Column({ type: 'varchar', length: 20, unique: true, nullable: false })
+  @Column({ type: 'varchar', length: 20, unique: true, nullable: false, name: 'semester_code' })
   code: string;
 
-  @Column({ type: 'date', nullable: false })
+  @Column({ type: 'date', nullable: false, name: 'start_date' })
   startDate: Date;
 
-  @Column({ type: 'date', nullable: false })
+  @Column({ type: 'date', nullable: false, name: 'end_date' })
   endDate: Date;
 
-  @Column({ type: 'date', nullable: false })
+  @Column({ type: 'date', nullable: true, name: 'registration_start' })
   registrationStart: Date;
 
-  @Column({ type: 'date', nullable: false })
+  @Column({ type: 'date', nullable: true, name: 'registration_end' })
   registrationEnd: Date;
 
   @Column({
@@ -38,6 +38,6 @@ export class Semester {
   })
   status: SemesterStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }
