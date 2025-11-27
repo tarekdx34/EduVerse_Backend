@@ -1,729 +1,954 @@
-# NestJS LMS Project - Campus Structure Module
+Feature 2.1: Course Management System - NestJS Backend
+Project Context
+I'm continuing the LMS project. The following features are ALREADY COMPLETE: ✅ Authentication (Login, Register, JWT) ✅ User Management (Users, Roles, Permissions) ✅ Campus Structure (Campuses, Departments, Programs, Semesters)
+NOW BUILD: Course Management System
+This is Feature 2.1 - the core academic structure. Instructors create courses, define prerequisites, create sections for different semesters, and set up class schedules.
 
-I'm continuing the LMS project. Authentication and User Management (Features 1.1, 1.2) are ALREADY COMPLETE and working.
+Database Schema (Already exists in MySQL/PostgreSQL)
+Tables:
+courses
+course_id (PK, UUID/INT)
+department_id (FK)
+course_name (VARCHAR)
+course_code (VARCHAR, unique per department)
+course_description (TEXT)
+credits (INT)
+level (ENUM: FRESHMAN, SOPHOMORE, JUNIOR, SENIOR, GRADUATE)
+syllabus_url (VARCHAR, nullable)
+status (ENUM: ACTIVE, INACTIVE, ARCHIVED)
+created_at (TIMESTAMP)
+updated_at (TIMESTAMP)
+deleted_at (TIMESTAMP, nullable)
+course_prerequisites
+prerequisite_id (PK, UUID/INT)
+course_id (FK)
+prerequisite_course_id (FK)
+is_mandatory (BOOLEAN)
+created_at (TIMESTAMP)
+UNIQUE(course_id, prerequisite_course_id)
+course_sections
+section_id (PK, UUID/INT)
+course_id (FK)
+semester_id (FK)
+section_number (VARCHAR)
+max_capacity (INT)
+current_enrollment (INT, default 0)
+location (VARCHAR, nullable)
+status (ENUM: OPEN, CLOSED, FULL, CANCELLED)
+created_at (TIMESTAMP)
+updated_at (TIMESTAMP)
+UNIQUE(course_id, semester_id, section_number)
+course_schedules
+schedule_id (PK, UUID/INT)
+section_id (FK)
+day_of_week (ENUM: MONDAY-SUNDAY)
+start_time (TIME)
+end_time (TIME)
+room (VARCHAR)
+building (VARCHAR)
+schedule_type (ENUM: LECTURE, LAB, TUTORIAL, EXAM)
+created_at (TIMESTAMP)
 
-## WHAT EXISTS:
+Course Hierarchy
+Department → Course → Course Section (per semester) → Schedule (when it meets)
+Example:
+Course: "Data Structures" (CS201)
+Prerequisites: "Introduction to Programming" (CS101)
+Section: CS201-01 (Fall 2024, max 40 students)
+Schedule: Monday 10:00-11:30 (Lecture), Wednesday 14:00-16:00 (Lab)
 
-✅ User authentication with JWT
-✅ User management with RBAC
-✅ Role and permission system
-✅ Admin dashboard functionality
+Requirements
+Instructors can create courses in their department
+Set course prerequisites (can have multiple)
+Create sections for specific semesters
+Each section has enrollment capacity
+Define class schedules (days, times, rooms)
+Track current enrollment count
+Support for lecture, lab, tutorial, exam schedules
+Courses can be archived (soft delete)
 
-## NOW BUILD: Campus Structure (Multi-Campus Support)
+API Endpoints to Implement
+COURSE MANAGEMENT
+1. GET /api/courses - List all courses
+Query params: departmentId, level, status, search, page, limit
+Response: Paginated CourseDto[]
+Access: All authenticated users
+Include department info in response
+2. POST /api/courses - Create new course
+Request Body: CreateCourseDto
+typescript
+ {
+    departmentId: string;
+    name: string;
+    code: string;
+    description: string;
+    credits: number;
+    level: CourseLevel;
+    syllabusUrl?: string;
+  }
+Response: CourseDto (201 Created)
+Access: INSTRUCTOR, ADMIN, IT_ADMIN
+Validation: Instructor must belong to the department
+3. GET /api/courses/:id - Get course details
+Include prerequisites
+Include section count
+Include department info
+Response: CourseDetailDto
+Access: All authenticated users
+4. PATCH /api/courses/:id - Update course
+Request Body: UpdateCourseDto (Partial of CreateCourseDto)
+Response: CourseDto
+Access: INSTRUCTOR (course creator), ADMIN, IT_ADMIN
+5. DELETE /api/courses/:id - Soft delete course
+Sets deleted_at timestamp
+Cannot delete if active sections exist
+Response: 204 No Content
+Access: ADMIN, IT_ADMIN
+6. GET /api/departments/:deptId/courses - Get courses by department
+Response: CourseDto[]
+Access: All authenticated users
 
-### PROJECT CONTEXT:
+PREREQUISITE MANAGEMENT
+7. GET /api/courses/:id/prerequisites - Get course prerequisites
+Response: PrerequisiteDto[]
+Include prerequisite course details
+Access: All authenticated users
+8. POST /api/courses/:id/prerequisites - Add prerequisite
+Request Body: CreatePrerequisiteDto
+typescript
+ {
+    prerequisiteCourseId: string;
+    isMandatory: boolean;
+  }
+Prevent circular dependencies (implement detection algorithm)
+Response: PrerequisiteDto (201 Created)
+Access: INSTRUCTOR (course creator), ADMIN, IT_ADMIN
+9. DELETE /api/courses/:id/prerequisites/:prereqId - Remove prerequisite
+Response: 204 No Content
+Access: INSTRUCTOR (course creator), ADMIN, IT_ADMIN
 
-This is Feature 1.3 - building the institutional hierarchy. The platform supports multiple campuses, each with departments, programs, and semesters.
+SECTION MANAGEMENT
+10. GET /api/courses/:courseId/sections - Get sections for a course
+Query params: semesterId, status
+Response: CourseSectionDto[]
+Include course and semester info
+Access: All authenticated users
+11. POST /api/sections - Create new section
+Request Body: CreateSectionDto
+typescript
+ {
+    courseId: string;
+    semesterId: string;
+    sectionNumber: string;
+    maxCapacity: number;
+    location?: string;
+  }
+Auto-set currentEnrollment to 0
+Status defaults to OPEN
+Response: CourseSectionDto (201 Created)
+Access: INSTRUCTOR, ADMIN, IT_ADMIN
+12. GET /api/sections/:id - Get section details
+Include course info, semester info, schedules
+Include instructor(s) info (if assigned - for future features)
+Response: CourseSectionDto
+Access: All authenticated users
+13. PATCH /api/sections/:id - Update section
+Can change capacity, location, status
+Cannot change course or semester
+Request Body: UpdateSectionDto
+Response: CourseSectionDto
+Access: INSTRUCTOR (assigned to section), ADMIN, IT_ADMIN
+14. DELETE /api/sections/:id - Delete section
+Cannot delete if students enrolled (currentEnrollment > 0)
+Response: 204 No Content
+Access: ADMIN, IT_ADMIN
+15. GET /api/semesters/:semesterId/sections - Get all sections in semester
+Response: CourseSectionDto[]
+Access: All authenticated users
 
-### DATABASE SCHEMA (Already exists in MySQL):
-
-1. **campuses**: campus_id, campus_name, campus_code, address, city, country, phone, email, timezone, status, created_at, updated_at
-
-2. **departments**: department_id, campus_id, department_name, department_code, head_of_department_id, description, status, created_at, updated_at
-
-3. **programs**: program_id, department_id, program_name, program_code, degree_type (bachelor/master/phd/diploma/certificate), duration_years, description, status
-
-4. **semesters**: semester_id, semester_name, semester_code, start_date, end_date, registration_start, registration_end, status (upcoming/active/completed)
-
-### HIERARCHY:
-
+SCHEDULE MANAGEMENT
+16. POST /api/sections/:id/schedules - Add schedule to section
+Request Body: CreateScheduleDto
+typescript
+ {
+    dayOfWeek: DayOfWeek;
+    startTime: string; // "HH:mm" format
+    endTime: string;   // "HH:mm" format
+    room: string;
+    building: string;
+    scheduleType: ScheduleType;
+  }
 ```
-Campus → Departments → Programs
-Semesters are global across all campuses
-```
+- Can have multiple schedules (e.g., MWF for lecture, T for lab)
+- Validate no time conflicts for same room/building
+- Response: `CourseScheduleDto` (201 Created)
+- Access: INSTRUCTOR (assigned to section), ADMIN, IT_ADMIN
 
-### REQUIREMENTS:
+**17. PATCH /api/schedules/:id - Update schedule**
+- Request Body: `UpdateScheduleDto`
+- Validate time conflicts
+- Response: `CourseScheduleDto`
+- Access: INSTRUCTOR, ADMIN, IT_ADMIN
 
-1. Multi-campus support
-2. Each campus has multiple departments
-3. Each department has multiple programs
-4. Programs have degree types (Bachelor, Master, PhD, etc.)
-5. Departments can have a head (links to User with INSTRUCTOR role)
-6. Semester management (can overlap but typically sequential)
-7. Support for different timezones per campus
-8. Active/Inactive status for all entities
-
----
-
-## API ENDPOINTS TO IMPLEMENT:
-
-### CAMPUS MANAGEMENT:
-
-**1. GET /api/campuses** - List all campuses
-
-- Query params: `status` (active/inactive)
-- Response: `CampusDto[]`
-- Access: All authenticated users can view
-- Use `@Query()` decorator for filters
-
-**2. POST /api/campuses** - Create new campus
-
-- Request: `CreateCampusDto`
-- Response: Created `CampusDto` (201)
-- Access: IT_ADMIN only
-- Use `@Roles('IT_ADMIN')` guard
-
-**3. GET /api/campuses/:id** - Get campus by ID
-
-- Include department count
-- Response: `CampusDto`
-- Access: All authenticated users
-- Use `@Param('id', ParseIntPipe)`
-
-**4. PUT /api/campuses/:id** - Update campus
-
-- Request: `UpdateCampusDto`
-- Response: Updated `CampusDto`
-- Access: IT_ADMIN, ADMIN (own campus only)
-- Check campus ownership for ADMIN users
-
-**5. DELETE /api/campuses/:id** - Delete campus
-
-- Check if campus has departments first
+**18. DELETE /api/schedules/:id - Delete schedule**
 - Response: 204 No Content
-- Access: IT_ADMIN only
-- Throw `ConflictException` if has departments
+- Access: INSTRUCTOR, ADMIN, IT_ADMIN
 
-### DEPARTMENT MANAGEMENT:
-
-**6. GET /api/campuses/:campusId/departments** - List departments by campus
-
-- Response: `DepartmentDto[]`
+**19. GET /api/sections/:id/schedules - Get schedules for section**
+- Response: `CourseScheduleDto[]`
 - Access: All authenticated users
-- Use nested route
-
-**7. POST /api/departments** - Create new department
-
-- Request: `CreateDepartmentDto` {campusId, name, code, headOfDepartmentId?, description?}
-- Verify headOfDepartmentId is a user with INSTRUCTOR role
-- Response: Created `DepartmentDto` (201)
-- Access: IT_ADMIN, ADMIN (own campus only)
-
-**8. GET /api/departments/:id** - Get department by ID
-
-- Include head info (name, email) using relations
-- Include program count
-- Response: `DepartmentDto`
-- Access: All authenticated users
-
-**9. PUT /api/departments/:id** - Update department
-
-- Can change head of department
-- Request: `UpdateDepartmentDto`
-- Response: Updated `DepartmentDto`
-- Access: IT_ADMIN, ADMIN (own campus only)
-
-**10. DELETE /api/departments/:id** - Delete department - Check if department has programs first - Response: 204 No Content - Access: IT_ADMIN, ADMIN (own campus only)
-
-### PROGRAM MANAGEMENT:
-
-**11. GET /api/departments/:deptId/programs** - List programs by department - Response: `ProgramDto[]` - Access: All authenticated users
-
-**12. POST /api/programs** - Create new program - Request: `CreateProgramDto` {departmentId, name, code, degreeType, durationYears, description?} - Response: Created `ProgramDto` (201) - Access: IT_ADMIN, ADMIN
-
-**13. GET /api/programs/:id** - Get program by ID - Include department and campus info using relations - Response: `ProgramDto` - Access: All authenticated users
-
-**14. PUT /api/programs/:id** - Update program - Request: `UpdateProgramDto` - Response: Updated `ProgramDto` - Access: IT_ADMIN, ADMIN
-
-**15. DELETE /api/programs/:id** - Delete program - Check if program has enrolled students first (we'll implement this later) - Response: 204 No Content - Access: IT_ADMIN, ADMIN
-
-### SEMESTER MANAGEMENT:
-
-**16. GET /api/semesters** - List all semesters - Query params: `status` (upcoming/active/completed), `year` - Response: `SemesterDto[]` - Access: All authenticated users
-
-**17. POST /api/semesters** - Create new semester - Request: `CreateSemesterDto` {name, code, startDate, endDate, registrationStart, registrationEnd} - Auto-set status based on dates - Response: Created `SemesterDto` (201) - Access: IT_ADMIN, ADMIN
-
-**18. GET /api/semesters/:id** - Get semester by ID - Response: `SemesterDto` - Access: All authenticated users
-
-**19. PUT /api/semesters/:id** - Update semester - Can change dates - Auto-update status based on current date - Request: `UpdateSemesterDto` - Response: Updated `SemesterDto` - Access: IT_ADMIN, ADMIN
-
-**20. DELETE /api/semesters/:id** - Delete semester - Check if semester has courses first (we'll implement this later) - Response: 204 No Content - Access: IT_ADMIN only
-
-**21. GET /api/semesters/current** - Get current active semester - Based on current date falling between start_date and end_date - Response: `SemesterDto` - Access: All authenticated users - Use custom repository query
 
 ---
 
-## ENTITIES TO CREATE (TypeORM):
+## NestJS Module Structure
 
-### 1. Campus Entity
-
-**File**: `campus.entity.ts`
-
+### Modules to Create:
 ```
-Fields:
-- id: number (PrimaryGeneratedColumn, campus_id)
-- name: string (Column, campus_name)
-- code: string (Column, campus_code, unique)
-- address: string (Column, nullable)
-- city: string (Column, nullable)
-- country: string (Column, nullable)
-- phone: string (Column, nullable)
-- email: string (Column, nullable)
-- timezone: string (Column, default 'UTC')
-- status: Status enum (Column, default ACTIVE)
-- createdAt: Date (CreateDateColumn)
-- updatedAt: Date (UpdateDateColumn)
+courses/
+├── courses.module.ts
+├── entities/
+│   ├── course.entity.ts
+│   ├── course-prerequisite.entity.ts
+│   ├── course-section.entity.ts
+│   └── course-schedule.entity.ts
+├── dto/
+│   ├── course/
+│   │   ├── create-course.dto.ts
+│   │   ├── update-course.dto.ts
+│   │   ├── course.dto.ts
+│   │   └── course-detail.dto.ts
+│   ├── prerequisite/
+│   │   ├── create-prerequisite.dto.ts
+│   │   └── prerequisite.dto.ts
+│   ├── section/
+│   │   ├── create-section.dto.ts
+│   │   ├── update-section.dto.ts
+│   │   └── course-section.dto.ts
+│   └── schedule/
+│       ├── create-schedule.dto.ts
+│       ├── update-schedule.dto.ts
+│       └── course-schedule.dto.ts
+├── enums/
+│   ├── course-level.enum.ts
+│   ├── course-status.enum.ts
+│   ├── section-status.enum.ts
+│   ├── day-of-week.enum.ts
+│   └── schedule-type.enum.ts
+├── services/
+│   ├── courses.service.ts
+│   ├── course-sections.service.ts
+│   └── course-schedules.service.ts
+├── controllers/
+│   ├── courses.controller.ts
+│   ├── course-sections.controller.ts
+│   └── course-schedules.controller.ts
+└── exceptions/
+    ├── course-not-found.exception.ts
+    ├── circular-prerequisite.exception.ts
+    ├── schedule-conflict.exception.ts
+    ├── cannot-delete-course.exception.ts
+    └── section-capacity-exceeded.exception.ts
 
-Relationships:
-- @OneToMany(() => Department, department => department.campus)
-  departments: Department[]
+Entities to Create (TypeORM)
+1. Course Entity
+typescript
+@Entity('courses')
+export class Course {
+  @PrimaryGeneratedColumn('uuid')
+  courseId: string;
 
-Indexes:
-- Unique index on campus_code
-```
-
-### 2. Department Entity
-
-**File**: `department.entity.ts`
-
-```
-Fields:
-- id: number (PrimaryGeneratedColumn, department_id)
-- campusId: number (Column, campus_id)
-- name: string (Column, department_name)
-- code: string (Column, department_code)
-- headOfDepartmentId: number (Column, nullable, head_of_department_id)
-- description: string (Column, text, nullable)
-- status: Status enum (Column, default ACTIVE)
-- createdAt: Date (CreateDateColumn)
-- updatedAt: Date (UpdateDateColumn)
-
-Relationships:
-- @ManyToOne(() => Campus, campus => campus.departments, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'campus_id' })
-  campus: Campus
-
-- @OneToMany(() => Program, program => program.department)
-  programs: Program[]
-
-- @ManyToOne(() => User) // for head of department
-  @JoinColumn({ name: 'head_of_department_id' })
-  head: User
-
-Indexes:
-- Unique composite index on (campus_id, department_code)
-```
-
-### 3. Program Entity
-
-**File**: `program.entity.ts`
-
-```
-Fields:
-- id: number (PrimaryGeneratedColumn, program_id)
-- departmentId: number (Column, department_id)
-- name: string (Column, program_name)
-- code: string (Column, program_code)
-- degreeType: DegreeType enum (Column, degree_type)
-- durationYears: number (Column, duration_years)
-- description: string (Column, text, nullable)
-- status: Status enum (Column, default ACTIVE)
-- createdAt: Date (CreateDateColumn)
-- updatedAt: Date (UpdateDateColumn)
-
-Relationships:
-- @ManyToOne(() => Department, department => department.programs, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Department)
   @JoinColumn({ name: 'department_id' })
-  department: Department
+  department: Department;
 
+  @Column()
+  courseName: string;
+
+  @Column()
+  courseCode: string;
+
+  @Column('text')
+  courseDescription: string;
+
+  @Column('int')
+  credits: number;
+
+  @Column({ type: 'enum', enum: CourseLevel })
+  level: CourseLevel;
+
+  @Column({ nullable: true })
+  syllabusUrl: string;
+
+  @Column({ type: 'enum', enum: CourseStatus, default: CourseStatus.ACTIVE })
+  status: CourseStatus;
+
+  @OneToMany(() => CourseSection, section => section.course)
+  sections: CourseSection[];
+
+  @OneToMany(() => CoursePrerequisite, prereq => prereq.course)
+  prerequisites: CoursePrerequisite[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+}
 Indexes:
-- Unique composite index on (department_id, program_code)
-```
+Unique index on (department_id, course_code)
+Index on department_id
+Index on status
+Index on deleted_at (for soft delete queries)
+2. CoursePrerequisite Entity
+typescript
+@Entity('course_prerequisites')
+@Unique(['course', 'prerequisiteCourse'])
+export class CoursePrerequisite {
+  @PrimaryGeneratedColumn('uuid')
+  prerequisiteId: string;
 
-### 4. Semester Entity
+  @ManyToOne(() => Course, course => course.prerequisites)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
-**File**: `semester.entity.ts`
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'prerequisite_course_id' })
+  prerequisiteCourse: Course;
 
-```
-Fields:
-- id: number (PrimaryGeneratedColumn, semester_id)
-- name: string (Column, semester_name)
-- code: string (Column, semester_code, unique)
-- startDate: Date (Column, start_date, type: 'date')
-- endDate: Date (Column, end_date, type: 'date')
-- registrationStart: Date (Column, registration_start, type: 'date')
-- registrationEnd: Date (Column, registration_end, type: 'date')
-- status: SemesterStatus enum (Column)
-- createdAt: Date (CreateDateColumn)
+  @Column({ default: true })
+  isMandatory: boolean;
 
+  @CreateDateColumn()
+  createdAt: Date;
+}
+3. CourseSection Entity
+typescript
+@Entity('course_sections')
+@Unique(['course', 'semester', 'sectionNumber'])
+export class CourseSection {
+  @PrimaryGeneratedColumn('uuid')
+  sectionId: string;
+
+  @ManyToOne(() => Course, course => course.sections)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
+
+  @ManyToOne(() => Semester)
+  @JoinColumn({ name: 'semester_id' })
+  semester: Semester;
+
+  @Column()
+  sectionNumber: string;
+
+  @Column('int')
+  maxCapacity: number;
+
+  @Column('int', { default: 0 })
+  currentEnrollment: number;
+
+  @Column({ nullable: true })
+  location: string;
+
+  @Column({ type: 'enum', enum: SectionStatus, default: SectionStatus.OPEN })
+  status: SectionStatus;
+
+  @OneToMany(() => CourseSchedule, schedule => schedule.section)
+  schedules: CourseSchedule[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
 Indexes:
-- Unique index on semester_code
-```
+Index on course_id
+Index on semester_id
+Index on status
+4. CourseSchedule Entity
+typescript
+@Entity('course_schedules')
+export class CourseSchedule {
+  @PrimaryGeneratedColumn('uuid')
+  scheduleId: string;
 
----
+  @ManyToOne(() => CourseSection, section => section.schedules)
+  @JoinColumn({ name: 'section_id' })
+  section: CourseSection;
 
-## ENUMS TO CREATE:
+  @Column({ type: 'enum', enum: DayOfWeek })
+  dayOfWeek: DayOfWeek;
 
-### 1. Status Enum
+  @Column('time')
+  startTime: string;
 
-**File**: `status.enum.ts`
+  @Column('time')
+  endTime: string;
 
-```typescript
-export enum Status {
+  @Column()
+  room: string;
+
+  @Column()
+  building: string;
+
+  @Column({ type: 'enum', enum: ScheduleType })
+  scheduleType: ScheduleType;
+
+  @CreateDateColumn()
+  createdAt: Date;
+}
+Indexes:
+Index on section_id
+Composite index on (building, room, day_of_week) for conflict checking
+
+Enums to Create
+typescript
+export enum CourseLevel {
+  FRESHMAN = 'freshman',
+  SOPHOMORE = 'sophomore',
+  JUNIOR = 'junior',
+  SENIOR = 'senior',
+  GRADUATE = 'graduate'
+}
+
+export enum CourseStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
+  ARCHIVED = 'archived'
 }
-```
 
-### 2. DegreeType Enum
-
-**File**: `degree-type.enum.ts`
-
-```typescript
-export enum DegreeType {
-  BACHELOR = 'bachelor',
-  MASTER = 'master',
-  PHD = 'phd',
-  DIPLOMA = 'diploma',
-  CERTIFICATE = 'certificate',
+export enum SectionStatus {
+  OPEN = 'open',
+  CLOSED = 'closed',
+  FULL = 'full',
+  CANCELLED = 'cancelled'
 }
-```
 
-### 3. SemesterStatus Enum
-
-**File**: `semester-status.enum.ts`
-
-```typescript
-export enum SemesterStatus {
-  UPCOMING = 'upcoming',
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
+export enum DayOfWeek {
+  MONDAY = 'monday',
+  TUESDAY = 'tuesday',
+  WEDNESDAY = 'wednesday',
+  THURSDAY = 'thursday',
+  FRIDAY = 'friday',
+  SATURDAY = 'saturday',
+  SUNDAY = 'sunday'
 }
-```
 
----
-
-## DTOs TO CREATE (with class-validator):
-
-### Campus DTOs:
-
-**File**: `campus.dto.ts`
-
-1. **CreateCampusDto**
-   - name: string (@IsString, @IsNotEmpty, @Length(1, 100))
-   - code: string (@IsString, @IsNotEmpty, @Matches(/^[A-Z0-9]{2,20}$/))
-   - address?: string (@IsOptional, @IsString)
-   - city?: string (@IsOptional, @IsString)
-   - country?: string (@IsOptional, @IsString)
-   - phone?: string (@IsOptional, @Matches phone pattern)
-   - email?: string (@IsOptional, @IsEmail)
-   - timezone?: string (@IsOptional, @IsString)
-   - status?: Status (@IsOptional, @IsEnum(Status))
-
-2. **UpdateCampusDto** - extends PartialType(CreateCampusDto)
-
-3. **CampusDto** (response)
-   - All fields from entity
-   - departmentCount?: number (optional, calculated)
-
-### Department DTOs:
-
-**File**: `department.dto.ts`
-
-1. **CreateDepartmentDto**
-   - campusId: number (@IsInt, @IsPositive)
-   - name: string (@IsString, @IsNotEmpty, @Length(1, 100))
-   - code: string (@IsString, @IsNotEmpty, @Matches(/^[A-Z0-9]{2,20}$/))
-   - headOfDepartmentId?: number (@IsOptional, @IsInt, @IsPositive)
-   - description?: string (@IsOptional, @IsString)
-   - status?: Status (@IsOptional, @IsEnum(Status))
-
-2. **UpdateDepartmentDto** - extends PartialType(CreateDepartmentDto)
-   - Remove campusId (cannot change campus after creation)
-
-3. **DepartmentDto** (response)
-   - All fields from entity
-   - campusName: string
-   - headName?: string
-   - headEmail?: string
-   - programCount?: number
-
-### Program DTOs:
-
-**File**: `program.dto.ts`
-
-1. **CreateProgramDto**
-   - departmentId: number (@IsInt, @IsPositive)
-   - name: string (@IsString, @IsNotEmpty, @Length(1, 100))
-   - code: string (@IsString, @IsNotEmpty, @Matches(/^[A-Z0-9]{2,20}$/))
-   - degreeType: DegreeType (@IsEnum(DegreeType))
-   - durationYears: number (@IsInt, @IsPositive, @Min(1), @Max(10))
-   - description?: string (@IsOptional, @IsString)
-   - status?: Status (@IsOptional, @IsEnum(Status))
-
-2. **UpdateProgramDto** - extends PartialType(CreateProgramDto)
-   - Remove departmentId
-
-3. **ProgramDto** (response)
-   - All fields from entity
-   - departmentName: string
-   - campusName: string
-
-### Semester DTOs:
-
-**File**: `semester.dto.ts`
-
-1. **CreateSemesterDto**
-   - name: string (@IsString, @IsNotEmpty, @Length(1, 100))
-   - code: string (@IsString, @IsNotEmpty, @Matches(/^[A-Z0-9]{2,20}$/))
-   - startDate: Date (@IsDateString or @IsDate with @Type)
-   - endDate: Date (@IsDateString or @IsDate with @Type)
-   - registrationStart: Date (@IsDateString)
-   - registrationEnd: Date (@IsDateString)
-
-2. **UpdateSemesterDto** - extends PartialType(CreateSemesterDto)
-
-3. **SemesterDto** (response)
-   - All fields from entity
-
----
-
-## SERVICES TO CREATE:
-
-### 1. CampusService
-
-**File**: `campus.service.ts`
-
-Methods:
-
-- `findAll(status?: Status): Promise<Campus[]>` - with optional filter
-- `findById(id: number): Promise<Campus>` - throw NotFoundException
-- `create(dto: CreateCampusDto): Promise<Campus>` - check unique code
-- `update(id: number, dto: UpdateCampusDto): Promise<Campus>`
-- `delete(id: number): Promise<void>` - check for departments first
-- `getCampusWithDepartmentCount(id: number): Promise<CampusDto>`
-
-Business Logic:
-
-- Validate unique campus_code before create/update
-- Check if campus has departments before delete
-- Use QueryBuilder for department count
-
-### 2. DepartmentService
-
-**File**: `department.service.ts`
-
-Methods:
-
-- `findByCampusId(campusId: number): Promise<Department[]>`
-- `findById(id: number): Promise<Department>` - with relations
-- `create(dto: CreateDepartmentDto): Promise<Department>` - validate head
-- `update(id: number, dto: UpdateDepartmentDto): Promise<Department>`
-- `delete(id: number): Promise<void>` - check for programs
-- `validateHeadOfDepartment(userId: number): Promise<void>` - check INSTRUCTOR role
-
-Business Logic:
-
-- Validate unique (campus_id, department_code)
-- Verify head is INSTRUCTOR or ADMIN role before assigning
-- Check if department has programs before delete
-- Load campus and head relations for responses
-
-### 3. ProgramService
-
-**File**: `program.service.ts`
-
-Methods:
-
-- `findByDepartmentId(departmentId: number): Promise<Program[]>`
-- `findById(id: number): Promise<Program>` - with department and campus
-- `create(dto: CreateProgramDto): Promise<Program>`
-- `update(id: number, dto: UpdateProgramDto): Promise<Program>`
-- `delete(id: number): Promise<void>` - check for students (future)
-
-Business Logic:
-
-- Validate unique (department_id, program_code)
-- Validate durationYears is reasonable (1-10 years)
-- Load department and campus relations
-
-### 4. SemesterService
-
-**File**: `semester.service.ts`
-
-Methods:
-
-- `findAll(status?: SemesterStatus, year?: number): Promise<Semester[]>`
-- `findById(id: number): Promise<Semester>`
-- `findCurrentSemester(): Promise<Semester>` - based on current date
-- `create(dto: CreateSemesterDto): Promise<Semester>` - auto-calculate status
-- `update(id: number, dto: UpdateSemesterDto): Promise<Semester>` - recalculate status
-- `delete(id: number): Promise<void>` - check for courses (future)
-- `calculateStatus(startDate: Date, endDate: Date): SemesterStatus` - helper method
-
-Business Logic:
-
-- Validate unique semester_code
-- Validate date ranges (start < end, registration dates logical)
-- Auto-calculate status:
-  - UPCOMING: current date < start_date
-  - ACTIVE: start_date <= current date <= end_date
-  - COMPLETED: current date > end_date
-- Filter by year using YEAR(start_date)
-
----
-
-## CONTROLLERS TO CREATE:
-
-### 1. CampusController
-
-**File**: `campus.controller.ts`
-
-```
-@Controller('api/campuses')
-@UseGuards(JwtAuthGuard, RolesGuard)
-class CampusController
-
-Endpoints:
-- GET / - @Roles('IT_ADMIN', 'ADMIN', 'INSTRUCTOR', 'TA', 'STUDENT')
-- POST / - @Roles('IT_ADMIN')
-- GET /:id - @Roles('IT_ADMIN', 'ADMIN', 'INSTRUCTOR', 'TA', 'STUDENT')
-- PUT /:id - @Roles('IT_ADMIN', 'ADMIN') + check campus ownership
-- DELETE /:id - @Roles('IT_ADMIN')
-```
-
-### 2. DepartmentController
-
-**File**: `department.controller.ts`
-
-```
-@Controller('api')
-@UseGuards(JwtAuthGuard, RolesGuard)
-class DepartmentController
-
-Endpoints:
-- GET /campuses/:campusId/departments - All authenticated
-- POST /departments - @Roles('IT_ADMIN', 'ADMIN')
-- GET /departments/:id - All authenticated
-- PUT /departments/:id - @Roles('IT_ADMIN', 'ADMIN')
-- DELETE /departments/:id - @Roles('IT_ADMIN', 'ADMIN')
-```
-
-### 3. ProgramController
-
-**File**: `program.controller.ts`
-
-```
-@Controller('api')
-@UseGuards(JwtAuthGuard, RolesGuard)
-class ProgramController
-
-Endpoints:
-- GET /departments/:deptId/programs - All authenticated
-- POST /programs - @Roles('IT_ADMIN', 'ADMIN')
-- GET /programs/:id - All authenticated
-- PUT /programs/:id - @Roles('IT_ADMIN', 'ADMIN')
-- DELETE /programs/:id - @Roles('IT_ADMIN', 'ADMIN')
-```
-
-### 4. SemesterController
-
-**File**: `semester.controller.ts`
-
-```
-@Controller('api/semesters')
-@UseGuards(JwtAuthGuard, RolesGuard)
-class SemesterController
-
-Endpoints:
-- GET / - All authenticated, with query filters
-- GET /current - All authenticated
-- POST / - @Roles('IT_ADMIN', 'ADMIN')
-- GET /:id - All authenticated
-- PUT /:id - @Roles('IT_ADMIN', 'ADMIN')
-- DELETE /:id - @Roles('IT_ADMIN')
-```
-
----
-
-## CUSTOM EXCEPTIONS:
-
-**File**: `campus.exceptions.ts`
-
-Create custom exceptions extending HttpException or built-in exceptions:
-
-1. `CampusNotFoundException` extends NotFoundException
-2. `DepartmentNotFoundException` extends NotFoundException
-3. `ProgramNotFoundException` extends NotFoundException
-4. `SemesterNotFoundException` extends NotFoundException
-5. `CampusCodeAlreadyExistsException` extends ConflictException
-6. `DepartmentCodeAlreadyExistsException` extends ConflictException
-7. `ProgramCodeAlreadyExistsException` extends ConflictException
-8. `InvalidHeadOfDepartmentException` extends BadRequestException
-9. `CannotDeleteCampusWithDepartmentsException` extends ConflictException
-10. `CannotDeleteDepartmentWithProgramsException` extends ConflictException
-11. `InvalidDateRangeException` extends BadRequestException
-
----
-
-## SECURITY IMPLEMENTATION:
-
-### Guards and Decorators:
-
-1. **Roles Decorator**
-
-```typescript
-// @Roles('IT_ADMIN', 'ADMIN')
-export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
-```
-
-2. **RolesGuard**
-
-```typescript
-// Check if user has required role
-// Access user from request.user (set by JwtAuthGuard)
-```
-
-3. **Campus Ownership Check**
-   For ADMIN users:
-
-- Check if user's campus_id matches the campus being accessed/modified
-- IT_ADMIN bypasses this check
-- Implement in service layer or custom guard
-
----
-
-## MODULE CONFIGURATION:
-
-**File**: `campus.module.ts`
-
-```typescript
+export enum ScheduleType {
+  LECTURE = 'lecture',
+  LAB = 'lab',
+  TUTORIAL = 'tutorial',
+  EXAM = 'exam'
+}
+
+DTOs with Class-Validator
+Course DTOs
+typescript
+export class CreateCourseDto {
+  @IsUUID()
+  @IsNotEmpty()
+  departmentId: string;
+
+  @IsString()
+  @Length(3, 200)
+  name: string;
+
+  @IsString()
+  @Length(2, 20)
+  @Matches(/^[A-Z0-9]+$/, { message: 'Course code must be alphanumeric uppercase' })
+  code: string;
+
+  @IsString()
+  @Length(10, 2000)
+  description: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(6)
+  credits: number;
+
+  @IsEnum(CourseLevel)
+  level: CourseLevel;
+
+  @IsUrl()
+  @IsOptional()
+  syllabusUrl?: string;
+}
+
+export class UpdateCourseDto extends PartialType(CreateCourseDto) {}
+
+export class CourseDto {
+  courseId: string;
+  departmentId: string;
+  departmentName?: string;
+  name: string;
+  code: string;
+  description: string;
+  credits: number;
+  level: CourseLevel;
+  syllabusUrl?: string;
+  status: CourseStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class CourseDetailDto extends CourseDto {
+  prerequisites: PrerequisiteDto[];
+  sectionCount: number;
+}
+Prerequisite DTOs
+typescript
+export class CreatePrerequisiteDto {
+  @IsUUID()
+  @IsNotEmpty()
+  prerequisiteCourseId: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isMandatory?: boolean = true;
+}
+
+export class PrerequisiteDto {
+  prerequisiteId: string;
+  courseId: string;
+  prerequisiteCourseId: string;
+  prerequisiteCourseName: string;
+  prerequisiteCourseCode: string;
+  isMandatory: boolean;
+  createdAt: Date;
+}
+Section DTOs
+typescript
+export class CreateSectionDto {
+  @IsUUID()
+  @IsNotEmpty()
+  courseId: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  semesterId: string;
+
+  @IsString()
+  @Length(1, 10)
+  sectionNumber: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  maxCapacity: number;
+
+  @IsString()
+  @IsOptional()
+  location?: string;
+}
+
+export class UpdateSectionDto {
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  @IsOptional()
+  maxCapacity?: number;
+
+  @IsString()
+  @IsOptional()
+  location?: string;
+
+  @IsEnum(SectionStatus)
+  @IsOptional()
+  status?: SectionStatus;
+}
+
+export class CourseSectionDto {
+  sectionId: string;
+  courseId: string;
+  courseName: string;
+  courseCode: string;
+  semesterId: string;
+  semesterName: string;
+  sectionNumber: string;
+  maxCapacity: number;
+  currentEnrollment: number;
+  location?: string;
+  status: SectionStatus;
+  schedules?: CourseScheduleDto[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+Schedule DTOs
+typescript
+export class CreateScheduleDto {
+  @IsEnum(DayOfWeek)
+  dayOfWeek: DayOfWeek;
+
+  @IsString()
+  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+    message: 'Start time must be in HH:mm format'
+  })
+  startTime: string;
+
+  @IsString()
+  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+    message: 'End time must be in HH:mm format'
+  })
+  endTime: string;
+
+  @IsString()
+  @Length(1, 50)
+  room: string;
+
+  @IsString()
+  @Length(1, 100)
+  building: string;
+
+  @IsEnum(ScheduleType)
+  scheduleType: ScheduleType;
+}
+
+export class UpdateScheduleDto extends PartialType(CreateScheduleDto) {}
+
+export class CourseScheduleDto {
+  scheduleId: string;
+  sectionId: string;
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  endTime: string;
+  room: string;
+  building: string;
+  scheduleType: ScheduleType;
+  createdAt: Date;
+}
+
+Business Logic Requirements
+CoursesService
+Course code uniqueness: Validate course code is unique within department
+Instructor authorization: Only instructors in the same department can create courses
+Soft delete validation: Cannot delete course if it has active sections (currentEnrollment > 0 or status = OPEN)
+Search functionality: Implement text search across name, code, description
+Pagination: Use TypeORM pagination for listing courses
+Prerequisites Logic (Circular Dependency Detection)
+Implement graph-based cycle detection:
+typescript
+async detectCircularPrerequisite(courseId: string, prerequisiteCourseId: string): Promise<boolean> {
+  // Use DFS or BFS to detect if adding this prerequisite creates a cycle
+  // A → B, B → C, trying to add C → A would create a cycle
+  // Return true if cycle detected, false otherwise
+}
+Algorithm steps:
+Start from prerequisiteCourseId
+Traverse all its prerequisites recursively
+If we encounter courseId in the traversal, cycle detected
+Use visited set to avoid infinite loops
+Throw CircularPrerequisiteException if cycle found
+Section Status Management
+Auto-update section status:
+typescript
+async updateSectionStatus(sectionId: string): Promise<void> {
+  const section = await this.findSection(sectionId);
+  
+  if (section.currentEnrollment >= section.maxCapacity) {
+    section.status = SectionStatus.FULL;
+  } else if (section.status === SectionStatus.FULL && 
+             section.currentEnrollment < section.maxCapacity) {
+    section.status = SectionStatus.OPEN;
+  }
+  
+  await this.sectionRepository.save(section);
+}
+Schedule Conflict Detection
+typescript
+async checkScheduleConflict(
+  building: string,
+  room: string,
+  dayOfWeek: DayOfWeek,
+  startTime: string,
+  endTime: string,
+  excludeScheduleId?: string
+): Promise<boolean> {
+  // Find all schedules for the same room, building, and day
+  // Check if time ranges overlap
+  // Time overlap exists if: (start1 < end2) AND (start2 < end1)
+  // Return true if conflict found
+}
+Time validation:
+Parse time strings to compare: startTime < endTime
+Convert to minutes for easier comparison
+Check overlapping intervals
+
+Security & Guards
+Role-Based Access Control
+Use NestJS Guards with @UseGuards(JwtAuthGuard, RolesGuard):
+typescript
+// courses.controller.ts
+@Controller('api/courses')
+@UseGuards(JwtAuthGuard)
+export class CoursesController {
+  
+  @Get()
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN, Role.IT_ADMIN)
+  async findAll(@Query() query: QueryCoursesDto) { }
+
+  @Post()
+  @Roles(Role.INSTRUCTOR, Role.ADMIN, Role.IT_ADMIN)
+  async create(@Body() dto: CreateCourseDto, @CurrentUser() user: User) {
+    // Validate instructor belongs to department
+  }
+
+  @Patch(':id')
+  @Roles(Role.INSTRUCTOR, Role.ADMIN, Role.IT_ADMIN)
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateCourseDto,
+    @CurrentUser() user: User
+  ) {
+    // Validate user has permission to edit this course
+  }
+
+  @Delete(':id')
+  @Roles(Role.ADMIN, Role.IT_ADMIN)
+  async remove(@Param('id') id: string) { }
+}
+Authorization Checks
+Instructors: Can only create courses in their own department
+Course Creators: Can edit/delete their own courses
+Admins: Can edit any course in their campus
+IT_ADMINS: Full access
+Students: Read-only access
+Implement custom decorator:
+typescript
+@CanEditCourse() // Custom decorator that checks ownership
+async updateCourse(@Param('id') id: string, @CurrentUser() user: User) { }
+
+Exception Classes
+Create custom exceptions extending HttpException:
+typescript
+export class CourseNotFoundException extends NotFoundException {
+  constructor(courseId: string) {
+    super(`Course with ID ${courseId} not found`);
+  }
+}
+
+export class CircularPrerequisiteException extends BadRequestException {
+  constructor(courseId: string, prerequisiteId: string) {
+    super(
+      `Adding prerequisite ${prerequisiteId} to course ${courseId} would create a circular dependency`
+    );
+  }
+}
+
+export class ScheduleConflictException extends ConflictException {
+  constructor(building: string, room: string, dayOfWeek: string, time: string) {
+    super(
+      `Schedule conflict detected for ${building} ${room} on ${dayOfWeek} at ${time}`
+    );
+  }
+}
+
+export class CannotDeleteCourseException extends BadRequestException {
+  constructor(reason: string) {
+    super(`Cannot delete course: ${reason}`);
+  }
+}
+
+export class SectionCapacityExceededException extends BadRequestException {
+  constructor(sectionId: string) {
+    super(`Section ${sectionId} has reached maximum capacity`);
+  }
+}
+
+export class UnauthorizedCourseAccessException extends ForbiddenException {
+  constructor() {
+    super('You do not have permission to access or modify this course');
+  }
+}
+
+Validation Rules Summary
+Course Validation
+courseCode: 2-20 characters, alphanumeric uppercase (e.g., CS101, MATH201)
+credits: Integer between 1-6
+name: 3-200 characters
+description: 10-2000 characters
+syllabusUrl: Valid URL format (optional)
+Section Validation
+sectionNumber: 1-10 characters (e.g., "01", "A1", "LAB-1")
+maxCapacity: Integer between 1-500
+currentEnrollment: Cannot exceed maxCapacity
+Schedule Validation
+startTime / endTime: HH:mm format (24-hour)
+startTime must be before endTime
+No overlapping schedules for same room/building/day
+room: 1-50 characters
+building: 1-100 characters
+
+Query & Filter Requirements
+Course Listing Filters
+typescript
+interface QueryCoursesDto {
+  departmentId?: string;
+  level?: CourseLevel;
+  status?: CourseStatus;
+  search?: string; // Search in name, code, description
+  page?: number;
+  limit?: number;
+}
+Section Listing Filters
+typescript
+interface QuerySectionsDto {
+  semesterId?: string;
+  status?: SectionStatus;
+  courseId?: string;
+}
+Implement using TypeORM QueryBuilder:
+typescript
+const query = this.courseRepository.createQueryBuilder('course')
+  .leftJoinAndSelect('course.department', 'department')
+  .where('course.deletedAt IS NULL');
+
+if (departmentId) {
+  query.andWhere('course.departmentId = :departmentId', { departmentId });
+}
+
+if (level) {
+  query.andWhere('course.level = :level', { level });
+}
+
+if (search) {
+  query.andWhere(
+    '(course.courseName LIKE :search OR course.courseCode LIKE :search)',
+    { search: `%${search}%` }
+  );
+}
+
+Performance Optimization
+Database Indexes
+Composite index on (department_id, course_code) for uniqueness
+Index on department_id for department queries
+Index on status and deleted_at for filtering
+Index on semester_id for section queries
+Composite index on (building, room, day_of_week) for conflict checking
+Index on course_id in sections table
+Eager/Lazy Loading
+Use relations in find options selectively
+Lazy load prerequisites only when needed
+Eager load department info for course listings
+Use query builders for complex joins
+Caching
+Consider implementing caching for:
+Course listings (invalidate on create/update/delete)
+Department course lists
+Section schedules
+
+Testing Requirements
+Unit Tests
+Circular prerequisite detection algorithm
+Schedule conflict detection logic
+Section status auto-update logic
+Authorization validation
+DTO validation
+Integration Tests
+Complete CRUD operations for courses
+Adding/removing prerequisites
+Creating sections with schedules
+Soft delete behavior
+Filter and pagination
+Permission checks
+Test Data
+Create fixtures for:
+Sample departments
+Sample courses with various levels
+Course prerequisites (including edge cases)
+Sections across multiple semesters
+Schedules with different types
+
+Additional Requirements
+Soft Delete Implementation
+Use TypeORM's @DeleteDateColumn():
+typescript
+@DeleteDateColumn()
+deletedAt: Date;
+Default queries should exclude soft-deleted records:
+typescript
+.where('course.deletedAt IS NULL')
+Pagination Response Format
+typescript
+interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+Logging
+Use NestJS Logger for:
+Course creation/updates
+Prerequisite changes
+Section enrollment updates
+Schedule conflicts detected
+Authorization failures
+
+Integration with Existing Entities
+Reference existing entities:
+typescript
+// From campus module
+import { Department } from '../campus/entities/department.entity';
+import { Semester } from '../campus/entities/semester.entity';
+
+// From users module (for future use)
+import { User } from '../users/entities/user.entity';
+Ensure proper module imports in CoursesModule:
+typescript
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      Campus,
-      Department,
-      Program,
-      Semester,
-      User, // if needed for head validation
+      Course,
+      CoursePrerequisite,
+      CourseSection,
+      CourseSchedule
     ]),
+    forwardRef(() => CampusModule), // For Department, Semester
+    forwardRef(() => UsersModule),  // For authorization
   ],
-  controllers: [
-    CampusController,
-    DepartmentController,
-    ProgramController,
-    SemesterController,
-  ],
-  providers: [
-    CampusService,
-    DepartmentService,
-    ProgramService,
-    SemesterService,
-  ],
-  exports: [CampusService, DepartmentService, ProgramService, SemesterService],
+  controllers: [CoursesController, CourseSectionsController, CourseSchedulesController],
+  providers: [CoursesService, CourseSectionsService, CourseSchedulesService],
+  exports: [CoursesService, CourseSectionsService],
 })
-export class CampusModule {}
-```
+export class CoursesModule {}
 
----
+Deliverables
+Please provide complete, production-ready NestJS code including:
+✅ Entity classes with TypeORM decorators and relationships
+✅ DTO classes with class-validator decorators
+✅ Enum files for all enumerated types
+✅ Service classes with business logic:
+CoursesService
+CourseSectionsService
+CourseSchedulesService
+✅ Controller classes with proper REST endpoints:
+CoursesController
+CourseSectionsController
+CourseSchedulesController
+✅ Custom exception classes
+✅ Circular prerequisite detection algorithm (graph traversal)
+✅ Schedule conflict checking logic
+✅ Guards and decorators for authorization
+✅ Module configuration (imports, providers, exports)
+✅ Database migrations (TypeORM migrations for schema)
+✅ Complete working implementation
 
-## VALIDATION RULES:
-
-1. **Campus**:
-   - code: 2-20 chars, uppercase alphanumeric, unique globally
-   - email: valid email format
-   - phone: optional validation pattern
-
-2. **Department**:
-   - code: 2-20 chars, unique within campus
-   - headOfDepartmentId: must be INSTRUCTOR or ADMIN role
-
-3. **Program**:
-   - code: 2-20 chars, unique within department
-   - durationYears: 1-10 years
-   - degreeType: must be valid enum value
-
-4. **Semester**:
-   - code: unique globally (e.g., FALL2024)
-   - Date validations:
-     - startDate < endDate
-     - registrationStart < registrationEnd
-     - registrationEnd < startDate
-   - Status auto-calculated, not user-provided
-
----
-
-## CUSTOM REPOSITORY QUERIES:
-
-Use TypeORM QueryBuilder for:
-
-1. **Campus with department count**:
-
-```typescript
-leftJoinAndSelect + loadRelationCountAndMap;
-```
-
-2. **Department with program count**:
-
-```typescript
-leftJoinAndSelect + count;
-```
-
-3. **Current semester**:
-
-```typescript
-where('start_date <= :now AND end_date >= :now');
-```
-
-4. **Semester by year**:
-
-```typescript
-where('YEAR(start_date) = :year');
-```
-
-5. **Filter by status**:
-
-```typescript
-where('status = :status');
-```
-
----
-
-## IMPLEMENTATION CHECKLIST:
-
-- [ ] Create all entity files with TypeORM decorators
-- [ ] Create all enum files
-- [ ] Create all DTO files with class-validator
-- [ ] Create exception classes
-- [ ] Create service files with business logic
-- [ ] Create controller files with REST endpoints
-- [ ] Implement Roles decorator and RolesGuard
-- [ ] Add campus ownership validation for ADMIN
-- [ ] Implement semester status auto-calculation
-- [ ] Add proper error handling in all services
-- [ ] Create the main CampusModule
-- [ ] Register CampusModule in AppModule
-- [ ] Test all endpoints with different roles
-
----
-
-## TECHNICAL REQUIREMENTS:
-
-1. **Use TypeORM** for database operations
-2. **Use class-validator** and class-transformer for DTOs
-3. **Use @nestjs/passport** with JWT for authentication
-4. **Use Guards**: JwtAuthGuard and custom RolesGuard
-5. **Use Pipes**: ValidationPipe globally, ParseIntPipe for IDs
-6. **Error Handling**: Use HttpException-based custom exceptions
-7. **Response Format**: Return plain objects (DTOs), NestJS auto-serializes to JSON
-8. **Async/Await**: All service methods return Promises
-9. **Dependency Injection**: Use constructor injection in all classes
-10. **Prevent Circular References**: Use @Exclude() or plain transformation
-
----
-
-## NOTES:
-
-- Follow NestJS best practices and folder structure
-- Use `@InjectRepository()` for repository injection
-- Use `@Body()`, `@Param()`, `@Query()` decorators appropriately
-- Return proper HTTP status codes (201 for create, 204 for delete)
-- Use `ValidationPipe` with `transform: true` for DTO transformation
-- Use `ParseIntPipe` for path parameters
-- Use relations carefully to avoid N+1 queries
-- Implement proper cascade and delete constraints
-- Add database indexes for frequently queried fields
-
----
-
-Please provide complete, production-ready NestJS code for all components listed above.
+Important Notes
+✅ Handle circular prerequisite dependencies with graph algorithms
+✅ Validate schedule time conflicts before saving
+✅ Auto-update section status based on enrollment
+✅ Implement soft delete for courses (cannot delete if active sections exist)
+✅ Add proper database indexes for query performance
+✅ Use TypeORM relations carefully to avoid N+1 queries
+✅ Implement proper error handling and custom exceptions
+✅ Follow NestJS best practices (modules, services, controllers separation)
+✅ Use class-validator and class-transformer for DTOs
+✅ Implement role-based access control with guards
+✅ Support pagination for all list endpoints
+✅ Write clean, maintainable, well-documented code
