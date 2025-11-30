@@ -5,6 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
 import { CampusModule } from './modules/campus/campus.module';
 import { CoursesModule } from './modules/courses/courses.module';
+import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -43,6 +44,7 @@ import databaseConfig from './config/database.config';
     EmailModule,
     CampusModule,
     CoursesModule,
+    EnrollmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
