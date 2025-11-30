@@ -9,6 +9,7 @@ import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
+import { YoutubeModule } from './modules/youtube/youtube.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import databaseConfig from './config/database.config';
     CampusModule,
     CoursesModule,
     EnrollmentsModule,
+    YoutubeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
