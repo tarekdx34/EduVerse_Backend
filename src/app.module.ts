@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
 import { CampusModule } from './modules/campus/campus.module';
+import { FilesModule } from './modules/files/files.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -41,6 +42,7 @@ import databaseConfig from './config/database.config';
     AuthModule,
     EmailModule,
     CampusModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
