@@ -6,6 +6,7 @@ import { EmailModule } from './modules/email/email.module';
 import { CampusModule } from './modules/campus/campus.module';
 import { CoursesModule } from './modules/courses/courses.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
+import { FilesModule } from './modules/files/files.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -47,6 +48,7 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     CoursesModule,
     EnrollmentsModule,
     YoutubeModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
