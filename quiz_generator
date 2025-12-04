@@ -1,0 +1,420 @@
+# -------------------------------
+#  Imports
+# -------------------------------
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import JSONResponse, FileResponse
+from typing import List, Optional
+import os, uuid, json, logging
+import pdfplumber
+import docx
+from fpdf import FPDF
+from langchain_groq import ChatGroq
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+# Basic logging setup
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# -------------------------------
+#  FastAPI App Initialization
+# -------------------------------
+app = FastAPI(
+    title="Quiz Generator API",
+    description="Generates different types of quiz questions from uploaded PDF, DOCX, or TXT files.",
+    version="2.3.0" # Updated version
+)
+
+# -------------------------------
+#  Data Storage
+# -------------------------------
+# Using simple in-memory dicts for now, with JSON file persistence.
+uploads = {}   # Maps uploadId -> extracted text
+quizzes = {}   # Maps quizId -> generated quiz data
+UPLOADS_FILE = "uploads.json"
+QUIZZES_FILE = "quizzes.json"
+OUTPUT_FOLDER = "results"
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+# --- Helper functions for saving/loading data ---
+def save_to_json(data, filename):
+    """Writes a dictionary to a JSON file."""
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logging.error(f"Failed to save data to {filename}: {e}")
+
+def load_from_json(filename, default_dict):
+    """Loads data from a JSON file if it exists."""
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                loaded_data = json.load(f)
+                default_dict.update(loaded_data)
+        except Exception as e:
+            logging.error(f"Could not load data from {filename}: {e}")
+    return default_dict
+
+# Load existing data on startup
+uploads = load_from_json(UPLOADS_FILE, uploads)
+quizzes = load_from_json(QUIZZES_FILE, quizzes)
+
+
+# -------------------------------
+#  LangChain and LLM Setup
+# -------------------------------
+# Initialize the Groq LLM
+# IMPORTANT: In a real app, use an environment variable for the API key!
+llm = ChatGroq(
+    api_key="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",
+    model="llama-3.3-70b-versatile",
+    temperature=0.0
+)
+
+# Prompt templates for each question type (with separated answer key)
+mcq_prompt = PromptTemplate(
+    input_variables=["context", "num_questions"],
+    template="""
+Generate {num_questions} multiple-choice questions from the following text. 
+List all questions first, then provide a complete answer key at the end.
+
+Text:
+{context}
+
+Format:
+## MCQ Quiz
+Question 1: [The question here]
+A) [Option A]
+B) [Option B]
+C) [Option C]
+D) [Option D]
+
+Question 2: [The next question here]
+A) [Option A]
+B) [Option B]
+C) [Option C]
+D) [Option D]
+
+...and so on for {num_questions} questions.
+
+--- ANSWER KEY ---
+Question 1: [The letter of the correct option]
+Question 2: [The letter of the correct option]
+...and so on.
+"""
+)
+
+fill_blank_prompt = PromptTemplate(
+    input_variables=["context", "num_questions"],
+    template="""
+Generate {num_questions} fill-in-the-blank questions from the following text.
+List all questions first, then provide a complete answer key at the end.
+
+Text:
+{context}
+
+Format:
+## Fill in the Blank Quiz
+Question 1: [A sentence with a _____ blank]
+Question 2: [Another sentence with a _____ blank]
+...and so on for {num_questions} questions.
+
+--- ANSWER KEY ---
+Question 1: [The word that fills the blank]
+Question 2: [The word that fills the blank]
+...and so on.
+"""
+)
+
+explain_prompt = PromptTemplate(
+    input_variables=["context", "num_questions"],
+    template="""
+Generate {num_questions} explanation questions from the following text. These should require a detailed answer.
+
+Text:
+{context}
+
+Format:
+## Explanation Question
+Question: [The question here]
+Reference: [A relevant quote or fact from the text]
+"""
+)
+
+# Create the processing chains using LangChain's pipe syntax
+mcq_chain = mcq_prompt | llm | StrOutputParser()
+fill_blank_chain = fill_blank_prompt | llm | StrOutputParser()
+explain_chain = explain_prompt | llm | StrOutputParser()
+
+
+# -------------------------------
+#  Utility Functions
+# -------------------------------
+def extract_text_from_file(file_path: str) -> str:
+    """Extracts text from PDF, DOCX, or TXT."""
+    ext = file_path.rsplit('.', 1)[-1].lower()
+    if ext == "pdf":
+        with pdfplumber.open(file_path) as pdf:
+            return ''.join([p.extract_text() for p in pdf.pages if p.extract_text()])
+    elif ext == "docx":
+        doc = docx.Document(file_path)
+        return ' '.join([para.text for para in doc.paragraphs])
+    elif ext == "txt":
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    else:
+        raise ValueError("Unsupported file type.")
+
+def save_as_txt(content, filename):
+    """Saves string content to a text file."""
+    path = os.path.join(OUTPUT_FOLDER, filename)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    return path
+
+def save_as_pdf(content, filename):
+    """Saves string content to a PDF file."""
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    for line in content.split('\n'):
+        if line.strip():
+            pdf.multi_cell(0, 10, line.strip())
+            pdf.ln(2)
+    path = os.path.join(OUTPUT_FOLDER, filename)
+    pdf.output(path)
+    return path
+
+
+# -------------------------------
+#  API Endpoints
+# -------------------------------
+
+# /upload
+@app.post("/api/v1/upload", status_code=201)
+async def upload_file(file: UploadFile = File(...)):
+    """Handles file uploads, extracts text, and stores it."""
+    file_ext = file.filename.rsplit('.', 1)[-1].lower()
+    if file_ext not in ["pdf", "docx", "txt"]:
+        raise HTTPException(status_code=400, detail="Unsupported file type. Please upload a PDF, DOCX, or TXT.")
+
+    upload_id = str(uuid.uuid4())
+    temp_path = f"temp_{upload_id}.{file_ext}"
+
+    try:
+        # Save uploaded file temporarily
+        with open(temp_path, "wb") as f:
+            content = await file.read()
+            if not content:
+                raise ValueError("The uploaded file is empty.")
+            f.write(content)
+
+        # Extract and store the text
+        text = extract_text_from_file(temp_path)
+        if not text:
+            raise ValueError("No text could be extracted from the file.")
+        
+        uploads[upload_id] = text
+        save_to_json(uploads, UPLOADS_FILE)
+
+        return {
+            "uploadId": upload_id,
+            "status": "text_extracted",
+            "text_preview": text[:200] + "..." if len(text) > 200 else text,
+            "total_characters": len(text)
+        }
+    except Exception as e:
+        logging.error(f"Upload failed: {e}")
+        raise HTTPException(status_code=500, detail="An internal server error occurred during file upload.")
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+#/generate (Updated to separate answers)
+@app.post("/api/v1/generate", status_code=201)
+async def generate_quiz(
+    uploadId: str = Form(...),
+    numQuestions: int = Form(5, gt=0, le=20),
+    questionType: str = Form("MCQ"),
+    difficulty: str = Form("medium"),
+    saveAsFiles: bool = Form(False)
+):
+    """Generates a quiz based on an uploaded document, with answers at the end."""
+    if uploadId not in uploads:
+        raise HTTPException(status_code=404, detail="Upload ID not found.")
+
+    text = uploads[uploadId]
+    quiz_id = str(uuid.uuid4())
+    final_questions = []
+    answer_key = [] # New list to hold all the answers separately
+    raw_ai_output = ""
+
+    valid_types = ["MCQ", "FillBlank", "Explain"]
+    if questionType not in valid_types:
+        raise HTTPException(status_code=400, detail=f"Invalid questionType. Choose from {valid_types}.")
+
+    try:
+        if questionType == "MCQ":
+            raw_ai_output = mcq_chain.invoke({"context": text, "num_questions": numQuestions})
+            if "--- ANSWER KEY ---" not in raw_ai_output:
+                raise ValueError("AI did not provide a separate answer key.")
+            
+            questions_block, answers_block = raw_ai_output.split("--- ANSWER KEY ---")
+            
+            answers_map = {}
+            for line in answers_block.strip().split('\n'):
+                if ":" in line:
+                    q_id, answer = line.split(":", 1)
+                    answers_map[q_id.strip()] = answer.strip()
+            
+            question_chunks = questions_block.strip().split("Question")[1:]
+            for i, chunk in enumerate(question_chunks):
+                lines = chunk.strip().split('\n')
+                question_text = "Question " + str(i+1) + ": " + lines[0].split(":", 1)[1].strip()
+                
+                options = []
+                for line in lines[1:]:
+                    if line.startswith(("A)", "B)", "C)", "D)")):
+                        options.append(line.strip())
+                
+                q_id = f"Question {i+1}"
+                if question_text and options and q_id in answers_map:
+                    # Add question without the answer
+                    final_questions.append({
+                        "type": "MCQ",
+                        "difficulty": difficulty,
+                        "question": question_text,
+                        "options": options
+                    })
+                    # Add the corresponding answer to the separate answer key
+                    answer_key.append({
+                        "questionId": q_id,
+                        "correctAnswer": answers_map[q_id]
+                    })
+
+        elif questionType == "FillBlank":
+            raw_ai_output = fill_blank_chain.invoke({"context": text, "num_questions": numQuestions})
+            if "--- ANSWER KEY ---" not in raw_ai_output:
+                raise ValueError("AI did not provide a separate answer key.")
+            
+            questions_block, answers_block = raw_ai_output.split("--- ANSWER KEY ---")
+            
+            answers_map = {}
+            for line in answers_block.strip().split('\n'):
+                if ":" in line:
+                    q_id, answer = line.split(":", 1)
+                    answers_map[q_id.strip()] = answer.strip()
+
+            question_chunks = questions_block.strip().split("Question")[1:]
+            for i, chunk in enumerate(question_chunks):
+                question_text = "Question " + str(i+1) + ": " + chunk.strip()
+                
+                q_id = f"Question {i+1}"
+                if question_text and q_id in answers_map:
+                    # Add question without the answer
+                    final_questions.append({
+                        "type": "FillBlank",
+                        "difficulty": difficulty,
+                        "question": question_text
+                    })
+                    # Add the corresponding answer to the separate answer key
+                    answer_key.append({
+                        "questionId": q_id,
+                        "answer": answers_map[q_id]
+                    })
+
+        else:  # Explain
+            raw_ai_output = explain_chain.invoke({"context": text, "num_questions": numQuestions})
+            # The explain prompt is different, so we handle it separately
+            # We'll create an ID for each question to link it to its reference
+            for i, item in enumerate(raw_ai_output.split("## Explanation Question")[1:]):
+                lines = item.strip().split('\n')
+                q_data = {"type": "Explain", "difficulty": difficulty, "question": "", "reference": ""}
+                for line in lines:
+                    if line.startswith("Question:"): q_data["question"] = line.replace("Question:", "").strip()
+                    elif line.startswith("Reference:"): q_data["reference"] = line.replace("Reference:", "").strip()
+                
+                if q_data["question"]:
+                    q_id = f"Question {i+1}"
+                    # Store reference before removing it from the question dict
+                    reference = q_data["reference"]
+                    # Add question without the reference
+                    final_questions.append({
+                        "type": "Explain",
+                        "difficulty": difficulty,
+                        "question": q_data["question"]
+                    })
+                    # Add the reference to the answer key
+                    answer_key.append({
+                        "questionId": q_id,
+                        "reference": reference
+                    })
+
+    except Exception as e:
+        logging.error(f"Quiz generation failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate questions. Please try again.")
+
+    if not final_questions:
+        raise HTTPException(status_code=500, detail="Could not parse any valid questions from the AI response.")
+
+    # --- MODIFICATION: Update the final quiz data structure ---
+    quiz_data = {
+        "quizId": quiz_id,
+        "uploadId": uploadId,
+        "questionType": questionType,
+        "difficulty": difficulty,
+        "questions": final_questions,
+        "answerKey": answer_key # Add the new answer key here
+    }
+    
+    quizzes[quiz_id] = quiz_data
+    save_to_json(quizzes, QUIZZES_FILE)
+
+    response = {"quizId": quiz_id, "status": "completed", "numQuestions": len(final_questions)}
+
+    if saveAsFiles and raw_ai_output:
+        base_name = f"{questionType}_{quiz_id}"
+        txt_path = save_as_txt(raw_ai_output, f"{base_name}.txt")
+        pdf_path = save_as_pdf(raw_ai_output, f"{base_name}.pdf")
+        response["files"] = {
+            "txt": f"/api/v1/download/{os.path.basename(txt_path)}",
+            "pdf": f"/api/v1/download/{os.path.basename(pdf_path)}"
+        }
+
+    return response
+
+#/quiz/{quiz_id}
+@app.get("/api/v1/quiz/{quiz_id}")
+async def get_quiz(quiz_id: str):
+    """Retrieves a specific quiz."""
+    if quiz_id not in quizzes:
+        raise HTTPException(status_code=404, detail="Quiz ID not found.")
+    return quizzes[quiz_id]
+
+#/download/{filename}
+@app.get("/api/v1/download/{filename}")
+async def download_file(filename: str):
+    """Downloads a generated file."""
+    file_path = os.path.join(OUTPUT_FOLDER, filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+    return FileResponse(file_path, media_type='application/octet-stream', filename=filename)
+
+# Other utility endpoints
+@app.get("/api/v1/uploads")
+async def list_uploads():
+    """Lists all upload IDs and a text preview."""
+    return {"uploads": [{"uploadId": uid, "preview": text[:100] + "..."} for uid, text in uploads.items()]}
+
+@app.delete("/api/v1/upload/{upload_id}")
+async def delete_upload(upload_id: str):
+    """Deletes an uploaded document and its text."""
+    if upload_id not in uploads:
+        raise HTTPException(status_code=404, detail="Upload ID not found.")
+    del uploads[upload_id]
+    save_to_json(uploads, UPLOADS_FILE)
+    return {"status": "deleted", "uploadId": upload_id}
+
+@app.get("/")
+def root():
+    return {"message": "Quiz Generator API is running!", "docs": "/docs"}
