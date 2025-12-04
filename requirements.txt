@@ -1,0 +1,11 @@
+face-recognition
+face_recognition_models
+numpy
+opencv-contrib-python
+openpyxl
+pillow
+
+#API
+fastapi
+uvicorn
+python-multipart
