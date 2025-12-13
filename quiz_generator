@@ -66,7 +66,7 @@ quizzes = load_from_json(QUIZZES_FILE, quizzes)
 # Initialize the Groq LLM
 # IMPORTANT: In a real app, use an environment variable for the API key!
 llm = ChatGroq(
-    api_key="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",
+    api_key=MY_API_KEY,
     model="llama-3.3-70b-versatile",
     temperature=0.0
 )
