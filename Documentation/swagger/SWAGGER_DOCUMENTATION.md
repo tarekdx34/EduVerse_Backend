@@ -32,6 +32,10 @@ Once the server is running, access Swagger UI at:
 
 ```
 http://localhost:3001/api-docs
+
+OR Try this if the above not working:
+
+http://localhost:8081/api-docs
 ```
 
 ### Starting the Server
