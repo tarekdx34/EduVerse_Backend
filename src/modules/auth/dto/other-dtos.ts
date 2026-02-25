@@ -5,9 +5,15 @@ import {
   MinLength,
   Matches,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 // Forgot Password Request DTO
 export class ForgotPasswordRequestDto {
+  @ApiProperty({
+    description: 'Email address to send password reset link',
+    example: 'john.doe@example.com',
+    format: 'email',
+  })
   @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty({ message: 'Email is required' })
   email: string;
@@ -15,10 +21,19 @@ export class ForgotPasswordRequestDto {
 
 // Reset Password Request DTO
 export class ResetPasswordRequestDto {
+  @ApiProperty({
+    description: 'Password reset token from email',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
   @IsString()
   @IsNotEmpty({ message: 'Reset token is required' })
   token: string;
 
+  @ApiProperty({
+    description: 'New password (min 8 chars with uppercase, lowercase, number, special char)',
+    example: 'NewSecureP@ss123',
+    minLength: 8,
+  })
   @IsString()
   @IsNotEmpty({ message: 'New password is required' })
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
@@ -31,6 +46,10 @@ export class ResetPasswordRequestDto {
 
 // Token Refresh Request DTO
 export class TokenRefreshRequestDto {
+  @ApiProperty({
+    description: 'Refresh token obtained from login',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
   @IsString()
   @IsNotEmpty({ message: 'Refresh token is required' })
   refreshToken: string;
@@ -38,6 +57,10 @@ export class TokenRefreshRequestDto {
 
 // Verify Email DTO
 export class VerifyEmailDto {
+  @ApiProperty({
+    description: 'Email verification token from email',
+    example: 'abc123def456...',
+  })
   @IsString()
   @IsNotEmpty({ message: 'Verification token is required' })
   token: string;
@@ -45,6 +68,11 @@ export class VerifyEmailDto {
 
 // Resend Verification Email DTO
 export class ResendVerificationEmailDto {
+  @ApiProperty({
+    description: 'Email address to resend verification',
+    example: 'john.doe@example.com',
+    format: 'email',
+  })
   @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty({ message: 'Email is required' })
   email: string;

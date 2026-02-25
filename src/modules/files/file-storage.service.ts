@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import type { Multer } from 'multer';
 
 @Injectable()
 export class FileStorageService {
@@ -37,7 +36,7 @@ export class FileStorageService {
   }
 
   async saveFile(
-    file: Multer.File,
+    file: Express.Multer.File,
     subfolder?: string,
   ): Promise<string> {
     // Validate file size
