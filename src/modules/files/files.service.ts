@@ -14,7 +14,6 @@ import { FileResponseDto } from './dto/file-response.dto';
 import { FileVersionResponseDto } from './dto/file-version-response.dto';
 import { FileSearchDto } from './dto/file-search.dto';
 import * as path from 'path';
-import type { Multer } from 'multer';
 
 @Injectable()
 export class FilesService {
@@ -30,7 +29,7 @@ export class FilesService {
   ) {}
 
   async uploadFile(
-    file: Multer.File,
+    file: Express.Multer.File,
     userId: number,
     folderId?: number,
     courseId?: number,
@@ -210,7 +209,7 @@ export class FilesService {
 
   async createVersion(
     fileId: number,
-    file: Multer.File,
+    file: Express.Multer.File,
     userId: number,
   ): Promise<FileVersionResponseDto> {
     const originalFile = await this.fileRepository.findOne({
