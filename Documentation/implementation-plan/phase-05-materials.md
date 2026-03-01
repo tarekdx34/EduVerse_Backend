@@ -24,11 +24,11 @@ export class CourseMaterial {
   materialId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
   @Column({ length: 200 })
   title: string;
@@ -49,20 +49,14 @@ export class CourseMaterial {
   @Column({ type: 'varchar', length: 500, nullable: true })
   externalUrl: string;  // For links/external content
 
-  @Column({ type: 'int', nullable: true })
-  weekNumber: number;
-
   @Column({ type: 'int', default: 0 })
   orderIndex: number;
 
-  @Column({ type: 'tinyint', default: 1 })
-  isVisible: boolean;
+  @Column({ type: 'tinyint', default: 0 })
+  isPublished: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
-  availableFrom: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  availableUntil: Date;
+  publishedAt: Date;
 
   @Column({ type: 'int', default: 0 })
   downloadCount: number;
@@ -93,11 +87,11 @@ export class LectureSectionLab {
   id: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
   @Column({ type: 'int' })
   weekNumber: number;
@@ -109,13 +103,7 @@ export class LectureSectionLab {
   description: string;
 
   @Column({ type: 'enum', enum: ['lecture', 'section', 'lab'] })
-  type: string;
-
-  @Column({ type: 'text', nullable: true })
-  objectives: string;
-
-  @Column({ type: 'json', nullable: true })
-  topics: any;  // Array of topic strings
+  organizationType: string;
 
   @Column({ type: 'int', default: 0 })
   orderIndex: number;

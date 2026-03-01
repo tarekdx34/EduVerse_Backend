@@ -26,13 +26,20 @@ export class ExamSchedule {
   examScheduleId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
-  @Column({ type: 'enum', enum: ['midterm', 'final', 'quiz_exam', 'makeup', 'other'] })
+  @Column({ type: 'bigint', unsigned: true })
+  semesterId: number;
+
+  @ManyToOne(() => Semester)
+  @JoinColumn({ name: 'semester_id' })
+  semester: Semester;
+
+  @Column({ type: 'enum', enum: ['midterm', 'final', 'quiz', 'makeup'] })
   examType: string;
 
   @Column({ length: 200 })
@@ -44,14 +51,8 @@ export class ExamSchedule {
   @Column({ type: 'time' })
   startTime: string;
 
-  @Column({ type: 'time' })
-  endTime: string;
-
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  room: string;
-
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  building: string;
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  location: string;
 
   @Column({ type: 'int', nullable: true })
   durationMinutes: number;
@@ -93,17 +94,14 @@ export class CalendarEvent {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'enum', enum: ['class', 'exam', 'assignment', 'meeting', 'office_hours', 'personal', 'holiday', 'event'] })
+  @Column({ type: 'enum', enum: ['lecture', 'lab', 'exam', 'assignment', 'quiz', 'meeting', 'custom'] })
   eventType: string;
 
   @Column({ type: 'timestamp' })
-  startDateTime: Date;
+  startTime: Date;
 
   @Column({ type: 'timestamp' })
-  endDateTime: Date;
-
-  @Column({ type: 'tinyint', default: 0 })
-  isAllDay: boolean;
+  endTime: Date;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   location: string;
@@ -111,20 +109,31 @@ export class CalendarEvent {
   @Column({ type: 'varchar', length: 7, nullable: true })
   color: string;  // Hex color code
 
-  @Column({ type: 'enum', enum: ['none', 'daily', 'weekly', 'monthly'], default: 'none' })
-  recurrence: string;
+  @Column({ type: 'tinyint', default: 0 })
+  isRecurring: boolean;
 
-  @Column({ type: 'json', nullable: true })
-  reminders: any;  // Array of { minutes_before, method }
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  recurrencePattern: string;
+
+  @Column({ type: 'int', default: 30 })
+  reminderMinutes: number;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   courseId: number;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  sectionId: number;
+  scheduleId: number;
 
-  @Column({ type: 'tinyint', default: 0 })
-  isPrivate: boolean;
+  @ManyToOne(() => CourseSchedule)
+  @JoinColumn({ name: 'schedule_id' })
+  schedule: CourseSchedule;
+
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  examId: number;
+
+  @ManyToOne(() => ExamSchedule)
+  @JoinColumn({ name: 'exam_id' })
+  exam: ExamSchedule;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -144,29 +153,20 @@ export class CalendarIntegration {
   @Column({ type: 'bigint', unsigned: true })
   userId: number;
 
-  @Column({ type: 'enum', enum: ['google', 'outlook', 'apple', 'ical'] })
-  provider: string;
+  @Column({ type: 'enum', enum: ['google', 'outlook', 'ical'] })
+  calendarType: string;
 
   @Column({ type: 'text', nullable: true })
-  accessToken: string;
+  accessTokenEncrypted: string;
 
   @Column({ type: 'text', nullable: true })
-  refreshToken: string;
+  refreshTokenEncrypted: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  calendarId: string;
-
-  @Column({ type: 'tinyint', default: 1 })
-  syncEnabled: boolean;
-
-  @Column({ type: 'enum', enum: ['one_way_import', 'one_way_export', 'two_way'], default: 'one_way_export' })
-  syncDirection: string;
+  @Column({ type: 'enum', enum: ['active', 'error', 'disabled'], default: 'active' })
+  syncStatus: string;
 
   @Column({ type: 'timestamp', nullable: true })
-  lastSyncAt: Date;
-
-  @Column({ type: 'enum', enum: ['active', 'disconnected', 'error'], default: 'active' })
-  status: string;
+  lastSync: Date;
 
   @CreateDateColumn()
   createdAt: Date;

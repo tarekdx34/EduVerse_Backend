@@ -35,7 +35,7 @@ export class StudentProgress {
   enrollment: CourseEnrollment;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
-  overallProgress: number;  // 0-100%
+  completionPercentage: number;  // 0-100%
 
   @Column({ type: 'int', default: 0 })
   assignmentsCompleted: number;
@@ -86,14 +86,21 @@ export class CourseAnalytics {
   analyticsId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
+
+  @Column({ type: 'bigint', unsigned: true })
+  instructorId: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'instructor_id' })
+  instructor: User;
 
   @Column({ type: 'date' })
-  recordDate: string;
+  calculationDate: string;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   averageGrade: number;
@@ -112,12 +119,6 @@ export class CourseAnalytics {
 
   @Column({ type: 'int', default: 0 })
   atRiskStudents: number;
-
-  @Column({ type: 'json', nullable: true })
-  gradeDistribution: any;  // { A: count, B: count, ... }
-
-  @Column({ type: 'json', nullable: true })
-  topicPerformance: any;  // [{ topic, avgScore }]
 
   @CreateDateColumn()
   createdAt: Date;
@@ -295,11 +296,12 @@ export class GeneratedReport {
   @Column({ type: 'json', nullable: true })
   parameters: any;  // Parameters used to generate
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
-  filePath: string;
-
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  fileSize: number;
+  fileId: number;
+
+  @ManyToOne(() => File)
+  @JoinColumn({ name: 'file_id' })
+  file: File;
 
   @Column({ type: 'enum', enum: ['pending', 'generating', 'completed', 'failed'], default: 'pending' })
   status: string;
