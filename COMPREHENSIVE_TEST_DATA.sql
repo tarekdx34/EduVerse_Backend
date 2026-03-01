@@ -326,7 +326,7 @@ INSERT IGNORE INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `i
 -- ============================================================
 -- TABLE: QUIZ_QUESTIONS
 -- ============================================================
-INSERT IGNORE INTO `quiz_questions` (`question_id`, `quiz_id`, `question_text`, `question_type`, `points`, `order_position`, `created_at`) VALUES
+INSERT IGNORE INTO `quiz_questions` (`question_id`, `quiz_id`, `question_text`, `question_type`, `points`, `order_index`, `created_at`) VALUES
 (1, 1, 'What is a variable in programming?', 'multiple_choice', 4, 1, '2025-01-25 08:00:00'),
 (2, 1, 'Which of the following is not a data type?', 'multiple_choice', 4, 2, '2025-01-25 08:00:00'),
 (3, 1, 'What does IDE stand for?', 'multiple_choice', 4, 3, '2025-01-25 08:00:00'),
@@ -350,32 +350,32 @@ INSERT IGNORE INTO `quiz_questions` (`question_id`, `quiz_id`, `question_text`, 
 -- ============================================================
 -- TABLE: ATTENDANCE_SESSIONS
 -- ============================================================
-INSERT IGNORE INTO `attendance_sessions` (`session_id`, `section_id`, `session_date`, `start_time`, `end_time`, `attendance_type`, `created_by`, `created_at`) VALUES
-(1, 1, '2025-02-03', '09:00:00', '10:30:00', 'class', 8, '2025-02-03 08:00:00'),
-(2, 1, '2025-02-05', '09:00:00', '10:30:00', 'class', 8, '2025-02-05 08:00:00'),
-(3, 1, '2025-02-10', '09:00:00', '10:30:00', 'class', 8, '2025-02-10 08:00:00'),
-(4, 2, '2025-02-04', '11:00:00', '12:30:00', 'class', 9, '2025-02-04 08:00:00'),
-(5, 2, '2025-02-06', '11:00:00', '12:30:00', 'class', 9, '2025-02-06 08:00:00'),
-(6, 3, '2025-02-03', '13:00:00', '14:30:00', 'class', 10, '2025-02-03 08:00:00'),
-(7, 3, '2025-02-05', '13:00:00', '14:30:00', 'class', 10, '2025-02-05 08:00:00'),
-(8, 5, '2025-02-03', '15:00:00', '16:30:00', 'lab', 12, '2025-02-03 08:00:00'),
-(9, 9, '2025-02-04', '14:00:00', '15:00:00', 'class', 16, '2025-02-04 08:00:00'),
-(10, 10, '2025-02-05', '13:00:00', '14:00:00', 'class', 17, '2025-02-05 08:00:00');
+INSERT IGNORE INTO `attendance_sessions` (`session_id`, `section_id`, `session_date`, `session_type`, `instructor_id`, `start_time`, `end_time`, `status`, `created_at`) VALUES
+(1, 1, '2025-02-03', 'lecture', 8, '09:00:00', '10:30:00', 'completed', '2025-02-03 08:00:00'),
+(2, 1, '2025-02-05', 'lecture', 8, '09:00:00', '10:30:00', 'completed', '2025-02-05 08:00:00'),
+(3, 1, '2025-02-10', 'lecture', 8, '09:00:00', '10:30:00', 'completed', '2025-02-10 08:00:00'),
+(4, 2, '2025-02-04', 'lecture', 9, '11:00:00', '12:30:00', 'completed', '2025-02-04 08:00:00'),
+(5, 2, '2025-02-06', 'lecture', 9, '11:00:00', '12:30:00', 'completed', '2025-02-06 08:00:00'),
+(6, 3, '2025-02-03', 'lecture', 10, '13:00:00', '14:30:00', 'completed', '2025-02-03 08:00:00'),
+(7, 3, '2025-02-05', 'lecture', 10, '13:00:00', '14:30:00', 'completed', '2025-02-05 08:00:00'),
+(8, 5, '2025-02-03', 'lab', 12, '15:00:00', '16:30:00', 'completed', '2025-02-03 08:00:00'),
+(9, 9, '2025-02-04', 'lecture', 16, '14:00:00', '15:00:00', 'completed', '2025-02-04 08:00:00'),
+(10, 10, '2025-02-05', 'lecture', 17, '13:00:00', '14:00:00', 'completed', '2025-02-05 08:00:00');
 
 -- ============================================================
 -- TABLE: ATTENDANCE_RECORDS
 -- ============================================================
-INSERT IGNORE INTO `attendance_records` (`record_id`, `session_id`, `user_id`, `status`, `check_in_time`, `check_out_time`, `created_at`) VALUES
-(1, 1, 21, 'present', '2025-02-03 08:58:00', '2025-02-03 10:31:00', '2025-02-03 09:00:00'),
-(2, 1, 22, 'present', '2025-02-03 09:02:00', '2025-02-03 10:32:00', '2025-02-03 09:00:00'),
-(3, 1, 23, 'present', '2025-02-03 09:00:00', '2025-02-03 10:30:00', '2025-02-03 09:00:00'),
-(4, 1, 24, 'absent', NULL, NULL, '2025-02-03 09:00:00'),
-(5, 1, 25, 'present', '2025-02-03 09:05:00', '2025-02-03 10:30:00', '2025-02-03 09:00:00'),
-(6, 2, 21, 'present', '2025-02-05 09:00:00', '2025-02-05 10:31:00', '2025-02-05 09:00:00'),
-(7, 2, 22, 'present', '2025-02-05 09:03:00', '2025-02-05 10:30:00', '2025-02-05 09:00:00'),
-(8, 2, 23, 'present', '2025-02-05 09:00:00', '2025-02-05 10:30:00', '2025-02-05 09:00:00'),
-(9, 2, 24, 'late', '2025-02-05 09:15:00', '2025-02-05 10:30:00', '2025-02-05 09:00:00'),
-(10, 2, 25, 'present', '2025-02-05 08:58:00', '2025-02-05 10:31:00', '2025-02-05 09:00:00');
+INSERT IGNORE INTO `attendance_records` (`record_id`, `session_id`, `user_id`, `attendance_status`, `check_in_time`) VALUES
+(1, 1, 21, 'present', '2025-02-03 08:58:00'),
+(2, 1, 22, 'present', '2025-02-03 09:02:00'),
+(3, 1, 23, 'present', '2025-02-03 09:00:00'),
+(4, 1, 24, 'absent', NULL),
+(5, 1, 25, 'present', '2025-02-03 09:05:00'),
+(6, 2, 21, 'present', '2025-02-05 09:00:00'),
+(7, 2, 22, 'present', '2025-02-05 09:03:00'),
+(8, 2, 23, 'present', '2025-02-05 09:00:00'),
+(9, 2, 24, 'late', '2025-02-05 09:15:00'),
+(10, 2, 25, 'present', '2025-02-05 08:58:00');
 
 -- ============================================================
 -- TABLE: GRADES
@@ -409,40 +409,40 @@ INSERT IGNORE INTO `announcements` (`announcement_id`, `course_id`, `created_by`
 -- ============================================================
 -- TABLE: MESSAGES
 -- ============================================================
-INSERT IGNORE INTO `messages` (`message_id`, `subject`, `body`, `sender_id`, `created_at`, `updated_at`) VALUES
-(1, 'Questions about Assignment 1', 'I had some questions about the requirements for assignment 1. Could we schedule a meeting?', 21, '2025-01-28 14:30:00', '2025-01-28 14:30:00'),
-(2, 'Re: Questions about Assignment 1', 'Sure! Let''s meet tomorrow at 3 PM in my office.', 8, '2025-01-28 15:45:00', '2025-01-28 15:45:00'),
-(3, 'Course Material Request', 'Could you please share the lecture slides from last week''s class?', 23, '2025-02-04 10:15:00', '2025-02-04 10:15:00'),
-(4, 'Re: Course Material Request', 'The slides have been uploaded to the course portal.', 8, '2025-02-04 11:00:00', '2025-02-04 11:00:00'),
-(5, 'Grade Discussion', 'I would like to discuss my quiz score from last week.', 22, '2025-02-08 16:20:00', '2025-02-08 16:20:00');
+INSERT IGNORE INTO `messages` (`message_id`, `sender_id`, `subject`, `body`, `message_type`, `sent_at`) VALUES
+(1, 21, 'Questions about Assignment 1', 'I had some questions about the requirements for assignment 1. Could we schedule a meeting?', 'direct', '2025-01-28 14:30:00'),
+(2, 8, 'Re: Questions about Assignment 1', 'Sure! Let''s meet tomorrow at 3 PM in my office.', 'direct', '2025-01-28 15:45:00'),
+(3, 23, 'Course Material Request', 'Could you please share the lecture slides from last week''s class?', 'direct', '2025-02-04 10:15:00'),
+(4, 8, 'Re: Course Material Request', 'The slides have been uploaded to the course portal.', 'direct', '2025-02-04 11:00:00'),
+(5, 22, 'Grade Discussion', 'I would like to discuss my quiz score from last week.', 'direct', '2025-02-08 16:20:00');
 
 -- ============================================================
 -- TABLE: MESSAGE_PARTICIPANTS
 -- ============================================================
-INSERT IGNORE INTO `message_participants` (`participant_id`, `message_id`, `user_id`, `is_read`, `created_at`) VALUES
-(1, 1, 21, 1, '2025-01-28 14:30:00'),
-(2, 1, 8, 0, '2025-01-28 14:30:00'),
-(3, 2, 21, 0, '2025-01-28 15:45:00'),
-(4, 2, 8, 1, '2025-01-28 15:45:00'),
-(5, 3, 23, 1, '2025-02-04 10:15:00'),
-(6, 3, 8, 0, '2025-02-04 10:15:00'),
-(7, 4, 23, 0, '2025-02-04 11:00:00'),
-(8, 4, 8, 1, '2025-02-04 11:00:00'),
-(9, 5, 22, 1, '2025-02-08 16:20:00'),
-(10, 5, 8, 0, '2025-02-08 16:20:00');
+INSERT IGNORE INTO `message_participants` (`participant_id`, `message_id`, `user_id`, `read_at`) VALUES
+(1, 1, 21, '2025-01-28 14:30:00'),
+(2, 1, 8, NULL),
+(3, 2, 21, NULL),
+(4, 2, 8, '2025-01-28 15:45:00'),
+(5, 3, 23, '2025-02-04 10:15:00'),
+(6, 3, 8, NULL),
+(7, 4, 23, NULL),
+(8, 4, 8, '2025-02-04 11:00:00'),
+(9, 5, 22, '2025-02-08 16:20:00'),
+(10, 5, 8, NULL);
 
 -- ============================================================
 -- TABLE: NOTIFICATIONS
 -- ============================================================
-INSERT IGNORE INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `notification_type`, `related_entity_type`, `related_entity_id`, `is_read`, `created_at`) VALUES
-(1, 21, 'Assignment Due Soon', 'Assignment 1: Programming Basics is due tomorrow.', 'reminder', 'assignment', 1, 0, '2025-01-31 08:00:00'),
-(2, 22, 'Assignment Due Soon', 'Assignment 1: Programming Basics is due today.', 'reminder', 'assignment', 1, 0, '2025-02-01 08:00:00'),
-(3, 23, 'Grade Posted', 'Your grade for Assignment 1: Programming Basics has been posted.', 'grade', 'assignment', 1, 1, '2025-02-01 10:30:00'),
-(4, 21, 'New Announcement', 'Dr. Ibrahim Ali posted a new announcement in CS101.', 'announcement', 'announcement', 1, 1, '2025-01-20 09:05:00'),
-(5, 24, 'Attendance Alert', 'You were marked absent in CS101 on February 3rd.', 'warning', 'attendance', 1, 0, '2025-02-03 11:00:00'),
-(6, 25, 'Quiz Available', 'Quiz 2: Control Flow is now available for CS101.', 'info', 'quiz', 2, 0, '2025-02-01 09:00:00'),
-(7, 21, 'Message Received', 'Dr. Ibrahim Ali replied to your message about Assignment 1.', 'message', 'message', 2, 1, '2025-01-28 15:50:00'),
-(8, 22, 'Grade Posted', 'Your grade for Quiz 1 has been posted.', 'grade', 'quiz', 1, 0, '2025-02-03 11:00:00');
+INSERT IGNORE INTO `notifications` (`notification_id`, `user_id`, `notification_type`, `title`, `body`, `related_entity_type`, `related_entity_id`, `is_read`, `created_at`) VALUES
+(1, 21, 'reminder', 'Assignment Due Soon', 'Assignment 1: Programming Basics is due tomorrow.', 'assignment', 1, 0, '2025-01-31 08:00:00'),
+(2, 22, 'reminder', 'Assignment Due Soon', 'Assignment 1: Programming Basics is due today.', 'assignment', 1, 0, '2025-02-01 08:00:00'),
+(3, 23, 'grade', 'Grade Posted', 'Your grade for Assignment 1: Programming Basics has been posted.', 'assignment', 1, 1, '2025-02-01 10:30:00'),
+(4, 21, 'announcement', 'New Announcement', 'Dr. Ibrahim Ali posted a new announcement in CS101.', 'announcement', 1, 1, '2025-01-20 09:05:00'),
+(5, 24, 'warning', 'Attendance Alert', 'You were marked absent in CS101 on February 3rd.', 'attendance', 1, 0, '2025-02-03 11:00:00'),
+(6, 25, 'info', 'Quiz Available', 'Quiz 2: Control Flow is now available for CS101.', 'quiz', 2, 0, '2025-02-01 09:00:00'),
+(7, 21, 'message', 'Message Received', 'Dr. Ibrahim Ali replied to your message about Assignment 1.', 'message', 2, 1, '2025-01-28 15:50:00'),
+(8, 22, 'grade', 'Grade Posted', 'Your grade for Quiz 1 has been posted.', 'quiz', 1, 0, '2025-02-03 11:00:00');
 
 -- ============================================================
 -- COMMIT TRANSACTION
