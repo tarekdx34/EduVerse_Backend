@@ -35,10 +35,10 @@ export class Notification {
   title: string;
 
   @Column({ type: 'text' })
-  message: string;
+  body: string;
 
-  @Column({ type: 'enum', enum: ['info', 'success', 'warning', 'error', 'assignment', 'grade', 'attendance', 'quiz', 'announcement', 'message', 'deadline', 'system'] })
-  type: string;
+  @Column({ type: 'enum', enum: ['announcement', 'grade', 'assignment', 'message', 'deadline', 'system'] })
+  notificationType: string;
 
   @Column({ type: 'enum', enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' })
   priority: string;
@@ -50,16 +50,20 @@ export class Notification {
   readAt: Date;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
-  entityType: string;  // 'assignment', 'quiz', 'course', etc.
+  relatedEntityType: string;  // 'assignment', 'quiz', 'course', etc.
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  entityId: number;
+  relatedEntityId: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   actionUrl: string;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  senderId: number;
+  announcementId: number;
+
+  @ManyToOne(() => Announcement)
+  @JoinColumn({ name: 'announcement_id' })
+  announcement: Announcement;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -76,9 +80,6 @@ export class NotificationPreference {
   @Column({ type: 'bigint', unsigned: true })
   userId: number;
 
-  @Column({ type: 'varchar', length: 50 })
-  category: string;  // 'assignments', 'grades', 'attendance', 'messages', 'system'
-
   @Column({ type: 'tinyint', default: 1 })
   emailEnabled: boolean;
 
@@ -86,7 +87,28 @@ export class NotificationPreference {
   pushEnabled: boolean;
 
   @Column({ type: 'tinyint', default: 1 })
-  inAppEnabled: boolean;
+  smsEnabled: boolean;
+
+  @Column({ type: 'tinyint', default: 1 })
+  announcementEmail: boolean;
+
+  @Column({ type: 'tinyint', default: 1 })
+  gradeEmail: boolean;
+
+  @Column({ type: 'tinyint', default: 1 })
+  assignmentEmail: boolean;
+
+  @Column({ type: 'tinyint', default: 1 })
+  messageEmail: boolean;
+
+  @Column({ type: 'int', default: 1 })
+  deadlineReminderDays: number;
+
+  @Column({ type: 'time', nullable: true })
+  quietHoursStart: string;
+
+  @Column({ type: 'time', nullable: true })
+  quietHoursEnd: string;
 
   @UpdateDateColumn()
   updatedAt: Date;
@@ -158,32 +180,23 @@ export class Message {
   @JoinColumn({ name: 'sender_id' })
   sender: User;
 
-  @Column({ type: 'enum', enum: ['direct', 'group', 'announcement', 'course'] })
+  @Column({ type: 'enum', enum: ['direct', 'group', 'announcement'] })
   messageType: string;
 
   @Column({ type: 'varchar', length: 200, nullable: true })
   subject: string;
 
   @Column({ type: 'text' })
-  content: string;
+  body: string;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   parentMessageId: number;  // For threading
 
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  courseId: number;
-
-  @Column({ type: 'json', nullable: true })
-  attachments: any;
-
   @Column({ type: 'tinyint', default: 0 })
-  isDeleted: boolean;
+  readStatus: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @CreateDateColumn({ name: 'sent_at' })
+  sentAt: Date;
 
   @OneToMany(() => MessageParticipant, p => p.message)
   participants: MessageParticipant[];
@@ -211,20 +224,11 @@ export class MessageParticipant {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'enum', enum: ['sender', 'recipient', 'cc', 'bcc'] })
-  role: string;
-
-  @Column({ type: 'tinyint', default: 0 })
-  isRead: boolean;
-
   @Column({ type: 'timestamp', nullable: true })
   readAt: Date;
 
-  @Column({ type: 'tinyint', default: 0 })
-  isDeleted: boolean;
-
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  deletedAt: Date;
 }
 ```
 
@@ -309,17 +313,17 @@ export class CourseChatThread {
   threadId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
   @Column({ length: 200 })
   title: string;
 
   @Column({ type: 'text' })
-  content: string;
+  description: string;
 
   @Column({ type: 'bigint', unsigned: true })
   createdBy: number;
@@ -343,9 +347,6 @@ export class CourseChatThread {
   @Column({ type: 'int', default: 0 })
   replyCount: number;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  category: string;  // 'general', 'question', 'assignment', 'lab', etc.
-
   @CreateDateColumn()
   createdAt: Date;
 
@@ -362,7 +363,7 @@ export class CourseChatThread {
 @Entity('chat_messages')
 export class ChatMessage {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  chatMessageId: number;
+  messageId: number;
 
   @Column({ type: 'bigint', unsigned: true })
   threadId: number;
@@ -379,7 +380,7 @@ export class ChatMessage {
   user: User;
 
   @Column({ type: 'text' })
-  content: string;
+  messageText: string;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   parentMessageId: number;  // For nested replies
@@ -388,13 +389,17 @@ export class ChatMessage {
   isAnswer: boolean;  // Marked as accepted answer
 
   @Column({ type: 'int', default: 0 })
-  likeCount: number;
-
-  @Column({ type: 'json', nullable: true })
-  attachments: any;
+  upvoteCount: number;
 
   @Column({ type: 'tinyint', default: 0 })
-  isDeleted: boolean;
+  isEndorsed: boolean;
+
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  endorsedBy: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'endorsed_by' })
+  endorser: User;
 
   @CreateDateColumn()
   createdAt: Date;

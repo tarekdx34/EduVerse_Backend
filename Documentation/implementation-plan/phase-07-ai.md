@@ -38,29 +38,30 @@ export class AiSummary {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'varchar', length: 50 })
-  sourceType: string;  // 'material', 'lecture', 'chapter', 'notes'
+  @Column({ type: 'bigint', unsigned: true })
+  materialId: number;
 
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  sourceId: number;
-
-  @Column({ length: 200 })
-  title: string;
+  @ManyToOne(() => CourseMaterial)
+  @JoinColumn({ name: 'material_id' })
+  material: CourseMaterial;
 
   @Column({ type: 'text' })
-  originalContent: string;
+  summaryText: string;
 
-  @Column({ type: 'text' })
-  summary: string;
-
-  @Column({ type: 'enum', enum: ['brief', 'detailed', 'bullet_points', 'key_concepts'], default: 'detailed' })
+  @Column({ type: 'enum', enum: ['short', 'medium', 'detailed'], default: 'medium' })
   summaryType: string;
+
+  @Column({ type: 'varchar', length: 10, default: 'en' })
+  language: string;
+
+  @Column({ type: 'int', nullable: true })
+  wordCount: number;
+
+  @Column({ type: 'int', nullable: true })
+  processingTimeMs: number;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   aiModel: string;
-
-  @Column({ type: 'int', nullable: true })
-  tokensUsed: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -78,31 +79,32 @@ export class AiFlashcard {
   userId: number;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  courseId: number;
+  materialId: number;
 
-  @Column({ length: 200, nullable: true })
-  setTitle: string;
-
-  @Column({ type: 'text' })
-  front: string;  // Question side
+  @ManyToOne(() => CourseMaterial)
+  @JoinColumn({ name: 'material_id' })
+  material: CourseMaterial;
 
   @Column({ type: 'text' })
-  back: string;  // Answer side
+  frontText: string;  // Question side
+
+  @Column({ type: 'text' })
+  backText: string;  // Answer side
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  topic: string;
+  category: string;
 
   @Column({ type: 'enum', enum: ['easy', 'medium', 'hard'], default: 'medium' })
   difficulty: string;
 
   @Column({ type: 'int', default: 0 })
-  timesStudied: number;
+  orderIndex: number;
 
   @Column({ type: 'int', default: 0 })
-  timesCorrect: number;
+  timesReviewed: number;
 
-  @Column({ type: 'tinyint', default: 0 })
-  isBookmarked: boolean;
+  @Column({ type: 'timestamp', nullable: true })
+  lastReviewedAt: Date;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -211,7 +213,7 @@ export class ChatbotConversation {
   user: User;
 
   @Column({ length: 200, nullable: true })
-  title: string;
+  conversationTitle: string;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   courseId: number;
@@ -219,14 +221,14 @@ export class ChatbotConversation {
   @Column({ type: 'enum', enum: ['active', 'ended', 'archived'], default: 'active' })
   status: string;
 
-  @Column({ type: 'int', default: 0 })
-  messageCount: number;
+  @Column({ type: 'json', nullable: true })
+  contextData: any;
 
-  @Column({ type: 'int', default: 0 })
-  totalTokensUsed: number;
+  @Column({ type: 'timestamp' })
+  startedAt: Date;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  lastMessageAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
@@ -247,14 +249,17 @@ export class ChatbotMessage {
   @JoinColumn({ name: 'conversation_id' })
   conversation: ChatbotConversation;
 
-  @Column({ type: 'enum', enum: ['user', 'assistant', 'system'] })
-  role: string;
+  @Column({ type: 'enum', enum: ['user', 'bot'] })
+  senderType: string;
 
   @Column({ type: 'text' })
-  content: string;
+  messageText: string;
 
-  @Column({ type: 'int', nullable: true })
-  tokensUsed: number;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  intent: string;
+
+  @Column({ type: 'decimal', precision: 5, scale: 4, nullable: true })
+  confidenceScore: number;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   aiModel: string;
