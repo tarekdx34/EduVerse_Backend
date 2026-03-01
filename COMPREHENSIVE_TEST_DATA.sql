@@ -172,17 +172,17 @@ INSERT IGNORE INTO `course_sections` (`section_id`, `course_id`, `semester_id`, 
 -- ============================================================
 -- TABLE: COURSE_SCHEDULES
 -- ============================================================
-INSERT IGNORE INTO `course_schedules` (`schedule_id`, `section_id`, `day_of_week`, `start_time`, `end_time`, `building`, `room_number`, `created_at`) VALUES
-(1, 1, 'Monday', '09:00:00', '10:30:00', 'Building A', '101', '2024-12-15 10:00:00'),
-(2, 1, 'Wednesday', '09:00:00', '10:30:00', 'Building A', '101', '2024-12-15 10:00:00'),
-(3, 2, 'Tuesday', '11:00:00', '12:30:00', 'Building A', '102', '2024-12-15 10:00:00'),
-(4, 2, 'Thursday', '11:00:00', '12:30:00', 'Building A', '102', '2024-12-15 10:00:00'),
-(5, 3, 'Monday', '13:00:00', '14:30:00', 'Building B', '201', '2024-12-15 10:00:00'),
-(6, 3, 'Wednesday', '13:00:00', '14:30:00', 'Building B', '201', '2024-12-15 10:00:00'),
-(7, 4, 'Tuesday', '14:00:00', '15:30:00', 'Building B', '202', '2024-12-15 10:00:00'),
-(8, 4, 'Thursday', '14:00:00', '15:30:00', 'Building B', '202', '2024-12-15 10:00:00'),
-(9, 5, 'Monday', '15:00:00', '16:30:00', 'Lab Building', '301', '2024-12-15 10:00:00'),
-(10, 5, 'Wednesday', '15:00:00', '16:30:00', 'Lab Building', '301', '2024-12-15 10:00:00');
+INSERT IGNORE INTO `course_schedules` (`schedule_id`, `section_id`, `day_of_week`, `start_time`, `end_time`, `building`, `room`, `schedule_type`, `created_at`) VALUES
+(1, 1, 'Monday', '09:00:00', '10:30:00', 'Building A', '101', 'lecture', '2024-12-15 10:00:00'),
+(2, 1, 'Wednesday', '09:00:00', '10:30:00', 'Building A', '101', 'lecture', '2024-12-15 10:00:00'),
+(3, 2, 'Tuesday', '11:00:00', '12:30:00', 'Building A', '102', 'lecture', '2024-12-15 10:00:00'),
+(4, 2, 'Thursday', '11:00:00', '12:30:00', 'Building A', '102', 'lecture', '2024-12-15 10:00:00'),
+(5, 3, 'Monday', '13:00:00', '14:30:00', 'Building B', '201', 'lab', '2024-12-15 10:00:00'),
+(6, 3, 'Wednesday', '13:00:00', '14:30:00', 'Building B', '201', 'lab', '2024-12-15 10:00:00'),
+(7, 4, 'Tuesday', '14:00:00', '15:30:00', 'Building B', '202', 'tutorial', '2024-12-15 10:00:00'),
+(8, 4, 'Thursday', '14:00:00', '15:30:00', 'Building B', '202', 'tutorial', '2024-12-15 10:00:00'),
+(9, 5, 'Monday', '15:00:00', '16:30:00', 'Lab Building', '301', 'exam', '2024-12-15 10:00:00'),
+(10, 5, 'Wednesday', '15:00:00', '16:30:00', 'Lab Building', '301', 'exam', '2024-12-15 10:00:00');
 
 -- ============================================================
 -- TABLE: COURSE_PREREQUISITES
@@ -203,115 +203,110 @@ INSERT IGNORE INTO `course_prerequisites` (`prerequisite_id`, `course_id`, `prer
 -- ============================================================
 -- TABLE: COURSE_ENROLLMENTS (30-50 enrollments)
 -- ============================================================
-INSERT IGNORE INTO `course_enrollments` (`enrollment_id`, `section_id`, `student_id`, `enrollment_date`, `status`, `grade`, `created_at`, `updated_at`) VALUES
--- Section 1: CS101 (45 students)
-(1, 1, 21, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(2, 1, 22, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(3, 1, 23, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(4, 1, 24, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(5, 1, 25, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(6, 1, 26, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(7, 1, 27, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(8, 1, 28, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(9, 1, 29, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(10, 1, 30, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
--- Section 2: CS101 (48 students)
-(11, 2, 31, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(12, 2, 32, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(13, 2, 33, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(14, 2, 34, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(15, 2, 35, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(16, 2, 36, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(17, 2, 37, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(18, 2, 38, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(19, 2, 39, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(20, 2, 40, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
--- Section 3: CS201 (35 students)
-(21, 3, 21, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(22, 3, 23, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(23, 3, 25, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(24, 3, 27, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(25, 3, 29, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(26, 3, 32, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(27, 3, 34, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(28, 3, 36, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(29, 3, 38, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(30, 3, 40, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
--- Section 4: CS201 (38 students)
-(31, 4, 22, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(32, 4, 24, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(33, 4, 26, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(34, 4, 28, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(35, 4, 30, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(36, 4, 31, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(37, 4, 33, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(38, 4, 35, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(39, 4, 37, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(40, 4, 39, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
--- Section 5: CS202 (40 students)
-(41, 5, 21, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(42, 5, 23, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(43, 5, 25, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(44, 5, 27, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(45, 5, 29, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(46, 5, 32, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(47, 5, 34, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
-(48, 5, 36, '2025-01-15 08:00:00', 'enrolled', NULL, '2025-01-15 08:00:00', '2025-01-15 08:00:00');
+INSERT IGNORE INTO `course_enrollments` (`enrollment_id`, `user_id`, `section_id`, `program_id`, `enrollment_status`, `enrollment_date`, `created_at`, `updated_at`) VALUES
+(1, 21, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(2, 22, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(3, 23, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(4, 24, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(5, 25, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(6, 26, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(7, 27, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(8, 28, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(9, 29, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(10, 30, 1, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(11, 31, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(12, 32, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(13, 33, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(14, 34, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(15, 35, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(16, 36, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(17, 37, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(18, 38, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(19, 39, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(20, 40, 2, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(21, 21, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(22, 23, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(23, 25, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(24, 27, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(25, 29, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(26, 32, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(27, 34, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(28, 36, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(29, 38, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(30, 40, 3, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(31, 22, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(32, 24, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(33, 26, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(34, 28, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(35, 30, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(36, 31, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(37, 33, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(38, 35, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(39, 37, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(40, 39, 4, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(41, 21, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(42, 23, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(43, 25, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(44, 27, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(45, 29, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(46, 32, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(47, 34, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(48, 36, 5, 1, 'enrolled', '2025-01-15 08:00:00', '2025-01-15 08:00:00', '2025-01-15 08:00:00');
 
 -- ============================================================
 -- TABLE: COURSE_INSTRUCTORS
 -- ============================================================
-INSERT IGNORE INTO `course_instructors` (`instructor_id`, `section_id`, `instructor_user_id`, `created_at`, `updated_at`) VALUES
-(1, 1, 8, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(2, 2, 9, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(3, 3, 10, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(4, 4, 13, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(5, 5, 12, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(6, 6, 14, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(7, 7, 15, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(8, 8, 11, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(9, 9, 16, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(10, 10, 17, '2024-12-15 10:00:00', '2024-12-15 10:00:00');
+INSERT IGNORE INTO `course_instructors` (`assignment_id`, `user_id`, `section_id`, `role`, `assigned_at`) VALUES
+(1, 8, 1, 'primary', '2024-12-15 10:00:00'),
+(2, 9, 2, 'primary', '2024-12-15 10:00:00'),
+(3, 10, 3, 'primary', '2024-12-15 10:00:00'),
+(4, 13, 4, 'primary', '2024-12-15 10:00:00'),
+(5, 12, 5, 'primary', '2024-12-15 10:00:00'),
+(6, 14, 6, 'primary', '2024-12-15 10:00:00'),
+(7, 15, 7, 'primary', '2024-12-15 10:00:00'),
+(8, 11, 8, 'primary', '2024-12-15 10:00:00'),
+(9, 16, 9, 'primary', '2024-12-15 10:00:00'),
+(10, 17, 10, 'primary', '2024-12-15 10:00:00');
 
 -- ============================================================
 -- TABLE: COURSE_TAS
 -- ============================================================
-INSERT IGNORE INTO `course_tas` (`ta_id`, `section_id`, `ta_user_id`, `created_at`, `updated_at`) VALUES
-(1, 1, 18, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(2, 2, 19, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(3, 3, 18, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(4, 4, 20, '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
-(5, 5, 19, '2024-12-15 10:00:00', '2024-12-15 10:00:00');
+INSERT IGNORE INTO `course_tas` (`assignment_id`, `user_id`, `section_id`, `responsibilities`, `assigned_at`) VALUES
+(1, 18, 1, 'Grading assignments and leading lab sessions', '2024-12-15 10:00:00'),
+(2, 19, 2, 'Grading assignments and holding office hours', '2024-12-15 10:00:00'),
+(3, 18, 3, 'Grading assignments and leading lab sessions', '2024-12-15 10:00:00'),
+(4, 20, 4, 'Grading assignments and proctoring quizzes', '2024-12-15 10:00:00'),
+(5, 19, 5, 'Grading assignments and holding office hours', '2024-12-15 10:00:00');
 
 -- ============================================================
 -- TABLE: ASSIGNMENTS
 -- ============================================================
-INSERT IGNORE INTO `assignments` (`assignment_id`, `section_id`, `assignment_title`, `assignment_description`, `assignment_type`, `total_points`, `due_date`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'homework', 100, '2025-02-01 23:59:59', 8, '2025-01-20 08:00:00', '2025-01-20 08:00:00'),
-(2, 1, 'Assignment 2: Functions and Modules', 'Implement functions and modules for a simple application', 'homework', 100, '2025-02-15 23:59:59', 8, '2025-01-27 08:00:00', '2025-01-27 08:00:00'),
-(3, 2, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'homework', 100, '2025-02-02 23:59:59', 9, '2025-01-20 08:00:00', '2025-01-20 08:00:00'),
-(4, 3, 'Assignment 1: Data Structures Implementation', 'Implement and test various data structures', 'project', 150, '2025-02-20 23:59:59', 10, '2025-01-22 08:00:00', '2025-01-22 08:00:00'),
-(5, 3, 'Midterm Quiz', 'Comprehensive quiz covering weeks 1-6', 'quiz', 50, '2025-03-01 23:59:59', 10, '2025-02-01 08:00:00', '2025-02-01 08:00:00'),
-(6, 5, 'Lab Assignment 1: OOP Design', 'Design and implement OOP concepts in a project', 'lab', 120, '2025-02-10 23:59:59', 12, '2025-01-25 08:00:00', '2025-01-25 08:00:00'),
-(7, 6, 'Assignment 1: SQL Queries', 'Write SQL queries to retrieve and manipulate data', 'homework', 100, '2025-02-05 23:59:59', 14, '2025-01-28 08:00:00', '2025-01-28 08:00:00'),
-(8, 7, 'Project: Web Application', 'Build a complete web application using modern frameworks', 'project', 200, '2025-03-15 23:59:59', 15, '2025-02-01 08:00:00', '2025-02-01 08:00:00'),
-(9, 9, 'Problem Set 1: Statistical Analysis', 'Solve statistical problems using real datasets', 'homework', 100, '2025-02-08 23:59:59', 16, '2025-01-30 08:00:00', '2025-01-30 08:00:00'),
-(10, 10, 'Essay: Literary Analysis', 'Write a comprehensive literary analysis essay', 'assignment', 100, '2025-02-12 23:59:59', 17, '2025-01-31 08:00:00', '2025-01-31 08:00:00');
+INSERT IGNORE INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`, `instructions`, `submission_type`, `max_score`, `due_date`, `available_from`, `late_submission_allowed`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'Create a complete program with proper comments and documentation', 'file', 100.00, '2025-02-01 23:59:59', '2025-01-20 08:00:00', 1, 8, '2025-01-20 08:00:00', '2025-01-20 08:00:00'),
+(2, 1, 'Assignment 2: Functions and Modules', 'Implement functions and modules for a simple application', 'Submit your code with test cases', 'file', 100.00, '2025-02-15 23:59:59', '2025-01-27 08:00:00', 1, 8, '2025-01-27 08:00:00', '2025-01-27 08:00:00'),
+(3, 2, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'Create a complete program with proper comments and documentation', 'file', 100.00, '2025-02-02 23:59:59', '2025-01-20 08:00:00', 1, 9, '2025-01-20 08:00:00', '2025-01-20 08:00:00'),
+(4, 3, 'Assignment 1: Data Structures Implementation', 'Implement and test various data structures', 'Implement at least 3 data structures', 'file', 150.00, '2025-02-20 23:59:59', '2025-01-22 08:00:00', 1, 10, '2025-01-22 08:00:00', '2025-01-22 08:00:00'),
+(5, 3, 'Midterm Quiz', 'Comprehensive quiz covering weeks 1-6', 'Answer all questions to the best of your ability', 'text', 50.00, '2025-03-01 23:59:59', '2025-02-01 08:00:00', 0, 10, '2025-02-01 08:00:00', '2025-02-01 08:00:00'),
+(6, 5, 'Lab Assignment 1: OOP Design', 'Design and implement OOP concepts in a project', 'Implement the provided specification', 'file', 120.00, '2025-02-10 23:59:59', '2025-01-25 08:00:00', 1, 12, '2025-01-25 08:00:00', '2025-01-25 08:00:00'),
+(7, 6, 'Assignment 1: SQL Queries', 'Write SQL queries to retrieve and manipulate data', 'Write queries following best practices', 'file', 100.00, '2025-02-05 23:59:59', '2025-01-28 08:00:00', 1, 14, '2025-01-28 08:00:00', '2025-01-28 08:00:00'),
+(8, 7, 'Project: Web Application', 'Build a complete web application using modern frameworks', 'Follow the project specification document', 'file', 200.00, '2025-03-15 23:59:59', '2025-02-01 08:00:00', 1, 15, '2025-02-01 08:00:00', '2025-02-01 08:00:00'),
+(9, 9, 'Problem Set 1: Statistical Analysis', 'Solve statistical problems using real datasets', 'Show all work and calculations', 'file', 100.00, '2025-02-08 23:59:59', '2025-01-30 08:00:00', 1, 16, '2025-01-30 08:00:00', '2025-01-30 08:00:00'),
+(10, 10, 'Essay: Literary Analysis', 'Write a comprehensive literary analysis essay', 'Submit as PDF with proper formatting', 'file', 100.00, '2025-02-12 23:59:59', '2025-01-31 08:00:00', 1, 17, '2025-01-31 08:00:00', '2025-01-31 08:00:00');
 
 -- ============================================================
 -- TABLE: ASSIGNMENT_SUBMISSIONS
 -- ============================================================
-INSERT IGNORE INTO `assignment_submissions` (`submission_id`, `assignment_id`, `student_id`, `file_path`, `submission_status`, `submitted_at`, `graded`, `grade_score`, `grader_comment`, `graded_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 21, '/uploads/submissions/assign1_21.zip', 'submitted', '2025-01-31 15:30:00', 1, 92, 'Great work! Well-structured code.', '2025-02-01 10:00:00', '2025-01-31 15:30:00', '2025-02-01 10:00:00'),
-(2, 1, 22, '/uploads/submissions/assign1_22.zip', 'submitted', '2025-01-31 16:00:00', 1, 88, 'Good solution. Need improvement in error handling.', '2025-02-01 10:00:00', '2025-01-31 16:00:00', '2025-02-01 10:00:00'),
-(3, 1, 23, '/uploads/submissions/assign1_23.zip', 'submitted', '2025-01-29 12:00:00', 1, 95, 'Excellent! Clean code and thorough testing.', '2025-02-01 10:00:00', '2025-01-29 12:00:00', '2025-02-01 10:00:00'),
-(4, 1, 24, '/uploads/submissions/assign1_24.zip', 'submitted', '2025-02-01 23:50:00', 1, 85, 'Acceptable solution but could be optimized.', '2025-02-02 09:00:00', '2025-02-01 23:50:00', '2025-02-02 09:00:00'),
-(5, 1, 25, '/uploads/submissions/assign1_25.zip', 'submitted', '2025-01-30 18:00:00', 1, 90, 'Good job overall.', '2025-02-01 10:00:00', '2025-01-30 18:00:00', '2025-02-01 10:00:00'),
-(6, 2, 23, '/uploads/submissions/assign2_23.zip', 'submitted', '2025-02-14 10:30:00', 0, NULL, NULL, NULL, '2025-02-14 10:30:00', '2025-02-14 10:30:00'),
-(7, 2, 25, '/uploads/submissions/assign2_25.zip', 'submitted', '2025-02-13 14:00:00', 0, NULL, NULL, NULL, '2025-02-13 14:00:00', '2025-02-13 14:00:00'),
-(8, 4, 21, '/uploads/submissions/project1_21.zip', 'submitted', '2025-02-18 17:00:00', 0, NULL, NULL, NULL, '2025-02-18 17:00:00', '2025-02-18 17:00:00'),
-(9, 4, 23, '/uploads/submissions/project1_23.zip', 'submitted', '2025-02-19 12:00:00', 0, NULL, NULL, NULL, '2025-02-19 12:00:00', '2025-02-19 12:00:00'),
-(10, 4, 25, '/uploads/submissions/project1_25.zip', 'submitted', '2025-02-17 09:00:00', 0, NULL, NULL, NULL, '2025-02-17 09:00:00', '2025-02-17 09:00:00');
+INSERT IGNORE INTO `assignment_submissions` (`submission_id`, `assignment_id`, `user_id`, `file_path`, `submission_status`, `submitted_at`, `grade_score`, `grader_comment`, `graded_at`, `created_at`, `updated_at`) VALUES
+(1, 1, 21, '/uploads/submissions/assign1_21.zip', 'submitted', '2025-01-31 15:30:00', 92.00, 'Great work! Well-structured code.', '2025-02-01 10:00:00', '2025-01-31 15:30:00', '2025-02-01 10:00:00'),
+(2, 1, 22, '/uploads/submissions/assign1_22.zip', 'submitted', '2025-01-31 16:00:00', 88.00, 'Good solution. Need improvement in error handling.', '2025-02-01 10:00:00', '2025-01-31 16:00:00', '2025-02-01 10:00:00'),
+(3, 1, 23, '/uploads/submissions/assign1_23.zip', 'submitted', '2025-01-29 12:00:00', 95.00, 'Excellent! Clean code and thorough testing.', '2025-02-01 10:00:00', '2025-01-29 12:00:00', '2025-02-01 10:00:00'),
+(4, 1, 24, '/uploads/submissions/assign1_24.zip', 'submitted', '2025-02-01 23:50:00', 85.00, 'Acceptable solution but could be optimized.', '2025-02-02 09:00:00', '2025-02-01 23:50:00', '2025-02-02 09:00:00'),
+(5, 1, 25, '/uploads/submissions/assign1_25.zip', 'submitted', '2025-01-30 18:00:00', 90.00, 'Good job overall.', '2025-02-01 10:00:00', '2025-01-30 18:00:00', '2025-02-01 10:00:00'),
+(6, 2, 23, '/uploads/submissions/assign2_23.zip', 'submitted', '2025-02-14 10:30:00', NULL, NULL, NULL, '2025-02-14 10:30:00', '2025-02-14 10:30:00'),
+(7, 2, 25, '/uploads/submissions/assign2_25.zip', 'submitted', '2025-02-13 14:00:00', NULL, NULL, NULL, '2025-02-13 14:00:00', '2025-02-13 14:00:00'),
+(8, 4, 21, '/uploads/submissions/project1_21.zip', 'submitted', '2025-02-18 17:00:00', NULL, NULL, NULL, '2025-02-18 17:00:00', '2025-02-18 17:00:00'),
+(9, 4, 23, '/uploads/submissions/project1_23.zip', 'submitted', '2025-02-19 12:00:00', NULL, NULL, NULL, '2025-02-19 12:00:00', '2025-02-19 12:00:00'),
+(10, 4, 25, '/uploads/submissions/project1_25.zip', 'submitted', '2025-02-17 09:00:00', NULL, NULL, NULL, '2025-02-17 09:00:00', '2025-02-17 09:00:00');
 
 -- ============================================================
 -- PRIORITY 4: ACADEMIC ACTIVITIES
@@ -320,13 +315,13 @@ INSERT IGNORE INTO `assignment_submissions` (`submission_id`, `assignment_id`, `
 -- ============================================================
 -- TABLE: QUIZZES
 -- ============================================================
-INSERT IGNORE INTO `quizzes` (`quiz_id`, `section_id`, `quiz_title`, `quiz_description`, `total_points`, `time_limit_minutes`, `passing_score`, `shuffle_questions`, `show_correct_answers`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 20, 15, 12, 1, 1, 8, '2025-01-25 08:00:00', '2025-01-25 08:00:00'),
-(2, 1, 'Quiz 2: Control Flow', 'Test knowledge of conditionals and loops', 20, 20, 12, 1, 1, 8, '2025-02-01 08:00:00', '2025-02-01 08:00:00'),
-(3, 2, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 20, 15, 12, 1, 1, 9, '2025-01-26 08:00:00', '2025-01-26 08:00:00'),
-(4, 3, 'Quiz 1: Array and Linked Lists', 'Assessment of array and linked list concepts', 25, 20, 15, 1, 0, 10, '2025-02-03 08:00:00', '2025-02-03 08:00:00'),
-(5, 5, 'Quiz 1: OOP Principles', 'Test understanding of object-oriented programming', 20, 25, 12, 1, 1, 12, '2025-02-05 08:00:00', '2025-02-05 08:00:00'),
-(6, 9, 'Quiz 1: Statistical Concepts', 'Assessment of probability and statistics fundamentals', 20, 30, 12, 0, 1, 16, '2025-02-07 08:00:00', '2025-02-07 08:00:00');
+INSERT IGNORE INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `instructions`, `quiz_type`, `time_limit_minutes`, `max_attempts`, `passing_score`, `randomize_questions`, `show_correct_answers`, `weight`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 'Answer all questions', 'graded', 15, 1, 12.00, 1, 1, 10.00, 8, '2025-01-25 08:00:00', '2025-01-25 08:00:00'),
+(2, 1, 'Quiz 2: Control Flow', 'Test knowledge of conditionals and loops', 'Answer all questions', 'graded', 20, 1, 12.00, 1, 1, 10.00, 8, '2025-02-01 08:00:00', '2025-02-01 08:00:00'),
+(3, 2, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 'Answer all questions', 'graded', 15, 1, 12.00, 1, 1, 10.00, 9, '2025-01-26 08:00:00', '2025-01-26 08:00:00'),
+(4, 3, 'Quiz 1: Array and Linked Lists', 'Assessment of array and linked list concepts', 'Answer all questions', 'graded', 20, 1, 15.00, 1, 0, 10.00, 10, '2025-02-03 08:00:00', '2025-02-03 08:00:00'),
+(5, 5, 'Quiz 1: OOP Principles', 'Test understanding of object-oriented programming', 'Answer all questions', 'graded', 25, 1, 12.00, 1, 1, 10.00, 12, '2025-02-05 08:00:00', '2025-02-05 08:00:00'),
+(6, 9, 'Quiz 1: Statistical Concepts', 'Assessment of probability and statistics fundamentals', 'Answer all questions', 'graded', 30, 1, 12.00, 0, 1, 10.00, 16, '2025-02-07 08:00:00', '2025-02-07 08:00:00');
 
 -- ============================================================
 -- TABLE: QUIZ_QUESTIONS
@@ -370,7 +365,7 @@ INSERT IGNORE INTO `attendance_sessions` (`session_id`, `section_id`, `session_d
 -- ============================================================
 -- TABLE: ATTENDANCE_RECORDS
 -- ============================================================
-INSERT IGNORE INTO `attendance_records` (`record_id`, `session_id`, `student_id`, `status`, `check_in_time`, `check_out_time`, `created_at`) VALUES
+INSERT IGNORE INTO `attendance_records` (`record_id`, `session_id`, `user_id`, `status`, `check_in_time`, `check_out_time`, `created_at`) VALUES
 (1, 1, 21, 'present', '2025-02-03 08:58:00', '2025-02-03 10:31:00', '2025-02-03 09:00:00'),
 (2, 1, 22, 'present', '2025-02-03 09:02:00', '2025-02-03 10:32:00', '2025-02-03 09:00:00'),
 (3, 1, 23, 'present', '2025-02-03 09:00:00', '2025-02-03 10:30:00', '2025-02-03 09:00:00'),
