@@ -68,30 +68,6 @@ export class EmailService {
     }
   }
 
-  async sendVerificationEmail(
-    email: string,
-    verificationToken: string,
-    firstName: string,
-  ): Promise<void> {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-    const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
-
-    const mailOptions = {
-      from: `"${this.configService.get<string>('MAIL_FROM_NAME')}" <${this.configService.get<string>('MAIL_FROM_ADDRESS')}>`,
-      to: email,
-      subject: 'Verify Your Email Address',
-      html: this.getEmailVerificationTemplate(firstName, verificationUrl),
-    };
-
-    try {
-      await this.transporter.sendMail(mailOptions);
-      this.logger.log(`Verification email sent to ${email}`);
-    } catch (error) {
-      this.logger.error(`Failed to send verification email to ${email}`, error);
-      throw new Error('Failed to send verification email');
-    }
-  }
-
   async sendPasswordChangedNotification(
     email: string,
     firstName: string,
@@ -207,87 +183,6 @@ export class EmailService {
             <div class="footer">
               <p>© ${new Date().getFullYear()} EduVerse. All rights reserved.</p>
               <p>This is an automated message, please do not reply.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `;
-  }
-
-  private getEmailVerificationTemplate(
-    firstName: string,
-    verificationUrl: string,
-  ): string {
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              line-height: 1.6;
-              color: #333;
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-            }
-            .container {
-              background-color: #f9f9f9;
-              border-radius: 10px;
-              padding: 30px;
-              border: 1px solid #e0e0e0;
-            }
-            .header {
-              text-align: center;
-              margin-bottom: 30px;
-            }
-            .logo {
-              font-size: 28px;
-              font-weight: bold;
-              color: #4CAF50;
-            }
-            .content {
-              background-color: white;
-              padding: 25px;
-              border-radius: 8px;
-            }
-            .button {
-              display: inline-block;
-              padding: 12px 30px;
-              background-color: #2196F3;
-              color: white;
-              text-decoration: none;
-              border-radius: 5px;
-              margin: 20px 0;
-              font-weight: bold;
-            }
-            .footer {
-              margin-top: 30px;
-              text-align: center;
-              font-size: 12px;
-              color: #666;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <div class="logo">🎓 EduVerse</div>
-            </div>
-            <div class="content">
-              <h2>Welcome to EduVerse! 🎉</h2>
-              <p>Hi ${firstName},</p>
-              <p>Thank you for registering! Please verify your email address by clicking the button below:</p>
-              <div style="text-align: center;">
-                <a href="${verificationUrl}" class="button">Verify Email</a>
-              </div>
-              <p>Or copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #666; font-size: 12px;">${verificationUrl}</p>
-            </div>
-            <div class="footer">
-              <p>© ${new Date().getFullYear()} EduVerse. All rights reserved.</p>
             </div>
           </div>
         </body>

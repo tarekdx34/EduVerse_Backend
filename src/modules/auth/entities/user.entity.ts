@@ -17,7 +17,6 @@ import { Role } from './role.entity';
 import { Session } from './session.entity';
 import { PasswordReset } from './password-reset.entity';
 import { TwoFactorAuth } from './two-factor-auth.entity';
-import { EmailVerification } from './email-verification.entity';
 
 export enum UserStatus {
   ACTIVE = 'active',
@@ -92,9 +91,6 @@ export class User {
 
   @OneToMany(() => TwoFactorAuth, (twoFactorAuth) => twoFactorAuth.user)
   twoFactorAuths: TwoFactorAuth[];
-
-  @OneToMany(() => EmailVerification, (emailVerification) => emailVerification.user)
-  emailVerifications: EmailVerification[];
 
   // Hooks for password hashing
   @BeforeInsert()

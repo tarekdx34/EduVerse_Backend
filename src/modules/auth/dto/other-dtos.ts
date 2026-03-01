@@ -54,26 +54,3 @@ export class TokenRefreshRequestDto {
   @IsNotEmpty({ message: 'Refresh token is required' })
   refreshToken: string;
 }
-
-// Verify Email DTO
-export class VerifyEmailDto {
-  @ApiProperty({
-    description: 'Email verification token from email',
-    example: 'abc123def456...',
-  })
-  @IsString()
-  @IsNotEmpty({ message: 'Verification token is required' })
-  token: string;
-}
-
-// Resend Verification Email DTO
-export class ResendVerificationEmailDto {
-  @ApiProperty({
-    description: 'Email address to resend verification',
-    example: 'john.doe@example.com',
-    format: 'email',
-  })
-  @IsEmail({}, { message: 'Invalid email format' })
-  @IsNotEmpty({ message: 'Email is required' })
-  email: string;
-}
