@@ -16,7 +16,6 @@ import { Permission } from './entities/permission.entity';
 import { Session } from './entities/session.entity';
 import { PasswordReset } from './entities/password-reset.entity';
 import { TwoFactorAuth } from './entities/two-factor-auth.entity';
-import { EmailVerification } from './entities/email-verification.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { EmailModule } from '../email/email.module';
 
@@ -29,7 +28,6 @@ import { EmailModule } from '../email/email.module';
       Session,
       PasswordReset,
       TwoFactorAuth,
-      EmailVerification,
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
