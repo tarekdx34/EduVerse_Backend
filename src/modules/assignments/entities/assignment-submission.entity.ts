@@ -4,8 +4,6 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   Index,
 } from 'typeorm';
 import { SubmissionStatus } from '../enums';
@@ -64,9 +62,17 @@ export class AssignmentSubmission {
     type: 'enum',
     enum: SubmissionStatus,
     default: SubmissionStatus.SUBMITTED,
-    name: 'submission_status',
+    name: 'status',
   })
   submissionStatus: SubmissionStatus;
+
+  @Column({
+    type: 'tinyint',
+    width: 1,
+    default: 0,
+    name: 'is_late',
+  })
+  isLate: number;
 
   @Column({
     type: 'int',
@@ -81,16 +87,6 @@ export class AssignmentSubmission {
     name: 'submitted_at',
   })
   submittedAt: Date;
-
-  @CreateDateColumn({
-    name: 'created_at',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-  })
-  updatedAt: Date;
 
   @ManyToOne(() => Assignment, (assignment) => assignment.submissions, {
     onDelete: 'CASCADE',
