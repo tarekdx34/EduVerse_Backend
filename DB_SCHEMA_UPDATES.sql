@@ -32,7 +32,7 @@ ALTER TABLE `calendar_events` ADD COLUMN `color` VARCHAR(7) DEFAULT NULL AFTER `
 -- ============================================================
 -- 5. Add view_count to course materials
 -- ============================================================
-ALTER TABLE `course_materials` ADD COLUMN `view_count` INT(11) DEFAULT 0 AFTER `download_count`;
+ALTER TABLE `course_materials` ADD COLUMN `view_count` INT(11) DEFAULT 0 AFTER `published_at`;
 
 -- ============================================================
 -- 6. Create Office Hours tables (Phase 11)
