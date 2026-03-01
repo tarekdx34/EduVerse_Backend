@@ -7,7 +7,6 @@ export enum SubmissionType {
 
 export enum SubmissionStatus {
   SUBMITTED = 'submitted',
-  LATE = 'late',
   GRADED = 'graded',
   RETURNED = 'returned',
   RESUBMIT = 'resubmit',
