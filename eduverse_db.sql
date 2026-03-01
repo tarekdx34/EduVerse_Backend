@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 27, 2025 at 05:43 PM
+-- Generation Time: Mar 01, 2026 at 10:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,7 +32,7 @@ CREATE TABLE `achievements` (
   `achievement_name` varchar(100) NOT NULL,
   `achievement_description` text DEFAULT NULL,
   `achievement_type` enum('score','streak','completion','participation','speed') NOT NULL,
-  `criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`criteria`)),
+  `criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `reward_points` int(11) DEFAULT 0,
   `reward_badge_id` int(10) UNSIGNED DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
@@ -96,8 +96,8 @@ CREATE TABLE `ai_attendance_processing` (
   `detected_faces_count` int(11) DEFAULT 0,
   `matched_students_count` int(11) DEFAULT 0,
   `unmatched_faces_count` int(11) DEFAULT 0,
-  `unmatched_faces_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`unmatched_faces_data`)),
-  `confidence_scores` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`confidence_scores`)),
+  `unmatched_faces_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `confidence_scores` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `processing_time_ms` int(11) DEFAULT NULL,
   `error_message` text DEFAULT NULL,
   `manual_review_required` tinyint(1) DEFAULT 0,
@@ -125,16 +125,6 @@ CREATE TABLE `ai_feedback` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `ai_feedback`
---
-
-INSERT INTO `ai_feedback` (`feedback_id`, `user_id`, `course_id`, `feedback_type`, `feedback_text`, `priority`, `is_read`, `read_at`, `created_at`) VALUES
-(1, 7, 1, 'performance', 'Excellent progress! You are performing above average in all assessments. Keep up the great work!', 'medium', 1, NULL, '2025-11-20 13:43:00'),
-(2, 8, 1, 'improvement', 'Good work overall. Consider reviewing loop concepts for better understanding.', 'medium', 0, NULL, '2025-11-20 13:43:00'),
-(3, 9, 1, 'recommendation', 'You may benefit from additional practice with conditional statements. Check out the extra materials in the resource section.', 'medium', 0, NULL, '2025-11-20 13:43:00'),
-(4, 10, 1, 'performance', 'Your attendance is excellent! Try to submit assignments earlier to avoid last-minute rush.', 'low', 0, NULL, '2025-11-20 13:43:00');
-
 -- --------------------------------------------------------
 
 --
@@ -155,16 +145,6 @@ CREATE TABLE `ai_flashcards` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `ai_flashcards`
---
-
-INSERT INTO `ai_flashcards` (`flashcard_id`, `material_id`, `user_id`, `front_text`, `back_text`, `category`, `difficulty`, `order_index`, `times_reviewed`, `last_reviewed_at`, `created_at`) VALUES
-(1, 2, 7, 'What is a variable?', 'A variable is a named storage location that holds a value which can be changed during program execution.', 'Basics', 'easy', 1, 3, '2025-02-14 13:00:00', '2025-11-20 13:43:00'),
-(2, 2, 7, 'What are the primitive data types in Python?', 'int, float, str, bool', 'Data Types', 'easy', 2, 2, '2025-02-13 08:30:00', '2025-11-20 13:43:00'),
-(3, 3, 7, 'How do you declare a string variable in Python?', 'Use quotes: x = \"hello\" or x = \'hello\'', 'Variables', 'easy', 1, 1, '2025-02-12 12:20:00', '2025-11-20 13:43:00'),
-(4, 2, 8, 'What is Python?', 'Python is a high-level, interpreted programming language known for its simplicity and readability.', 'Basics', 'easy', 1, 2, '2025-02-11 09:00:00', '2025-11-20 13:43:00');
-
 -- --------------------------------------------------------
 
 --
@@ -179,7 +159,7 @@ CREATE TABLE `ai_grading_results` (
   `max_score` decimal(5,2) DEFAULT NULL,
   `ai_feedback` text DEFAULT NULL,
   `confidence_score` decimal(3,2) DEFAULT NULL,
-  `grading_criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`grading_criteria`)),
+  `grading_criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `requires_human_review` tinyint(1) DEFAULT 0,
   `human_override_score` decimal(5,2) DEFAULT NULL,
   `processing_time_ms` int(11) DEFAULT NULL,
@@ -187,15 +167,6 @@ CREATE TABLE `ai_grading_results` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `reviewed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `ai_grading_results`
---
-
-INSERT INTO `ai_grading_results` (`grading_id`, `submission_id`, `quiz_attempt_id`, `ai_score`, `max_score`, `ai_feedback`, `confidence_score`, `grading_criteria`, `requires_human_review`, `human_override_score`, `processing_time_ms`, `ai_model`, `created_at`, `reviewed_at`) VALUES
-(1, 5, NULL, 87.50, 100.00, 'Code logic is correct and follows good practices. Minor improvements: Add error handling and more descriptive variable names.', 0.92, NULL, 0, NULL, 1850, 'gpt-4', '2025-11-20 13:43:00', NULL),
-(2, NULL, 3, 75.00, 100.00, 'Good understanding of basic concepts. Review conditional statements for improvement.', 0.88, NULL, 0, NULL, 980, 'gpt-4', '2025-11-20 13:43:00', NULL),
-(3, 3, NULL, 78.00, 100.00, 'Functional code with room for optimization. Consider edge cases.', 0.85, NULL, 1, NULL, 2100, 'gpt-4', '2025-11-20 13:43:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -208,7 +179,7 @@ CREATE TABLE `ai_quizzes` (
   `material_id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `difficulty_id` int(10) UNSIGNED DEFAULT NULL,
-  `quiz_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`quiz_data`)),
+  `quiz_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `question_count` int(11) DEFAULT 10,
   `language` varchar(10) DEFAULT 'en',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -242,9 +213,6 @@ CREATE TABLE `ai_recommendations` (
 --
 
 INSERT INTO `ai_recommendations` (`recommendation_id`, `user_id`, `course_id`, `material_id`, `recommendation_type`, `title`, `description`, `reason`, `priority`, `is_viewed`, `is_completed`, `created_at`, `viewed_at`, `completed_at`) VALUES
-(1, 10, 1, 2, 'review', 'Review: Variables and Data Types', 'Based on your quiz performance, reviewing this topic would be beneficial', 'Low score on related quiz questions', 'high', 1, 0, '2025-11-20 13:43:00', NULL, NULL),
-(2, 11, 1, 3, 'practice', 'Practice: String Operations', 'Additional practice recommended for better understanding', 'Identified as potential weak area', 'medium', 0, 0, '2025-11-20 13:43:00', NULL, NULL),
-(3, 7, 1, NULL, 'material', 'Advanced Python Resources', 'Ready for more advanced material based on your excellent progress', 'High performance across all assessments', 'low', 1, 1, '2025-11-20 13:43:00', NULL, NULL),
 (4, 9, 2, NULL, 'review', 'Linked List Fundamentals', 'Revisit this topic before the midterm', 'Important for upcoming exam', 'high', 0, 0, '2025-11-20 13:43:00', NULL, NULL);
 
 -- --------------------------------------------------------
@@ -258,7 +226,7 @@ CREATE TABLE `ai_study_plans` (
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `course_id` bigint(20) UNSIGNED NOT NULL,
   `plan_name` varchar(255) NOT NULL,
-  `plan_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`plan_data`)),
+  `plan_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `total_hours` int(11) DEFAULT NULL,
@@ -273,8 +241,6 @@ CREATE TABLE `ai_study_plans` (
 --
 
 INSERT INTO `ai_study_plans` (`plan_id`, `user_id`, `course_id`, `plan_name`, `plan_data`, `start_date`, `end_date`, `total_hours`, `status`, `progress_percentage`, `created_at`, `updated_at`) VALUES
-(1, 7, 1, 'Midterm Preparation Plan', '{\"weeks\": [{\"week\": 1, \"topics\": [\"Variables\", \"Loops\"], \"hours\": 5}, {\"week\": 2, \"topics\": [\"Functions\", \"Lists\"], \"hours\": 6}]}', '2025-02-20', '2025-03-15', 22, 'active', 35.50, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 10, 1, 'Catch-up Study Plan', '{\"weeks\": [{\"week\": 1, \"topics\": [\"Review all lectures\"], \"hours\": 8}, {\"week\": 2, \"topics\": [\"Complete missing assignments\"], \"hours\": 10}]}', '2025-02-15', '2025-03-01', 18, 'active', 55.00, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (3, 12, 2, 'Data Structures Mastery', '{\"weeks\": [{\"week\": 1, \"topics\": [\"Arrays\", \"Linked Lists\"], \"hours\": 7}, {\"week\": 2, \"topics\": [\"Stacks\", \"Queues\"], \"hours\": 7}]}', '2025-02-18', '2025-04-01', 28, 'active', 20.00, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
@@ -295,15 +261,6 @@ CREATE TABLE `ai_summaries` (
   `ai_model` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `ai_summaries`
---
-
-INSERT INTO `ai_summaries` (`summary_id`, `material_id`, `user_id`, `summary_text`, `summary_type`, `language`, `word_count`, `processing_time_ms`, `ai_model`, `created_at`) VALUES
-(1, 2, 7, 'This lecture introduces fundamental programming concepts including variables, data types, control structures, and basic syntax. Key topics covered: variable declaration, arithmetic operations, and program structure.', 'medium', 'en', 35, 1250, 'gpt-4', '2025-11-20 13:43:00'),
-(2, 3, 7, 'Overview of Python variables and data types. Covers integers, floats, strings, and booleans. Explains type conversion and variable naming conventions.', 'short', 'en', 22, 890, 'gpt-4', '2025-11-20 13:43:00'),
-(3, 2, 8, 'Comprehensive introduction to programming fundamentals with focus on Python syntax and basic operations.', 'short', 'en', 15, 650, 'gpt-4', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -367,10 +324,11 @@ CREATE TABLE `announcements` (
 --
 
 INSERT INTO `announcements` (`announcement_id`, `course_id`, `created_by`, `title`, `content`, `announcement_type`, `priority`, `target_audience`, `is_published`, `published_at`, `expires_at`, `attachment_file_id`, `view_count`, `created_at`, `updated_at`) VALUES
-(1, 1, 2, 'Course Start', 'Welcome to CS101! Please review the syllabus and complete the introductory quiz.', 'course', 'high', 'students', 1, '2025-01-15 07:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 1, 2, 'Assignment 1 Posted', 'Assignment 1 is now available. Due date: February 15, 2025.', 'course', 'medium', 'students', 1, '2025-02-01 08:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(1, 1, 8, 'Welcome to CS101!', 'Welcome to Introduction to Computer Science. Looking forward to an exciting semester of learning!', 'course', 'medium', 'all', 1, '2025-01-15 08:00:00', NULL, NULL, 42, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(2, 1, 8, 'Assignment 1 Released', 'The first assignment is now available in the course materials section. Due date: February 1st.', 'course', 'high', 'students', 1, '2025-01-20 09:00:00', NULL, NULL, 38, '2025-01-20 09:00:00', '2025-01-20 09:00:00'),
 (3, NULL, 1, 'Campus WiFi Maintenance', 'Network maintenance scheduled for this weekend. Expect brief outages.', 'campus', 'medium', 'all', 1, '2025-02-10 06:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 2, 3, 'Midterm Exam Schedule', 'The midterm exam will be held on March 15, 2025 from 2:00 PM to 4:00 PM.', 'course', 'high', 'students', 1, '2025-02-12 10:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(4, 2, 3, 'Midterm Exam Schedule', 'The midterm exam will be held on March 15, 2025 from 2:00 PM to 4:00 PM.', 'course', 'high', 'students', 1, '2025-02-12 10:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(5, 1, 8, 'Office Hours Extended', 'Extended office hours this week: Monday 2-4 PM, Wednesday 1-3 PM. Location: Room 301A.', 'course', 'medium', 'students', 1, '2025-02-13 08:00:00', NULL, NULL, 23, '2025-02-13 08:00:00', '2025-02-13 08:00:00');
 
 -- --------------------------------------------------------
 
@@ -385,7 +343,7 @@ CREATE TABLE `api_integrations` (
   `integration_type` enum('lms','sso','payment','email','sms','ai','storage','other') NOT NULL,
   `api_endpoint` varchar(500) DEFAULT NULL,
   `api_key_encrypted` varchar(500) DEFAULT NULL,
-  `configuration` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`configuration`)),
+  `configuration` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `last_sync_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -453,7 +411,8 @@ CREATE TABLE `assignments` (
   `late_penalty_percent` decimal(5,2) DEFAULT 0.00,
   `submission_type` enum('file','text','link','multiple') DEFAULT 'file',
   `max_file_size_mb` int(11) DEFAULT 10,
-  `allowed_file_types` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`allowed_file_types`)),
+  `allowed_file_types` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -464,11 +423,18 @@ CREATE TABLE `assignments` (
 -- Dumping data for table `assignments`
 --
 
-INSERT INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`, `instructions`, `max_score`, `weight`, `due_date`, `available_from`, `late_submission_allowed`, `late_penalty_percent`, `submission_type`, `max_file_size_mb`, `allowed_file_types`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Assignment 1: Hello World', 'Create your first Python program', 'Write a program that prints Hello World', 100.00, 10.00, '2025-02-15 21:59:59', '2025-01-31 22:00:00', 1, 10.00, 'file', 10, NULL, 2, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(2, 1, 'Assignment 2: Variables Practice', 'Practice with variables and data types', 'Complete the exercises in the assignment document', 100.00, 15.00, '2025-02-28 21:59:59', '2025-02-14 22:00:00', 1, 10.00, 'file', 10, NULL, 2, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(3, 2, 'Assignment 1: Linked Lists', 'Implement a linked list', 'Create a linked list class with basic operations', 100.00, 20.00, '2025-03-10 21:59:59', '2025-02-19 22:00:00', 1, 15.00, 'file', 10, NULL, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(4, 3, 'Assignment 1: SQL Queries', 'Database query practice', 'Write SQL queries for the given scenarios', 100.00, 15.00, '2025-03-05 21:59:59', '2025-02-14 22:00:00', 0, 0.00, 'text', 10, NULL, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL);
+INSERT INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`, `instructions`, `max_score`, `weight`, `due_date`, `available_from`, `late_submission_allowed`, `late_penalty_percent`, `submission_type`, `max_file_size_mb`, `allowed_file_types`, `status`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 1, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'Create a complete program with proper comments and documentation', 100.00, 0.00, '2025-02-01 23:59:59', '2025-01-20 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 8, '2025-01-20 08:00:00', '2025-01-20 08:00:00', NULL),
+(2, 1, 'Assignment 2: Functions and Modules', 'Implement functions and modules for a simple application', 'Submit your code with test cases', 100.00, 0.00, '2025-02-15 23:59:59', '2025-01-27 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 8, '2025-01-27 08:00:00', '2025-01-27 08:00:00', NULL),
+(3, 2, 'Assignment 1: Linked Lists', 'Implement a linked list', 'Create a linked list class with basic operations', 100.00, 20.00, '2025-03-10 21:59:59', '2025-02-19 22:00:00', 1, 15.00, 'file', 10, NULL, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(4, 3, 'Assignment 1: SQL Queries', 'Database query practice', 'Write SQL queries for the given scenarios', 100.00, 15.00, '2025-03-05 21:59:59', '2025-02-14 22:00:00', 0, 0.00, 'text', 10, NULL, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(5, 3, 'Midterm Quiz', 'Comprehensive quiz covering weeks 1-6', 'Answer all questions to the best of your ability', 50.00, 0.00, '2025-03-01 23:59:59', '2025-02-01 08:00:00', 0, 0.00, 'text', 10, NULL, 'draft', 10, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(6, 5, 'Lab Assignment 1: OOP Design', 'Design and implement OOP concepts in a project', 'Implement the provided specification', 120.00, 0.00, '2025-02-10 23:59:59', '2025-01-25 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 12, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
+(7, 6, 'Assignment 1: SQL Queries', 'Write SQL queries to retrieve and manipulate data', 'Write queries following best practices', 100.00, 0.00, '2025-02-05 23:59:59', '2025-01-28 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 14, '2025-01-28 08:00:00', '2025-01-28 08:00:00', NULL),
+(8, 7, 'Project: Web Application', 'Build a complete web application using modern frameworks', 'Follow the project specification document', 200.00, 0.00, '2025-03-15 23:59:59', '2025-02-01 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 15, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(9, 9, 'Problem Set 1: Statistical Analysis', 'Solve statistical problems using real datasets', 'Show all work and calculations', 100.00, 0.00, '2025-02-08 23:59:59', '2025-01-30 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 16, '2025-01-30 08:00:00', '2025-01-30 08:00:00', NULL),
+(10, 10, 'Essay: Literary Analysis', 'Write a comprehensive literary analysis essay', 'Submit as PDF with proper formatting', 100.00, 0.00, '2025-02-12 23:59:59', '2025-01-31 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 17, '2025-01-31 08:00:00', '2025-01-31 08:00:00', NULL),
+(11, 1, 'Homework 1', 'string', 'string', 100.00, 100.00, '2026-03-01 21:08:59', '2026-03-02 21:08:59', 0, 0.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'draft', 56, '2026-03-01 21:09:28', '2026-03-01 21:09:28', NULL);
 
 -- --------------------------------------------------------
 
@@ -494,11 +460,16 @@ CREATE TABLE `assignment_submissions` (
 --
 
 INSERT INTO `assignment_submissions` (`submission_id`, `assignment_id`, `user_id`, `file_id`, `submission_text`, `submission_link`, `submitted_at`, `is_late`, `attempt_number`, `status`) VALUES
-(1, 1, 7, NULL, 'print(\"Hello World\")', NULL, '2025-11-20 13:42:59', 0, 1, 'graded'),
-(2, 1, 8, NULL, 'print(\"Hello World\")', NULL, '2025-11-20 13:42:59', 0, 1, 'graded'),
-(3, 1, 9, NULL, 'print(\"Hello, World!\")', NULL, '2025-11-20 13:42:59', 0, 1, 'submitted'),
-(4, 1, 10, NULL, 'print(\"Hello World\")', NULL, '2025-11-20 13:42:59', 1, 1, 'graded'),
-(5, 2, 7, NULL, 'x = 5\ny = 10\nprint(x + y)', NULL, '2025-11-20 13:42:59', 0, 1, 'submitted');
+(16, 1, 21, NULL, 'Submitted assignment 1 - programming basics', NULL, '2025-01-31 15:30:00', 0, 1, 'graded'),
+(17, 1, 22, NULL, 'Submitted assignment 1 - programming basics', NULL, '2025-01-31 16:00:00', 0, 1, 'graded'),
+(18, 1, 23, NULL, 'Submitted assignment 1 - programming basics', NULL, '2025-01-29 12:00:00', 0, 1, 'graded'),
+(19, 1, 24, NULL, 'Submitted assignment 1 - programming basics', NULL, '2025-02-01 23:50:00', 0, 1, 'graded'),
+(20, 1, 25, NULL, 'Submitted assignment 1 - programming basics', NULL, '2025-01-30 18:00:00', 0, 1, 'graded'),
+(21, 2, 23, NULL, 'Submitted assignment 2 - functions and modules', NULL, '2025-02-14 10:30:00', 0, 1, 'submitted'),
+(22, 2, 25, NULL, 'Submitted assignment 2 - functions and modules', NULL, '2025-02-13 14:00:00', 0, 1, 'submitted'),
+(23, 4, 21, NULL, 'Submitted project 1 - data structures implementation', NULL, '2025-02-18 17:00:00', 0, 1, 'submitted'),
+(24, 4, 23, NULL, 'Submitted project 1 - data structures implementation', NULL, '2025-02-19 12:00:00', 0, 1, 'submitted'),
+(25, 4, 25, NULL, 'Submitted project 1 - data structures implementation', NULL, '2025-02-17 09:00:00', 0, 1, 'submitted');
 
 -- --------------------------------------------------------
 
@@ -534,6 +505,22 @@ CREATE TABLE `attendance_records` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `attendance_records`
+--
+
+INSERT INTO `attendance_records` (`record_id`, `session_id`, `user_id`, `attendance_status`, `check_in_time`, `marked_by`, `confidence_score`, `notes`, `updated_at`) VALUES
+(1, 1, 21, 'present', '2025-02-03 08:58:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(2, 1, 22, 'present', '2025-02-03 09:02:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(3, 1, 23, 'present', '2025-02-03 09:00:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(4, 1, 24, 'absent', NULL, 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(5, 1, 25, 'present', '2025-02-03 09:05:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(6, 2, 21, 'present', '2025-02-05 09:00:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(7, 2, 22, 'present', '2025-02-05 09:03:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(8, 2, 23, 'present', '2025-02-05 09:00:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(9, 2, 24, 'late', '2025-02-05 09:15:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(10, 2, 25, 'present', '2025-02-05 08:58:00', 'manual', NULL, NULL, '2026-03-01 14:55:40');
+
 -- --------------------------------------------------------
 
 --
@@ -558,6 +545,22 @@ CREATE TABLE `attendance_sessions` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `attendance_sessions`
+--
+
+INSERT INTO `attendance_sessions` (`session_id`, `section_id`, `session_date`, `session_type`, `instructor_id`, `start_time`, `end_time`, `location`, `total_students`, `present_count`, `absent_count`, `status`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 1, '2025-02-03', 'lecture', 8, '09:00:00', '10:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(2, 1, '2025-02-05', 'lecture', 8, '09:00:00', '10:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-05 08:00:00', '2026-03-01 14:55:40'),
+(3, 1, '2025-02-10', 'lecture', 8, '09:00:00', '10:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-10 08:00:00', '2026-03-01 14:55:40'),
+(4, 2, '2025-02-04', 'lecture', 9, '11:00:00', '12:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-04 08:00:00', '2026-03-01 14:55:40'),
+(5, 2, '2025-02-06', 'lecture', 9, '11:00:00', '12:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-06 08:00:00', '2026-03-01 14:55:40'),
+(6, 3, '2025-02-03', 'lecture', 10, '13:00:00', '14:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(7, 3, '2025-02-05', 'lecture', 10, '13:00:00', '14:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-05 08:00:00', '2026-03-01 14:55:40'),
+(8, 5, '2025-02-03', 'lab', 12, '15:00:00', '16:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(9, 9, '2025-02-04', 'lecture', 16, '14:00:00', '15:00:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-04 08:00:00', '2026-03-01 14:55:40'),
+(10, 10, '2025-02-05', 'lecture', 17, '13:00:00', '14:00:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-05 08:00:00', '2026-03-01 14:55:40');
+
 -- --------------------------------------------------------
 
 --
@@ -570,8 +573,8 @@ CREATE TABLE `audit_logs` (
   `action_type` varchar(50) NOT NULL,
   `entity_type` varchar(50) DEFAULT NULL,
   `entity_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `old_values` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`old_values`)),
-  `new_values` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`new_values`)),
+  `old_values` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `new_values` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `ip_address` varchar(45) DEFAULT NULL,
   `user_agent` text DEFAULT NULL,
   `description` text DEFAULT NULL,
@@ -603,7 +606,7 @@ CREATE TABLE `badges` (
   `badge_category` enum('achievement','milestone','special','course') DEFAULT 'achievement',
   `rarity` enum('common','rare','epic','legendary') DEFAULT 'common',
   `points_reward` int(11) DEFAULT 0,
-  `criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`criteria`)),
+  `criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -664,6 +667,7 @@ CREATE TABLE `calendar_events` (
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `location` varchar(255) DEFAULT NULL,
+  `color` varchar(7) DEFAULT NULL,
   `start_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `end_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `schedule_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -675,16 +679,6 @@ CREATE TABLE `calendar_events` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `calendar_events`
---
-
-INSERT INTO `calendar_events` (`event_id`, `user_id`, `course_id`, `event_type`, `title`, `description`, `location`, `start_time`, `end_time`, `schedule_id`, `exam_id`, `is_recurring`, `recurrence_pattern`, `reminder_minutes`, `status`, `created_at`, `updated_at`) VALUES
-(1, 7, 1, 'lecture', 'CS101 Lecture', 'Introduction to Programming', 'Room 101', '2025-02-17 07:00:00', '2025-02-17 08:30:00', NULL, NULL, 0, NULL, 30, 'scheduled', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 7, 1, 'assignment', 'Assignment 2 Due', 'Variables Practice Assignment', 'Online', '2025-02-28 21:59:59', '2025-02-28 21:59:59', NULL, NULL, 0, NULL, 2880, 'scheduled', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 7, 1, 'quiz', 'Quiz 2', 'Control Structures Quiz', 'Online', '2025-03-09 22:00:00', '2025-03-10 21:59:59', NULL, NULL, 0, NULL, 1440, 'scheduled', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 8, 1, 'lecture', 'CS101 Lecture', 'Introduction to Programming', 'Room 102', '2025-02-18 12:00:00', '2025-02-18 13:30:00', NULL, NULL, 0, NULL, 30, 'scheduled', '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -765,14 +759,6 @@ CREATE TABLE `certificates` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `certificates`
---
-
-INSERT INTO `certificates` (`certificate_id`, `user_id`, `course_id`, `certificate_number`, `certificate_type`, `issue_date`, `expiry_date`, `file_id`, `verification_hash`, `is_verified`, `created_at`) VALUES
-(1, 7, 1, 'CERT-CS101-2025-001', 'excellence', '2025-05-20', NULL, NULL, 'a1b2c3d4e5f6g7h8i9j0', 1, '2025-11-20 13:43:00'),
-(2, 8, 1, 'CERT-CS101-2025-002', 'completion', '2025-05-20', NULL, NULL, 'b2c3d4e5f6g7h8i9j0k1', 1, '2025-11-20 13:43:00');
-
 -- --------------------------------------------------------
 
 --
@@ -784,7 +770,7 @@ CREATE TABLE `chatbot_conversations` (
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `course_id` bigint(20) UNSIGNED DEFAULT NULL,
   `conversation_title` varchar(255) DEFAULT NULL,
-  `context_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`context_data`)),
+  `context_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `status` enum('active','archived','deleted') DEFAULT 'active',
   `started_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `last_message_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -795,8 +781,8 @@ CREATE TABLE `chatbot_conversations` (
 --
 
 INSERT INTO `chatbot_conversations` (`conversation_id`, `user_id`, `course_id`, `conversation_title`, `context_data`, `status`, `started_at`, `last_message_at`) VALUES
-(1, 7, 1, 'Help with Assignment 1', NULL, 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 8, 1, 'Python Syntax Questions', NULL, 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(1, 7, NULL, 'Help with Assignment 1', NULL, 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(2, 8, NULL, 'Python Syntax Questions', NULL, 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (3, 9, 2, 'Data Structures Explanation', NULL, 'archived', '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
@@ -810,7 +796,7 @@ CREATE TABLE `chatbot_messages` (
   `conversation_id` bigint(20) UNSIGNED NOT NULL,
   `sender_type` enum('user','bot') NOT NULL,
   `message_text` text NOT NULL,
-  `message_metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`message_metadata`)),
+  `message_metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `intent` varchar(100) DEFAULT NULL,
   `confidence_score` decimal(3,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -853,14 +839,7 @@ CREATE TABLE `chat_messages` (
 --
 
 INSERT INTO `chat_messages` (`message_id`, `thread_id`, `user_id`, `message_text`, `parent_message_id`, `is_answer`, `is_endorsed`, `endorsed_by`, `upvote_count`, `created_at`, `updated_at`) VALUES
-(1, 1, 7, 'Can someone explain what the output should look like for Assignment 1?', NULL, 0, 0, NULL, 5, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 1, 5, 'The output should simply be: Hello World (without quotes)', 1, 1, 1, 2, 8, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 1, 8, 'Thanks! That helps clarify things.', 1, 0, 0, NULL, 2, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 2, 9, 'What is the difference between a list and an array in Python?', NULL, 0, 0, NULL, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(5, 2, 2, 'In Python, lists are built-in and more flexible, while arrays require the array module and are more memory efficient for numerical data.', 4, 1, 1, 2, 12, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(6, 3, 13, 'Here is a great YouTube playlist for data structures: [link]', NULL, 0, 0, NULL, 7, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(7, 4, 10, 'Getting error: Python not recognized. Help!', NULL, 0, 0, NULL, 4, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(8, 4, 5, 'Did you check the \"Add Python to PATH\" option during installation?', 7, 1, 0, NULL, 6, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(6, 3, 13, 'Here is a great YouTube playlist for data structures: [link]', NULL, 0, 0, NULL, 7, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -882,15 +861,6 @@ CREATE TABLE `collaborative_grading` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `completed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `collaborative_grading`
---
-
-INSERT INTO `collaborative_grading` (`collab_id`, `assignment_id`, `submission_id`, `grader_1_id`, `grader_2_id`, `grader_1_score`, `grader_2_score`, `final_score`, `resolution_method`, `status`, `created_at`, `completed_at`) VALUES
-(1, 1, 1, 2, 5, 95.00, 93.00, 95.00, 'grader_1', 'completed', '2025-11-20 13:43:00', '2025-02-16 08:00:00'),
-(2, 1, 2, 2, 5, 88.00, 90.00, 89.00, 'average', 'completed', '2025-11-20 13:43:00', '2025-02-16 08:15:00'),
-(3, 2, 5, 2, 5, 85.00, 87.00, 86.00, 'average', 'in_progress', '2025-11-20 13:43:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -919,10 +889,7 @@ CREATE TABLE `community_posts` (
 --
 
 INSERT INTO `community_posts` (`post_id`, `course_id`, `user_id`, `title`, `content`, `post_type`, `is_pinned`, `is_locked`, `view_count`, `upvote_count`, `reply_count`, `created_at`, `updated_at`) VALUES
-(1, 1, 7, 'Help with loops', 'Can someone explain how for loops work in Python? I am confused about the range function.', 'question', 0, 0, 45, 5, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 1, 8, 'Great course!', 'Really enjoying this course so far. Professor Smith explains concepts very clearly!', 'discussion', 0, 0, 23, 12, 2, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 2, 12, 'Study Group for Midterm', 'Anyone interested in forming a study group for the upcoming midterm? We can meet on weekends.', 'discussion', 0, 0, 38, 8, 5, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 1, 2, 'Assignment 1 Tips', 'Here are some tips for Assignment 1: 1) Start early, 2) Test your code thoroughly, 3) Follow PEP 8 style guide', 'announcement', 1, 0, 102, 25, 1, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(3, 2, 12, 'Study Group for Midterm', 'Anyone interested in forming a study group for the upcoming midterm? We can meet on weekends.', 'discussion', 0, 0, 38, 8, 5, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -941,17 +908,6 @@ CREATE TABLE `community_post_comments` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `community_post_comments`
---
-
-INSERT INTO `community_post_comments` (`comment_id`, `post_id`, `user_id`, `comment_text`, `parent_comment_id`, `upvote_count`, `created_at`, `updated_at`) VALUES
-(1, 1, 9, 'The range function generates a sequence of numbers. range(5) gives you 0,1,2,3,4. You can use it like: for i in range(5): print(i)', NULL, 5, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 1, 5, 'Check out this tutorial: https://realpython.com/python-for-loop/. It explains loops very well!', NULL, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 1, 7, 'Thanks! That helps a lot!', NULL, 1, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 2, 9, 'I agree! The lectures are very well structured.', NULL, 2, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(5, 4, 7, 'Thank you for the tips, Professor!', NULL, 1, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
-
 -- --------------------------------------------------------
 
 --
@@ -965,21 +921,6 @@ CREATE TABLE `community_post_reactions` (
   `reaction_type` enum('like','helpful','insightful','thanks') DEFAULT 'like',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `community_post_reactions`
---
-
-INSERT INTO `community_post_reactions` (`reaction_id`, `post_id`, `user_id`, `reaction_type`, `created_at`) VALUES
-(1, 1, 8, 'helpful', '2025-11-20 13:43:00'),
-(2, 1, 9, 'like', '2025-11-20 13:43:00'),
-(3, 1, 10, 'helpful', '2025-11-20 13:43:00'),
-(4, 2, 7, 'like', '2025-11-20 13:43:00'),
-(5, 2, 9, 'like', '2025-11-20 13:43:00'),
-(6, 2, 10, 'insightful', '2025-11-20 13:43:00'),
-(7, 4, 7, 'helpful', '2025-11-20 13:43:00'),
-(8, 4, 8, 'helpful', '2025-11-20 13:43:00'),
-(9, 4, 9, 'thanks', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -1039,14 +980,24 @@ CREATE TABLE `courses` (
 --
 
 INSERT INTO `courses` (`course_id`, `department_id`, `course_name`, `course_code`, `course_description`, `credits`, `level`, `syllabus_url`, `status`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Introduction to Programming', 'CS101', 'Basic programming concepts using Python', 3, 'freshman', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(2, 1, 'Data Structures', 'CS201', 'Fundamental data structures and algorithms', 4, 'sophomore', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(1, 1, 'Introduction to Programming', 'CS101', 'Basic programming concepts using Python', 3, 'freshman', NULL, 'active', '2025-11-27 18:18:48', '2025-11-27 18:18:48', NULL),
+(2, 1, 'Data Structures', 'CS201', 'Fundamental data structures and algorithms', 3, 'sophomore', 'https://example.com/amir.pdf', 'active', '2025-11-20 13:42:59', '2025-11-29 00:27:15', NULL),
 (3, 1, 'Database Systems', 'CS301', 'Database design and SQL', 3, 'junior', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
 (4, 1, 'Artificial Intelligence', 'CS401', 'Introduction to AI and machine learning', 4, 'senior', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
 (5, 2, 'Calculus I', 'MATH101', 'Differential calculus', 4, 'freshman', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
 (6, 2, 'Linear Algebra', 'MATH201', 'Matrices and vector spaces', 3, 'sophomore', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
 (7, 3, 'Physics I', 'PHY101', 'Classical mechanics', 4, 'freshman', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(8, 4, 'Business Management', 'BUS101', 'Introduction to business management', 3, 'freshman', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL);
+(8, 4, 'Business Management', 'BUS101', 'Introduction to business management', 3, 'freshman', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(9, 3, 'Principles of Management', 'BUS101', 'Fundamentals of business management and organizational behavior', 3, 'freshman', '/uploads/syllabi/BUS101.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(10, 3, 'Business Finance', 'BUS202', 'Financial analysis, investment decisions, and capital budgeting', 3, 'sophomore', '/uploads/syllabi/BUS202.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(11, 4, 'Statistics for Data Science', 'DS101', 'Probability, hypothesis testing, statistical inference', 3, 'freshman', '/uploads/syllabi/DS101.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(12, 1, 'Introduction to Programming', 'CS1001', 'Basic programming concepts - prerequisite course', 3, 'freshman', NULL, 'active', '2025-11-27 18:02:54', '2025-11-27 18:02:54', NULL),
+(13, 5, 'English Literature I', 'AH101', 'Classic works of English literature from Renaissance to 19th century', 3, 'freshman', '/uploads/syllabi/AH101.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(14, 5, 'Arabic Language Skills', 'AH102', 'Advanced Arabic grammar, writing, and communication', 3, 'freshman', '/uploads/syllabi/AH102.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(15, 6, 'Calculus I', 'SCI101', 'Differential and integral calculus', 4, 'freshman', '/uploads/syllabi/SCI101.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(16, 1, 'intro to digital', 'CS2024', 'Study of advanced data structures and algorithm optimization techniques', 4, 'junior', 'https://example.com/syllabus-advanced.pdf', 'inactive', '2025-11-27 18:13:14', '2025-11-27 18:14:45', '2025-11-27 18:14:45'),
+(17, 1, 'Electro 4', 'EEE2026', 'Study of advanced electro 4', 2, 'junior', 'https://example.com/syllabus-advanced.pdf', 'active', '2025-11-30 15:49:58', '2025-11-30 15:52:42', '2025-11-30 15:52:42'),
+(18, 3, 'Strategic Management', 'BUS401', 'Corporate strategy and competitive analysis', 3, 'senior', '/uploads/syllabi/BUS401.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -1073,10 +1024,8 @@ CREATE TABLE `course_analytics` (
 --
 
 INSERT INTO `course_analytics` (`analytics_id`, `course_id`, `instructor_id`, `total_students`, `active_students`, `average_grade`, `average_attendance`, `completion_rate`, `engagement_score`, `calculation_date`, `created_at`) VALUES
-(1, 1, 2, 15, 14, 85.50, 92.30, 78.50, 88.20, '2025-02-15', '2025-11-20 13:43:01'),
 (2, 2, 3, 12, 11, 82.75, 88.50, 72.30, 84.10, '2025-02-15', '2025-11-20 13:43:01'),
-(3, 3, 3, 10, 10, 87.20, 95.00, 85.40, 91.30, '2025-02-15', '2025-11-20 13:43:01'),
-(4, 1, 2, 15, 15, 83.20, 89.50, 75.20, 86.50, '2025-02-01', '2025-11-20 13:43:01');
+(3, 3, 3, 10, 10, 87.20, 95.00, 85.40, 91.30, '2025-02-15', '2025-11-20 13:43:01');
 
 -- --------------------------------------------------------
 
@@ -1090,6 +1039,7 @@ CREATE TABLE `course_chat_threads` (
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
+  `status` enum('open','answered','closed') DEFAULT 'open',
   `is_pinned` tinyint(1) DEFAULT 0,
   `is_locked` tinyint(1) DEFAULT 0,
   `view_count` int(11) DEFAULT 0,
@@ -1102,11 +1052,8 @@ CREATE TABLE `course_chat_threads` (
 -- Dumping data for table `course_chat_threads`
 --
 
-INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `title`, `description`, `is_pinned`, `is_locked`, `view_count`, `reply_count`, `created_at`, `updated_at`) VALUES
-(1, 1, 7, 'Assignment 1 Discussion', 'Questions and help for Assignment 1', 0, 0, 78, 12, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 1, 2, 'General Q&A - Week 1', 'Questions from Week 1 lectures', 1, 0, 145, 8, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 2, 12, 'Data Structures Study Tips', 'Share study resources and tips', 0, 0, 56, 15, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 1, 8, 'Python installation help', 'Help with setting up Python environment', 0, 0, 34, 6, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `title`, `description`, `status`, `is_pinned`, `is_locked`, `view_count`, `reply_count`, `created_at`, `updated_at`) VALUES
+(3, 2, 12, 'Data Structures Study Tips', 'Share study resources and tips', 'open', 0, 0, 56, 15, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -1124,8 +1071,88 @@ CREATE TABLE `course_enrollments` (
   `grade` varchar(5) DEFAULT NULL,
   `final_score` decimal(5,2) DEFAULT NULL,
   `dropped_at` timestamp NULL DEFAULT NULL,
-  `completed_at` timestamp NULL DEFAULT NULL
+  `completed_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `course_enrollments`
+--
+
+INSERT INTO `course_enrollments` (`enrollment_id`, `user_id`, `section_id`, `program_id`, `enrollment_date`, `enrollment_status`, `grade`, `final_score`, `dropped_at`, `completed_at`, `updated_at`) VALUES
+(62, 7, 1, 1, '2025-09-01 07:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(63, 8, 1, 1, '2025-09-01 07:15:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(64, 9, 1, 1, '2025-09-01 07:30:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(65, 10, 1, 1, '2025-09-01 08:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(66, 11, 1, 1, '2025-09-01 08:15:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(67, 25, 1, 1, '2025-09-01 11:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(68, 30, 1, 1, '2025-09-01 11:30:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(69, 34, 1, 1, '2025-11-12 13:00:00', 'dropped', NULL, NULL, '2025-11-30 16:39:49', NULL, '2025-11-30 16:39:48'),
+(70, 12, 9, 1, '2025-09-01 07:45:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(71, 13, 9, 1, '2025-09-01 08:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(72, 14, 9, 1, '2025-09-01 08:15:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(73, 15, 9, 1, '2025-09-01 08:30:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(74, 16, 9, 1, '2025-09-01 08:45:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(75, 9, 10, 1, '2025-09-01 07:30:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(76, 10, 10, 1, '2025-09-01 08:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(77, 11, 10, 1, '2025-09-01 08:15:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(78, 12, 10, 1, '2025-09-01 07:45:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(79, 16, 10, 1, '2025-09-01 09:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(80, 25, 10, 1, '2025-09-01 11:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(81, 30, 10, 1, '2025-09-01 11:30:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(82, 13, 1, 1, '2025-09-01 08:00:00', 'dropped', NULL, NULL, '2025-09-15 13:00:00', NULL, '2025-11-30 16:28:28'),
+(83, 14, 1, 1, '2025-09-01 08:15:00', 'dropped', NULL, NULL, '2025-09-20 11:00:00', NULL, '2025-11-30 16:28:28'),
+(84, 15, 1, 1, '2025-09-01 08:30:00', 'withdrawn', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(85, 16, 1, 1, '2025-09-01 09:00:00', 'withdrawn', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(86, 7, 10, 1, '2025-09-01 07:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(87, 8, 10, 1, '2025-09-01 07:15:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(88, 34, 9, 1, '2025-09-01 12:00:00', 'enrolled', NULL, NULL, NULL, NULL, '2025-11-30 16:28:28'),
+(185, 21, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(186, 22, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(187, 23, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(188, 24, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(189, 26, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(190, 27, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(191, 28, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(192, 29, 1, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(193, 31, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(194, 32, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(195, 33, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(196, 34, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(197, 35, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(198, 36, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(199, 37, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(200, 38, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(201, 39, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(202, 40, 2, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(203, 21, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(204, 23, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(205, 25, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(206, 27, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(207, 29, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(208, 32, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(209, 34, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(210, 36, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(211, 38, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(212, 40, 3, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(213, 22, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(214, 24, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(215, 26, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(216, 28, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(217, 30, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(218, 31, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(219, 33, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(220, 35, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(221, 37, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(222, 39, 4, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(223, 21, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(224, 23, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(225, 25, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(226, 27, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(227, 29, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(228, 32, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(229, 34, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(230, 36, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40');
 
 -- --------------------------------------------------------
 
@@ -1140,6 +1167,22 @@ CREATE TABLE `course_instructors` (
   `role` enum('primary','co_instructor','guest') DEFAULT 'primary',
   `assigned_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `course_instructors`
+--
+
+INSERT INTO `course_instructors` (`assignment_id`, `user_id`, `section_id`, `role`, `assigned_at`) VALUES
+(1, 8, 1, 'primary', '2024-12-15 10:00:00'),
+(2, 9, 2, 'primary', '2024-12-15 10:00:00'),
+(3, 10, 3, 'primary', '2024-12-15 10:00:00'),
+(4, 13, 4, 'primary', '2024-12-15 10:00:00'),
+(5, 12, 5, 'primary', '2024-12-15 10:00:00'),
+(6, 14, 6, 'primary', '2024-12-15 10:00:00'),
+(7, 15, 7, 'primary', '2024-12-15 10:00:00'),
+(8, 11, 8, 'primary', '2024-12-15 10:00:00'),
+(9, 16, 9, 'primary', '2024-12-15 10:00:00'),
+(10, 17, 10, 'primary', '2024-12-15 10:00:00');
 
 -- --------------------------------------------------------
 
@@ -1159,6 +1202,7 @@ CREATE TABLE `course_materials` (
   `uploaded_by` bigint(20) UNSIGNED NOT NULL,
   `is_published` tinyint(1) DEFAULT 1,
   `published_at` timestamp NULL DEFAULT NULL,
+  `view_count` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1167,12 +1211,8 @@ CREATE TABLE `course_materials` (
 -- Dumping data for table `course_materials`
 --
 
-INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `material_type`, `title`, `description`, `external_url`, `order_index`, `uploaded_by`, `is_published`, `published_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'document', 'Course Syllabus', 'CS101 Fall 2025 Syllabus', NULL, 1, 2, 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(2, 1, 2, 'lecture', 'Lecture 1: Introduction to Programming', 'Overview of programming concepts', NULL, 2, 2, 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(3, 1, 3, 'lecture', 'Lecture 2: Variables and Data Types', 'Understanding variables in Python', NULL, 3, 2, 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(4, 2, 4, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, 1, 3, 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(5, 1, NULL, 'video', 'Introduction Video', 'Welcome to CS101', NULL, 0, 2, 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
+INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `material_type`, `title`, `description`, `external_url`, `order_index`, `uploaded_by`, `is_published`, `published_at`, `view_count`, `created_at`, `updated_at`) VALUES
+(4, 2, 4, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, 1, 3, 1, NULL, 0, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
 
 -- --------------------------------------------------------
 
@@ -1193,10 +1233,13 @@ CREATE TABLE `course_prerequisites` (
 --
 
 INSERT INTO `course_prerequisites` (`prerequisite_id`, `course_id`, `prerequisite_course_id`, `is_mandatory`, `created_at`) VALUES
-(1, 2, 1, 1, '2025-11-20 13:42:59'),
+(1, 2, 1, 1, '2024-09-01 08:00:00'),
 (2, 3, 2, 1, '2025-11-20 13:42:59'),
 (3, 4, 2, 1, '2025-11-20 13:42:59'),
-(4, 6, 5, 1, '2025-11-20 13:42:59');
+(4, 6, 5, 1, '2025-11-20 13:42:59'),
+(5, 8, 5, 1, '2025-11-27 17:54:45'),
+(6, 1, 5, 1, '2025-11-27 18:22:51'),
+(7, 1, 4, 1, '2025-11-30 15:56:30');
 
 -- --------------------------------------------------------
 
@@ -1215,6 +1258,24 @@ CREATE TABLE `course_schedules` (
   `schedule_type` enum('lecture','lab','tutorial','exam') DEFAULT 'lecture',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `course_schedules`
+--
+
+INSERT INTO `course_schedules` (`schedule_id`, `section_id`, `day_of_week`, `start_time`, `end_time`, `room`, `building`, `schedule_type`, `created_at`) VALUES
+(1, 1, 'monday', '09:00:00', '10:30:00', '101', 'Building A', 'lecture', '2024-12-15 10:00:00'),
+(2, 1, 'wednesday', '09:00:00', '10:30:00', '101', 'Building A', 'lecture', '2024-12-15 10:00:00'),
+(3, 2, 'tuesday', '11:00:00', '12:30:00', '102', 'Building A', 'lecture', '2024-12-15 10:00:00'),
+(4, 2, 'thursday', '11:00:00', '12:30:00', '102', 'Building A', 'lecture', '2024-12-15 10:00:00'),
+(5, 3, 'monday', '13:00:00', '14:30:00', '201', 'Building B', 'lab', '2024-12-15 10:00:00'),
+(6, 3, 'wednesday', '13:00:00', '14:30:00', '201', 'Building B', 'lab', '2024-12-15 10:00:00'),
+(7, 4, 'tuesday', '14:00:00', '15:30:00', '202', 'Building B', 'tutorial', '2024-12-15 10:00:00'),
+(8, 4, 'thursday', '14:00:00', '15:30:00', '202', 'Building B', 'tutorial', '2024-12-15 10:00:00'),
+(9, 5, 'monday', '15:00:00', '16:30:00', '301', 'Lab Building', 'exam', '2024-12-15 10:00:00'),
+(10, 9, 'tuesday', '14:00:00', '15:30:00', '320', 'Building C', 'lecture', '2025-11-27 18:28:26'),
+(11, 1, 'monday', '14:00:00', '15:30:00', '355', 'Building C', 'lecture', '2025-11-27 18:30:21'),
+(12, 2, 'monday', '09:00:00', '10:30:00', '101', 'Building A', 'lecture', '2026-03-01 21:05:48');
 
 -- --------------------------------------------------------
 
@@ -1235,6 +1296,22 @@ CREATE TABLE `course_sections` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `course_sections`
+--
+
+INSERT INTO `course_sections` (`section_id`, `course_id`, `semester_id`, `section_number`, `max_capacity`, `current_enrollment`, `location`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 4, '01', 40, 7, 'Building A, Room 101', 'open', '2025-11-27 18:20:49', '2025-11-30 16:39:48'),
+(2, 1, 2, '02', 50, 48, 'Room 102B', 'full', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(3, 2, 2, '01', 40, 35, 'Room 201A', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(4, 2, 2, '02', 40, 38, 'Room 202B', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(5, 3, 2, '01', 45, 40, 'Lab 301', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(6, 4, 2, '01', 35, 32, 'Room 401A', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(7, 5, 2, '01', 40, 38, 'Room 501A', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(8, 9, 2, '01', 50, 45, 'Room 601A', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(9, 2, 3, '2', 50, 6, 'Building C, Room 320', 'open', '2025-11-27 18:25:02', '2025-11-30 16:13:44'),
+(10, 1, 3, '2', 45, 9, 'Building B, Room 215', 'open', '2025-11-30 16:00:35', '2025-11-30 16:13:44');
+
 -- --------------------------------------------------------
 
 --
@@ -1248,6 +1325,17 @@ CREATE TABLE `course_tas` (
   `responsibilities` text DEFAULT NULL,
   `assigned_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `course_tas`
+--
+
+INSERT INTO `course_tas` (`assignment_id`, `user_id`, `section_id`, `responsibilities`, `assigned_at`) VALUES
+(1, 18, 1, 'Grading assignments and leading lab sessions', '2024-12-15 10:00:00'),
+(2, 19, 2, 'Grading assignments and holding office hours', '2024-12-15 10:00:00'),
+(3, 18, 3, 'Grading assignments and leading lab sessions', '2024-12-15 10:00:00'),
+(4, 20, 4, 'Grading assignments and proctoring quizzes', '2024-12-15 10:00:00'),
+(5, 19, 5, 'Grading assignments and holding office hours', '2024-12-15 10:00:00');
 
 -- --------------------------------------------------------
 
@@ -1301,9 +1389,6 @@ CREATE TABLE `deadline_reminders` (
 --
 
 INSERT INTO `deadline_reminders` (`reminder_id`, `task_id`, `user_id`, `reminder_time`, `reminder_type`, `status`, `sent_at`, `created_at`) VALUES
-(1, 2, 7, '2025-02-26 07:00:00', 'email', 'pending', NULL, '2025-11-20 13:43:00'),
-(2, 2, 7, '2025-02-27 07:00:00', 'push', 'pending', NULL, '2025-11-20 13:43:00'),
-(3, 3, 7, '2025-03-08 07:00:00', 'in_app', 'pending', NULL, '2025-11-20 13:43:00'),
 (4, 5, 8, '2025-02-18 07:00:00', 'email', 'sent', '2025-02-18 07:00:15', '2025-11-20 13:43:00'),
 (5, 6, 9, '2025-03-13 07:00:00', 'push', 'pending', NULL, '2025-11-20 13:43:00');
 
@@ -1334,7 +1419,8 @@ INSERT INTO `departments` (`department_id`, `campus_id`, `department_name`, `dep
 (2, 1, 'Mathematics', 'MATH', NULL, 'Department of Mathematics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (3, 1, 'Physics', 'PHY', NULL, 'Department of Physics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (4, 2, 'Business Administration', 'BUS', NULL, 'School of Business', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(5, 2, 'Engineering', 'ENG', NULL, 'School of Engineering', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59');
+(5, 2, 'Engineering', 'ENG', NULL, 'School of Engineering', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
+(6, 3, 'Science', 'SCI', NULL, 'Department of mathematics, physics, and chemistry', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00');
 
 -- --------------------------------------------------------
 
@@ -1389,7 +1475,10 @@ INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification_t
 (6, 29, '21835f50cc20c446f178a8c94498092b0891812a8e99e493456119faef097fd9', '2025-11-27 20:02:35', 1, '2025-11-26 20:03:48', '2025-11-26 18:02:35'),
 (7, 30, '1232f414678fdff80cafc79ff0c80c37fe239fa37b01ddff305ce46e12538fa3', '2025-11-28 01:31:32', 1, '2025-11-27 01:33:39', '2025-11-26 23:31:32'),
 (10, 33, '420bf068e218a74d45eeae1f71e894af89d642b5c26abc0e125e37deab55c81d', '2025-11-28 02:32:35', 1, '2025-11-27 02:36:26', '2025-11-27 00:32:35'),
-(11, 33, 'e3e106fdf64b97aa98d2aa32913f0848e3be99cc0e56da772d0a1fed775b95fe', '2025-11-28 02:36:26', 1, '2025-11-27 02:36:43', '2025-11-27 00:36:26');
+(11, 33, 'e3e106fdf64b97aa98d2aa32913f0848e3be99cc0e56da772d0a1fed775b95fe', '2025-11-28 02:36:26', 1, '2025-11-27 02:36:43', '2025-11-27 00:36:26'),
+(12, 34, 'd29afa104b8d7a7700c047ee8732a9edae9c77c8b4fb2b3856d25f60bca755a8', '2025-12-01 18:08:06', 0, NULL, '2025-11-30 16:08:06'),
+(13, 35, '3435b074bbdebb93a84a2af96d393d94ccdddbc778909051c6d8533a5e0a877f', '2026-02-26 21:01:55', 0, NULL, '2026-02-25 19:01:54'),
+(14, 36, '2fa8c3e006a12edaf0294cf86bdc49c6cf2a8f1792016bcfabcb008018eb77e0', '2026-02-26 21:02:43', 0, NULL, '2026-02-25 19:02:43');
 
 -- --------------------------------------------------------
 
@@ -1402,11 +1491,13 @@ CREATE TABLE `exam_schedules` (
   `course_id` bigint(20) UNSIGNED NOT NULL,
   `semester_id` bigint(20) UNSIGNED NOT NULL,
   `exam_type` enum('midterm','final','quiz','makeup') NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
   `exam_date` date NOT NULL,
   `start_time` time NOT NULL,
   `duration_minutes` int(11) NOT NULL,
   `location` varchar(255) DEFAULT NULL,
   `instructions` text DEFAULT NULL,
+  `status` enum('scheduled','in_progress','completed','cancelled','postponed') DEFAULT 'scheduled',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1467,7 +1558,7 @@ CREATE TABLE `feedback_responses` (
   `responder_id` bigint(20) UNSIGNED NOT NULL,
   `response_text` text NOT NULL,
   `is_internal_note` tinyint(1) DEFAULT 0,
-  `attachments` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`attachments`)),
+  `attachments` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1601,9 +1692,6 @@ CREATE TABLE `forum_categories` (
 --
 
 INSERT INTO `forum_categories` (`category_id`, `course_id`, `category_name`, `description`, `order_index`, `created_at`) VALUES
-(1, 1, 'General Discussion', 'General questions and discussions about CS101', 1, '2025-11-20 13:43:00'),
-(2, 1, 'Assignment Help', 'Get help with assignments', 2, '2025-11-20 13:43:00'),
-(3, 1, 'Resources', 'Share helpful resources and materials', 3, '2025-11-20 13:43:00'),
 (4, 2, 'General Discussion', 'General CS201 discussions', 1, '2025-11-20 13:43:00'),
 (5, 2, 'Project Discussions', 'Discuss course projects', 2, '2025-11-20 13:43:00');
 
@@ -1619,7 +1707,7 @@ CREATE TABLE `generated_reports` (
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `report_name` varchar(255) NOT NULL,
   `report_type` varchar(50) NOT NULL,
-  `filters` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`filters`)),
+  `filters` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `file_id` bigint(20) UNSIGNED DEFAULT NULL,
   `generation_status` enum('pending','processing','completed','failed') DEFAULT 'pending',
   `generated_at` timestamp NULL DEFAULT NULL,
@@ -1693,11 +1781,16 @@ CREATE TABLE `grades` (
 --
 
 INSERT INTO `grades` (`grade_id`, `user_id`, `course_id`, `assignment_id`, `quiz_id`, `lab_id`, `grade_type`, `score`, `max_score`, `percentage`, `letter_grade`, `feedback`, `graded_by`, `graded_at`, `is_published`, `published_at`, `created_at`, `updated_at`) VALUES
-(1, 7, 1, 1, NULL, NULL, 'assignment', 95.00, 100.00, 95.00, 'A', 'Excellent work!', 2, '2025-02-16 08:00:00', 1, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 8, 1, 1, NULL, NULL, 'assignment', 88.00, 100.00, 88.00, 'B+', 'Good job!', 2, '2025-02-16 08:15:00', 1, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 10, 1, 1, NULL, NULL, 'assignment', 72.00, 100.00, 72.00, 'C', 'Late submission - 10% penalty applied', 2, '2025-02-17 07:00:00', 1, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 7, 1, NULL, NULL, NULL, 'quiz', 85.00, 100.00, 85.00, 'B+', 'Well done on the quiz', 2, '2025-02-12 09:00:00', 1, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(5, 8, 1, NULL, NULL, NULL, 'quiz', 90.00, 100.00, 90.00, 'A-', 'Great performance', 2, '2025-02-12 13:00:00', 1, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(6, 21, 1, 1, NULL, NULL, 'assignment', 92.00, 100.00, 92.00, 'A', 'Great work! Well-structured code.', 8, '2025-02-01 10:00:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(7, 22, 1, 1, NULL, NULL, 'assignment', 88.00, 100.00, 88.00, 'B+', 'Good solution. Need improvement in error handling.', 8, '2025-02-01 10:00:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(8, 23, 1, 1, NULL, NULL, 'assignment', 95.00, 100.00, 95.00, 'A', 'Excellent! Clean code and thorough testing.', 8, '2025-02-01 10:00:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(9, 24, 1, 1, NULL, NULL, 'assignment', 85.00, 100.00, 85.00, 'B', 'Acceptable solution but could be optimized.', 8, '2025-02-02 09:00:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(10, 25, 1, 1, NULL, NULL, 'assignment', 90.00, 100.00, 90.00, 'A-', 'Good job overall.', 8, '2025-02-01 10:00:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(11, 21, 1, NULL, NULL, NULL, 'quiz', 18.00, 20.00, 90.00, 'A-', 'Well done on the quiz!', 8, '2025-02-03 10:30:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(12, 22, 1, NULL, NULL, NULL, 'quiz', 16.00, 20.00, 80.00, 'B-', 'Good effort. Review control flow concepts.', 8, '2025-02-03 10:30:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(13, 23, 1, NULL, NULL, NULL, 'quiz', 19.00, 20.00, 95.00, 'A', 'Perfect score! Excellent understanding.', 8, '2025-02-03 10:30:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(14, 24, 1, NULL, NULL, NULL, 'quiz', 15.00, 20.00, 75.00, 'C+', 'Needs improvement. Review material.', 8, '2025-02-03 10:30:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40'),
+(15, 25, 1, NULL, NULL, NULL, 'quiz', 17.00, 20.00, 85.00, 'B+', 'Good work on the quiz.', 8, '2025-02-03 10:30:00', 1, NULL, '2026-03-01 14:55:40', '2026-03-01 14:55:40');
 
 -- --------------------------------------------------------
 
@@ -1714,20 +1807,6 @@ CREATE TABLE `grade_components` (
   `max_points` decimal(5,2) NOT NULL,
   `feedback` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `grade_components`
---
-
-INSERT INTO `grade_components` (`component_id`, `grade_id`, `rubric_id`, `criterion_name`, `points_earned`, `max_points`, `feedback`) VALUES
-(1, 1, 1, 'Correctness', 40.00, 40.00, 'Program runs perfectly and handles all test cases'),
-(2, 1, 1, 'Code Quality', 28.00, 30.00, 'Code is clean but could use better variable naming'),
-(3, 1, 1, 'Documentation', 18.00, 20.00, 'Good comments, could add more function descriptions'),
-(4, 1, 1, 'Testing', 9.00, 10.00, 'Most edge cases covered'),
-(5, 2, 1, 'Correctness', 35.00, 40.00, 'Minor logic error in one test case'),
-(6, 2, 1, 'Code Quality', 26.00, 30.00, 'Good structure overall'),
-(7, 2, 1, 'Documentation', 18.00, 20.00, 'Adequate documentation'),
-(8, 2, 1, 'Testing', 9.00, 10.00, 'Good test coverage');
 
 -- --------------------------------------------------------
 
@@ -1772,6 +1851,7 @@ CREATE TABLE `labs` (
   `available_from` timestamp NULL DEFAULT NULL,
   `max_score` decimal(5,2) DEFAULT 100.00,
   `weight` decimal(5,2) DEFAULT 0.00,
+  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -1781,10 +1861,8 @@ CREATE TABLE `labs` (
 -- Dumping data for table `labs`
 --
 
-INSERT INTO `labs` (`lab_id`, `course_id`, `title`, `description`, `lab_number`, `due_date`, `available_from`, `max_score`, `weight`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Lab 1: Python Setup', 'Install Python and run your first program', 1, '2025-02-08 21:59:59', '2025-01-31 22:00:00', 50.00, 5.00, 2, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 1, 'Lab 2: Working with Lists', 'Practice list operations', 2, '2025-02-22 21:59:59', '2025-02-14 22:00:00', 75.00, 7.50, 2, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 2, 'Lab 1: Array Implementation', 'Implement dynamic arrays', 1, '2025-03-01 21:59:59', '2025-02-14 22:00:00', 100.00, 10.00, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+INSERT INTO `labs` (`lab_id`, `course_id`, `title`, `description`, `lab_number`, `due_date`, `available_from`, `max_score`, `weight`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(3, 2, 'Lab 1: Array Implementation', 'Implement dynamic arrays', 1, '2025-03-01 21:59:59', '2025-02-14 22:00:00', 100.00, 10.00, 'draft', 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -1802,18 +1880,6 @@ CREATE TABLE `lab_attendance` (
   `marked_by` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `lab_attendance`
---
-
-INSERT INTO `lab_attendance` (`attendance_id`, `lab_id`, `user_id`, `attendance_status`, `check_in_time`, `notes`, `marked_by`, `created_at`) VALUES
-(1, 1, 7, 'present', '2025-02-05 12:00:00', 'Completed lab successfully', 5, '2025-11-20 13:43:01'),
-(2, 1, 8, 'present', '2025-02-05 12:05:00', 'Good work', 5, '2025-11-20 13:43:01'),
-(3, 1, 9, 'present', '2025-02-05 12:02:00', NULL, 5, '2025-11-20 13:43:01'),
-(4, 1, 10, 'late', '2025-02-05 12:20:00', 'Arrived 20 minutes late', 5, '2025-11-20 13:43:01'),
-(5, 2, 7, 'present', '2025-02-19 12:00:00', NULL, 5, '2025-11-20 13:43:01'),
-(6, 2, 8, 'absent', NULL, 'Did not attend', 5, '2025-11-20 13:43:01');
 
 -- --------------------------------------------------------
 
@@ -1835,12 +1901,6 @@ CREATE TABLE `lab_instructions` (
 --
 
 INSERT INTO `lab_instructions` (`instruction_id`, `lab_id`, `file_id`, `instruction_text`, `order_index`, `created_at`) VALUES
-(1, 1, 5, '1. Download and install Python 3.11 from python.org', 1, '2025-11-20 13:43:00'),
-(2, 1, NULL, '2. Open a terminal or command prompt', 2, '2025-11-20 13:43:00'),
-(3, 1, NULL, '3. Type \"python --version\" to verify installation', 3, '2025-11-20 13:43:00'),
-(4, 1, NULL, '4. Create a file named hello.py with the code: print(\"Hello World\")', 4, '2025-11-20 13:43:00'),
-(5, 1, NULL, '5. Run the program using: python hello.py', 5, '2025-11-20 13:43:00'),
-(6, 2, 5, 'Complete the exercises in the attached worksheet', 1, '2025-11-20 13:43:00'),
 (7, 3, NULL, 'Implement a dynamic array class with push, pop, and resize methods', 1, '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
@@ -1859,16 +1919,6 @@ CREATE TABLE `lab_submissions` (
   `is_late` tinyint(1) DEFAULT 0,
   `status` enum('submitted','graded','returned','resubmit') DEFAULT 'submitted'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `lab_submissions`
---
-
-INSERT INTO `lab_submissions` (`submission_id`, `lab_id`, `user_id`, `file_id`, `submission_text`, `submitted_at`, `is_late`, `status`) VALUES
-(1, 1, 7, NULL, 'Successfully installed Python 3.11 and ran hello world program', '2025-11-20 13:43:00', 0, 'graded'),
-(2, 1, 8, NULL, 'Installed Python and verified installation', '2025-11-20 13:43:00', 0, 'graded'),
-(3, 1, 9, NULL, 'Python setup complete', '2025-11-20 13:43:00', 0, 'graded'),
-(4, 1, 10, NULL, 'Installation successful', '2025-11-20 13:43:00', 0, 'submitted');
 
 -- --------------------------------------------------------
 
@@ -1949,7 +1999,7 @@ CREATE TABLE `learning_analytics` (
   `metric_type` enum('engagement','performance','participation','time') NOT NULL,
   `metric_value` decimal(10,2) NOT NULL,
   `metric_date` date NOT NULL,
-  `additional_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`additional_data`)),
+  `additional_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1976,10 +2026,6 @@ CREATE TABLE `lecture_sections_labs` (
 --
 
 INSERT INTO `lecture_sections_labs` (`organization_id`, `course_id`, `material_id`, `organization_type`, `title`, `week_number`, `order_index`, `description`, `created_at`) VALUES
-(1, 1, 1, 'lecture', 'Week 1: Course Introduction', 1, 1, 'Overview of the course, syllabus, and expectations', '2025-11-20 13:43:01'),
-(2, 1, 2, 'lecture', 'Week 1: Programming Basics', 1, 2, 'Introduction to programming concepts', '2025-11-20 13:43:01'),
-(3, 1, 3, 'lecture', 'Week 2: Variables and Data Types', 2, 3, 'Understanding variables in Python', '2025-11-20 13:43:01'),
-(4, 1, NULL, 'lab', 'Week 1: Lab - Python Setup', 1, 4, 'Setting up Python environment', '2025-11-20 13:43:01'),
 (5, 2, NULL, 'lecture', 'Week 1: Arrays Introduction', 1, 1, 'Introduction to arrays and lists', '2025-11-20 13:43:01'),
 (6, 2, NULL, 'lab', 'Week 2: Array Operations Lab', 2, 2, 'Hands-on practice with arrays', '2025-11-20 13:43:01');
 
@@ -2008,9 +2054,7 @@ CREATE TABLE `live_sessions` (
 --
 
 INSERT INTO `live_sessions` (`session_id`, `course_id`, `instructor_id`, `session_title`, `session_url`, `start_time`, `end_time`, `recording_file_id`, `participant_count`, `status`, `created_at`) VALUES
-(1, 1, 2, 'CS101 Live Review Session', 'https://meet.campus.edu/cs101-review-1', '2025-02-20 16:00:00', '2025-02-20 17:30:00', NULL, 15, 'ended', '2025-11-20 13:43:00'),
-(2, 2, 3, 'Data Structures Q&A', 'https://meet.campus.edu/cs201-qa-1', '2025-02-22 15:00:00', '2025-02-22 16:00:00', NULL, 8, 'ended', '2025-11-20 13:43:00'),
-(3, 1, 2, 'Midterm Preparation', 'https://meet.campus.edu/cs101-midterm', '2025-03-05 17:00:00', '2025-03-05 19:00:00', NULL, 0, 'scheduled', '2025-11-20 13:43:00');
+(2, 2, 3, 'Data Structures Q&A', 'https://meet.campus.edu/cs201-qa-1', '2025-02-22 15:00:00', '2025-02-22 16:00:00', NULL, 8, 'ended', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -2032,9 +2076,6 @@ CREATE TABLE `live_session_participants` (
 --
 
 INSERT INTO `live_session_participants` (`participant_id`, `session_id`, `user_id`, `joined_at`, `left_at`, `participation_score`) VALUES
-(1, 1, 7, '2025-02-20 16:02:00', '2025-02-20 17:28:00', 95.00),
-(2, 1, 8, '2025-02-20 16:05:00', '2025-02-20 17:30:00', 88.00),
-(3, 1, 9, '2025-02-20 16:01:00', '2025-02-20 17:15:00', 82.00),
 (4, 2, 12, '2025-02-22 15:00:00', '2025-02-22 16:00:00', 92.00),
 (5, 2, 13, '2025-02-22 15:03:00', '2025-02-22 15:45:00', 75.00);
 
@@ -2125,7 +2166,8 @@ INSERT INTO `messages` (`message_id`, `sender_id`, `subject`, `body`, `message_t
 (1, 2, 'Welcome to CS101', 'Welcome to Introduction to Programming! I look forward to working with you this semester.', 'announcement', NULL, 0, '2025-11-20 13:43:00'),
 (2, 7, 'Question about Assignment 1', 'Professor Smith, I have a question about the first assignment. Can we use external libraries?', 'direct', NULL, 1, '2025-11-20 13:43:00'),
 (3, 2, 'RE: Question about Assignment 1', 'For this assignment, please use only built-in Python functions.', 'direct', NULL, 0, '2025-11-20 13:43:00'),
-(4, 3, 'CS201 Project Groups', 'Please form groups of 3-4 students for the final project.', 'announcement', NULL, 0, '2025-11-20 13:43:00');
+(4, 3, 'CS201 Project Groups', 'Please form groups of 3-4 students for the final project.', 'announcement', NULL, 0, '2025-11-20 13:43:00'),
+(5, 22, 'Grade Discussion', 'I would like to discuss my quiz score from last week.', 'direct', NULL, 0, '2025-02-08 16:20:00');
 
 -- --------------------------------------------------------
 
@@ -2150,7 +2192,12 @@ INSERT INTO `message_participants` (`participant_id`, `message_id`, `user_id`, `
 (2, 1, 8, '2025-02-02 09:15:00', NULL),
 (3, 1, 9, NULL, NULL),
 (4, 2, 2, '2025-02-03 12:20:00', NULL),
-(5, 3, 7, NULL, NULL);
+(5, 3, 7, NULL, NULL),
+(6, 3, 8, NULL, NULL),
+(7, 4, 23, NULL, NULL),
+(8, 4, 8, '2025-02-04 11:00:00', NULL),
+(9, 5, 22, '2025-02-08 16:20:00', NULL),
+(10, 5, 8, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2204,12 +2251,14 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`notification_id`, `user_id`, `notification_type`, `title`, `body`, `related_entity_type`, `related_entity_id`, `announcement_id`, `is_read`, `read_at`, `priority`, `action_url`, `created_at`) VALUES
-(1, 7, 'announcement', 'New Course Announcement', 'Course Start: Welcome to CS101!', NULL, NULL, 1, 1, NULL, 'high', NULL, '2025-01-15 07:00:00'),
+(1, 21, '', 'Assignment Due Soon', 'Assignment 1: Programming Basics is due tomorrow.', 'assignment', 1, NULL, 0, NULL, 'medium', NULL, '2025-01-31 08:00:00'),
 (2, 7, 'assignment', 'New Assignment Posted', 'Assignment 1 is now available', NULL, NULL, NULL, 1, NULL, 'medium', NULL, '2025-02-01 08:00:00'),
 (3, 7, 'grade', 'Grade Posted', 'Your grade for Assignment 1 has been posted', NULL, NULL, NULL, 0, NULL, 'medium', NULL, '2025-02-16 08:00:00'),
-(4, 8, 'announcement', 'New Course Announcement', 'Course Start: Welcome to CS101!', NULL, NULL, 1, 1, NULL, 'high', NULL, '2025-01-15 07:00:00'),
+(4, 21, 'announcement', 'New Announcement', 'Dr. Ibrahim Ali posted a new announcement in CS101.', 'announcement', 1, NULL, 1, NULL, 'medium', NULL, '2025-01-20 09:05:00'),
 (5, 8, 'grade', 'Grade Posted', 'Your grade for Assignment 1 has been posted', NULL, NULL, NULL, 1, NULL, 'medium', NULL, '2025-02-16 08:15:00'),
-(6, 9, 'deadline', 'Assignment Due Soon', 'Assignment 1 due in 2 days', NULL, NULL, NULL, 0, NULL, 'high', NULL, '2025-02-13 07:00:00');
+(6, 9, 'deadline', 'Assignment Due Soon', 'Assignment 1 due in 2 days', NULL, NULL, NULL, 0, NULL, 'high', NULL, '2025-02-13 07:00:00'),
+(7, 21, 'message', 'Message Received', 'Dr. Ibrahim Ali replied to your message about Assignment 1.', 'message', 2, NULL, 1, NULL, 'medium', NULL, '2025-01-28 15:50:00'),
+(8, 22, 'grade', 'Grade Posted', 'Your grade for Quiz 1 has been posted.', 'quiz', 1, NULL, 0, NULL, 'medium', NULL, '2025-02-03 11:00:00');
 
 -- --------------------------------------------------------
 
@@ -2249,6 +2298,53 @@ INSERT INTO `notification_preferences` (`preference_id`, `user_id`, `email_enabl
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `office_hour_appointments`
+--
+
+CREATE TABLE `office_hour_appointments` (
+  `appointment_id` bigint(20) UNSIGNED NOT NULL,
+  `slot_id` bigint(20) UNSIGNED NOT NULL,
+  `student_id` bigint(20) UNSIGNED NOT NULL,
+  `appointment_date` date NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `topic` varchar(255) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `status` enum('booked','confirmed','cancelled','completed','no_show') DEFAULT 'booked',
+  `cancelled_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `cancelled_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `office_hour_slots`
+--
+
+CREATE TABLE `office_hour_slots` (
+  `slot_id` bigint(20) UNSIGNED NOT NULL,
+  `instructor_id` bigint(20) UNSIGNED NOT NULL,
+  `day_of_week` enum('monday','tuesday','wednesday','thursday','friday','saturday','sunday') NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `mode` enum('in_person','online','hybrid') DEFAULT 'in_person',
+  `meeting_url` varchar(500) DEFAULT NULL,
+  `max_appointments` int(11) DEFAULT 4,
+  `is_recurring` tinyint(1) DEFAULT 1,
+  `effective_from` date DEFAULT NULL,
+  `effective_until` date DEFAULT NULL,
+  `status` enum('active','cancelled','suspended') DEFAULT 'active',
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `offline_sync_queue`
 --
 
@@ -2258,7 +2354,7 @@ CREATE TABLE `offline_sync_queue` (
   `entity_type` varchar(50) NOT NULL,
   `entity_id` bigint(20) UNSIGNED DEFAULT NULL,
   `action` enum('create','update','delete') NOT NULL,
-  `data_snapshot` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`data_snapshot`)),
+  `data_snapshot` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `sync_status` enum('pending','synced','failed','conflict') DEFAULT 'pending',
   `attempt_count` int(11) DEFAULT 0,
   `error_message` text DEFAULT NULL,
@@ -2317,10 +2413,10 @@ CREATE TABLE `payment_transactions` (
 --
 
 INSERT INTO `payment_transactions` (`transaction_id`, `user_id`, `course_id`, `amount`, `currency`, `payment_method`, `transaction_status`, `payment_gateway_ref`, `paid_at`, `created_at`) VALUES
-(1, 7, 1, 299.99, 'USD', 'credit_card', 'completed', 'stripe_ch_1234567890', '2025-01-10 13:30:00', '2025-11-20 13:43:01'),
-(2, 8, 1, 299.99, 'USD', 'paypal', 'completed', 'paypal_txn_9876543210', '2025-01-11 08:15:00', '2025-11-20 13:43:01'),
+(1, 7, NULL, 299.99, 'USD', 'credit_card', 'completed', 'stripe_ch_1234567890', '2025-01-10 13:30:00', '2025-11-20 13:43:01'),
+(2, 8, NULL, 299.99, 'USD', 'paypal', 'completed', 'paypal_txn_9876543210', '2025-01-11 08:15:00', '2025-11-20 13:43:01'),
 (3, 9, 2, 399.99, 'USD', 'credit_card', 'completed', 'stripe_ch_0987654321', '2025-01-12 12:20:00', '2025-11-20 13:43:01'),
-(4, 10, 1, 299.99, 'USD', 'credit_card', 'failed', 'stripe_ch_1111111111', '2025-11-20 13:43:01', '2025-11-20 13:43:01'),
+(4, 10, NULL, 299.99, 'USD', 'credit_card', 'failed', 'stripe_ch_1111111111', '2025-11-20 13:43:01', '2025-11-20 13:43:01'),
 (5, 11, 3, 349.99, 'USD', 'bank_transfer', 'pending', 'bank_ref_555555', '2025-11-20 13:43:01', '2025-11-20 13:43:01');
 
 -- --------------------------------------------------------
@@ -2336,21 +2432,11 @@ CREATE TABLE `peer_reviews` (
   `reviewee_id` bigint(20) UNSIGNED NOT NULL,
   `review_text` text DEFAULT NULL,
   `rating` decimal(3,2) DEFAULT NULL,
-  `criteria_scores` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`criteria_scores`)),
+  `criteria_scores` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `status` enum('pending','submitted','acknowledged') DEFAULT 'pending',
   `submitted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `peer_reviews`
---
-
-INSERT INTO `peer_reviews` (`review_id`, `submission_id`, `reviewer_id`, `reviewee_id`, `review_text`, `rating`, `criteria_scores`, `status`, `submitted_at`, `created_at`) VALUES
-(1, 1, 8, 7, 'Excellent work! Code is clean and well-commented. The logic is correct and output matches requirements perfectly.', 4.80, NULL, 'submitted', '2025-02-16 12:30:00', '2025-11-20 13:43:00'),
-(2, 2, 9, 8, 'Good job! Code works correctly. Suggestion: Add more comments to explain your approach.', 4.20, NULL, 'submitted', '2025-02-16 13:45:00', '2025-11-20 13:43:00'),
-(3, 3, 10, 9, 'Code functions properly but could be more efficient. Consider using built-in functions.', 3.80, NULL, 'submitted', '2025-02-17 08:20:00', '2025-11-20 13:43:00'),
-(4, 1, 9, 7, 'Great submission! Very readable code with proper formatting.', 4.90, NULL, 'submitted', '2025-02-16 14:00:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -2368,18 +2454,6 @@ CREATE TABLE `performance_metrics` (
   `trend` enum('improving','stable','declining') DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `performance_metrics`
---
-
-INSERT INTO `performance_metrics` (`metric_id`, `user_id`, `course_id`, `metric_name`, `metric_value`, `calculation_date`, `trend`, `created_at`) VALUES
-(1, 7, 1, 'overall_grade', 91.25, '2025-02-15', 'improving', '2025-11-20 13:43:00'),
-(2, 7, 1, 'assignment_average', 95.00, '2025-02-15', 'stable', '2025-11-20 13:43:00'),
-(3, 7, 1, 'quiz_average', 85.00, '2025-02-15', 'improving', '2025-11-20 13:43:00'),
-(4, 8, 1, 'overall_grade', 87.50, '2025-02-15', 'stable', '2025-11-20 13:43:00'),
-(5, 9, 1, 'overall_grade', 75.00, '2025-02-15', 'declining', '2025-11-20 13:43:00'),
-(6, 10, 1, 'overall_grade', 72.00, '2025-02-15', 'improving', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -2468,7 +2542,14 @@ INSERT INTO `programs` (`program_id`, `department_id`, `program_name`, `program_
 (2, 1, 'Master of Computer Science', 'MCS', 'master', 2, 'Graduate program in Computer Science', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (3, 2, 'Bachelor of Mathematics', 'BMATH', 'bachelor', 4, 'Undergraduate program in Mathematics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (4, 4, 'Bachelor of Business Administration', 'BBA', 'bachelor', 4, 'Undergraduate business program', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(5, 5, 'Bachelor of Engineering', 'BE', 'bachelor', 4, 'Undergraduate engineering program', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59');
+(5, 5, 'Bachelor of Engineering', 'BE', 'bachelor', 4, 'Undergraduate engineering program', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
+(6, 3, 'MBA', 'MBA', 'master', 2, 'Master of Business Administration', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(7, 4, 'BS Data Science', 'BS-DS', 'bachelor', 4, 'Bachelor of Science in Data Science', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(8, 4, 'Certificate Data Analytics', 'CERT-DA', 'certificate', 1, 'Certificate in Data Analytics', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(9, 5, 'BA English Literature', 'BA-ENG', 'bachelor', 4, 'Bachelor of Arts in English Literature', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(10, 5, 'BA Arabic Language', 'BA-AR', 'bachelor', 4, 'Bachelor of Arts in Arabic Language and Culture', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(11, 6, 'BS Mathematics', 'BS-MATH', 'bachelor', 4, 'Bachelor of Science in Mathematics', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(12, 6, 'BS Physics', 'BS-PHYS', 'bachelor', 4, 'Bachelor of Science in Physics', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00');
 
 -- --------------------------------------------------------
 
@@ -2492,6 +2573,7 @@ CREATE TABLE `quizzes` (
   `available_from` timestamp NULL DEFAULT NULL,
   `available_until` timestamp NULL DEFAULT NULL,
   `weight` decimal(5,2) DEFAULT 0.00,
+  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -2502,10 +2584,13 @@ CREATE TABLE `quizzes` (
 -- Dumping data for table `quizzes`
 --
 
-INSERT INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `instructions`, `quiz_type`, `time_limit_minutes`, `max_attempts`, `passing_score`, `randomize_questions`, `show_correct_answers`, `show_answers_after`, `available_from`, `available_until`, `weight`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Quiz 1: Python Basics', 'Test your knowledge of Python fundamentals', NULL, 'graded', 30, 2, 70.00, 1, 1, 'after_due', '2025-02-09 22:00:00', '2025-02-20 21:59:59', 10.00, 2, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(2, 1, 'Quiz 2: Control Structures', 'If statements and loops', NULL, 'graded', 45, 1, 70.00, 1, 1, 'after_due', '2025-02-28 22:00:00', '2025-03-10 21:59:59', 10.00, 2, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(3, 2, 'Quiz 1: Arrays and Lists', 'Understanding arrays', NULL, 'graded', 60, 1, 75.00, 0, 1, 'after_due', '2025-02-14 22:00:00', '2025-02-25 21:59:59', 15.00, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL);
+INSERT INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `instructions`, `quiz_type`, `time_limit_minutes`, `max_attempts`, `passing_score`, `randomize_questions`, `show_correct_answers`, `show_answers_after`, `available_from`, `available_until`, `weight`, `status`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 1, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 'Answer all questions', 'graded', 15, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 8, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
+(2, 1, 'Quiz 2: Control Flow', 'Test knowledge of conditionals and loops', 'Answer all questions', 'graded', 20, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 8, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(3, 2, 'Quiz 1: Arrays and Lists', 'Understanding arrays', NULL, 'graded', 60, 1, 75.00, 0, 1, 'after_due', '2025-02-14 22:00:00', '2025-02-25 21:59:59', 15.00, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(4, 3, 'Quiz 1: Array and Linked Lists', 'Assessment of array and linked list concepts', 'Answer all questions', 'graded', 20, 1, 15.00, 1, 0, 'after_due', NULL, NULL, 10.00, 'draft', 10, '2025-02-03 08:00:00', '2025-02-03 08:00:00', NULL),
+(5, 5, 'Quiz 1: OOP Principles', 'Test understanding of object-oriented programming', 'Answer all questions', 'graded', 25, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 12, '2025-02-05 08:00:00', '2025-02-05 08:00:00', NULL),
+(6, 9, 'Quiz 1: Statistical Concepts', 'Assessment of probability and statistics fundamentals', 'Answer all questions', 'graded', 30, 1, 12.00, 0, 1, 'after_due', NULL, NULL, 10.00, 'draft', 16, '2025-02-07 08:00:00', '2025-02-07 08:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -2518,23 +2603,11 @@ CREATE TABLE `quiz_answers` (
   `attempt_id` bigint(20) UNSIGNED NOT NULL,
   `question_id` bigint(20) UNSIGNED NOT NULL,
   `answer_text` text DEFAULT NULL,
-  `selected_option` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`selected_option`)),
+  `selected_option` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `is_correct` tinyint(1) DEFAULT NULL,
   `points_earned` decimal(5,2) DEFAULT 0.00,
   `answered_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `quiz_answers`
---
-
-INSERT INTO `quiz_answers` (`answer_id`, `attempt_id`, `question_id`, `answer_text`, `selected_option`, `is_correct`, `points_earned`, `answered_at`) VALUES
-(1, 1, 1, NULL, '0', 1, 10.00, '2025-11-20 13:43:00'),
-(2, 1, 2, NULL, '0', 1, 10.00, '2025-11-20 13:43:00'),
-(3, 1, 3, NULL, '0', 1, 5.00, '2025-11-20 13:43:00'),
-(4, 2, 1, NULL, '0', 1, 10.00, '2025-11-20 13:43:00'),
-(5, 2, 2, NULL, '0', 1, 10.00, '2025-11-20 13:43:00'),
-(6, 2, 3, NULL, '0', 1, 5.00, '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -2554,16 +2627,6 @@ CREATE TABLE `quiz_attempts` (
   `status` enum('in_progress','submitted','graded','abandoned') DEFAULT 'in_progress',
   `ip_address` varchar(45) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `quiz_attempts`
---
-
-INSERT INTO `quiz_attempts` (`attempt_id`, `quiz_id`, `user_id`, `attempt_number`, `started_at`, `submitted_at`, `score`, `time_taken_minutes`, `status`, `ip_address`) VALUES
-(1, 1, 7, 1, '2025-11-20 13:42:59', '2025-02-12 08:30:00', 85.00, 25, 'graded', NULL),
-(2, 1, 8, 1, '2025-11-20 13:42:59', '2025-02-12 12:15:00', 90.00, 28, 'graded', NULL),
-(3, 1, 9, 1, '2025-11-20 13:42:59', '2025-02-13 07:45:00', 75.00, 30, 'graded', NULL),
-(4, 1, 10, 1, '2025-11-20 13:42:59', NULL, NULL, NULL, 'in_progress', NULL);
 
 -- --------------------------------------------------------
 
@@ -2598,7 +2661,7 @@ CREATE TABLE `quiz_questions` (
   `quiz_id` bigint(20) UNSIGNED NOT NULL,
   `question_text` text NOT NULL,
   `question_type` enum('mcq','true_false','short_answer','essay','matching') NOT NULL,
-  `options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`options`)),
+  `options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `correct_answer` text DEFAULT NULL,
   `explanation` text DEFAULT NULL,
   `points` decimal(5,2) DEFAULT 1.00,
@@ -2613,11 +2676,25 @@ CREATE TABLE `quiz_questions` (
 --
 
 INSERT INTO `quiz_questions` (`question_id`, `quiz_id`, `question_text`, `question_type`, `options`, `correct_answer`, `explanation`, `points`, `difficulty_level_id`, `order_index`, `created_at`, `updated_at`) VALUES
-(1, 1, 'What is the correct way to create a variable in Python?', 'mcq', '[\"x = 5\", \"var x = 5\", \"int x = 5\", \"x := 5\"]', '0', 'In Python, variables are created with simple assignment', 10.00, 1, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(2, 1, 'Which data type is used for text in Python?', 'mcq', '[\"string\", \"text\", \"char\", \"varchar\"]', '0', 'Python uses str (string) type for text', 10.00, 1, 2, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(3, 1, 'Python is case-sensitive', 'true_false', '[\"True\", \"False\"]', '0', 'Python distinguishes between uppercase and lowercase', 5.00, 1, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(4, 2, 'Which keyword is used for conditional statements?', 'mcq', '[\"if\", \"when\", \"check\", \"condition\"]', '0', 'if keyword is used for conditionals', 10.00, 1, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(5, 3, 'What is the time complexity of accessing an element in an array by index?', 'mcq', '[\"O(1)\", \"O(n)\", \"O(log n)\", \"O(n^2)\"]', '0', 'Array access by index is constant time', 15.00, 2, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
+(1, 1, 'What is a variable in programming?', '', NULL, NULL, NULL, 4.00, NULL, 1, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
+(2, 1, 'Which of the following is not a data type?', '', NULL, NULL, NULL, 4.00, NULL, 2, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
+(3, 1, 'What does IDE stand for?', '', NULL, NULL, NULL, 4.00, NULL, 3, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
+(4, 1, 'True or False: Comments improve code readability.', 'true_false', NULL, NULL, NULL, 4.00, NULL, 4, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
+(5, 3, 'What is the time complexity of accessing an element in an array by index?', 'mcq', '[\"O(1)\", \"O(n)\", \"O(log n)\", \"O(n^2)\"]', '0', 'Array access by index is constant time', 15.00, 2, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
+(6, 2, 'What is the output of the loop: for(int i=0; i<3; i++)?', '', NULL, NULL, NULL, 4.00, NULL, 1, '2025-02-01 08:00:00', '2026-03-01 14:55:40'),
+(7, 2, 'Which statement is used to skip an iteration in a loop?', '', NULL, NULL, NULL, 4.00, NULL, 2, '2025-02-01 08:00:00', '2026-03-01 14:55:40'),
+(8, 2, 'What is the purpose of an if-else statement?', '', NULL, NULL, NULL, 4.00, NULL, 3, '2025-02-01 08:00:00', '2026-03-01 14:55:40'),
+(9, 2, 'True or False: A switch statement can only handle integers.', 'true_false', NULL, NULL, NULL, 4.00, NULL, 4, '2025-02-01 08:00:00', '2026-03-01 14:55:40'),
+(10, 2, 'Describe the difference between while and do-while loops.', 'short_answer', NULL, NULL, NULL, 4.00, NULL, 5, '2025-02-01 08:00:00', '2026-03-01 14:55:40'),
+(11, 3, 'What is the time complexity of array access?', '', NULL, NULL, NULL, 5.00, NULL, 1, '2025-01-26 08:00:00', '2026-03-01 14:55:40'),
+(12, 3, 'Explain how a linked list differs from an array.', 'short_answer', NULL, NULL, NULL, 5.00, NULL, 2, '2025-01-26 08:00:00', '2026-03-01 14:55:40'),
+(13, 3, 'What is the advantage of a linked list over an array?', '', NULL, NULL, NULL, 5.00, NULL, 3, '2025-01-26 08:00:00', '2026-03-01 14:55:40'),
+(14, 3, 'True or False: Linked lists allow constant-time access to elements.', 'true_false', NULL, NULL, NULL, 5.00, NULL, 4, '2025-01-26 08:00:00', '2026-03-01 14:55:40'),
+(15, 4, 'What is encapsulation?', '', NULL, NULL, NULL, 5.00, NULL, 1, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(16, 4, 'Describe inheritance with an example.', 'short_answer', NULL, NULL, NULL, 5.00, NULL, 2, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(17, 4, 'What are the four pillars of OOP?', '', NULL, NULL, NULL, 5.00, NULL, 3, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(18, 4, 'True or False: A class can inherit from multiple classes in Java.', 'true_false', NULL, NULL, NULL, 5.00, NULL, 4, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(19, 4, 'What is the difference between a class and an object?', 'short_answer', NULL, NULL, NULL, 5.00, NULL, 5, '2025-02-03 08:00:00', '2026-03-01 14:55:40');
 
 -- --------------------------------------------------------
 
@@ -2629,7 +2706,7 @@ CREATE TABLE `report_templates` (
   `template_id` bigint(20) UNSIGNED NOT NULL,
   `template_name` varchar(255) NOT NULL,
   `template_type` enum('student','course','attendance','grade','analytics','custom') NOT NULL,
-  `template_structure` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`template_structure`)),
+  `template_structure` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `description` text DEFAULT NULL,
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `is_system_template` tinyint(1) DEFAULT 0,
@@ -2658,7 +2735,7 @@ CREATE TABLE `rewards` (
   `reward_name` varchar(100) NOT NULL,
   `reward_description` text DEFAULT NULL,
   `reward_type` enum('badge','title','avatar','theme','feature_unlock','certificate') NOT NULL,
-  `reward_value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`reward_value`)),
+  `reward_value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `points_cost` int(11) DEFAULT 0,
   `achievement_id` int(10) UNSIGNED DEFAULT NULL,
   `is_available` tinyint(1) DEFAULT 1,
@@ -2685,7 +2762,7 @@ CREATE TABLE `reward_redemptions` (
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `points_spent` int(11) NOT NULL,
   `redemption_status` enum('pending','approved','delivered','rejected','cancelled') DEFAULT 'pending',
-  `delivery_details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`delivery_details`)),
+  `delivery_details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `approved_by` bigint(20) UNSIGNED DEFAULT NULL,
   `approved_at` timestamp NULL DEFAULT NULL,
   `redeemed_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -2776,7 +2853,7 @@ CREATE TABLE `rubrics` (
   `course_id` bigint(20) UNSIGNED NOT NULL,
   `rubric_name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`criteria`)),
+  `criteria` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `total_points` decimal(5,2) DEFAULT 100.00,
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -2788,9 +2865,7 @@ CREATE TABLE `rubrics` (
 --
 
 INSERT INTO `rubrics` (`rubric_id`, `course_id`, `rubric_name`, `description`, `criteria`, `total_points`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Programming Assignment Rubric', 'Standard rubric for coding assignments', '{\"criteria\": [{\"name\": \"Correctness\", \"points\": 40}, {\"name\": \"Code Quality\", \"points\": 30}, {\"name\": \"Documentation\", \"points\": 20}, {\"name\": \"Testing\", \"points\": 10}]}', 100.00, 2, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 2, 'Data Structures Project Rubric', 'Rubric for DS projects', '{\"criteria\": [{\"name\": \"Implementation\", \"points\": 50}, {\"name\": \"Efficiency\", \"points\": 25}, {\"name\": \"Documentation\", \"points\": 15}, {\"name\": \"Presentation\", \"points\": 10}]}', 100.00, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 1, 'Lab Report Rubric', 'Standard lab report grading', '{\"criteria\": [{\"name\": \"Completion\", \"points\": 30}, {\"name\": \"Analysis\", \"points\": 40}, {\"name\": \"Writing\", \"points\": 30}]}', 100.00, 2, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(2, 2, 'Data Structures Project Rubric', 'Rubric for DS projects', '{\"criteria\": [{\"name\": \"Implementation\", \"points\": 50}, {\"name\": \"Efficiency\", \"points\": 25}, {\"name\": \"Documentation\", \"points\": 15}, {\"name\": \"Presentation\", \"points\": 10}]}', 100.00, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -2831,7 +2906,7 @@ CREATE TABLE `search_history` (
   `history_id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `search_query` varchar(500) NOT NULL,
-  `search_filters` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`search_filters`)),
+  `search_filters` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `results_count` int(11) DEFAULT 0,
   `selected_result_id` bigint(20) UNSIGNED DEFAULT NULL,
   `selected_result_type` varchar(50) DEFAULT NULL,
@@ -2862,7 +2937,7 @@ CREATE TABLE `search_index` (
   `title` varchar(255) DEFAULT NULL,
   `content` text DEFAULT NULL,
   `keywords` text DEFAULT NULL,
-  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`metadata`)),
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `search_vector` text DEFAULT NULL,
   `visibility` enum('public','students','instructors','private') DEFAULT 'students',
   `campus_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -2935,6 +3010,8 @@ CREATE TABLE `semesters` (
 --
 
 INSERT INTO `semesters` (`semester_id`, `semester_name`, `semester_code`, `start_date`, `end_date`, `registration_start`, `registration_end`, `status`, `created_at`) VALUES
+(1, 'Fall 2024', 'FALL2024', '2024-09-01', '2024-12-20', '2024-08-15', '2024-08-31', 'completed', '2024-08-01 00:00:00'),
+(2, 'Spring 2025', 'SPR2025', '2025-01-15', '2025-05-30', '2024-12-15', '2025-01-10', 'active', '2024-12-01 00:00:00'),
 (3, 'Summer 2025', 'SU2025', '2025-06-01', '2025-08-15', '2025-05-01', '2025-05-25', 'upcoming', '2025-11-20 13:42:59'),
 (4, 'Fall 2025', 'F2025', '2025-09-01', '2025-12-31', '2025-08-01', '2025-08-25', 'active', '2025-11-26 18:54:24'),
 (7, 'Fall 2027', 'F2027', '2027-09-01', '2027-12-20', '2027-08-01', '2027-08-25', 'upcoming', '2025-11-26 19:28:01');
@@ -2987,7 +3064,20 @@ INSERT INTO `sessions` (`session_id`, `user_id`, `session_token`, `ip_address`, 
 (61, 25, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI1LCJlbWFpbCI6ImFtMzU2NjE0NkBnbWFpbC5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc2NDE3OTYxMiwiZXhwIjoxNzY0Nzg0NDEyfQ.5Sq0Y0FarUgt4W3AEhIUbrZaZKSY8zkRU45ZwGhW95U', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-03 17:53:32', '2025-11-26 17:53:32', 0),
 (62, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQxODAyNDcsImV4cCI6MTc2NDc4NTA0N30.-VOieVPihJLvMNHJbj9_cSItzW9kCZLa5NKB4s_Nfvw', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-03 18:04:07', '2025-11-26 18:04:07', 0),
 (63, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQxODQ5MDYsImV4cCI6MTc2NDc4OTcwNn0.jLUlH_1BzJM0eXbgtiec_6IFyVKl4FB24k1Vi82_k-Y', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-03 19:21:46', '2025-11-26 19:21:46', 0),
-(68, 30, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMwLCJlbWFpbCI6ImFtMzU2NjE0M0BnbWFpbC5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc2NDIwMzg2MiwiZXhwIjoxNzY0ODA4NjYyfQ.OMFNxg2GN8WeDxbypZBVcDnP6JrM5fHZ_8X71z_h6D0', '192.168.1.3', 'Dart/3.9 (dart:io)', 'desktop', '2025-12-04 00:37:42', '2025-11-27 00:37:42', 0);
+(68, 30, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMwLCJlbWFpbCI6ImFtMzU2NjE0M0BnbWFpbC5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc2NDIwMzg2MiwiZXhwIjoxNzY0ODA4NjYyfQ.OMFNxg2GN8WeDxbypZBVcDnP6JrM5fHZ_8X71z_h6D0', '192.168.1.3', 'Dart/3.9 (dart:io)', 'desktop', '2025-12-04 00:37:42', '2025-11-27 00:37:42', 0),
+(70, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQyNjI2OTYsImV4cCI6MTc2NDg2NzQ5Nn0.4UhMJ0d-5lPlvL18DDwH9B1Wfx_BYd-DbcC5Bn3DSb8', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-04 16:58:16', '2025-11-27 16:58:16', 0),
+(71, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQyNjUxNjYsImV4cCI6MTc2NDg2OTk2Nn0.6K6yofEYOZby2sq8EqAQBYElbSWMdTX7E0zQoSbVhb4', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-04 17:39:26', '2025-11-27 17:39:26', 0),
+(72, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQyNzMwMTcsImV4cCI6MTc2NDg3NzgxN30.Qs4njygOc58XwoshQk6H-Ghp6AJlaHkp6mta-8BbRF8', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-04 19:50:18', '2025-11-27 19:50:17', 0),
+(73, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQ1MTc2NzcsImV4cCI6MTc2NTEyMjQ3N30.QTWYpvG_pZUJTKsnoT1Bwv-wOsljbjBsAr0PGx6PU-E', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 15:47:58', '2025-11-30 15:47:57', 0),
+(74, 25, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI1LCJlbWFpbCI6ImFtMzU2NjE0NkBnbWFpbC5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc2NDUxODY5OSwiZXhwIjoxNzY1MTIzNDk5fQ.jNoA5aP62LQ3PaLbImvakM-weKxjK4TWV8L-ciucodc', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:05:00', '2025-11-30 16:04:59', 0),
+(75, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQ1MTg3NDMsImV4cCI6MTc2NTEyMzU0M30.pcWldW3f_2BMukMzvJ7W3FSu9GmRkEXJAdHFgrg2kJU', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:05:43', '2025-11-30 16:05:43', 0),
+(76, 34, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM0LCJlbWFpbCI6ImFtaXJfc3R1ZGVudEBjYW1wdXMuZWR1Iiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NjQ1MTg5MzMsImV4cCI6MTc2NTEyMzczM30.lea9RdkUal-n0yuoJSk0V6IVBZdW1npMS2szF_S_mYM', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:08:53', '2025-11-30 16:08:53', 0),
+(77, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQ1MjA3NjQsImV4cCI6MTc2NTEyNTU2NH0.Je4CVQwAgdJ4D8xc09v0Im3iDiIuJReAX3eIlVHOY5A', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:39:24', '2025-11-30 16:39:24', 0),
+(78, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNDYyNTIsImV4cCI6MTc3MjY1MTA1Mn0.mdvXYoVNU6LLKHUjWmqPQTRTMytD13pRJJ4vgmRB16c', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 19:04:12', '2026-02-25 19:04:12', 0),
+(79, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNTAyNzQsImV4cCI6MTc3MjY1NTA3NH0.cbFdJWpQVM2tMCVcczIUJGcYqZrAH1SulzVLX9e9Lks', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 20:11:14', '2026-02-25 20:11:14', 0),
+(80, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzODI4MjgsImV4cCI6MTc3Mjk4NzYyOH0.mwUp2Z_FXBSPWy4Mv5EGWqs8r5SYP7fn0l0-9qeZ9Yg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 16:33:48', '2026-03-01 16:33:48', 0),
+(81, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzOTkwMDMsImV4cCI6MTc3MzAwMzgwM30.-wZ1fnzgbIgErm9zeDCY8d8bJkTLWQLqF3JcSMrTMwI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 21:03:23', '2026-03-01 21:03:23', 0),
+(82, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzOTk3MTUsImV4cCI6MTc3MzAwNDUxNX0.qzUcx45Odur_uc_kw3EIf8x8xR3Vp27nnL6b4X6CcwM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 21:15:15', '2026-03-01 21:15:15', 0);
 
 -- --------------------------------------------------------
 
@@ -3071,10 +3161,6 @@ CREATE TABLE `student_tasks` (
 --
 
 INSERT INTO `student_tasks` (`task_id`, `user_id`, `task_type`, `assignment_id`, `quiz_id`, `lab_id`, `title`, `description`, `due_date`, `priority`, `status`, `completion_percentage`, `created_at`, `updated_at`) VALUES
-(1, 7, 'assignment', 1, NULL, NULL, 'Complete Assignment 1', 'Submit Hello World program', '2025-02-15 21:59:59', 'high', 'completed', 100, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 7, 'assignment', 2, NULL, NULL, 'Complete Assignment 2', 'Variables practice', '2025-02-28 21:59:59', 'high', 'in_progress', 60, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 7, 'quiz', NULL, 2, NULL, 'Take Quiz 2', 'Control Structures quiz', '2025-03-10 21:59:59', 'medium', 'pending', 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 8, 'assignment', 1, NULL, NULL, 'Complete Assignment 1', 'Submit Hello World program', '2025-02-15 21:59:59', 'high', 'completed', 100, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (5, 8, 'custom', NULL, NULL, NULL, 'Review lecture notes', 'Go through weeks 1-3', '2025-02-20 21:59:59', 'medium', 'in_progress', 75, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (6, 9, 'study', NULL, NULL, NULL, 'Prepare for midterm', 'Review all materials', '2025-03-15 21:59:59', 'high', 'in_progress', 40, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
@@ -3104,9 +3190,7 @@ CREATE TABLE `study_groups` (
 --
 
 INSERT INTO `study_groups` (`group_id`, `course_id`, `group_name`, `description`, `created_by`, `max_members`, `current_members`, `is_public`, `meeting_schedule`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'CS101 Evening Study Group', 'Study group meeting Tuesday and Thursday evenings', 7, 6, 4, 1, 'Tuesday & Thursday 6-8 PM', 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 2, 'Data Structures Masters', 'Advanced study group for CS201', 12, 5, 3, 1, 'Monday & Wednesday 5-7 PM', 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 1, 'Weekend Warriors', 'Weekend study sessions', 9, 8, 5, 1, 'Saturday 10 AM - 2 PM', 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(2, 2, 'Data Structures Masters', 'Advanced study group for CS201', 12, 5, 3, 1, 'Monday & Wednesday 5-7 PM', 'active', '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -3127,18 +3211,28 @@ CREATE TABLE `study_group_members` (
 --
 
 INSERT INTO `study_group_members` (`member_id`, `group_id`, `user_id`, `role`, `joined_at`) VALUES
-(1, 1, 7, 'creator', '2025-11-20 13:43:00'),
-(2, 1, 8, 'member', '2025-11-20 13:43:00'),
-(3, 1, 9, 'moderator', '2025-11-20 13:43:00'),
-(4, 1, 10, 'member', '2025-11-20 13:43:00'),
 (5, 2, 12, 'creator', '2025-11-20 13:43:00'),
 (6, 2, 13, 'member', '2025-11-20 13:43:00'),
-(7, 2, 14, 'member', '2025-11-20 13:43:00'),
-(8, 3, 9, 'creator', '2025-11-20 13:43:00'),
-(9, 3, 10, 'member', '2025-11-20 13:43:00'),
-(10, 3, 11, 'member', '2025-11-20 13:43:00'),
-(11, 3, 7, 'member', '2025-11-20 13:43:00'),
-(12, 3, 8, 'member', '2025-11-20 13:43:00');
+(7, 2, 14, 'member', '2025-11-20 13:43:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subscription_plans`
+--
+
+CREATE TABLE `subscription_plans` (
+  `plan_id` bigint(20) UNSIGNED NOT NULL,
+  `plan_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `currency` varchar(3) DEFAULT 'USD',
+  `billing_cycle` enum('monthly','quarterly','yearly') DEFAULT 'monthly',
+  `features` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`features`)),
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -3248,14 +3342,6 @@ CREATE TABLE `task_completion` (
   `notes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `task_completion`
---
-
-INSERT INTO `task_completion` (`completion_id`, `task_id`, `user_id`, `completed_at`, `time_taken_minutes`, `notes`) VALUES
-(1, 1, 7, '2025-02-14 18:30:00', 120, 'Completed ahead of schedule. Found it straightforward.'),
-(2, 4, 8, '2025-02-14 20:15:00', 95, 'Good assignment, learned a lot about print statements.');
-
 -- --------------------------------------------------------
 
 --
@@ -3316,7 +3402,7 @@ CREATE TABLE `two_factor_auth` (
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `secret_key` varchar(255) NOT NULL,
   `enabled` tinyint(1) DEFAULT 0,
-  `backup_codes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`backup_codes`)),
+  `backup_codes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `last_used_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -3369,10 +3455,41 @@ INSERT INTO `users` (`user_id`, `email`, `password_hash`, `first_name`, `last_na
 (17, 'amir123@campus.edu', '$2a$12$C311w/5Myorf1.zx35NarOlekceRfdFvjGr1xUgx0s4GHxky4JaQa', 'Amir', 'Doe', '+1234567890', NULL, 1, 'active', 1, '2025-11-24 23:24:53', '2025-11-24 23:02:53', '2025-11-24 23:24:53', NULL),
 (18, 'amir.user@campus.edu', '$2a$12$Rq1HOfy3QufvhHKiKrGQFeqyHsX896gCod41jJF1r.XNUUIeQMd4i', 'Test', 'amir2', '+1234567800', NULL, 1, 'active', 1, '2025-11-24 23:33:35', '2025-11-24 23:29:12', '2025-11-24 23:33:35', NULL),
 (19, 'amir1234@campus.edu', '$2b$10$Z0TxzhBdcMLt2YuGEbPmTe/nYpEvVPw6I8E7h7cHUaS79NpKv.Lwq', 'Amir', 'Mohamed', '+125451526', NULL, 1, 'active', 1, '2025-11-25 18:00:40', '2025-11-25 02:17:12', '2025-11-25 18:00:41', NULL),
-(25, 'am3566146@gmail.com', '$2b$10$lqumSGY0jP1eCtbxIlQQveE1nD7m37YU9jJRrwoGoDlBenDS1EQqi', 'Amir', 'Hamdi', '+201234567890', NULL, NULL, 'active', 1, '2025-11-26 17:53:32', '2025-11-26 15:22:14', '2025-11-26 17:53:32', NULL),
-(29, 'am3566147@gmail.com', '$2b$10$oplLjPdOuM19aeyZg9CQJuhUoiQxN00m2LjMTGd4.IDrIs2WI/nUC', 'John', 'Doe', NULL, NULL, NULL, 'active', 1, '2025-11-26 23:34:17', '2025-11-26 18:02:35', '2025-11-26 23:34:17', NULL),
+(20, 'ta.salim.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Salim', 'Noor', '+20-100-444-0003', NULL, 2, 'active', 1, '2025-02-13 15:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(21, 'student.ali.youssef@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ali', 'Youssef', '+20-100-555-0001', NULL, 1, 'active', 1, '2025-02-15 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(22, 'student.maya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Maya', 'Ibrahim', '+20-100-555-0002', NULL, 1, 'active', 1, '2025-02-15 16:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(23, 'student.zain.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Zain', 'Ahmed', '+20-100-555-0003', NULL, 1, 'active', 1, '2025-02-15 18:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(24, 'student.hana.khalil@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Hana', 'Khalil', '+20-100-555-0004', NULL, 1, 'active', 1, '2025-02-14 17:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(25, 'am3566146@gmail.com', '$2b$10$lqumSGY0jP1eCtbxIlQQveE1nD7m37YU9jJRrwoGoDlBenDS1EQqi', 'Amir', 'Hamdi', '+201234567890', NULL, NULL, 'active', 1, '2025-11-30 16:05:00', '2025-11-26 15:22:14', '2025-11-30 16:04:59', NULL),
+(26, 'student.mariam.fahmy@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Mariam', 'Fahmy', '+20-100-555-0006', NULL, 1, 'active', 1, '2025-02-13 18:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(27, 'student.rashid.nour@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Rashid', 'Nour', '+20-100-555-0007', NULL, 1, 'active', 1, '2025-02-13 17:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(28, 'student.sara.aziz@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Sara', 'Aziz', '+20-100-555-0008', NULL, 2, 'active', 1, '2025-02-15 15:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(29, 'am3566147@gmail.com', '$2b$10$oplLjPdOuM19aeyZg9CQJuhUoiQxN00m2LjMTGd4.IDrIs2WI/nUC', 'John', 'Doe', NULL, NULL, NULL, 'active', 1, '2025-11-30 16:39:24', '2025-11-26 18:02:35', '2025-11-30 16:39:24', NULL),
 (30, 'am3566143@gmail.com', '$2b$10$1ZlE/jNftUxyDDR5b6Kd2eLR3IB5ZUN9LCrVDU9E0zsMP5mfy4/q.', 'Amir', 'Hamdi', '+2015464646445', NULL, NULL, 'active', 1, '2025-11-27 00:40:27', '2025-11-26 23:31:32', '2025-11-27 00:40:27', NULL),
-(33, 'amirhamdidx720@gmail.com', '$2b$10$pl4Dx6LsyXtolFjT3s.X5u.mYMJSYrkM98nDz1IkuCck.O7d3cl52', 'Amir', 'Hamdi', NULL, NULL, NULL, 'active', 1, '2025-11-27 00:36:46', '2025-11-27 00:32:35', '2025-11-27 00:36:46', NULL);
+(31, 'student.amr.shaker@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Amr', 'Shaker', '+20-100-555-0011', NULL, 2, 'active', 1, '2025-02-13 16:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(32, 'student.dalal.hassan@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Dalal', 'Hassan', '+20-100-555-0012', NULL, 1, 'active', 1, '2025-02-12 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(33, 'amirhamdidx720@gmail.com', '$2b$10$pl4Dx6LsyXtolFjT3s.X5u.mYMJSYrkM98nDz1IkuCck.O7d3cl52', 'Amir', 'Hamdi', NULL, NULL, NULL, 'active', 1, '2025-11-27 00:36:46', '2025-11-27 00:32:35', '2025-11-27 00:36:46', NULL),
+(34, 'amir_student@campus.edu', '$2b$10$pmCL5b.Hv9aPeH9MBxHEHuB4YQiZyMz5tZTIEh6xjRDUUB/K5hqaK', 'Amir', 'Strudent', NULL, NULL, NULL, 'active', 1, '2025-11-30 16:08:53', '2025-11-30 16:08:06', '2025-11-30 16:08:53', NULL),
+(35, 'amir@edu.com', '$2b$10$wPRxhFVeedYmnpkDJWzgZuUH4qn2cjd9zF65tCSfrUnSRbjleFhOS', 'Test', 'User', '+20201234567', NULL, NULL, 'pending', 0, NULL, '2026-02-25 19:01:54', '2026-02-25 19:01:54', NULL),
+(36, 'john.doe@example.com', '$2b$10$HNLv5bD5GbRDJzyOlJr0FuP5A6ibEUhKWkKbbm/ytOhFTffEmy8VG', 'John', 'Doe', '+1234567890', NULL, NULL, 'active', 1, '2026-02-25 20:11:14', '2026-02-25 19:02:43', '2026-02-25 20:11:14', NULL),
+(37, 'student.fouad.ali@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Fouad', 'Ali', '+20-100-555-0017', NULL, 3, 'active', 1, '2025-02-15 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(38, 'student.lina.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Lina', 'Noor', '+20-100-555-0018', NULL, 3, 'active', 1, '2025-02-14 18:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(39, 'student.sami.aziz@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Sami', 'Aziz', '+20-100-555-0019', NULL, 3, 'active', 1, '2025-02-13 19:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(40, 'student.joud.mohammad@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Joud', 'Mohammad', '+20-100-555-0020', NULL, 1, 'active', 1, '2025-02-12 18:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(41, 'student.rayan.saleh@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Rayan', 'Saleh', '+20-100-555-0021', NULL, 1, 'active', 1, '2025-02-11 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(42, 'student.ghada.hussein@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ghada', 'Hussein', '+20-100-555-0022', NULL, 2, 'active', 1, '2025-02-10 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(43, 'student.tariq.samir@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Tariq', 'Samir', '+20-100-555-0023', NULL, 2, 'active', 1, '2025-02-09 18:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(44, 'student.souad.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Souad', 'Noor', '+20-100-555-0024', NULL, 2, 'active', 1, '2025-02-08 17:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(45, 'student.walid.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Walid', 'Ahmed', '+20-100-555-0025', NULL, 1, 'active', 1, '2025-02-07 19:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(46, 'student.yasmine.khalil@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Yasmine', 'Khalil', '+20-100-555-0026', NULL, 1, 'active', 1, '2025-02-06 16:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(47, 'student.ismail.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ismail', 'Ahmed', '+20-100-555-0027', NULL, 3, 'active', 1, '2025-02-15 20:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(48, 'student.zainab.saleh@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Zainab', 'Saleh', '+20-100-555-0028', NULL, 3, 'active', 1, '2025-02-14 19:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(49, 'student.jamal.abdel@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Jamal', 'Abdel', '+20-100-555-0029', NULL, 3, 'active', 1, '2025-02-13 18:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(50, 'student.haya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Haya', 'Ibrahim', '+20-100-555-0030', NULL, 1, 'active', 1, '2025-02-12 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(51, 'admin.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ahmed', 'Hassan', '+20-100-111-0001', NULL, 1, 'active', 1, '2025-02-15 07:00:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
+(52, 'admin.fatima@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Fatima', 'Khalil', '+20-100-111-0002', NULL, 1, 'active', 1, '2025-02-14 12:30:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
+(53, 'admin.karim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Karim', 'Mohamed', '+20-100-111-0003', NULL, 2, 'active', 1, '2025-02-13 09:15:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
+(56, 'admintarek@example.com', '$2b$10$Q2Np7QKr5aDtpwBYgf4Zi.5SaZ1GtMs8Y.C7xgP4d5FyVmwMUoJae', 'John', 'Doe', '+1234567890', NULL, NULL, 'active', 1, '2026-03-01 21:15:15', '2026-03-01 16:32:28', '2026-03-01 21:15:15', NULL);
 
 -- --------------------------------------------------------
 
@@ -3416,7 +3533,7 @@ CREATE TABLE `user_feedback` (
   `description` text NOT NULL,
   `priority` enum('low','medium','high','urgent') DEFAULT 'medium',
   `status` enum('new','in_review','in_progress','resolved','closed','rejected') DEFAULT 'new',
-  `attachments` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`attachments`)),
+  `attachments` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `browser_info` text DEFAULT NULL,
   `page_url` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -3510,7 +3627,29 @@ INSERT INTO `user_roles` (`user_role_id`, `user_id`, `role_id`, `assigned_at`, `
 (32, 1, 3, '2025-11-26 18:12:12', NULL),
 (35, 1, 2, '2025-11-26 18:12:56', NULL),
 (36, 30, 1, '2025-11-26 23:31:32', NULL),
-(39, 33, 1, '2025-11-27 00:32:35', NULL);
+(39, 33, 1, '2025-11-27 00:32:35', NULL),
+(40, 34, 1, '2025-11-30 16:08:06', NULL),
+(41, 35, 1, '2026-02-25 19:01:54', NULL),
+(42, 36, 1, '2026-02-25 19:02:43', NULL),
+(46, 56, 4, '2026-03-01 16:32:28', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_subscriptions`
+--
+
+CREATE TABLE `user_subscriptions` (
+  `subscription_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `plan_id` bigint(20) UNSIGNED NOT NULL,
+  `status` enum('active','cancelled','expired','suspended') DEFAULT 'active',
+  `started_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `cancelled_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -3528,15 +3667,6 @@ CREATE TABLE `voice_recordings` (
   `recording_type` enum('lecture','note','question','answer') DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `voice_recordings`
---
-
-INSERT INTO `voice_recordings` (`recording_id`, `user_id`, `course_id`, `file_id`, `transcription_id`, `duration_seconds`, `recording_type`, `created_at`) VALUES
-(1, 7, 1, 5, NULL, 180, 'note', '2025-11-20 13:43:00'),
-(2, 8, 1, 5, NULL, 240, 'question', '2025-11-20 13:43:00'),
-(3, 2, 1, 5, NULL, 3600, 'lecture', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -3629,10 +3759,7 @@ CREATE TABLE `weak_topics_analysis` (
 --
 
 INSERT INTO `weak_topics_analysis` (`analysis_id`, `user_id`, `course_id`, `topic_name`, `weakness_score`, `attempt_count`, `success_rate`, `last_attempted_at`, `recommendation_generated`, `created_at`, `updated_at`) VALUES
-(1, 10, 1, 'Loop Structures', 65.00, 3, 55.00, '2025-02-14 13:30:00', 1, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(2, 11, 1, 'String Manipulation', 70.00, 2, 60.00, '2025-02-13 08:20:00', 1, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(3, 9, 2, 'Linked List Operations', 58.00, 4, 48.00, '2025-02-15 12:45:00', 1, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(4, 13, 1, 'Function Parameters', 72.00, 2, 65.00, '2025-02-12 07:15:00', 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(3, 9, 2, 'Linked List Operations', 58.00, 4, 48.00, '2025-02-15 12:45:00', 1, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -4442,6 +4569,21 @@ ALTER TABLE `notification_preferences`
   ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `office_hour_appointments`
+--
+ALTER TABLE `office_hour_appointments`
+  ADD PRIMARY KEY (`appointment_id`),
+  ADD KEY `fk_appointment_slot` (`slot_id`),
+  ADD KEY `fk_appointment_student` (`student_id`);
+
+--
+-- Indexes for table `office_hour_slots`
+--
+ALTER TABLE `office_hour_slots`
+  ADD PRIMARY KEY (`slot_id`),
+  ADD KEY `fk_office_hours_instructor` (`instructor_id`);
+
+--
 -- Indexes for table `offline_sync_queue`
 --
 ALTER TABLE `offline_sync_queue`
@@ -4716,6 +4858,12 @@ ALTER TABLE `study_group_members`
   ADD KEY `idx_user` (`user_id`);
 
 --
+-- Indexes for table `subscription_plans`
+--
+ALTER TABLE `subscription_plans`
+  ADD PRIMARY KEY (`plan_id`);
+
+--
 -- Indexes for table `support_tickets`
 --
 ALTER TABLE `support_tickets`
@@ -4826,6 +4974,14 @@ ALTER TABLE `user_roles`
   ADD KEY `idx_role` (`role_id`);
 
 --
+-- Indexes for table `user_subscriptions`
+--
+ALTER TABLE `user_subscriptions`
+  ADD PRIMARY KEY (`subscription_id`),
+  ADD KEY `fk_subscription_user` (`user_id`),
+  ADD KEY `fk_subscription_plan` (`plan_id`);
+
+--
 -- Indexes for table `voice_recordings`
 --
 ALTER TABLE `voice_recordings`
@@ -4883,7 +5039,7 @@ ALTER TABLE `activity_logs`
 -- AUTO_INCREMENT for table `ai_attendance_processing`
 --
 ALTER TABLE `ai_attendance_processing`
-  MODIFY `processing_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `processing_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `ai_feedback`
@@ -4901,7 +5057,7 @@ ALTER TABLE `ai_flashcards`
 -- AUTO_INCREMENT for table `ai_grading_results`
 --
 ALTER TABLE `ai_grading_results`
-  MODIFY `grading_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `grading_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `ai_quizzes`
@@ -4937,7 +5093,7 @@ ALTER TABLE `ai_usage_statistics`
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `announcement_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `announcement_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `api_integrations`
@@ -4955,13 +5111,13 @@ ALTER TABLE `api_rate_limits`
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `assignment_submissions`
 --
 ALTER TABLE `assignment_submissions`
-  MODIFY `submission_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `submission_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `attendance_photos`
@@ -4979,7 +5135,7 @@ ALTER TABLE `attendance_records`
 -- AUTO_INCREMENT for table `attendance_sessions`
 --
 ALTER TABLE `attendance_sessions`
-  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `audit_logs`
@@ -5015,7 +5171,7 @@ ALTER TABLE `calendar_integrations`
 -- AUTO_INCREMENT for table `campuses`
 --
 ALTER TABLE `campuses`
-  MODIFY `campus_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `campus_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `certificates`
@@ -5075,7 +5231,7 @@ ALTER TABLE `content_translations`
 -- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
-  MODIFY `course_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `course_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `course_analytics`
@@ -5093,13 +5249,13 @@ ALTER TABLE `course_chat_threads`
 -- AUTO_INCREMENT for table `course_enrollments`
 --
 ALTER TABLE `course_enrollments`
-  MODIFY `enrollment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `enrollment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=231;
 
 --
 -- AUTO_INCREMENT for table `course_instructors`
 --
 ALTER TABLE `course_instructors`
-  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `course_materials`
@@ -5111,25 +5267,25 @@ ALTER TABLE `course_materials`
 -- AUTO_INCREMENT for table `course_prerequisites`
 --
 ALTER TABLE `course_prerequisites`
-  MODIFY `prerequisite_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `prerequisite_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `course_schedules`
 --
 ALTER TABLE `course_schedules`
-  MODIFY `schedule_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `schedule_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `course_sections`
 --
 ALTER TABLE `course_sections`
-  MODIFY `section_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `section_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `course_tas`
 --
 ALTER TABLE `course_tas`
-  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `daily_streaks`
@@ -5147,7 +5303,7 @@ ALTER TABLE `deadline_reminders`
 -- AUTO_INCREMENT for table `departments`
 --
 ALTER TABLE `departments`
-  MODIFY `department_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `department_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `device_tokens`
@@ -5159,7 +5315,7 @@ ALTER TABLE `device_tokens`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `verification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `exam_schedules`
@@ -5231,7 +5387,7 @@ ALTER TABLE `gpa_calculations`
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `grade_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `grade_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `grade_components`
@@ -5291,7 +5447,7 @@ ALTER TABLE `leaderboard_rankings`
 -- AUTO_INCREMENT for table `learning_analytics`
 --
 ALTER TABLE `learning_analytics`
-  MODIFY `analytics_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `analytics_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `lecture_sections_labs`
@@ -5327,13 +5483,13 @@ ALTER TABLE `login_attempts`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `message_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `message_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `message_participants`
 --
 ALTER TABLE `message_participants`
-  MODIFY `participant_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `participant_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `milestone_definitions`
@@ -5345,13 +5501,25 @@ ALTER TABLE `milestone_definitions`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `notification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `notification_preferences`
 --
 ALTER TABLE `notification_preferences`
   MODIFY `preference_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `office_hour_appointments`
+--
+ALTER TABLE `office_hour_appointments`
+  MODIFY `appointment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `office_hour_slots`
+--
+ALTER TABLE `office_hour_slots`
+  MODIFY `slot_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `offline_sync_queue`
@@ -5375,7 +5543,7 @@ ALTER TABLE `payment_transactions`
 -- AUTO_INCREMENT for table `peer_reviews`
 --
 ALTER TABLE `peer_reviews`
-  MODIFY `review_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `review_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `performance_metrics`
@@ -5399,19 +5567,19 @@ ALTER TABLE `points_rules`
 -- AUTO_INCREMENT for table `programs`
 --
 ALTER TABLE `programs`
-  MODIFY `program_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `program_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `quizzes`
 --
 ALTER TABLE `quizzes`
-  MODIFY `quiz_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `quiz_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `quiz_answers`
 --
 ALTER TABLE `quiz_answers`
-  MODIFY `answer_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `answer_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `quiz_attempts`
@@ -5429,7 +5597,7 @@ ALTER TABLE `quiz_difficulty_levels`
 -- AUTO_INCREMENT for table `quiz_questions`
 --
 ALTER TABLE `quiz_questions`
-  MODIFY `question_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `question_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `report_templates`
@@ -5465,7 +5633,7 @@ ALTER TABLE `role_permissions`
 -- AUTO_INCREMENT for table `rubrics`
 --
 ALTER TABLE `rubrics`
-  MODIFY `rubric_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `rubric_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `scheduled_notifications`
@@ -5495,7 +5663,7 @@ ALTER TABLE `security_logs`
 -- AUTO_INCREMENT for table `semesters`
 --
 ALTER TABLE `semesters`
-  MODIFY `semester_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `semester_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `server_monitoring`
@@ -5507,7 +5675,7 @@ ALTER TABLE `server_monitoring`
 -- AUTO_INCREMENT for table `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT for table `ssl_certificates`
@@ -5538,6 +5706,12 @@ ALTER TABLE `study_groups`
 --
 ALTER TABLE `study_group_members`
   MODIFY `member_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `subscription_plans`
+--
+ALTER TABLE `subscription_plans`
+  MODIFY `plan_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `support_tickets`
@@ -5585,7 +5759,7 @@ ALTER TABLE `two_factor_auth`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `user_badges`
@@ -5609,7 +5783,13 @@ ALTER TABLE `user_levels`
 -- AUTO_INCREMENT for table `user_roles`
 --
 ALTER TABLE `user_roles`
-  MODIFY `user_role_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `user_role_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT for table `user_subscriptions`
+--
+ALTER TABLE `user_subscriptions`
+  MODIFY `subscription_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `voice_recordings`
@@ -6195,6 +6375,19 @@ ALTER TABLE `notification_preferences`
   ADD CONSTRAINT `notification_preferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `office_hour_appointments`
+--
+ALTER TABLE `office_hour_appointments`
+  ADD CONSTRAINT `fk_appointment_slot` FOREIGN KEY (`slot_id`) REFERENCES `office_hour_slots` (`slot_id`),
+  ADD CONSTRAINT `fk_appointment_student` FOREIGN KEY (`student_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `office_hour_slots`
+--
+ALTER TABLE `office_hour_slots`
+  ADD CONSTRAINT `fk_office_hours_instructor` FOREIGN KEY (`instructor_id`) REFERENCES `users` (`user_id`);
+
+--
 -- Constraints for table `offline_sync_queue`
 --
 ALTER TABLE `offline_sync_queue`
@@ -6425,6 +6618,13 @@ ALTER TABLE `user_levels`
 ALTER TABLE `user_roles`
   ADD CONSTRAINT `user_roles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `user_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_subscriptions`
+--
+ALTER TABLE `user_subscriptions`
+  ADD CONSTRAINT `fk_subscription_plan` FOREIGN KEY (`plan_id`) REFERENCES `subscription_plans` (`plan_id`),
+  ADD CONSTRAINT `fk_subscription_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `voice_recordings`
