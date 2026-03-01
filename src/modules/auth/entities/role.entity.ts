@@ -11,7 +11,7 @@ import { Permission } from './permission.entity';
 export enum RoleName {
   STUDENT = 'student',
   INSTRUCTOR = 'instructor',
-  TA = 'ta',
+  TA = 'teaching_assistant',
   ADMIN = 'admin',
   IT_ADMIN = 'it_admin',
 }
