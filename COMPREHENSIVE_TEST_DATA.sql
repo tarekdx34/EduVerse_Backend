@@ -296,17 +296,17 @@ INSERT IGNORE INTO `assignments` (`assignment_id`, `course_id`, `title`, `descri
 -- ============================================================
 -- TABLE: ASSIGNMENT_SUBMISSIONS
 -- ============================================================
-INSERT IGNORE INTO `assignment_submissions` (`submission_id`, `assignment_id`, `user_id`, `file_path`, `submission_status`, `submitted_at`, `grade_score`, `grader_comment`, `graded_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 21, '/uploads/submissions/assign1_21.zip', 'submitted', '2025-01-31 15:30:00', 92.00, 'Great work! Well-structured code.', '2025-02-01 10:00:00', '2025-01-31 15:30:00', '2025-02-01 10:00:00'),
-(2, 1, 22, '/uploads/submissions/assign1_22.zip', 'submitted', '2025-01-31 16:00:00', 88.00, 'Good solution. Need improvement in error handling.', '2025-02-01 10:00:00', '2025-01-31 16:00:00', '2025-02-01 10:00:00'),
-(3, 1, 23, '/uploads/submissions/assign1_23.zip', 'submitted', '2025-01-29 12:00:00', 95.00, 'Excellent! Clean code and thorough testing.', '2025-02-01 10:00:00', '2025-01-29 12:00:00', '2025-02-01 10:00:00'),
-(4, 1, 24, '/uploads/submissions/assign1_24.zip', 'submitted', '2025-02-01 23:50:00', 85.00, 'Acceptable solution but could be optimized.', '2025-02-02 09:00:00', '2025-02-01 23:50:00', '2025-02-02 09:00:00'),
-(5, 1, 25, '/uploads/submissions/assign1_25.zip', 'submitted', '2025-01-30 18:00:00', 90.00, 'Good job overall.', '2025-02-01 10:00:00', '2025-01-30 18:00:00', '2025-02-01 10:00:00'),
-(6, 2, 23, '/uploads/submissions/assign2_23.zip', 'submitted', '2025-02-14 10:30:00', NULL, NULL, NULL, '2025-02-14 10:30:00', '2025-02-14 10:30:00'),
-(7, 2, 25, '/uploads/submissions/assign2_25.zip', 'submitted', '2025-02-13 14:00:00', NULL, NULL, NULL, '2025-02-13 14:00:00', '2025-02-13 14:00:00'),
-(8, 4, 21, '/uploads/submissions/project1_21.zip', 'submitted', '2025-02-18 17:00:00', NULL, NULL, NULL, '2025-02-18 17:00:00', '2025-02-18 17:00:00'),
-(9, 4, 23, '/uploads/submissions/project1_23.zip', 'submitted', '2025-02-19 12:00:00', NULL, NULL, NULL, '2025-02-19 12:00:00', '2025-02-19 12:00:00'),
-(10, 4, 25, '/uploads/submissions/project1_25.zip', 'submitted', '2025-02-17 09:00:00', NULL, NULL, NULL, '2025-02-17 09:00:00', '2025-02-17 09:00:00');
+INSERT IGNORE INTO `assignment_submissions` (`assignment_id`, `user_id`, `submission_text`, `submitted_at`, `status`) VALUES
+(1, 21, 'Submitted assignment 1 - programming basics', '2025-01-31 15:30:00', 'graded'),
+(1, 22, 'Submitted assignment 1 - programming basics', '2025-01-31 16:00:00', 'graded'),
+(1, 23, 'Submitted assignment 1 - programming basics', '2025-01-29 12:00:00', 'graded'),
+(1, 24, 'Submitted assignment 1 - programming basics', '2025-02-01 23:50:00', 'graded'),
+(1, 25, 'Submitted assignment 1 - programming basics', '2025-01-30 18:00:00', 'graded'),
+(2, 23, 'Submitted assignment 2 - functions and modules', '2025-02-14 10:30:00', 'submitted'),
+(2, 25, 'Submitted assignment 2 - functions and modules', '2025-02-13 14:00:00', 'submitted'),
+(4, 21, 'Submitted project 1 - data structures implementation', '2025-02-18 17:00:00', 'submitted'),
+(4, 23, 'Submitted project 1 - data structures implementation', '2025-02-19 12:00:00', 'submitted'),
+(4, 25, 'Submitted project 1 - data structures implementation', '2025-02-17 09:00:00', 'submitted');
 
 -- ============================================================
 -- PRIORITY 4: ACADEMIC ACTIVITIES
@@ -380,17 +380,17 @@ INSERT IGNORE INTO `attendance_records` (`record_id`, `session_id`, `user_id`, `
 -- ============================================================
 -- TABLE: GRADES
 -- ============================================================
-INSERT IGNORE INTO `grades` (`grade_id`, `section_id`, `student_id`, `component_type`, `component_id`, `score`, `max_score`, `percentage`, `letter_grade`, `graded_at`, `grader_id`, `created_at`, `updated_at`) VALUES
-(1, 1, 21, 'assignment', 1, 92, 100, 92.00, 'A', '2025-02-01 10:00:00', 8, '2025-02-01 10:00:00', '2025-02-01 10:00:00'),
-(2, 1, 22, 'assignment', 1, 88, 100, 88.00, 'B+', '2025-02-01 10:00:00', 8, '2025-02-01 10:00:00', '2025-02-01 10:00:00'),
-(3, 1, 23, 'assignment', 1, 95, 100, 95.00, 'A', '2025-02-01 10:00:00', 8, '2025-02-01 10:00:00', '2025-02-01 10:00:00'),
-(4, 1, 24, 'assignment', 1, 85, 100, 85.00, 'B', '2025-02-02 09:00:00', 8, '2025-02-02 09:00:00', '2025-02-02 09:00:00'),
-(5, 1, 25, 'assignment', 1, 90, 100, 90.00, 'A-', '2025-02-01 10:00:00', 8, '2025-02-01 10:00:00', '2025-02-01 10:00:00'),
-(6, 1, 21, 'quiz', 1, 18, 20, 90.00, 'A-', '2025-02-03 10:30:00', 8, '2025-02-03 10:30:00', '2025-02-03 10:30:00'),
-(7, 1, 22, 'quiz', 1, 16, 20, 80.00, 'B-', '2025-02-03 10:30:00', 8, '2025-02-03 10:30:00', '2025-02-03 10:30:00'),
-(8, 1, 23, 'quiz', 1, 19, 20, 95.00, 'A', '2025-02-03 10:30:00', 8, '2025-02-03 10:30:00', '2025-02-03 10:30:00'),
-(9, 1, 24, 'quiz', 1, 15, 20, 75.00, 'C+', '2025-02-03 10:30:00', 8, '2025-02-03 10:30:00', '2025-02-03 10:30:00'),
-(10, 1, 25, 'quiz', 1, 17, 20, 85.00, 'B+', '2025-02-03 10:30:00', 8, '2025-02-03 10:30:00', '2025-02-03 10:30:00');
+INSERT IGNORE INTO `grades` (`user_id`, `course_id`, `assignment_id`, `grade_type`, `score`, `max_score`, `percentage`, `letter_grade`, `feedback`, `graded_by`, `graded_at`, `is_published`) VALUES
+(21, 1, 1, 'assignment', 92.00, 100.00, 92.00, 'A', 'Great work! Well-structured code.', 8, '2025-02-01 10:00:00', 1),
+(22, 1, 1, 'assignment', 88.00, 100.00, 88.00, 'B+', 'Good solution. Need improvement in error handling.', 8, '2025-02-01 10:00:00', 1),
+(23, 1, 1, 'assignment', 95.00, 100.00, 95.00, 'A', 'Excellent! Clean code and thorough testing.', 8, '2025-02-01 10:00:00', 1),
+(24, 1, 1, 'assignment', 85.00, 100.00, 85.00, 'B', 'Acceptable solution but could be optimized.', 8, '2025-02-02 09:00:00', 1),
+(25, 1, 1, 'assignment', 90.00, 100.00, 90.00, 'A-', 'Good job overall.', 8, '2025-02-01 10:00:00', 1),
+(21, 1, NULL, 'quiz', 18.00, 20.00, 90.00, 'A-', 'Well done on the quiz!', 8, '2025-02-03 10:30:00', 1),
+(22, 1, NULL, 'quiz', 16.00, 20.00, 80.00, 'B-', 'Good effort. Review control flow concepts.', 8, '2025-02-03 10:30:00', 1),
+(23, 1, NULL, 'quiz', 19.00, 20.00, 95.00, 'A', 'Perfect score! Excellent understanding.', 8, '2025-02-03 10:30:00', 1),
+(24, 1, NULL, 'quiz', 15.00, 20.00, 75.00, 'C+', 'Needs improvement. Review material.', 8, '2025-02-03 10:30:00', 1),
+(25, 1, NULL, 'quiz', 17.00, 20.00, 85.00, 'B+', 'Good work on the quiz.', 8, '2025-02-03 10:30:00', 1);
 
 -- ============================================================
 -- PRIORITY 5: COMMUNICATION
