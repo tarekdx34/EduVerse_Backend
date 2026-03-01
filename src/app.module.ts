@@ -9,6 +9,8 @@ import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { FilesModule } from './modules/files/files.module';
 import { AssignmentsModule } from './modules/assignments/assignments.module';
 import { GradesModule } from './modules/grades/grades.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
+import { QuizzesModule } from './modules/quizzes/quizzes.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -53,6 +55,8 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     FilesModule,
     AssignmentsModule,
     GradesModule,
+    AttendanceModule,
+    QuizzesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
