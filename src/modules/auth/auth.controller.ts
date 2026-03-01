@@ -22,7 +22,6 @@ import {
   ForgotPasswordRequestDto,
   ResetPasswordRequestDto,
   TokenRefreshRequestDto,
-  ResendVerificationEmailDto,
 } from './dto/other-dtos';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -52,8 +51,7 @@ Creates a new user account in the EduVerse system.
 1. Validates email format and password strength
 2. Checks for existing user with same email
 3. Creates user with default STUDENT role (unless specified)
-4. Sends verification email to the provided address
-5. Returns user data with access and refresh tokens
+4. Returns user data
 
 ### Password Requirements
 - Minimum 8 characters
@@ -63,14 +61,13 @@ Creates a new user account in the EduVerse system.
 - At least one special character (@$!%*?&)
 
 ### Notes
-- Email verification is required before full account access
 - Default role is STUDENT if not specified
     `,
   })
   @ApiBody({ type: RegisterRequestDto })
   @ApiResponse({
     status: 201,
-    description: 'User successfully registered. Verification email sent.',
+    description: 'User successfully registered.',
     schema: {
       example: {
         user: {
@@ -78,7 +75,7 @@ Creates a new user account in the EduVerse system.
           email: 'user@example.com',
           firstName: 'John',
           lastName: 'Doe',
-          isEmailVerified: false,
+          isEmailVerified: true,
           roles: [{ roleName: 'student' }],
         },
         accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -108,7 +105,7 @@ Authenticates a user and returns JWT tokens for API access.
 
 ### Process Flow
 1. Validates email and password credentials
-2. Checks if user account is active and email is verified
+2. Checks if user account is active
 3. Creates a new session for the user
 4. Returns access token (short-lived) and refresh token (long-lived)
 
@@ -142,7 +139,7 @@ When \`rememberMe: true\`, the refresh token will have extended validity.
     },
   })
   @ApiResponse({ status: 400, description: 'Invalid credentials' })
-  @ApiResponse({ status: 401, description: 'Email not verified or account disabled' })
+  @ApiResponse({ status: 401, description: 'Account disabled' })
   async login(@Body() loginDto: LoginRequestDto, @Req() request: any) {
     return this.authService.login(loginDto, request);
   }
@@ -333,95 +330,6 @@ Resets the user's password using a valid reset token from email.
       resetPasswordDto.newPassword,
     );
     return { message: 'Password reset successfully' };
-  }
-
-  @Public()
-  @Post('verify-email')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Verify email address',
-    description: `
-## Verify User Email Address
-
-Verifies the user's email using the token sent during registration.
-
-### Access Control
-- **Authentication Required**: No (Uses verification token)
-- **Roles Required**: None
-
-### Process Flow
-1. Validates the verification token
-2. Marks user's email as verified
-3. Enables full account access
-
-### Notes
-- Token is sent to user's email during registration
-- Token expires after 24 hours
-- Unverified users have limited access
-    `,
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        token: {
-          type: 'string',
-          description: 'Email verification token from the email link',
-          example: 'abc123def456...',
-        },
-      },
-      required: ['token'],
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Email verified successfully',
-    schema: {
-      example: { message: 'Email verified successfully', isEmailVerified: true },
-    },
-  })
-  @ApiResponse({ status: 400, description: 'Invalid or expired verification token' })
-  async verifyEmail(@Body('token') token: string) {
-    return this.authService.verifyEmail(token);
-  }
-
-  @Public()
-  @Post('resend-verification-email')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Resend verification email',
-    description: `
-## Resend Email Verification
-
-Sends a new verification email to the user's registered email address.
-
-### Access Control
-- **Authentication Required**: No (Public endpoint)
-- **Roles Required**: None
-
-### Process Flow
-1. Validates email exists in system
-2. Checks if email is already verified
-3. Generates new verification token
-4. Sends verification email
-
-### Notes
-- Previous verification tokens are invalidated
-- Rate limited to prevent abuse
-- Only works for unverified accounts
-    `,
-  })
-  @ApiBody({ type: ResendVerificationEmailDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Verification email sent',
-    schema: {
-      example: { message: 'Verification email sent successfully' },
-    },
-  })
-  @ApiResponse({ status: 400, description: 'Email already verified or user not found' })
-  async resendVerificationEmail(@Body() resendDto: ResendVerificationEmailDto) {
-    return this.authService.resendVerificationEmail(resendDto.email);
   }
 
   @Get('me')
