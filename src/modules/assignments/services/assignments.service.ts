@@ -202,13 +202,13 @@ export class AssignmentsService {
       throw new AssignmentNotAvailableYetException();
     }
 
-    let submissionStatus = SubmissionStatus.SUBMITTED;
+    let isLate = 0;
 
     if (assignment.dueDate && now > new Date(assignment.dueDate)) {
       if (!assignment.lateSubmissionAllowed) {
         throw new SubmissionDeadlinePassedException();
       }
-      submissionStatus = SubmissionStatus.LATE;
+      isLate = 1;
     }
 
     // Check student is enrolled in the course
@@ -235,7 +235,8 @@ export class AssignmentsService {
       submissionText: dto.submissionText ?? null,
       submissionLink: dto.submissionLink ?? null,
       fileId: dto.fileId ?? null,
-      submissionStatus,
+      submissionStatus: SubmissionStatus.SUBMITTED,
+      isLate,
       attemptNumber: existingCount + 1,
       submittedAt: now,
     });
