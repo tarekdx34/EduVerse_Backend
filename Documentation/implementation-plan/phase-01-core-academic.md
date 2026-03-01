@@ -24,11 +24,11 @@ export class Assignment {
   assignmentId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
   @Column({ length: 200 })
   title: string;
@@ -36,8 +36,8 @@ export class Assignment {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'enum', enum: ['homework', 'project', 'essay', 'presentation', 'other'] })
-  assignmentType: string;
+  @Column({ type: 'enum', enum: ['file', 'text', 'link', 'multiple'] })
+  submissionType: string;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 100 })
   maxScore: number;
@@ -51,12 +51,6 @@ export class Assignment {
   @Column({ type: 'timestamp', nullable: true })
   availableFrom: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
-  availableUntil: Date;
-
-  @Column({ type: 'tinyint', default: 1 })
-  maxAttempts: number;
-
   @Column({ type: 'tinyint', default: 0 })
   allowLateSubmission: boolean;
 
@@ -65,12 +59,6 @@ export class Assignment {
 
   @Column({ type: 'text', nullable: true })
   instructions: string;
-
-  @Column({ type: 'json', nullable: true })
-  attachments: any;
-
-  @Column({ type: 'json', nullable: true })
-  rubricCriteria: any;
 
   @Column({ type: 'enum', enum: ['draft', 'published', 'closed', 'archived'], default: 'draft' })
   status: string;
@@ -104,17 +92,21 @@ export class AssignmentSubmission {
   assignment: Assignment;
 
   @Column({ type: 'bigint', unsigned: true })
-  studentId: number;
+  userId: number;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'student_id' })
-  student: User;
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ type: 'text', nullable: true })
   submissionText: string;
 
-  @Column({ type: 'json', nullable: true })
-  submissionFiles: any;
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  fileId: number;
+
+  @ManyToOne(() => File)
+  @JoinColumn({ name: 'file_id' })
+  file: File;
 
   @Column({ type: 'enum', enum: ['submitted', 'late', 'graded', 'returned', 'resubmitted'], default: 'submitted' })
   status: string;
@@ -122,17 +114,7 @@ export class AssignmentSubmission {
   @Column({ type: 'int', default: 1 })
   attemptNumber: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
-  score: number;
-
-  @Column({ type: 'text', nullable: true })
-  feedback: string;
-
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  gradedBy: number;
-
-  @Column({ type: 'timestamp', nullable: true })
-  gradedAt: Date;
+  // Grading data is in the grades table, joined via assignment_id
 
   @Column({ type: 'timestamp' })
   submittedAt: Date;
@@ -151,7 +133,7 @@ export class AssignmentSubmission {
 ```typescript
 export class CreateAssignmentDto {
   @IsNumber()
-  sectionId: number;
+  courseId: number;
 
   @IsString()
   @Length(3, 200)
@@ -161,8 +143,8 @@ export class CreateAssignmentDto {
   @IsOptional()
   description?: string;
 
-  @IsEnum(['homework', 'project', 'essay', 'presentation', 'other'])
-  assignmentType: string;
+  @IsEnum(['file', 'text', 'link', 'multiple'])
+  submissionType: string;
 
   @IsNumber()
   @Min(0)
@@ -181,16 +163,6 @@ export class CreateAssignmentDto {
   @IsOptional()
   availableFrom?: string;
 
-  @IsDateString()
-  @IsOptional()
-  availableUntil?: string;
-
-  @IsNumber()
-  @Min(1)
-  @Max(10)
-  @IsOptional()
-  maxAttempts?: number;
-
   @IsBoolean()
   @IsOptional()
   allowLateSubmission?: boolean;
@@ -202,12 +174,6 @@ export class CreateAssignmentDto {
   @IsString()
   @IsOptional()
   instructions?: string;
-
-  @IsOptional()
-  attachments?: any;
-
-  @IsOptional()
-  rubricCriteria?: any;
 
   @IsEnum(['draft', 'published'])
   @IsOptional()
@@ -222,8 +188,9 @@ export class SubmitAssignmentDto {
   @IsOptional()
   submissionText?: string;
 
+  @IsNumber()
   @IsOptional()
-  submissionFiles?: any;
+  fileId?: number;
 }
 ```
 
@@ -308,17 +275,42 @@ export class Grade {
   gradeId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  enrollmentId: number;
+  userId: number;
 
-  @ManyToOne(() => CourseEnrollment)
-  @JoinColumn({ name: 'enrollment_id' })
-  enrollment: CourseEnrollment;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-  @Column({ type: 'enum', enum: ['assignment', 'quiz', 'lab', 'midterm', 'final', 'participation', 'project', 'other'] })
+  @Column({ type: 'bigint', unsigned: true })
+  courseId: number;
+
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
+
+  @Column({ type: 'enum', enum: ['assignment', 'quiz', 'lab', 'exam', 'final', 'participation', 'project', 'other'] })
   gradeType: string;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  referenceId: number;   // assignment_id, quiz_id, or lab_id
+  assignmentId: number;
+
+  @ManyToOne(() => Assignment)
+  @JoinColumn({ name: 'assignment_id' })
+  assignment: Assignment;
+
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  quizId: number;
+
+  @ManyToOne(() => Quiz)
+  @JoinColumn({ name: 'quiz_id' })
+  quiz: Quiz;
+
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  labId: number;
+
+  @ManyToOne(() => Lab)
+  @JoinColumn({ name: 'lab_id' })
+  lab: Lab;
 
   @Column({ type: 'decimal', precision: 5, scale: 2 })
   score: number;
@@ -342,7 +334,7 @@ export class Grade {
   gradedAt: Date;
 
   @Column({ type: 'tinyint', default: 0 })
-  isFinalized: boolean;
+  isPublished: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -360,10 +352,10 @@ export class Rubric {
   rubricId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
   @Column({ length: 200 })
-  name: string;
+  rubricName: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
@@ -454,14 +446,14 @@ export class AttendanceSession {
   @Column({ type: 'time', nullable: true })
   endTime: string;
 
-  @Column({ type: 'enum', enum: ['lecture', 'lab', 'tutorial', 'exam', 'other'], default: 'lecture' })
+  @Column({ type: 'enum', enum: ['lecture', 'lab', 'tutorial', 'exam'], default: 'lecture' })
   sessionType: string;
 
   @Column({ type: 'enum', enum: ['scheduled', 'in_progress', 'completed', 'cancelled'], default: 'scheduled' })
   status: string;
 
   @Column({ type: 'bigint', unsigned: true })
-  createdBy: number;
+  instructorId: number;
 
   @Column({ type: 'text', nullable: true })
   notes: string;
@@ -492,32 +484,23 @@ export class AttendanceRecord {
   session: AttendanceSession;
 
   @Column({ type: 'bigint', unsigned: true })
-  studentId: number;
+  userId: number;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'student_id' })
-  student: User;
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ type: 'enum', enum: ['present', 'absent', 'late', 'excused'], default: 'absent' })
-  status: string;
+  attendanceStatus: string;
 
   @Column({ type: 'time', nullable: true })
   checkInTime: string;
 
-  @Column({ type: 'time', nullable: true })
-  checkOutTime: string;
-
-  @Column({ type: 'enum', enum: ['manual', 'qr_code', 'face_recognition', 'auto'], default: 'manual' })
-  verificationMethod: string;
+  @Column({ type: 'enum', enum: ['manual', 'ai', 'self'], default: 'manual' })
+  markedBy: string;
 
   @Column({ type: 'text', nullable: true })
   notes: string;
-
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  markedBy: number;
-
-  @CreateDateColumn()
-  createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
@@ -577,11 +560,11 @@ export class Quiz {
   quizId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
   @Column({ length: 200 })
   title: string;
@@ -589,7 +572,7 @@ export class Quiz {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'enum', enum: ['practice', 'graded', 'survey'], default: 'graded' })
+  @Column({ type: 'enum', enum: ['practice', 'graded', 'midterm', 'final'], default: 'graded' })
   quizType: string;
 
   @Column({ type: 'int', nullable: true })
@@ -598,23 +581,17 @@ export class Quiz {
   @Column({ type: 'int', default: 1 })
   maxAttempts: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 100 })
-  totalPoints: number;
-
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   passingScore: number;
 
   @Column({ type: 'tinyint', default: 1 })
-  shuffleQuestions: boolean;
-
-  @Column({ type: 'tinyint', default: 1 })
-  shuffleOptions: boolean;
+  randomizeQuestions: boolean;
 
   @Column({ type: 'tinyint', default: 0 })
   showCorrectAnswers: boolean;
 
-  @Column({ type: 'tinyint', default: 0 })
-  showScoreImmediately: boolean;
+  @Column({ type: 'enum', enum: ['immediate', 'after_due', 'never'], default: 'never' })
+  showAnswersAfter: string;
 
   @Column({ type: 'timestamp', nullable: true })
   availableFrom: Date;
@@ -659,7 +636,7 @@ export class QuizQuestion {
   @Column({ type: 'text' })
   questionText: string;
 
-  @Column({ type: 'enum', enum: ['multiple_choice', 'true_false', 'short_answer', 'essay', 'matching', 'fill_blank'] })
+  @Column({ type: 'enum', enum: ['mcq', 'true_false', 'short_answer', 'essay', 'matching'] })
   questionType: string;
 
   @Column({ type: 'json', nullable: true })
@@ -679,9 +656,6 @@ export class QuizQuestion {
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   difficultyLevelId: number;
-
-  @Column({ type: 'text', nullable: true })
-  imageUrl: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -703,11 +677,11 @@ export class QuizAttempt {
   quiz: Quiz;
 
   @Column({ type: 'bigint', unsigned: true })
-  studentId: number;
+  userId: number;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'student_id' })
-  student: User;
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ type: 'int', default: 1 })
   attemptNumber: number;
@@ -716,18 +690,12 @@ export class QuizAttempt {
   startedAt: Date;
 
   @Column({ type: 'timestamp', nullable: true })
-  completedAt: Date;
+  submittedAt: Date;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   score: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
-  percentage: number;
-
-  @Column({ type: 'tinyint', nullable: true })
-  passed: boolean;
-
-  @Column({ type: 'enum', enum: ['in_progress', 'completed', 'timed_out', 'abandoned'], default: 'in_progress' })
+  @Column({ type: 'enum', enum: ['in_progress', 'submitted', 'graded', 'abandoned'], default: 'in_progress' })
   status: string;
 
   @Column({ type: 'varchar', length: 45, nullable: true })
@@ -798,11 +766,11 @@ export class Lab {
   labId: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  sectionId: number;
+  courseId: number;
 
-  @ManyToOne(() => CourseSection)
-  @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
   @Column({ length: 200 })
   title: string;
@@ -821,12 +789,6 @@ export class Lab {
 
   @Column({ type: 'timestamp', nullable: true })
   dueDate: Date;
-
-  @Column({ type: 'text', nullable: true })
-  objectives: string;
-
-  @Column({ type: 'json', nullable: true })
-  resources: any;
 
   @Column({ type: 'enum', enum: ['draft', 'published', 'closed', 'archived'], default: 'draft' })
   status: string;
