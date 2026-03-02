@@ -50,7 +50,7 @@ export class GradesController {
   @Get('transcript/:studentId')
   @Roles(RoleName.STUDENT, RoleName.ADMIN)
   @ApiOperation({ summary: 'Get student transcript' })
-  @ApiParam({ name: 'studentId', description: 'Student ID', type: Number })
+  @ApiParam({ name: 'studentId', description: 'Student user ID', type: Number, example: 57 })
   @ApiResponse({ status: 200, description: 'Student transcript' })
   async getTranscript(@Param('studentId') studentId: number) {
     return this.gradesService.getTranscript(studentId);
@@ -59,7 +59,7 @@ export class GradesController {
   @Get('gpa/:studentId')
   @Roles(RoleName.STUDENT, RoleName.ADMIN)
   @ApiOperation({ summary: 'Calculate GPA for a student' })
-  @ApiParam({ name: 'studentId', description: 'Student ID', type: Number })
+  @ApiParam({ name: 'studentId', description: 'Student user ID', type: Number, example: 57 })
   @ApiResponse({ status: 200, description: 'GPA calculation result' })
   async calculateGPA(@Param('studentId') studentId: number) {
     return this.gradesService.calculateGPA(studentId);
@@ -68,7 +68,7 @@ export class GradesController {
   @Get('distribution/:courseId')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({ summary: 'Get grade distribution for a course' })
-  @ApiParam({ name: 'courseId', description: 'Course ID', type: Number })
+  @ApiParam({ name: 'courseId', description: 'Course ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Grade distribution by letter grade' })
   async getDistribution(@Param('courseId') courseId: number) {
     return this.gradesService.getDistribution(courseId);
@@ -77,7 +77,7 @@ export class GradesController {
   @Put(':id')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({ summary: 'Update a grade' })
-  @ApiParam({ name: 'id', description: 'Grade ID', type: Number })
+  @ApiParam({ name: 'id', description: 'Grade ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Grade updated' })
   async updateGrade(
     @Param('id') id: number,
@@ -91,7 +91,7 @@ export class GradesController {
   @Patch(':id/finalize')
   @Roles(RoleName.INSTRUCTOR)
   @ApiOperation({ summary: 'Publish/finalize a grade' })
-  @ApiParam({ name: 'id', description: 'Grade ID', type: Number })
+  @ApiParam({ name: 'id', description: 'Grade ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Grade published' })
   async finalizeGrade(@Param('id') id: number) {
     return this.gradesService.publishGrade(id);

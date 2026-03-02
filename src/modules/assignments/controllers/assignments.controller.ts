@@ -64,8 +64,8 @@ export class AssignmentsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get assignment details' })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiOperation({ summary: 'Get assignment details', description: 'Returns assignment with course info and submissions.' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
   @ApiResponse({
     status: 200,
     description: 'Assignment details with submissions',
@@ -77,7 +77,8 @@ export class AssignmentsController {
   @Patch(':id')
   @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
   @ApiOperation({ summary: 'Update assignment' })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
+  @ApiResponse({ status: 200, description: 'Assignment updated' })
   async update(
     @Param('id') id: number,
     @Body() dto: UpdateAssignmentDto,
@@ -89,8 +90,9 @@ export class AssignmentsController {
 
   @Delete(':id')
   @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
-  @ApiOperation({ summary: 'Delete assignment' })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiOperation({ summary: 'Delete assignment (soft delete)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
+  @ApiResponse({ status: 200, description: 'Assignment deleted' })
   async remove(@Param('id') id: number) {
     return this.assignmentsService.remove(+id);
   }
@@ -100,13 +102,14 @@ export class AssignmentsController {
   @ApiOperation({
     summary: 'Change assignment status (publish/close/archive)',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
   @ApiBody({
     schema: {
       properties: {
         status: {
           type: 'string',
           enum: ['draft', 'published', 'closed', 'archived'],
+          example: 'published',
         },
       },
     },
@@ -126,7 +129,7 @@ export class AssignmentsController {
     summary: 'Submit assignment',
     description: 'Student submits their work',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
   async submit(
     @Param('id') id: number,
     @Body() dto: SubmitAssignmentDto,
@@ -140,7 +143,7 @@ export class AssignmentsController {
   @Get(':id/submissions/my')
   @Roles(RoleName.STUDENT)
   @ApiOperation({ summary: "Get student's own submission" })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
   async getMySubmission(@Param('id') id: number, @Request() req) {
     const userId = req.user.userId || req.user.id;
     return this.assignmentsService.getMySubmission(+id, userId);
@@ -149,16 +152,16 @@ export class AssignmentsController {
   @Get(':id/submissions')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({ summary: 'List all submissions for an assignment' })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
   async getSubmissions(@Param('id') id: number) {
     return this.assignmentsService.getSubmissions(+id);
   }
 
   @Patch(':id/submissions/:subId/grade')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA)
-  @ApiOperation({ summary: 'Grade a submission' })
-  @ApiParam({ name: 'id', type: 'number' })
-  @ApiParam({ name: 'subId', type: 'number' })
+  @ApiOperation({ summary: 'Grade a submission (creates grade record)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
+  @ApiParam({ name: 'subId', type: Number, description: 'Submission ID', example: 1 })
   async gradeSubmission(
     @Param('id') id: number,
     @Param('subId') subId: number,

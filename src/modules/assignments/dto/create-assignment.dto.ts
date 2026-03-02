@@ -27,17 +27,17 @@ export class CreateAssignmentDto {
   @Length(3, 200)
   title: string;
 
-  @ApiPropertyOptional({ description: 'Assignment description' })
+  @ApiPropertyOptional({ description: 'Assignment description', example: 'Implement a binary search tree with insert, delete, and search operations.' })
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional({ description: 'Assignment instructions' })
+  @ApiPropertyOptional({ description: 'Assignment instructions', example: 'Submit your code as a single .zip file. Include a README with compilation instructions.' })
   @IsString()
   @IsOptional()
   instructions?: string;
 
-  @ApiPropertyOptional({ enum: SubmissionType, default: SubmissionType.FILE })
+  @ApiPropertyOptional({ description: 'Submission type', enum: SubmissionType, default: SubmissionType.FILE, example: 'file' })
   @IsEnum(SubmissionType)
   @IsOptional()
   submissionType?: SubmissionType;
@@ -47,6 +47,7 @@ export class CreateAssignmentDto {
     default: 100,
     minimum: 0,
     maximum: 1000,
+    example: 100,
   })
   @IsNumber()
   @Min(0)
@@ -58,6 +59,7 @@ export class CreateAssignmentDto {
     description: 'Weight percentage',
     minimum: 0,
     maximum: 100,
+    example: 15,
   })
   @IsNumber()
   @Min(0)
@@ -65,12 +67,12 @@ export class CreateAssignmentDto {
   @IsOptional()
   weight?: number;
 
-  @ApiPropertyOptional({ description: 'Due date (ISO 8601)' })
+  @ApiPropertyOptional({ description: 'Due date (ISO 8601)', example: '2025-06-15T23:59:59Z' })
   @IsDateString()
   @IsOptional()
   dueDate?: string;
 
-  @ApiPropertyOptional({ description: 'Available from date (ISO 8601)' })
+  @ApiPropertyOptional({ description: 'Available from date (ISO 8601)', example: '2025-06-01T00:00:00Z' })
   @IsDateString()
   @IsOptional()
   availableFrom?: string;
@@ -93,7 +95,7 @@ export class CreateAssignmentDto {
   @IsOptional()
   latePenaltyPercent?: number;
 
-  @ApiPropertyOptional({ description: 'Max file size in MB', default: 10 })
+  @ApiPropertyOptional({ description: 'Max file size in MB', default: 10, example: 10 })
   @IsNumber()
   @IsOptional()
   maxFileSizeMb?: number;
@@ -106,8 +108,10 @@ export class CreateAssignmentDto {
   allowedFileTypes?: string;
 
   @ApiPropertyOptional({
+    description: 'Assignment status',
     enum: AssignmentStatus,
     default: AssignmentStatus.DRAFT,
+    example: 'draft',
   })
   @IsEnum(AssignmentStatus)
   @IsOptional()
