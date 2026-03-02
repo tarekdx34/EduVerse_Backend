@@ -26,10 +26,10 @@ export class FileVersion {
   @Column({ name: 'version_number', type: 'int', nullable: false })
   versionNumber: number;
 
-  @Column({ name: 'file_path', type: 'text', nullable: false })
+  @Column({ name: 'file_path', type: 'varchar', length: 500, nullable: false })
   filePath: string;
 
-  @Column({ name: 'file_size', type: 'bigint', nullable: false })
+  @Column({ name: 'file_size', type: 'bigint', nullable: true })
   fileSize: number;
 
   @Column({ name: 'uploaded_by', type: 'bigint', nullable: false })
