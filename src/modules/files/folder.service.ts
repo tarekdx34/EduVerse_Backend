@@ -34,8 +34,9 @@ export class FolderService {
     }
 
     const folder = this.folderRepository.create({
-      ...createFolderDto,
-      userId: createFolderDto.userId || userId,
+      folderName: createFolderDto.folderName,
+      parentFolderId: createFolderDto.parentFolderId,
+      createdBy: userId,
     });
 
     const savedFolder = await this.folderRepository.save(folder);
@@ -91,7 +92,7 @@ export class FolderService {
         uploaderName: file.uploader
           ? `${file.uploader.firstName} ${file.uploader.lastName}`
           : undefined,
-        createdAt: file.createdAt,
+        createdAt: file.uploadedAt,
       })),
     };
   }
@@ -186,8 +187,7 @@ export class FolderService {
       folderId: folder.folderId,
       folderName: folder.folderName,
       parentFolderId: folder.parentFolderId,
-      courseId: folder.courseId,
-      userId: folder.userId,
+      createdBy: folder.createdBy,
       createdAt: folder.createdAt,
       fileCount,
     };
@@ -225,7 +225,7 @@ export class FolderService {
       );
     }
 
-    await this.folderRepository.softDelete(folderId);
+    await this.folderRepository.delete(folderId);
   }
 
   private async isDescendant(

@@ -21,9 +21,6 @@ export class FileResponseDto {
   folderId?: number;
 
   @Expose()
-  courseId?: number;
-
-  @Expose()
   uploadedBy: number;
 
   @Expose()
