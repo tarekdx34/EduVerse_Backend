@@ -35,7 +35,7 @@ export class RubricsController {
   @Get()
   @Roles(RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({ summary: 'List rubrics for a course' })
-  @ApiQuery({ name: 'courseId', required: true, type: Number, description: 'Course ID' })
+  @ApiQuery({ name: 'courseId', required: true, type: Number, description: 'Course ID', example: 1 })
   @ApiResponse({ status: 200, description: 'List of rubrics' })
   async findAll(@Query('courseId') courseId: number) {
     return this.rubricsService.findAll(courseId);
@@ -53,7 +53,7 @@ export class RubricsController {
   @Put(':id')
   @Roles(RoleName.INSTRUCTOR)
   @ApiOperation({ summary: 'Update a rubric' })
-  @ApiParam({ name: 'id', description: 'Rubric ID', type: Number })
+  @ApiParam({ name: 'id', description: 'Rubric ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Rubric updated' })
   async update(@Param('id') id: number, @Body() dto: Partial<CreateRubricDto>) {
     return this.rubricsService.update(id, dto);
@@ -62,7 +62,7 @@ export class RubricsController {
   @Delete(':id')
   @Roles(RoleName.INSTRUCTOR)
   @ApiOperation({ summary: 'Delete a rubric' })
-  @ApiParam({ name: 'id', description: 'Rubric ID', type: Number })
+  @ApiParam({ name: 'id', description: 'Rubric ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Rubric deleted' })
   async remove(@Param('id') id: number) {
     return this.rubricsService.remove(id);
