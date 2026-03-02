@@ -74,11 +74,9 @@ export class FilePermissionService {
       }
     }
 
-    // Check course-based permissions (if file belongs to a course)
-    if (file.courseId) {
-      // Course instructors have READ/WRITE by default
-      // This would need course enrollment check - simplified for now
-      // TODO: Implement course-based permission check when course module is available
+    // Check public files
+    if (file.isPublic) {
+      // Public files have READ by default
     }
 
     return false;

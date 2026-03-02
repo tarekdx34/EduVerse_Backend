@@ -32,7 +32,6 @@ export class FilesService {
     file: Express.Multer.File,
     userId: number,
     folderId?: number,
-    courseId?: number,
   ): Promise<FileResponseDto> {
     // Validate folder exists if provided
     if (folderId) {
@@ -65,27 +64,28 @@ export class FilesService {
     );
 
     // Create file record
+    const ext = path.extname(file.originalname).replace('.', '');
     const fileEntity = this.fileRepository.create({
       fileName: storagePath.split('/').pop() || storagePath,
       originalFileName: file.originalname,
       filePath: storagePath,
       fileSize: file.size,
       mimeType: file.mimetype,
+      fileExtension: ext || undefined,
       folderId,
-      courseId,
       uploadedBy: userId,
-    });
+    } as Partial<File>);
 
     const savedFile = await this.fileRepository.save(fileEntity);
 
     // Load relations for response
     const fileWithRelations = await this.fileRepository.findOne({
-      where: { fileId: savedFile.fileId },
+      where: { fileId: (savedFile as File).fileId },
       relations: ['uploader'],
     });
 
     if (!fileWithRelations) {
-      throw new FileNotFoundException(savedFile.fileId);
+      throw new FileNotFoundException((savedFile as File).fileId);
     }
 
     return this.mapToFileResponseDto(fileWithRelations);
@@ -361,12 +361,6 @@ export class FilesService {
       });
     }
 
-    if (searchDto.courseId) {
-      query.andWhere('file.courseId = :courseId', {
-        courseId: searchDto.courseId,
-      });
-    }
-
     if (searchDto.folderId) {
       query.andWhere('file.folderId = :folderId', {
         folderId: searchDto.folderId,
@@ -374,9 +368,8 @@ export class FilesService {
     }
 
     // Filter by user's accessible files
-    // This is simplified - in production, you'd want to check permissions
     query.andWhere(
-      '(file.uploadedBy = :userId OR file.courseId IS NOT NULL)',
+      '(file.uploadedBy = :userId OR file.isPublic = 1)',
       { userId },
     );
 
@@ -450,12 +443,11 @@ export class FilesService {
       fileSize: file.fileSize,
       mimeType: file.mimeType,
       folderId: file.folderId,
-      courseId: file.courseId,
       uploadedBy: file.uploadedBy,
       uploaderName: file.uploader
         ? `${file.uploader.firstName} ${file.uploader.lastName}`
         : undefined,
-      createdAt: file.createdAt,
+      createdAt: file.uploadedAt,
       versionCount: file.versions?.length,
     };
   }
