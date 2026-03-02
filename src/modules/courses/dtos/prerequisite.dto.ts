@@ -3,11 +3,14 @@ import {
   IsOptional,
   IsBoolean,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePrerequisiteDto {
+  @ApiProperty({ description: 'Prerequisite course ID', example: 1 })
   @IsNumber()
   prerequisiteCourseId: number;
 
+  @ApiProperty({ description: 'Whether this prerequisite is mandatory', example: true })
   @IsBoolean()
   isMandatory: boolean;
 }

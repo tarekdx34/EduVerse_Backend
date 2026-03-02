@@ -4,36 +4,36 @@ import { Type } from 'class-transformer';
 import { GradeType } from '../enums';
 
 export class GradeQueryDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Filter by course ID', example: 1 })
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
   courseId?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Filter by student user ID', example: 57 })
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
   userId?: number;
 
-  @ApiPropertyOptional({ enum: GradeType })
+  @ApiPropertyOptional({ description: 'Filter by grade type', enum: GradeType, example: 'assignment' })
   @IsEnum(GradeType)
   @IsOptional()
   gradeType?: GradeType;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Filter by published status', example: true })
   @IsBoolean()
   @IsOptional()
   @Type(() => Boolean)
   isPublished?: boolean;
 
-  @ApiPropertyOptional({ default: 1 })
+  @ApiPropertyOptional({ description: 'Page number', default: 1, example: 1 })
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
   page?: number;
 
-  @ApiPropertyOptional({ default: 10 })
+  @ApiPropertyOptional({ description: 'Items per page', default: 10, example: 10 })
   @IsNumber()
   @IsOptional()
   @Type(() => Number)

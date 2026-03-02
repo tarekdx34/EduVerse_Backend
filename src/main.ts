@@ -91,10 +91,16 @@ The API implements role-based access control with the following roles:
     .addTag('📅 Semesters', 'Semester and academic period management')
     .addTag('📖 Courses', 'Course catalog and management')
     .addTag('📝 Course Sections', 'Course section and schedule management')
+    .addTag('🕐 Course Schedules', 'Course schedule (day/time) management per section')
     .addTag('✅ Enrollments', 'Student course enrollment and registration')
+    .addTag('📝 Assignments', 'Assignment creation, submission, and grading')
+    .addTag('📊 Grades', 'Grade management, GPA calculation, and transcripts')
+    .addTag('📋 Rubrics', 'Grading rubric management')
     .addTag('📁 Files', 'File upload, download, and management')
     .addTag('📂 Folders', 'Folder organization and hierarchy')
     .addTag('🎬 YouTube', 'YouTube video integration and uploads')
+    .addTag('📋 Attendance', 'Attendance session and record management')
+    .addTag('📝 Quizzes', 'Quiz creation, questions, attempts, and grading')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
