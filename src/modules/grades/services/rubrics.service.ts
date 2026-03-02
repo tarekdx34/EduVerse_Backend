@@ -40,7 +40,6 @@ export class RubricsService {
   async findAll(courseId: number): Promise<Rubric[]> {
     return this.rubricRepo.find({
       where: { courseId },
-      relations: ['criteriaItems'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -48,7 +47,6 @@ export class RubricsService {
   async findOne(id: number): Promise<Rubric> {
     const rubric = await this.rubricRepo.findOne({
       where: { id },
-      relations: ['criteriaItems'],
     });
     if (!rubric) {
       throw new RubricNotFoundException(id);

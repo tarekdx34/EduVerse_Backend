@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
   ManyToOne,
   OneToMany,
   JoinColumn,
@@ -15,8 +14,7 @@ import { User } from '../../auth/entities/user.entity';
 
 @Entity('folders')
 @Index(['parentFolderId'])
-@Index(['courseId'])
-@Index(['userId'])
+@Index(['createdBy'])
 export class Folder {
   @PrimaryGeneratedColumn({ name: 'folder_id', type: 'bigint' })
   folderId: number;
@@ -34,15 +32,21 @@ export class Folder {
   @OneToMany(() => Folder, (folder) => folder.parentFolder)
   children: Folder[];
 
-  @Column({ name: 'course_id', type: 'bigint', nullable: true })
-  courseId?: number;
+  @Column({ name: 'created_by', type: 'bigint', nullable: false })
+  createdBy: number;
 
-  @Column({ name: 'user_id', type: 'bigint', nullable: true })
-  userId?: number;
-
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'created_by' })
   user?: User;
+
+  @Column({ name: 'path', type: 'text', nullable: true })
+  path?: string;
+
+  @Column({ name: 'level', type: 'int', default: 0 })
+  level: number;
+
+  @Column({ name: 'is_system_folder', type: 'tinyint', default: 0 })
+  isSystemFolder: number;
 
   @OneToMany(() => File, (file) => file.folder)
   files: File[];
@@ -52,8 +56,5 @@ export class Folder {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
-  deletedAt?: Date;
 }
 

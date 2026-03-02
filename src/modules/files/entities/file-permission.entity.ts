@@ -62,7 +62,7 @@ export class FilePermission {
   @JoinColumn({ name: 'granted_by' })
   granter: User;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @Column({ name: 'granted_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  grantedAt: Date;
 }
 

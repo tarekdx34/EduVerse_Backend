@@ -104,8 +104,76 @@ Most common file types are supported including documents, images, videos, and ar
       file,
       user.userId,
       uploadDto.folderId,
-      uploadDto.courseId,
     );
+  }
+
+  @Get('search')
+  @ApiOperation({
+    summary: 'Search files',
+    description: `
+## Search Files
+
+Searches for files by name, type, or other criteria.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: Any authenticated user
+
+### Search Scope
+Only returns files the user has permission to access.
+    `,
+  })
+  @ApiResponse({ status: 200, description: 'Search results' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async searchFiles(
+    @Query() searchDto: FileSearchDto,
+    @CurrentUser() user: User,
+  ): Promise<FileResponseDto[]> {
+    return this.filesService.searchFiles(searchDto, user.userId);
+  }
+
+  @Get('recent')
+  @ApiOperation({
+    summary: 'Get recent files',
+    description: `
+## Get Recently Accessed Files
+
+Returns files recently uploaded or accessed by the user.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: Any authenticated user
+    `,
+  })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiResponse({ status: 200, description: 'Recent files' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getRecentFiles(
+    @CurrentUser() user: User,
+    @Query('limit') limit?: number,
+  ): Promise<FileResponseDto[]> {
+    return this.filesService.getRecentFiles(user.userId, limit);
+  }
+
+  @Get('shared')
+  @ApiOperation({
+    summary: 'Get shared files',
+    description: `
+## Get Files Shared with User
+
+Returns files that others have shared with the current user.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: Any authenticated user
+    `,
+  })
+  @ApiResponse({ status: 200, description: 'Shared files' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getSharedFiles(
+    @CurrentUser() user: User,
+  ): Promise<FileResponseDto[]> {
+    return this.filesService.getSharedFiles(user.userId);
   }
 
   @Get(':fileId')
@@ -405,7 +473,7 @@ Retrieves all permissions set on a file.
       granterName: p.granter
         ? `${p.granter.firstName} ${p.granter.lastName}`
         : undefined,
-      createdAt: p.createdAt,
+      createdAt: p.grantedAt,
     }));
   }
 
@@ -456,7 +524,7 @@ Grants read, write, or delete permission to a user or role.
       roleId: permission.roleId,
       permissionType: permission.permissionType,
       grantedBy: permission.grantedBy,
-      createdAt: permission.createdAt,
+      createdAt: permission.grantedAt,
     };
   }
 
@@ -486,75 +554,6 @@ Removes a permission from a file.
     @CurrentUser() user: User,
   ): Promise<void> {
     return this.filePermissionService.revokePermission(permissionId, user.userId);
-  }
-
-  @Get('search')
-  @ApiOperation({
-    summary: 'Search files',
-    description: `
-## Search Files
-
-Searches for files by name, type, or other criteria.
-
-### Access Control
-- **Authentication Required**: ✅ Yes (Bearer Token)
-- **Roles Required**: Any authenticated user
-
-### Search Scope
-Only returns files the user has permission to access.
-    `,
-  })
-  @ApiResponse({ status: 200, description: 'Search results' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async searchFiles(
-    @Query() searchDto: FileSearchDto,
-    @CurrentUser() user: User,
-  ): Promise<FileResponseDto[]> {
-    return this.filesService.searchFiles(searchDto, user.userId);
-  }
-
-  @Get('recent')
-  @ApiOperation({
-    summary: 'Get recent files',
-    description: `
-## Get Recently Accessed Files
-
-Returns files recently uploaded or accessed by the user.
-
-### Access Control
-- **Authentication Required**: ✅ Yes (Bearer Token)
-- **Roles Required**: Any authenticated user
-    `,
-  })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiResponse({ status: 200, description: 'Recent files' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getRecentFiles(
-    @CurrentUser() user: User,
-    @Query('limit') limit?: number,
-  ): Promise<FileResponseDto[]> {
-    return this.filesService.getRecentFiles(user.userId, limit);
-  }
-
-  @Get('shared')
-  @ApiOperation({
-    summary: 'Get shared files',
-    description: `
-## Get Files Shared with User
-
-Returns files that others have shared with the current user.
-
-### Access Control
-- **Authentication Required**: ✅ Yes (Bearer Token)
-- **Roles Required**: Any authenticated user
-    `,
-  })
-  @ApiResponse({ status: 200, description: 'Shared files' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getSharedFiles(
-    @CurrentUser() user: User,
-  ): Promise<FileResponseDto[]> {
-    return this.filesService.getSharedFiles(user.userId);
   }
 }
 

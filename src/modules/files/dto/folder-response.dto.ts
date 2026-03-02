@@ -12,10 +12,7 @@ export class FolderResponseDto {
   parentFolderId?: number;
 
   @Expose()
-  courseId?: number;
-
-  @Expose()
-  userId?: number;
+  createdBy?: number;
 
   @Expose()
   createdAt: Date;
