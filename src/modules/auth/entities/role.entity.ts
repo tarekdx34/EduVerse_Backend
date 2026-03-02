@@ -11,9 +11,10 @@ import { Permission } from './permission.entity';
 export enum RoleName {
   STUDENT = 'student',
   INSTRUCTOR = 'instructor',
-  TA = 'ta',
+  TA = 'teaching_assistant',
   ADMIN = 'admin',
   IT_ADMIN = 'it_admin',
+  DEPARTMENT_HEAD = 'department_head',
 }
 
 @Entity('roles')
@@ -23,8 +24,8 @@ export class Role {
 
   @Column({
     name: 'role_name',
-    type: 'enum',
-    enum: RoleName,
+    type: 'varchar',
+    length: 50,
     unique: true,
   })
   roleName: RoleName;

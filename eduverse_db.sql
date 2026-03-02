@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 01, 2026 at 10:17 PM
+-- Generation Time: Mar 01, 2026 at 03:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -412,7 +412,6 @@ CREATE TABLE `assignments` (
   `submission_type` enum('file','text','link','multiple') DEFAULT 'file',
   `max_file_size_mb` int(11) DEFAULT 10,
   `allowed_file_types` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
-  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -423,18 +422,17 @@ CREATE TABLE `assignments` (
 -- Dumping data for table `assignments`
 --
 
-INSERT INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`, `instructions`, `max_score`, `weight`, `due_date`, `available_from`, `late_submission_allowed`, `late_penalty_percent`, `submission_type`, `max_file_size_mb`, `allowed_file_types`, `status`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'Create a complete program with proper comments and documentation', 100.00, 0.00, '2025-02-01 23:59:59', '2025-01-20 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 8, '2025-01-20 08:00:00', '2025-01-20 08:00:00', NULL),
-(2, 1, 'Assignment 2: Functions and Modules', 'Implement functions and modules for a simple application', 'Submit your code with test cases', 100.00, 0.00, '2025-02-15 23:59:59', '2025-01-27 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 8, '2025-01-27 08:00:00', '2025-01-27 08:00:00', NULL),
-(3, 2, 'Assignment 1: Linked Lists', 'Implement a linked list', 'Create a linked list class with basic operations', 100.00, 20.00, '2025-03-10 21:59:59', '2025-02-19 22:00:00', 1, 15.00, 'file', 10, NULL, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(4, 3, 'Assignment 1: SQL Queries', 'Database query practice', 'Write SQL queries for the given scenarios', 100.00, 15.00, '2025-03-05 21:59:59', '2025-02-14 22:00:00', 0, 0.00, 'text', 10, NULL, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(5, 3, 'Midterm Quiz', 'Comprehensive quiz covering weeks 1-6', 'Answer all questions to the best of your ability', 50.00, 0.00, '2025-03-01 23:59:59', '2025-02-01 08:00:00', 0, 0.00, 'text', 10, NULL, 'draft', 10, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
-(6, 5, 'Lab Assignment 1: OOP Design', 'Design and implement OOP concepts in a project', 'Implement the provided specification', 120.00, 0.00, '2025-02-10 23:59:59', '2025-01-25 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 12, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
-(7, 6, 'Assignment 1: SQL Queries', 'Write SQL queries to retrieve and manipulate data', 'Write queries following best practices', 100.00, 0.00, '2025-02-05 23:59:59', '2025-01-28 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 14, '2025-01-28 08:00:00', '2025-01-28 08:00:00', NULL),
-(8, 7, 'Project: Web Application', 'Build a complete web application using modern frameworks', 'Follow the project specification document', 200.00, 0.00, '2025-03-15 23:59:59', '2025-02-01 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 15, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
-(9, 9, 'Problem Set 1: Statistical Analysis', 'Solve statistical problems using real datasets', 'Show all work and calculations', 100.00, 0.00, '2025-02-08 23:59:59', '2025-01-30 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 16, '2025-01-30 08:00:00', '2025-01-30 08:00:00', NULL),
-(10, 10, 'Essay: Literary Analysis', 'Write a comprehensive literary analysis essay', 'Submit as PDF with proper formatting', 100.00, 0.00, '2025-02-12 23:59:59', '2025-01-31 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 17, '2025-01-31 08:00:00', '2025-01-31 08:00:00', NULL),
-(11, 1, 'Homework 1', 'string', 'string', 100.00, 100.00, '2026-03-01 21:08:59', '2026-03-02 21:08:59', 0, 0.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'draft', 56, '2026-03-01 21:09:28', '2026-03-01 21:09:28', NULL);
+INSERT INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`, `instructions`, `max_score`, `weight`, `due_date`, `available_from`, `late_submission_allowed`, `late_penalty_percent`, `submission_type`, `max_file_size_mb`, `allowed_file_types`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 1, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'Create a complete program with proper comments and documentation', 100.00, 0.00, '2025-02-01 23:59:59', '2025-01-20 08:00:00', 1, 0.00, 'file', 10, NULL, 8, '2025-01-20 08:00:00', '2025-01-20 08:00:00', NULL),
+(2, 1, 'Assignment 2: Functions and Modules', 'Implement functions and modules for a simple application', 'Submit your code with test cases', 100.00, 0.00, '2025-02-15 23:59:59', '2025-01-27 08:00:00', 1, 0.00, 'file', 10, NULL, 8, '2025-01-27 08:00:00', '2025-01-27 08:00:00', NULL),
+(3, 2, 'Assignment 1: Linked Lists', 'Implement a linked list', 'Create a linked list class with basic operations', 100.00, 20.00, '2025-03-10 21:59:59', '2025-02-19 22:00:00', 1, 15.00, 'file', 10, NULL, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(4, 3, 'Assignment 1: SQL Queries', 'Database query practice', 'Write SQL queries for the given scenarios', 100.00, 15.00, '2025-03-05 21:59:59', '2025-02-14 22:00:00', 0, 0.00, 'text', 10, NULL, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(5, 3, 'Midterm Quiz', 'Comprehensive quiz covering weeks 1-6', 'Answer all questions to the best of your ability', 50.00, 0.00, '2025-03-01 23:59:59', '2025-02-01 08:00:00', 0, 0.00, 'text', 10, NULL, 10, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(6, 5, 'Lab Assignment 1: OOP Design', 'Design and implement OOP concepts in a project', 'Implement the provided specification', 120.00, 0.00, '2025-02-10 23:59:59', '2025-01-25 08:00:00', 1, 0.00, 'file', 10, NULL, 12, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
+(7, 6, 'Assignment 1: SQL Queries', 'Write SQL queries to retrieve and manipulate data', 'Write queries following best practices', 100.00, 0.00, '2025-02-05 23:59:59', '2025-01-28 08:00:00', 1, 0.00, 'file', 10, NULL, 14, '2025-01-28 08:00:00', '2025-01-28 08:00:00', NULL),
+(8, 7, 'Project: Web Application', 'Build a complete web application using modern frameworks', 'Follow the project specification document', 200.00, 0.00, '2025-03-15 23:59:59', '2025-02-01 08:00:00', 1, 0.00, 'file', 10, NULL, 15, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(9, 9, 'Problem Set 1: Statistical Analysis', 'Solve statistical problems using real datasets', 'Show all work and calculations', 100.00, 0.00, '2025-02-08 23:59:59', '2025-01-30 08:00:00', 1, 0.00, 'file', 10, NULL, 16, '2025-01-30 08:00:00', '2025-01-30 08:00:00', NULL),
+(10, 10, 'Essay: Literary Analysis', 'Write a comprehensive literary analysis essay', 'Submit as PDF with proper formatting', 100.00, 0.00, '2025-02-12 23:59:59', '2025-01-31 08:00:00', 1, 0.00, 'file', 10, NULL, 17, '2025-01-31 08:00:00', '2025-01-31 08:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -667,7 +665,6 @@ CREATE TABLE `calendar_events` (
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `location` varchar(255) DEFAULT NULL,
-  `color` varchar(7) DEFAULT NULL,
   `start_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `end_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `schedule_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -1039,7 +1036,6 @@ CREATE TABLE `course_chat_threads` (
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `status` enum('open','answered','closed') DEFAULT 'open',
   `is_pinned` tinyint(1) DEFAULT 0,
   `is_locked` tinyint(1) DEFAULT 0,
   `view_count` int(11) DEFAULT 0,
@@ -1052,8 +1048,8 @@ CREATE TABLE `course_chat_threads` (
 -- Dumping data for table `course_chat_threads`
 --
 
-INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `title`, `description`, `status`, `is_pinned`, `is_locked`, `view_count`, `reply_count`, `created_at`, `updated_at`) VALUES
-(3, 2, 12, 'Data Structures Study Tips', 'Share study resources and tips', 'open', 0, 0, 56, 15, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `title`, `description`, `is_pinned`, `is_locked`, `view_count`, `reply_count`, `created_at`, `updated_at`) VALUES
+(3, 2, 12, 'Data Structures Study Tips', 'Share study resources and tips', 0, 0, 56, 15, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -1202,7 +1198,6 @@ CREATE TABLE `course_materials` (
   `uploaded_by` bigint(20) UNSIGNED NOT NULL,
   `is_published` tinyint(1) DEFAULT 1,
   `published_at` timestamp NULL DEFAULT NULL,
-  `view_count` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1211,8 +1206,8 @@ CREATE TABLE `course_materials` (
 -- Dumping data for table `course_materials`
 --
 
-INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `material_type`, `title`, `description`, `external_url`, `order_index`, `uploaded_by`, `is_published`, `published_at`, `view_count`, `created_at`, `updated_at`) VALUES
-(4, 2, 4, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, 1, 3, 1, NULL, 0, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
+INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `material_type`, `title`, `description`, `external_url`, `order_index`, `uploaded_by`, `is_published`, `published_at`, `created_at`, `updated_at`) VALUES
+(4, 2, 4, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, 1, 3, 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
 
 -- --------------------------------------------------------
 
@@ -1274,8 +1269,7 @@ INSERT INTO `course_schedules` (`schedule_id`, `section_id`, `day_of_week`, `sta
 (8, 4, 'thursday', '14:00:00', '15:30:00', '202', 'Building B', 'tutorial', '2024-12-15 10:00:00'),
 (9, 5, 'monday', '15:00:00', '16:30:00', '301', 'Lab Building', 'exam', '2024-12-15 10:00:00'),
 (10, 9, 'tuesday', '14:00:00', '15:30:00', '320', 'Building C', 'lecture', '2025-11-27 18:28:26'),
-(11, 1, 'monday', '14:00:00', '15:30:00', '355', 'Building C', 'lecture', '2025-11-27 18:30:21'),
-(12, 2, 'monday', '09:00:00', '10:30:00', '101', 'Building A', 'lecture', '2026-03-01 21:05:48');
+(11, 1, 'monday', '14:00:00', '15:30:00', '355', 'Building C', 'lecture', '2025-11-27 18:30:21');
 
 -- --------------------------------------------------------
 
@@ -1491,13 +1485,11 @@ CREATE TABLE `exam_schedules` (
   `course_id` bigint(20) UNSIGNED NOT NULL,
   `semester_id` bigint(20) UNSIGNED NOT NULL,
   `exam_type` enum('midterm','final','quiz','makeup') NOT NULL,
-  `title` varchar(255) DEFAULT NULL,
   `exam_date` date NOT NULL,
   `start_time` time NOT NULL,
   `duration_minutes` int(11) NOT NULL,
   `location` varchar(255) DEFAULT NULL,
   `instructions` text DEFAULT NULL,
-  `status` enum('scheduled','in_progress','completed','cancelled','postponed') DEFAULT 'scheduled',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1851,7 +1843,6 @@ CREATE TABLE `labs` (
   `available_from` timestamp NULL DEFAULT NULL,
   `max_score` decimal(5,2) DEFAULT 100.00,
   `weight` decimal(5,2) DEFAULT 0.00,
-  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -1861,8 +1852,8 @@ CREATE TABLE `labs` (
 -- Dumping data for table `labs`
 --
 
-INSERT INTO `labs` (`lab_id`, `course_id`, `title`, `description`, `lab_number`, `due_date`, `available_from`, `max_score`, `weight`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
-(3, 2, 'Lab 1: Array Implementation', 'Implement dynamic arrays', 1, '2025-03-01 21:59:59', '2025-02-14 22:00:00', 100.00, 10.00, 'draft', 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+INSERT INTO `labs` (`lab_id`, `course_id`, `title`, `description`, `lab_number`, `due_date`, `available_from`, `max_score`, `weight`, `created_by`, `created_at`, `updated_at`) VALUES
+(3, 2, 'Lab 1: Array Implementation', 'Implement dynamic arrays', 1, '2025-03-01 21:59:59', '2025-02-14 22:00:00', 100.00, 10.00, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
 
 -- --------------------------------------------------------
 
@@ -2298,53 +2289,6 @@ INSERT INTO `notification_preferences` (`preference_id`, `user_id`, `email_enabl
 -- --------------------------------------------------------
 
 --
--- Table structure for table `office_hour_appointments`
---
-
-CREATE TABLE `office_hour_appointments` (
-  `appointment_id` bigint(20) UNSIGNED NOT NULL,
-  `slot_id` bigint(20) UNSIGNED NOT NULL,
-  `student_id` bigint(20) UNSIGNED NOT NULL,
-  `appointment_date` date NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `topic` varchar(255) DEFAULT NULL,
-  `notes` text DEFAULT NULL,
-  `status` enum('booked','confirmed','cancelled','completed','no_show') DEFAULT 'booked',
-  `cancelled_by` bigint(20) UNSIGNED DEFAULT NULL,
-  `cancelled_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `office_hour_slots`
---
-
-CREATE TABLE `office_hour_slots` (
-  `slot_id` bigint(20) UNSIGNED NOT NULL,
-  `instructor_id` bigint(20) UNSIGNED NOT NULL,
-  `day_of_week` enum('monday','tuesday','wednesday','thursday','friday','saturday','sunday') NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `location` varchar(255) DEFAULT NULL,
-  `mode` enum('in_person','online','hybrid') DEFAULT 'in_person',
-  `meeting_url` varchar(500) DEFAULT NULL,
-  `max_appointments` int(11) DEFAULT 4,
-  `is_recurring` tinyint(1) DEFAULT 1,
-  `effective_from` date DEFAULT NULL,
-  `effective_until` date DEFAULT NULL,
-  `status` enum('active','cancelled','suspended') DEFAULT 'active',
-  `notes` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `offline_sync_queue`
 --
 
@@ -2573,7 +2517,6 @@ CREATE TABLE `quizzes` (
   `available_from` timestamp NULL DEFAULT NULL,
   `available_until` timestamp NULL DEFAULT NULL,
   `weight` decimal(5,2) DEFAULT 0.00,
-  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -2584,13 +2527,13 @@ CREATE TABLE `quizzes` (
 -- Dumping data for table `quizzes`
 --
 
-INSERT INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `instructions`, `quiz_type`, `time_limit_minutes`, `max_attempts`, `passing_score`, `randomize_questions`, `show_correct_answers`, `show_answers_after`, `available_from`, `available_until`, `weight`, `status`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 'Answer all questions', 'graded', 15, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 8, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
-(2, 1, 'Quiz 2: Control Flow', 'Test knowledge of conditionals and loops', 'Answer all questions', 'graded', 20, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 8, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
-(3, 2, 'Quiz 1: Arrays and Lists', 'Understanding arrays', NULL, 'graded', 60, 1, 75.00, 0, 1, 'after_due', '2025-02-14 22:00:00', '2025-02-25 21:59:59', 15.00, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(4, 3, 'Quiz 1: Array and Linked Lists', 'Assessment of array and linked list concepts', 'Answer all questions', 'graded', 20, 1, 15.00, 1, 0, 'after_due', NULL, NULL, 10.00, 'draft', 10, '2025-02-03 08:00:00', '2025-02-03 08:00:00', NULL),
-(5, 5, 'Quiz 1: OOP Principles', 'Test understanding of object-oriented programming', 'Answer all questions', 'graded', 25, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 12, '2025-02-05 08:00:00', '2025-02-05 08:00:00', NULL),
-(6, 9, 'Quiz 1: Statistical Concepts', 'Assessment of probability and statistics fundamentals', 'Answer all questions', 'graded', 30, 1, 12.00, 0, 1, 'after_due', NULL, NULL, 10.00, 'draft', 16, '2025-02-07 08:00:00', '2025-02-07 08:00:00', NULL);
+INSERT INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `instructions`, `quiz_type`, `time_limit_minutes`, `max_attempts`, `passing_score`, `randomize_questions`, `show_correct_answers`, `show_answers_after`, `available_from`, `available_until`, `weight`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 1, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 'Answer all questions', 'graded', 15, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 8, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
+(2, 1, 'Quiz 2: Control Flow', 'Test knowledge of conditionals and loops', 'Answer all questions', 'graded', 20, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 8, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(3, 2, 'Quiz 1: Arrays and Lists', 'Understanding arrays', NULL, 'graded', 60, 1, 75.00, 0, 1, 'after_due', '2025-02-14 22:00:00', '2025-02-25 21:59:59', 15.00, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(4, 3, 'Quiz 1: Array and Linked Lists', 'Assessment of array and linked list concepts', 'Answer all questions', 'graded', 20, 1, 15.00, 1, 0, 'after_due', NULL, NULL, 10.00, 10, '2025-02-03 08:00:00', '2025-02-03 08:00:00', NULL),
+(5, 5, 'Quiz 1: OOP Principles', 'Test understanding of object-oriented programming', 'Answer all questions', 'graded', 25, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 12, '2025-02-05 08:00:00', '2025-02-05 08:00:00', NULL),
+(6, 9, 'Quiz 1: Statistical Concepts', 'Assessment of probability and statistics fundamentals', 'Answer all questions', 'graded', 30, 1, 12.00, 0, 1, 'after_due', NULL, NULL, 10.00, 16, '2025-02-07 08:00:00', '2025-02-07 08:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -3074,10 +3017,7 @@ INSERT INTO `sessions` (`session_id`, `user_id`, `session_token`, `ip_address`, 
 (76, 34, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM0LCJlbWFpbCI6ImFtaXJfc3R1ZGVudEBjYW1wdXMuZWR1Iiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NjQ1MTg5MzMsImV4cCI6MTc2NTEyMzczM30.lea9RdkUal-n0yuoJSk0V6IVBZdW1npMS2szF_S_mYM', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:08:53', '2025-11-30 16:08:53', 0),
 (77, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQ1MjA3NjQsImV4cCI6MTc2NTEyNTU2NH0.Je4CVQwAgdJ4D8xc09v0Im3iDiIuJReAX3eIlVHOY5A', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:39:24', '2025-11-30 16:39:24', 0),
 (78, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNDYyNTIsImV4cCI6MTc3MjY1MTA1Mn0.mdvXYoVNU6LLKHUjWmqPQTRTMytD13pRJJ4vgmRB16c', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 19:04:12', '2026-02-25 19:04:12', 0),
-(79, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNTAyNzQsImV4cCI6MTc3MjY1NTA3NH0.cbFdJWpQVM2tMCVcczIUJGcYqZrAH1SulzVLX9e9Lks', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 20:11:14', '2026-02-25 20:11:14', 0),
-(80, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzODI4MjgsImV4cCI6MTc3Mjk4NzYyOH0.mwUp2Z_FXBSPWy4Mv5EGWqs8r5SYP7fn0l0-9qeZ9Yg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 16:33:48', '2026-03-01 16:33:48', 0),
-(81, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzOTkwMDMsImV4cCI6MTc3MzAwMzgwM30.-wZ1fnzgbIgErm9zeDCY8d8bJkTLWQLqF3JcSMrTMwI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 21:03:23', '2026-03-01 21:03:23', 0),
-(82, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzOTk3MTUsImV4cCI6MTc3MzAwNDUxNX0.qzUcx45Odur_uc_kw3EIf8x8xR3Vp27nnL6b4X6CcwM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 21:15:15', '2026-03-01 21:15:15', 0);
+(79, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNTAyNzQsImV4cCI6MTc3MjY1NTA3NH0.cbFdJWpQVM2tMCVcczIUJGcYqZrAH1SulzVLX9e9Lks', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 20:11:14', '2026-02-25 20:11:14', 0);
 
 -- --------------------------------------------------------
 
@@ -3214,25 +3154,6 @@ INSERT INTO `study_group_members` (`member_id`, `group_id`, `user_id`, `role`, `
 (5, 2, 12, 'creator', '2025-11-20 13:43:00'),
 (6, 2, 13, 'member', '2025-11-20 13:43:00'),
 (7, 2, 14, 'member', '2025-11-20 13:43:00');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `subscription_plans`
---
-
-CREATE TABLE `subscription_plans` (
-  `plan_id` bigint(20) UNSIGNED NOT NULL,
-  `plan_name` varchar(100) NOT NULL,
-  `description` text DEFAULT NULL,
-  `price` decimal(10,2) NOT NULL,
-  `currency` varchar(3) DEFAULT 'USD',
-  `billing_cycle` enum('monthly','quarterly','yearly') DEFAULT 'monthly',
-  `features` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`features`)),
-  `is_active` tinyint(1) DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -3485,11 +3406,7 @@ INSERT INTO `users` (`user_id`, `email`, `password_hash`, `first_name`, `last_na
 (47, 'student.ismail.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ismail', 'Ahmed', '+20-100-555-0027', NULL, 3, 'active', 1, '2025-02-15 20:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
 (48, 'student.zainab.saleh@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Zainab', 'Saleh', '+20-100-555-0028', NULL, 3, 'active', 1, '2025-02-14 19:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
 (49, 'student.jamal.abdel@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Jamal', 'Abdel', '+20-100-555-0029', NULL, 3, 'active', 1, '2025-02-13 18:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(50, 'student.haya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Haya', 'Ibrahim', '+20-100-555-0030', NULL, 1, 'active', 1, '2025-02-12 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(51, 'admin.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ahmed', 'Hassan', '+20-100-111-0001', NULL, 1, 'active', 1, '2025-02-15 07:00:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
-(52, 'admin.fatima@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Fatima', 'Khalil', '+20-100-111-0002', NULL, 1, 'active', 1, '2025-02-14 12:30:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
-(53, 'admin.karim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Karim', 'Mohamed', '+20-100-111-0003', NULL, 2, 'active', 1, '2025-02-13 09:15:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
-(56, 'admintarek@example.com', '$2b$10$Q2Np7QKr5aDtpwBYgf4Zi.5SaZ1GtMs8Y.C7xgP4d5FyVmwMUoJae', 'John', 'Doe', '+1234567890', NULL, NULL, 'active', 1, '2026-03-01 21:15:15', '2026-03-01 16:32:28', '2026-03-01 21:15:15', NULL);
+(50, 'student.haya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Haya', 'Ibrahim', '+20-100-555-0030', NULL, 1, 'active', 1, '2025-02-12 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -3630,26 +3547,7 @@ INSERT INTO `user_roles` (`user_role_id`, `user_id`, `role_id`, `assigned_at`, `
 (39, 33, 1, '2025-11-27 00:32:35', NULL),
 (40, 34, 1, '2025-11-30 16:08:06', NULL),
 (41, 35, 1, '2026-02-25 19:01:54', NULL),
-(42, 36, 1, '2026-02-25 19:02:43', NULL),
-(46, 56, 4, '2026-03-01 16:32:28', NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_subscriptions`
---
-
-CREATE TABLE `user_subscriptions` (
-  `subscription_id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `plan_id` bigint(20) UNSIGNED NOT NULL,
-  `status` enum('active','cancelled','expired','suspended') DEFAULT 'active',
-  `started_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `expires_at` timestamp NULL DEFAULT NULL,
-  `cancelled_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+(42, 36, 1, '2026-02-25 19:02:43', NULL);
 
 -- --------------------------------------------------------
 
@@ -4569,21 +4467,6 @@ ALTER TABLE `notification_preferences`
   ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `office_hour_appointments`
---
-ALTER TABLE `office_hour_appointments`
-  ADD PRIMARY KEY (`appointment_id`),
-  ADD KEY `fk_appointment_slot` (`slot_id`),
-  ADD KEY `fk_appointment_student` (`student_id`);
-
---
--- Indexes for table `office_hour_slots`
---
-ALTER TABLE `office_hour_slots`
-  ADD PRIMARY KEY (`slot_id`),
-  ADD KEY `fk_office_hours_instructor` (`instructor_id`);
-
---
 -- Indexes for table `offline_sync_queue`
 --
 ALTER TABLE `offline_sync_queue`
@@ -4858,12 +4741,6 @@ ALTER TABLE `study_group_members`
   ADD KEY `idx_user` (`user_id`);
 
 --
--- Indexes for table `subscription_plans`
---
-ALTER TABLE `subscription_plans`
-  ADD PRIMARY KEY (`plan_id`);
-
---
 -- Indexes for table `support_tickets`
 --
 ALTER TABLE `support_tickets`
@@ -4972,14 +4849,6 @@ ALTER TABLE `user_roles`
   ADD UNIQUE KEY `unique_user_role` (`user_id`,`role_id`),
   ADD KEY `idx_user` (`user_id`),
   ADD KEY `idx_role` (`role_id`);
-
---
--- Indexes for table `user_subscriptions`
---
-ALTER TABLE `user_subscriptions`
-  ADD PRIMARY KEY (`subscription_id`),
-  ADD KEY `fk_subscription_user` (`user_id`),
-  ADD KEY `fk_subscription_plan` (`plan_id`);
 
 --
 -- Indexes for table `voice_recordings`
@@ -5111,7 +4980,7 @@ ALTER TABLE `api_rate_limits`
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `assignment_submissions`
@@ -5249,7 +5118,7 @@ ALTER TABLE `course_chat_threads`
 -- AUTO_INCREMENT for table `course_enrollments`
 --
 ALTER TABLE `course_enrollments`
-  MODIFY `enrollment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=231;
+  MODIFY `enrollment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=233;
 
 --
 -- AUTO_INCREMENT for table `course_instructors`
@@ -5273,7 +5142,7 @@ ALTER TABLE `course_prerequisites`
 -- AUTO_INCREMENT for table `course_schedules`
 --
 ALTER TABLE `course_schedules`
-  MODIFY `schedule_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `schedule_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `course_sections`
@@ -5315,7 +5184,7 @@ ALTER TABLE `device_tokens`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `verification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `exam_schedules`
@@ -5510,18 +5379,6 @@ ALTER TABLE `notification_preferences`
   MODIFY `preference_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `office_hour_appointments`
---
-ALTER TABLE `office_hour_appointments`
-  MODIFY `appointment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `office_hour_slots`
---
-ALTER TABLE `office_hour_slots`
-  MODIFY `slot_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `offline_sync_queue`
 --
 ALTER TABLE `offline_sync_queue`
@@ -5675,7 +5532,7 @@ ALTER TABLE `server_monitoring`
 -- AUTO_INCREMENT for table `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT for table `ssl_certificates`
@@ -5706,12 +5563,6 @@ ALTER TABLE `study_groups`
 --
 ALTER TABLE `study_group_members`
   MODIFY `member_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
--- AUTO_INCREMENT for table `subscription_plans`
---
-ALTER TABLE `subscription_plans`
-  MODIFY `plan_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `support_tickets`
@@ -5759,7 +5610,7 @@ ALTER TABLE `two_factor_auth`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `user_badges`
@@ -5783,13 +5634,7 @@ ALTER TABLE `user_levels`
 -- AUTO_INCREMENT for table `user_roles`
 --
 ALTER TABLE `user_roles`
-  MODIFY `user_role_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
-
---
--- AUTO_INCREMENT for table `user_subscriptions`
---
-ALTER TABLE `user_subscriptions`
-  MODIFY `subscription_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `user_role_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `voice_recordings`
@@ -6375,19 +6220,6 @@ ALTER TABLE `notification_preferences`
   ADD CONSTRAINT `notification_preferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `office_hour_appointments`
---
-ALTER TABLE `office_hour_appointments`
-  ADD CONSTRAINT `fk_appointment_slot` FOREIGN KEY (`slot_id`) REFERENCES `office_hour_slots` (`slot_id`),
-  ADD CONSTRAINT `fk_appointment_student` FOREIGN KEY (`student_id`) REFERENCES `users` (`user_id`);
-
---
--- Constraints for table `office_hour_slots`
---
-ALTER TABLE `office_hour_slots`
-  ADD CONSTRAINT `fk_office_hours_instructor` FOREIGN KEY (`instructor_id`) REFERENCES `users` (`user_id`);
-
---
 -- Constraints for table `offline_sync_queue`
 --
 ALTER TABLE `offline_sync_queue`
@@ -6618,13 +6450,6 @@ ALTER TABLE `user_levels`
 ALTER TABLE `user_roles`
   ADD CONSTRAINT `user_roles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `user_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `user_subscriptions`
---
-ALTER TABLE `user_subscriptions`
-  ADD CONSTRAINT `fk_subscription_plan` FOREIGN KEY (`plan_id`) REFERENCES `subscription_plans` (`plan_id`),
-  ADD CONSTRAINT `fk_subscription_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `voice_recordings`
