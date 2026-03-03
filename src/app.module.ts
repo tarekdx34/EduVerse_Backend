@@ -13,6 +13,8 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { QuizzesModule } from './modules/quizzes/quizzes.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
+import { DiscussionsModule } from './modules/discussions/discussions.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -61,6 +63,8 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     QuizzesModule,
     LabsModule,
     NotificationsModule,
+    MessagingModule,
+    DiscussionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
