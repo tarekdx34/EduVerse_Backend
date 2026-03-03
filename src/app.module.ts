@@ -17,6 +17,8 @@ import { MessagingModule } from './modules/messaging/messaging.module';
 import { DiscussionsModule } from './modules/discussions/discussions.module';
 import { AnnouncementsModule } from './modules/announcements/announcements.module';
 import { CommunityModule } from './modules/community/community.module';
+import { ScheduleModule } from './modules/schedule/schedule.module';
+import { CourseMaterialsModule } from './modules/course-materials/course-materials.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -69,6 +71,8 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     DiscussionsModule,
     AnnouncementsModule,
     CommunityModule,
+    ScheduleModule,
+    CourseMaterialsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
