@@ -112,6 +112,12 @@ The API implements role-based access control with the following roles:
     .addTag('🌐 Community Posts', 'Community forum posts with discussions, questions, and resource sharing')
     .addTag('💬 Community Comments', 'Comments and replies on community posts')
     .addTag('📁 Forum Categories', 'Forum category management for organizing community discussions')
+    .addTag('📅 Schedule', 'Personal schedule views with daily/weekly aggregation of classes, exams, and events')
+    .addTag('📝 Exam Schedules', 'Exam scheduling management with conflict detection')
+    .addTag('📆 Calendar Events', 'Personal and course calendar events management')
+    .addTag('🔗 Calendar Integrations', 'External calendar sync (Google Calendar, Outlook, iCal)')
+    .addTag('📚 Course Materials', 'Course material upload, management, and YouTube video integration')
+    .addTag('🏗️ Course Structure', 'Course content organization by lectures, sections, labs, and weeks')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
