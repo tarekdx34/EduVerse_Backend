@@ -11,6 +11,8 @@ import { AssignmentsModule } from './modules/assignments/assignments.module';
 import { GradesModule } from './modules/grades/grades.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { QuizzesModule } from './modules/quizzes/quizzes.module';
+import { LabsModule } from './modules/labs/labs.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -57,6 +59,8 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     GradesModule,
     AttendanceModule,
     QuizzesModule,
+    LabsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

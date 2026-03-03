@@ -11,6 +11,7 @@ import {
   CannotDeleteCourseWithActiveSectionsException,
   CircularPrerequisiteDetectedException,
   DepartmentNotFoundException,
+  PrerequisiteAlreadyExistsException,
 } from '../exceptions';
 import { Department } from '../../campus/entities/department.entity';
 
@@ -179,6 +180,13 @@ export class CoursesService {
 
     if (courseId === prerequisiteCourseId) {
       throw new CircularPrerequisiteDetectedException(courseId, prerequisiteCourseId);
+    }
+
+    const existing = await this.prerequisiteRepository.findOne({
+      where: { courseId, prerequisiteCourseId },
+    });
+    if (existing) {
+      throw new PrerequisiteAlreadyExistsException(courseId, prerequisiteCourseId);
     }
 
     await this.detectCircularDependency(courseId, prerequisiteCourseId);
