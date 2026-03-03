@@ -39,6 +39,15 @@ export class PrerequisiteNotFoundException extends HttpException {
   }
 }
 
+export class PrerequisiteAlreadyExistsException extends HttpException {
+  constructor(courseId: number, prerequisiteCourseId: number) {
+    super(
+      `Course ${prerequisiteCourseId} is already a prerequisite of course ${courseId}`,
+      HttpStatus.CONFLICT,
+    );
+  }
+}
+
 export class SectionNotFoundException extends HttpException {
   constructor(id: number) {
     super(`Section with ID ${id} not found`, HttpStatus.NOT_FOUND);
