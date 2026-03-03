@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, DataSource } from 'typeorm';
 import { ExamSchedule } from '../entities';
 import {
   CreateExamScheduleDto,
@@ -14,7 +14,20 @@ export class ExamScheduleService {
   constructor(
     @InjectRepository(ExamSchedule)
     private readonly examRepo: Repository<ExamSchedule>,
+    private readonly dataSource: DataSource,
   ) {}
+
+  /**
+   * Check if instructor is assigned to a course
+   */
+  private async isInstructorAssignedToCourse(userId: number, courseId: number): Promise<boolean> {
+    const result = await this.dataSource.query(`
+      SELECT COUNT(*) as count FROM course_instructors ci
+      INNER JOIN course_sections cs ON ci.section_id = cs.section_id
+      WHERE ci.user_id = ? AND cs.course_id = ?
+    `, [userId, courseId]);
+    return parseInt(result[0].count) > 0;
+  }
 
   async findAll(query: QueryExamScheduleDto, userId: number, roles: string[]) {
     const { courseId, semesterId, examType, fromDate, toDate, page = 1, limit = 10 } = query;
@@ -101,7 +114,18 @@ export class ExamScheduleService {
     return exam;
   }
 
-  async create(dto: CreateExamScheduleDto, createdBy: number) {
+  async create(dto: CreateExamScheduleDto, createdBy: number, roles: string[]) {
+    // Check if instructor is assigned to this course
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    const isInstructor = roles.includes('instructor');
+
+    if (!isAdmin && isInstructor) {
+      const isAssigned = await this.isInstructorAssignedToCourse(createdBy, dto.courseId);
+      if (!isAssigned) {
+        throw new ForbiddenException('You are not assigned to this course and cannot create exam schedules');
+      }
+    }
+
     // Check for conflicts
     const conflict = await this.checkConflicts(dto);
     if (conflict) {
@@ -121,7 +145,10 @@ export class ExamScheduleService {
       // Instructors can only update exams for their courses
       const isInstructor = roles.includes('instructor');
       if (isInstructor) {
-        // Additional ownership check would be performed here
+        const isAssigned = await this.isInstructorAssignedToCourse(userId, exam.courseId);
+        if (!isAssigned) {
+          throw new ForbiddenException('You are not assigned to this course and cannot update this exam schedule');
+        }
       }
     }
 
@@ -140,6 +167,20 @@ export class ExamScheduleService {
 
   async delete(id: number, userId: number, roles: string[]) {
     const exam = await this.findById(id, userId, roles);
+
+    // Check ownership for non-admin
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    if (!isAdmin) {
+      // Instructors can only delete exams for their courses
+      const isInstructor = roles.includes('instructor');
+      if (isInstructor) {
+        const isAssigned = await this.isInstructorAssignedToCourse(userId, exam.courseId);
+        if (!isAssigned) {
+          throw new ForbiddenException('You are not assigned to this course and cannot delete this exam schedule');
+        }
+      }
+    }
+
     await this.examRepo.remove(exam);
     return { message: 'Exam schedule deleted successfully' };
   }

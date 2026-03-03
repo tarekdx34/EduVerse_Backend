@@ -38,6 +38,16 @@ export class CreateExamScheduleDto {
   @IsNotEmpty()
   examType: ExamType;
 
+  @ApiPropertyOptional({
+    description: 'Title of the exam',
+    example: 'CS101 Midterm Exam',
+    maxLength: 255,
+  })
+  @IsString()
+  @MaxLength(255)
+  @IsOptional()
+  title?: string;
+
   @ApiProperty({
     description: 'Exam date in YYYY-MM-DD format',
     example: '2026-04-15',
