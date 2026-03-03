@@ -175,15 +175,26 @@ export class MessagingService {
     // Verify user is a participant
     await this.verifyParticipant(conversationId, userId);
 
-    // Get all messages in this conversation (root + replies), excluding deleted-for-me
+    // Get IDs of messages deleted for this user
+    const deletedMessages = await this.participantRepository
+      .createQueryBuilder('mp')
+      .select('mp.messageId', 'messageId')
+      .where('mp.userId = :userId', { userId })
+      .andWhere('mp.deletedAt IS NOT NULL')
+      .getRawMany();
+    const deletedIds = deletedMessages.map((d) => d.messageId);
+
+    // Get all messages in this conversation (root + replies)
     const qb = this.messageRepository
       .createQueryBuilder('m')
-      .leftJoin('message_participants', 'mp', 'mp.message_id = m.message_id AND mp.user_id = :userId', { userId })
       .where('(m.message_id = :convId OR m.parent_message_id = :convId)', { convId: conversationId })
-      .andWhere('(mp.deleted_at IS NULL OR mp.participant_id IS NULL)')
       .orderBy('m.sent_at', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
+
+    if (deletedIds.length > 0) {
+      qb.andWhere('m.message_id NOT IN (:...deletedIds)', { deletedIds });
+    }
 
     const [messages, total] = await qb.getManyAndCount();
 
@@ -238,7 +249,7 @@ export class MessagingService {
       where: { messageId: conversationId },
     });
     for (const p of rootParticipants) {
-      if (p.userId !== senderId) {
+      if (Number(p.userId) !== Number(senderId)) {
         const participant = this.participantRepository.create({
           messageId: saved.id,
           userId: p.userId,
@@ -301,7 +312,7 @@ export class MessagingService {
   async deleteForEveryone(messageId: number, senderId: number) {
     const message = await this.messageRepository.findOne({ where: { id: messageId } });
     if (!message) throw new NotFoundException('Message not found');
-    if (message.senderId !== senderId) {
+    if (Number(message.senderId) !== Number(senderId)) {
       throw new ForbiddenException('Only the sender can delete for everyone');
     }
 
@@ -331,13 +342,23 @@ export class MessagingService {
   async searchMessages(userId: number, dto: SearchMessagesDto) {
     const { query, page = 1, limit = 20 } = dto;
 
+    // First find all conversation IDs the user participates in
+    const participantConvs = await this.participantRepository
+      .createQueryBuilder('mp')
+      .select('DISTINCT mp.messageId', 'messageId')
+      .where('mp.userId = :userId', { userId })
+      .andWhere('mp.deletedAt IS NULL')
+      .getRawMany();
+    const messageIds = participantConvs.map((p) => p.messageId);
+    if (messageIds.length === 0) {
+      return { data: [], meta: { total: 0, page, limit, totalPages: 0 } };
+    }
+
     const qb = this.messageRepository
       .createQueryBuilder('m')
-      .innerJoin('message_participants', 'mp', 'mp.message_id = m.message_id')
-      .where('mp.user_id = :userId', { userId })
-      .andWhere('mp.deleted_at IS NULL')
-      .andWhere('m.body LIKE :query', { query: `%${query}%` })
-      .andWhere('m.body != :deleted', { deleted: DELETED_MARKER })
+      .where('(m.message_id IN (:...messageIds) OR m.parent_message_id IN (:...messageIds))', { messageIds })
+      .andWhere('m.body LIKE :searchTerm', { searchTerm: `%${query}%` })
+      .andWhere('m.body <> :deleted', { deleted: DELETED_MARKER })
       .orderBy('m.sent_at', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);

@@ -3999,51 +3999,12 @@
       ]
     },
     {
-      "description": "WhatsApp-like real-time messaging with conversations, read receipts, delete-for-me/everyone, and file sharing",
       "item": [
         {
-          "name": "List My Conversations",
           "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "GET",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/messages/conversations",
-              "path": [
-                "api",
-                "messages",
-                "conversations"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Start Direct Conversation",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "type": "text",
-                "value": "application/json"
-              }
-            ],
-            "method": "POST",
             "body": {
-              "mode": "raw",
-              "raw": "{\"participantIds\": [58], \"text\": \"Hey instructor, I have a question about the assignment.\", \"type\": \"direct\"}"
+              "raw": "{\"participantIds\": [58], \"text\": \"Hi professor, I have a question about the midterm format.\", \"type\": \"direct\"}",
+              "mode": "raw"
             },
             "url": {
               "host": [
@@ -4055,12 +4016,41 @@
                 "messages",
                 "conversations"
               ]
-            }
-          }
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Start Direct Conversation"
         },
         {
-          "name": "Start Group Conversation",
           "request": {
+            "body": {
+              "raw": "{\"participantIds\": [57, 60], \"text\": \"Welcome to our project discussion group!\", \"type\": \"group\", \"groupName\": \"CS201 Project Team\"}",
+              "mode": "raw"
+            },
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/messages/conversations",
+              "path": [
+                "api",
+                "messages",
+                "conversations"
+              ]
+            },
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
@@ -4072,40 +4062,42 @@
                 "type": "text",
                 "value": "application/json"
               }
-            ],
-            "method": "POST",
-            "body": {
-              "mode": "raw",
-              "raw": "{\"participantIds\": [57, 60], \"text\": \"Welcome to the study group!\", \"type\": \"group\", \"groupName\": \"CS101 Study Group\"}"
-            },
+            ]
+          },
+          "name": "Start Group Conversation"
+        },
+        {
+          "request": {
             "url": {
               "host": [
                 "{{base_url}}"
               ],
               "raw": "{{base_url}}/api/messages/conversations",
+              "query": [],
               "path": [
                 "api",
                 "messages",
                 "conversations"
               ]
-            }
-          }
-        },
-        {
-          "name": "Get Conversation Messages",
-          "request": {
+            },
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{student_token}}"
               }
-            ],
-            "method": "GET",
+            ]
+          },
+          "name": "List My Conversations"
+        },
+        {
+          "request": {
             "url": {
               "host": [
                 "{{base_url}}"
               ],
+              "raw": "{{base_url}}/api/messages/conversations/6?page=1&limit=50",
               "query": [
                 {
                   "key": "page",
@@ -4116,261 +4108,77 @@
                   "value": "50"
                 }
               ],
-              "raw": "{{base_url}}/api/messages/conversations/1?page=1&limit=50",
               "path": [
                 "api",
                 "messages",
                 "conversations",
-                "1"
+                "6"
               ]
-            }
-          }
-        },
-        {
-          "name": "Send Message in Conversation",
-          "request": {
+            },
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{student_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "type": "text",
-                "value": "application/json"
               }
-            ],
-            "method": "POST",
+            ]
+          },
+          "name": "Get Conversation Messages"
+        },
+        {
+          "request": {
             "body": {
-              "mode": "raw",
-              "raw": "{\"text\": \"Thanks for the quick reply!\"}"
+              "raw": "{\"text\": \"The midterm will be multiple choice and short answer. Focus on chapters 3-8.\"}",
+              "mode": "raw"
             },
             "url": {
               "host": [
                 "{{base_url}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations/1/messages",
+              "raw": "{{base_url}}/api/messages/conversations/6",
               "path": [
                 "api",
                 "messages",
                 "conversations",
-                "1",
-                "messages"
+                "6"
               ]
-            }
-          }
-        },
-        {
-          "name": "Mark Conversation as Read",
-          "request": {
+            },
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
-                "value": "Bearer {{student_token}}"
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
               }
-            ],
-            "method": "PATCH",
+            ]
+          },
+          "name": "Send Message in Conversation"
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"text\": \"Here is my draft for review\", \"fileId\": 1}",
+              "mode": "raw"
+            },
             "url": {
               "host": [
                 "{{base_url}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations/1/read",
+              "raw": "{{base_url}}/api/messages/conversations/6",
               "path": [
                 "api",
                 "messages",
                 "conversations",
-                "1",
-                "read"
+                "6"
               ]
-            }
-          }
-        },
-        {
-          "name": "Delete Message For Me",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "DELETE",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/messages/2/delete-for-me",
-              "path": [
-                "api",
-                "messages",
-                "2",
-                "delete-for-me"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Message For Everyone",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "DELETE",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/messages/2/delete-for-everyone",
-              "path": [
-                "api",
-                "messages",
-                "2",
-                "delete-for-everyone"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Unread Message Count",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "GET",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/messages/unread/count",
-              "path": [
-                "api",
-                "messages",
-                "unread",
-                "count"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Search Messages",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "GET",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "query": [
-                {
-                  "key": "q",
-                  "value": "assignment"
-                },
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "20"
-                }
-              ],
-              "raw": "{{base_url}}/api/messages/search?q=assignment&page=1&limit=20",
-              "path": [
-                "api",
-                "messages",
-                "search"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Online Users",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "GET",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/messages/online/users",
-              "path": [
-                "api",
-                "messages",
-                "online",
-                "users"
-              ]
-            }
-          }
-        }
-      ],
-      "name": "💬 Messaging"
-    },
-    {
-      "description": "Course discussion forums with threads, replies, pinning, locking, and answer marking",
-      "item": [
-        {
-          "name": "List Discussion Threads",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "GET",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "query": [
-                {
-                  "key": "courseId",
-                  "value": "1"
-                },
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "20"
-                }
-              ],
-              "raw": "{{base_url}}/api/discussions?courseId=1&page=1&limit=20",
-              "path": [
-                "api",
-                "discussions"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Create Discussion Thread",
-          "request": {
+            },
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
@@ -4382,11 +4190,185 @@
                 "type": "text",
                 "value": "application/json"
               }
-            ],
-            "method": "POST",
+            ]
+          },
+          "name": "Send Message with File"
+        },
+        {
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/messages/6/read",
+              "path": [
+                "api",
+                "messages",
+                "6",
+                "read"
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              }
+            ]
+          },
+          "name": "Mark Message as Read"
+        },
+        {
+          "request": {
+            "description": "Soft-deletes a message for the current user only. Use DELETE /api/messages/{messageId}",
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/messages/8",
+              "path": [
+                "api",
+                "messages",
+                "8"
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              }
+            ]
+          },
+          "name": "Delete Message For Me"
+        },
+        {
+          "request": {
+            "description": "Deletes a message for all participants. Only the sender can use this.",
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/messages/9/everyone",
+              "path": [
+                "api",
+                "messages",
+                "9",
+                "everyone"
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              }
+            ]
+          },
+          "name": "Delete Message For Everyone"
+        },
+        {
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/messages/unread-count",
+              "query": [],
+              "path": [
+                "api",
+                "messages",
+                "unread-count"
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              }
+            ]
+          },
+          "name": "Get Unread Count"
+        },
+        {
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/messages/search",
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "query",
+                  "value": "midterm"
+                }
+              ],
+              "path": [
+                "api",
+                "messages",
+                "search"
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              }
+            ]
+          },
+          "name": "Search Messages"
+        },
+        {
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/messages/online-users",
+              "query": [],
+              "path": [
+                "api",
+                "messages",
+                "online-users"
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              }
+            ]
+          },
+          "name": "Get Online Users"
+        }
+      ],
+      "name": "💬 Messaging",
+      "description": "WhatsApp-like real-time messaging. Supports direct conversations, group chats, file attachments, read receipts, delete-for-me, delete-for-everyone, and search. WebSocket: connect to /messaging namespace with JWT token."
+    },
+    {
+      "item": [
+        {
+          "request": {
             "body": {
-              "mode": "raw",
-              "raw": "{\"courseId\": 1, \"title\": \"Help with Assignment 1 - Question 3\", \"description\": \"I am stuck on the third question of assignment 1. Can anyone explain the expected output format?\"}"
+              "raw": "{\"courseId\": 1, \"title\": \"Tips for Final Project - Data Structures\", \"description\": \"What data structures would you recommend for implementing the graph traversal module?\"}",
+              "mode": "raw"
             },
             "url": {
               "host": [
@@ -4397,24 +4379,67 @@
                 "api",
                 "discussions"
               ]
-            }
-          }
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Create Discussion Thread"
         },
         {
-          "name": "Get Thread with Replies",
           "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/discussions",
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "courseId",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "path": [
+                "api",
+                "discussions"
+              ]
+            },
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{student_token}}"
               }
-            ],
-            "method": "GET",
+            ]
+          },
+          "name": "List Discussion Threads"
+        },
+        {
+          "request": {
             "url": {
               "host": [
                 "{{base_url}}"
               ],
+              "raw": "{{base_url}}/api/discussions/6?page=1&limit=50",
               "query": [
                 {
                   "key": "page",
@@ -4425,109 +4450,41 @@
                   "value": "50"
                 }
               ],
-              "raw": "{{base_url}}/api/discussions/1?page=1&limit=50",
               "path": [
                 "api",
                 "discussions",
-                "1"
+                "6"
               ]
-            }
-          }
-        },
-        {
-          "name": "Update Discussion Thread",
-          "request": {
+            },
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{student_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "type": "text",
-                "value": "application/json"
               }
-            ],
+            ]
+          },
+          "name": "Get Thread with Replies"
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"title\": \"Tips for Final Project - Data Structures & Algorithms\", \"description\": \"Updated: Including both data structures and algorithm choices for the graph module.\"}",
+              "mode": "raw"
+            },
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/discussions/6",
+              "path": [
+                "api",
+                "discussions",
+                "6"
+              ]
+            },
             "method": "PUT",
-            "body": {
-              "mode": "raw",
-              "raw": "{\"title\": \"Help with Assignment 1 - Question 3 (Updated)\", \"description\": \"Updated: I figured out part of it, but still need help with the output format for edge cases.\"}"
-            },
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/discussions/1",
-              "path": [
-                "api",
-                "discussions",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Discussion Thread (Admin/Instructor)",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{instructor_token}}"
-              }
-            ],
-            "method": "DELETE",
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/discussions/1",
-              "path": [
-                "api",
-                "discussions",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Post Reply to Thread",
-          "request": {
-            "header": [
-              {
-                "key": "Authorization",
-                "type": "text",
-                "value": "Bearer {{instructor_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "type": "text",
-                "value": "application/json"
-              }
-            ],
-            "method": "POST",
-            "body": {
-              "mode": "raw",
-              "raw": "{\"messageText\": \"The output should be in JSON format. Check the rubric for details on edge case handling.\"}"
-            },
-            "url": {
-              "host": [
-                "{{base_url}}"
-              ],
-              "raw": "{{base_url}}/api/discussions/1/reply",
-              "path": [
-                "api",
-                "discussions",
-                "1",
-                "reply"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Post Nested Reply",
-          "request": {
             "header": [
               {
                 "key": "Authorization",
@@ -4539,130 +4496,207 @@
                 "type": "text",
                 "value": "application/json"
               }
-            ],
-            "method": "POST",
+            ]
+          },
+          "name": "Update Discussion Thread"
+        },
+        {
+          "request": {
             "body": {
-              "mode": "raw",
-              "raw": "{\"messageText\": \"Thank you! That clarifies it. One more follow-up question...\", \"parentMessageId\": 1}"
+              "raw": "{\"messageText\": \"I recommend using an adjacency list for sparse graphs and a matrix for dense ones. BFS is optimal for shortest path.\"}",
+              "mode": "raw"
             },
             "url": {
               "host": [
                 "{{base_url}}"
               ],
-              "raw": "{{base_url}}/api/discussions/1/reply",
+              "raw": "{{base_url}}/api/discussions/6/reply",
               "path": [
                 "api",
                 "discussions",
-                "1",
+                "6",
                 "reply"
               ]
-            }
-          }
-        },
-        {
-          "name": "Toggle Pin Thread (Instructor/Admin)",
-          "request": {
+            },
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
               }
-            ],
-            "method": "PATCH",
+            ]
+          },
+          "name": "Post Reply to Thread"
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"messageText\": \"Would a priority queue help with Dijkstras implementation?\", \"parentMessageId\": 11}",
+              "mode": "raw"
+            },
             "url": {
               "host": [
                 "{{base_url}}"
               ],
-              "raw": "{{base_url}}/api/discussions/1/pin",
+              "raw": "{{base_url}}/api/discussions/6/reply",
               "path": [
                 "api",
                 "discussions",
-                "1",
+                "6",
+                "reply"
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Post Nested Reply"
+        },
+        {
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/discussions/6/pin",
+              "path": [
+                "api",
+                "discussions",
+                "6",
                 "pin"
               ]
-            }
-          }
-        },
-        {
-          "name": "Toggle Lock Thread (Instructor/Admin)",
-          "request": {
+            },
+            "method": "PATCH",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{instructor_token}}"
               }
-            ],
-            "method": "PATCH",
+            ]
+          },
+          "name": "Toggle Pin Thread (Instructor/Admin)"
+        },
+        {
+          "request": {
             "url": {
               "host": [
                 "{{base_url}}"
               ],
-              "raw": "{{base_url}}/api/discussions/1/lock",
+              "raw": "{{base_url}}/api/discussions/6/lock",
               "path": [
                 "api",
                 "discussions",
-                "1",
+                "6",
                 "lock"
               ]
-            }
-          }
-        },
-        {
-          "name": "Mark Reply as Answer (Instructor/TA)",
-          "request": {
+            },
+            "method": "PATCH",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{instructor_token}}"
               }
-            ],
-            "method": "PATCH",
+            ]
+          },
+          "name": "Toggle Lock Thread (Instructor/Admin)"
+        },
+        {
+          "request": {
             "url": {
               "host": [
                 "{{base_url}}"
               ],
-              "raw": "{{base_url}}/api/discussions/replies/1/mark-answer",
+              "raw": "{{base_url}}/api/discussions/replies/11/mark-answer",
               "path": [
                 "api",
                 "discussions",
                 "replies",
-                "1",
+                "11",
                 "mark-answer"
               ]
-            }
-          }
-        },
-        {
-          "name": "Endorse Reply (Instructor/TA)",
-          "request": {
+            },
+            "method": "PATCH",
             "header": [
               {
                 "key": "Authorization",
                 "type": "text",
                 "value": "Bearer {{instructor_token}}"
               }
-            ],
-            "method": "PATCH",
+            ]
+          },
+          "name": "Mark Reply as Answer (Instructor/TA)"
+        },
+        {
+          "request": {
             "url": {
               "host": [
                 "{{base_url}}"
               ],
-              "raw": "{{base_url}}/api/discussions/replies/1/endorse",
+              "raw": "{{base_url}}/api/discussions/replies/11/endorse",
               "path": [
                 "api",
                 "discussions",
                 "replies",
-                "1",
+                "11",
                 "endorse"
               ]
-            }
-          }
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ]
+          },
+          "name": "Endorse Reply (Instructor/TA)"
+        },
+        {
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "raw": "{{base_url}}/api/discussions/7",
+              "path": [
+                "api",
+                "discussions",
+                "7"
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "type": "text",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ]
+          },
+          "name": "Delete Discussion Thread (Instructor/Admin)"
         }
       ],
-      "name": "💭 Discussions"
+      "name": "💭 Discussions",
+      "description": "Course discussion forums. Create threads, post replies (flat and nested), pin/lock threads, mark answers, and endorse replies."
     }
   ]
 }

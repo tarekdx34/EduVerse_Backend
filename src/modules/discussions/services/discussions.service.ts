@@ -81,7 +81,7 @@ export class DiscussionsService {
 
   async update(id: number, dto: UpdateThreadDto, userId: number, userRoles: string[]): Promise<CourseChatThread> {
     const thread = await this.findById(id);
-    const isAuthor = thread.createdBy === userId;
+    const isAuthor = Number(thread.createdBy) === Number(userId);
     const isPrivileged = userRoles.some((r) => ['admin', 'instructor', 'it_admin'].includes(r));
 
     if (!isAuthor && !isPrivileged) {
