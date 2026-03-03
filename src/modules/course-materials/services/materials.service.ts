@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, In } from 'typeorm';
+import { Repository, Like, In, DataSource } from 'typeorm';
 import { CourseMaterial } from '../entities';
 import { File } from '../../files/entities/file.entity';
 import {
@@ -20,7 +20,38 @@ export class MaterialsService {
     @InjectRepository(File)
     private readonly fileRepo: Repository<File>,
     private readonly youtubeService: YoutubeService,
+    private readonly dataSource: DataSource,
   ) {}
+
+  /**
+   * Check if user is assigned to a course (as instructor or TA)
+   */
+  private async isUserAssignedToCourse(userId: number, courseId: number, roles: string[]): Promise<boolean> {
+    const isInstructor = roles.includes('instructor');
+    const isTA = roles.includes('teaching_assistant');
+
+    if (isInstructor) {
+      // Check if instructor is assigned to any section of this course
+      const result = await this.dataSource.query(`
+        SELECT COUNT(*) as count FROM course_instructors ci
+        INNER JOIN course_sections cs ON ci.section_id = cs.section_id
+        WHERE ci.user_id = ? AND cs.course_id = ?
+      `, [userId, courseId]);
+      return parseInt(result[0].count) > 0;
+    }
+
+    if (isTA) {
+      // Check if TA is assigned to any section of this course
+      const result = await this.dataSource.query(`
+        SELECT COUNT(*) as count FROM course_tas ct
+        INNER JOIN course_sections cs ON ct.section_id = cs.section_id
+        WHERE ct.user_id = ? AND cs.course_id = ?
+      `, [userId, courseId]);
+      return parseInt(result[0].count) > 0;
+    }
+
+    return false;
+  }
 
   async findAll(courseId: number, query: QueryMaterialsDto, userId: number, roles: string[]) {
     const { materialType, weekNumber, isPublished, search, sortBy = 'orderIndex', sortOrder = 'ASC', page = 1, limit = 10 } = query;
@@ -92,7 +123,17 @@ export class MaterialsService {
     return material;
   }
 
-  async create(courseId: number, dto: CreateMaterialDto, userId: number) {
+  async create(courseId: number, dto: CreateMaterialDto, userId: number, roles: string[]) {
+    // Check if user is admin or assigned to this course
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    
+    if (!isAdmin) {
+      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      if (!isAssigned) {
+        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+      }
+    }
+
     const material = this.materialRepo.create({
       ...dto,
       courseId,
@@ -115,6 +156,13 @@ export class MaterialsService {
       throw new ForbiddenException('You cannot update this material');
     }
 
+    // Non-admins can only update their own materials
+    if (!isAdmin) {
+      if (material.uploadedBy !== userId) {
+        throw new ForbiddenException('You can only update materials you uploaded');
+      }
+    }
+
     // Update published timestamp if changing visibility
     if (dto.isPublished !== undefined && dto.isPublished && !material.isPublished) {
       dto['publishedAt'] = new Date();
@@ -135,12 +183,35 @@ export class MaterialsService {
       throw new ForbiddenException('Only instructors and admins can delete materials');
     }
 
+    // Non-admins can only delete their own materials
+    if (!isAdmin) {
+      if (material.uploadedBy !== userId) {
+        throw new ForbiddenException('You can only delete materials you uploaded');
+      }
+    }
+
     await this.materialRepo.remove(material);
     return { message: 'Material deleted successfully' };
   }
 
   async toggleVisibility(id: number, dto: ToggleVisibilityDto, userId: number, roles: string[]) {
     const material = await this.findById(id, userId, roles);
+
+    // Check ownership/permission
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    const isInstructor = roles.includes('instructor');
+    const isTA = roles.includes('teaching_assistant');
+
+    if (!isAdmin && !isInstructor && !isTA) {
+      throw new ForbiddenException('You cannot change visibility of this material');
+    }
+
+    // Non-admins can only toggle visibility of their own materials
+    if (!isAdmin) {
+      if (material.uploadedBy !== userId) {
+        throw new ForbiddenException('You can only change visibility of materials you uploaded');
+      }
+    }
 
     material.isPublished = dto.isPublished;
     if (dto.isPublished && !material.publishedAt) {
@@ -203,7 +274,18 @@ export class MaterialsService {
     description: string,
     tags: string[],
     userId: number,
+    roles: string[],
   ) {
+    // Check if user is admin or assigned to this course
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    
+    if (!isAdmin) {
+      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      if (!isAssigned) {
+        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+      }
+    }
+
     // Upload to YouTube via existing service
     const youtubeResult = await this.youtubeService.uploadVideoFromBuffer(
       file.buffer,
