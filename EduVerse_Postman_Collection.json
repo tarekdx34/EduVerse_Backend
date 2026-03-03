@@ -54,6 +54,31 @@
       "key": "comment_id",
       "type": "string",
       "value": "1"
+    },
+    {
+      "key": "exam_id",
+      "type": "string",
+      "value": "1"
+    },
+    {
+      "key": "calendar_event_id",
+      "type": "string",
+      "value": "1"
+    },
+    {
+      "key": "integration_id",
+      "type": "string",
+      "value": "1"
+    },
+    {
+      "key": "material_id",
+      "type": "string",
+      "value": "1"
+    },
+    {
+      "key": "structure_id",
+      "type": "string",
+      "value": "1"
     }
   ],
   "item": [
@@ -5665,6 +5690,1173 @@
       ],
       "description": "Community forum posts, comments, reactions, and categories. All authenticated users can create posts and comments. Admins can manage categories. Instructors can pin/lock posts.",
       "name": "🌐 Community"
+    },
+    {
+      "name": "📅 Schedule",
+      "description": "Personal schedule views with daily/weekly aggregation of classes, exams, and events.",
+      "item": [
+        {
+          "name": "Get Daily Schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedule/my/daily",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedule", "my", "daily"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has correct structure', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('date');",
+                  "    pm.expect(jsonData).to.have.property('dayOfWeek');",
+                  "    pm.expect(jsonData).to.have.property('schedules');",
+                  "    pm.expect(jsonData).to.have.property('events');",
+                  "    pm.expect(jsonData).to.have.property('exams');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Weekly Schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedule/my/weekly",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedule", "my", "weekly"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has week structure', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('weekStart');",
+                  "    pm.expect(jsonData).to.have.property('weekEnd');",
+                  "    pm.expect(jsonData).to.have.property('days');",
+                  "    pm.expect(jsonData.days).to.be.an('array').with.lengthOf(7);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Section Schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedule/section/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedule", "section", "1"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Academic Calendar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedule/academic",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedule", "academic"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has events and exams', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('events');",
+                  "    pm.expect(jsonData).to.have.property('exams');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📝 Exam Schedules",
+      "description": "Exam scheduling management with conflict detection.",
+      "item": [
+        {
+          "name": "List Exam Schedules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exams/schedule",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exams", "schedule"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has pagination', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Exam Schedule (Instructor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": 1,\n  \"semesterId\": 2,\n  \"examType\": \"midterm\",\n  \"examDate\": \"2026-04-15\",\n  \"startTime\": \"10:00:00\",\n  \"durationMinutes\": 120,\n  \"location\": \"Exam Hall A\",\n  \"instructions\": \"Bring student ID and calculator\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exams/schedule",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exams", "schedule"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has exam ID', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('examId');",
+                  "    pm.collectionVariables.set('exam_id', jsonData.examId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Exam Schedule by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exams", "schedule", "{{exam_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has exam details', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('examId');",
+                  "    pm.expect(jsonData).to.have.property('examType');",
+                  "    pm.expect(jsonData).to.have.property('examDate');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Exam Schedule (Instructor)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": \"Exam Hall B\",\n  \"instructions\": \"Updated instructions: Bring student ID only\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exams", "schedule", "{{exam_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Location was updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.location).to.equal('Exam Hall B');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Check Exam Conflicts (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exams/schedule/conflicts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exams", "schedule", "conflicts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Exam Schedule (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exams", "schedule", "{{exam_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📆 Calendar Events",
+      "description": "Personal and course calendar events management.",
+      "item": [
+        {
+          "name": "List Calendar Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/calendar/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "events"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has pagination', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Calendar Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Office Hours\",\n  \"description\": \"Weekly office hours for students\",\n  \"eventType\": \"meeting\",\n  \"startTime\": \"2026-03-10T14:00:00.000Z\",\n  \"endTime\": \"2026-03-10T16:00:00.000Z\",\n  \"location\": \"Room 305\",\n  \"color\": \"#10B981\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/calendar/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "events"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has event ID', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('eventId');",
+                  "    pm.collectionVariables.set('calendar_event_id', jsonData.eventId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "events", "{{calendar_event_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has event details', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('eventId');",
+                  "    pm.expect(jsonData).to.have.property('title');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Calendar Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Office Hours\",\n  \"location\": \"Room 310\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "events", "{{calendar_event_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Title was updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.title).to.equal('Updated Office Hours');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Calendar Event",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "events", "{{calendar_event_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔗 Calendar Integrations",
+      "description": "External calendar sync (Google Calendar, Outlook, iCal).",
+      "item": [
+        {
+          "name": "List Integrations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/calendar/integrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "integrations"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Connect Google Calendar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calendarType\": \"google\",\n  \"accessToken\": \"google_oauth_access_token\",\n  \"refreshToken\": \"google_oauth_refresh_token\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/calendar/integrations/connect",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "integrations", "connect"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has integration ID', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('integrationId');",
+                  "    pm.collectionVariables.set('integration_id', jsonData.integrationId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sync Calendar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/calendar/integrations/{{integration_id}}/sync",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "integrations", "{{integration_id}}", "sync"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Disconnect Integration",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/calendar/integrations/{{integration_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "calendar", "integrations", "{{integration_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📚 Course Materials",
+      "description": "Course material upload, management, and YouTube video integration.",
+      "item": [
+        {
+          "name": "List Course Materials",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/materials",
+              "host": ["{{base_url}}"],
+              "path": ["api", "courses", "1", "materials"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has pagination', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Course Material (Instructor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Week 1 Lecture Slides\",\n  \"description\": \"Introduction to the course\",\n  \"materialType\": \"slide\",\n  \"externalUrl\": \"https://example.com/slides/week1.pdf\",\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/materials",
+              "host": ["{{base_url}}"],
+              "path": ["api", "courses", "1", "materials"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has material ID', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('materialId');",
+                  "    pm.collectionVariables.set('material_id', jsonData.materialId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Material by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/materials/{{material_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "materials", "{{material_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has material details', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('materialId');",
+                  "    pm.expect(jsonData).to.have.property('title');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Material (Instructor)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Week 1 Lecture Slides (Updated)\",\n  \"description\": \"Updated introduction slides\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/materials/{{material_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "materials", "{{material_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Title was updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.title).to.include('Updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Toggle Material Visibility",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isPublished\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/materials/{{material_id}}/visibility",
+              "host": ["{{base_url}}"],
+              "path": ["api", "materials", "{{material_id}}", "visibility"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Visibility was toggled', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isPublished).to.equal(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Material Download",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/materials/{{material_id}}/download",
+              "host": ["{{base_url}}"],
+              "path": ["api", "materials", "{{material_id}}", "download"]
+            }
+          }
+        },
+        {
+          "name": "Get YouTube Embed URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/materials/{{material_id}}/embed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "materials", "{{material_id}}", "embed"]
+            }
+          }
+        },
+        {
+          "name": "Delete Material (Instructor)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/materials/{{material_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "materials", "{{material_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🏗️ Course Structure",
+      "description": "Course content organization by lectures, sections, labs, and weeks.",
+      "item": [
+        {
+          "name": "Get Course Structure",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/structure",
+              "host": ["{{base_url}}"],
+              "path": ["api", "courses", "1", "structure"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has structure data', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('byWeek');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Structure Item (Instructor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Week 2: Variables and Data Types\",\n  \"description\": \"Learn about Python variables and basic data types\",\n  \"organizationType\": \"lecture\",\n  \"weekNumber\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/structure",
+              "host": ["{{base_url}}"],
+              "path": ["api", "courses", "1", "structure"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has structure ID', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('organizationId');",
+                  "    pm.collectionVariables.set('structure_id', jsonData.organizationId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Structure Item (Instructor)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Week 2: Variables, Data Types, and Operators\",\n  \"description\": \"Updated description with operators\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/structure/{{structure_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "structure", "{{structure_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reorder Structure Items (Instructor)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"id\": 1, \"orderIndex\": 0 },\n    { \"id\": 2, \"orderIndex\": 1 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/structure/reorder",
+              "host": ["{{base_url}}"],
+              "path": ["api", "structure", "reorder"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Structure Item (Instructor)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/structure/{{structure_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "structure", "{{structure_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
