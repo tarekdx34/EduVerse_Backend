@@ -224,6 +224,16 @@ export class CommunityPostsService {
       throw new BadRequestException('This post is locked and cannot receive new comments');
     }
 
+    // Validate parent comment exists if provided
+    if (dto.parentCommentId) {
+      const parentComment = await this.commentRepository.findOne({
+        where: { id: dto.parentCommentId, postId },
+      });
+      if (!parentComment) {
+        throw new BadRequestException(`Parent comment with ID ${dto.parentCommentId} not found in this post`);
+      }
+    }
+
     const comment = this.commentRepository.create({
       postId,
       userId,
