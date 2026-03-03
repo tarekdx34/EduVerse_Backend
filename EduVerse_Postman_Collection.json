@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "EduVerse API - Full Collection",
-    "description": "EduVerse API - Full Collection with 20 module folders, 160+ requests. Covers Auth, Users, Campus, Departments, Programs, Semesters, Courses, Sections, Schedules, Enrollments, Assignments, Grades, Rubrics, Files, Attendance, Quizzes, Labs, Notifications, Messaging, and Discussions.",
+    "description": "EduVerse API - Full Collection with 22 module folders, 180+ requests. Covers Auth, Users, Campus, Departments, Programs, Semesters, Courses, Sections, Schedules, Enrollments, Assignments, Grades, Rubrics, Files, Attendance, Quizzes, Labs, Notifications, Messaging, Discussions, Announcements, and Community.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -34,6 +34,26 @@
       "key": "it_admin_token",
       "value": "PASTE_IT_ADMIN_TOKEN_HERE",
       "type": "string"
+    },
+    {
+      "key": "announcement_id",
+      "type": "string",
+      "value": "1"
+    },
+    {
+      "key": "category_id",
+      "type": "string",
+      "value": "1"
+    },
+    {
+      "key": "post_id",
+      "type": "string",
+      "value": "1"
+    },
+    {
+      "key": "comment_id",
+      "type": "string",
+      "value": "1"
     }
   ],
   "item": [
@@ -4697,6 +4717,954 @@
       ],
       "name": "💭 Discussions",
       "description": "Course discussion forums. Create threads, post replies (flat and nested), pin/lock threads, mark answers, and endorse replies."
+    },
+    {
+      "item": [
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has data and meta', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements"
+              ],
+              "raw": "{{base_url}}/api/announcements",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "name": "List Announcements (All Roles)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has id', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.collectionVariables.set('announcement_id', jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements"
+              ],
+              "raw": "{{base_url}}/api/announcements",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Test Announcement\",\"content\":\"This is a test announcement from instructor\",\"announcementType\":\"course\",\"courseId\":1,\"priority\":\"medium\",\"isPublished\":false}"
+            },
+            "method": "POST"
+          },
+          "name": "Create Announcement (Instructor)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements"
+              ],
+              "raw": "{{base_url}}/api/announcements",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Student Test\",\"content\":\"Students should not create announcements\",\"announcementType\":\"course\",\"courseId\":1}"
+            },
+            "method": "POST"
+          },
+          "name": "Create Announcement (Student - Should Fail)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has announcement fields', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('title');",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements",
+                "1"
+              ],
+              "raw": "{{base_url}}/api/announcements/1",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "name": "Get Announcement by ID"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements",
+                "{{announcement_id}}"
+              ],
+              "raw": "{{base_url}}/api/announcements/{{announcement_id}}",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Updated Announcement Title\",\"content\":\"Updated content\"}"
+            },
+            "method": "PUT"
+          },
+          "name": "Update Announcement (Owner)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Announcement is published', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isPublished).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements",
+                "{{announcement_id}}",
+                "publish"
+              ],
+              "raw": "{{base_url}}/api/announcements/{{announcement_id}}/publish",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "method": "PATCH"
+          },
+          "name": "Publish Announcement"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements",
+                "{{announcement_id}}",
+                "schedule"
+              ],
+              "raw": "{{base_url}}/api/announcements/{{announcement_id}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"scheduledAt\":\"2026-12-31T10:00:00.000Z\"}"
+            },
+            "method": "PATCH"
+          },
+          "name": "Schedule Announcement"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has viewCount', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('viewCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements",
+                "1",
+                "analytics"
+              ],
+              "raw": "{{base_url}}/api/announcements/1/analytics",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "name": "Get Announcement Analytics"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "announcements",
+                "{{announcement_id}}"
+              ],
+              "raw": "{{base_url}}/api/announcements/{{announcement_id}}",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "method": "DELETE"
+          },
+          "name": "Delete Announcement"
+        }
+      ],
+      "description": "Course, department, and system-wide announcements with scheduling and targeting. Role-based filtering: Admin sees all, Instructor/TA sees their courses, Students see published announcements for enrolled courses.",
+      "name": "📢 Announcements"
+    },
+    {
+      "item": [
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has data', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "categories"
+              ],
+              "raw": "{{base_url}}/api/community/categories",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "name": "List Forum Categories"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has id', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.collectionVariables.set('category_id', jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "categories"
+              ],
+              "raw": "{{base_url}}/api/community/categories",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Test Category\",\"description\":\"A test forum category\",\"courseId\":1,\"orderIndex\":5}"
+            },
+            "method": "POST"
+          },
+          "name": "Create Forum Category (Admin)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "categories"
+              ],
+              "raw": "{{base_url}}/api/community/categories",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Student Category\",\"description\":\"Students cannot create categories\",\"courseId\":1}"
+            },
+            "method": "POST"
+          },
+          "name": "Create Forum Category (Student - Should Fail)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has data and meta', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts"
+              ],
+              "raw": "{{base_url}}/api/community/posts",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "name": "List Community Posts"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has post id', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.collectionVariables.set('post_id', jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts"
+              ],
+              "raw": "{{base_url}}/api/community/posts",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Study Group Discussion\",\"content\":\"Anyone want to form a study group for the upcoming exam?\",\"courseId\":1,\"postType\":\"discussion\"}"
+            },
+            "method": "POST"
+          },
+          "name": "Create Community Post (Student)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has post fields', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('title');",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "{{post_id}}"
+              ],
+              "raw": "{{base_url}}/api/community/posts/{{post_id}}",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "name": "Get Post by ID"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has comment id', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.collectionVariables.set('comment_id', jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "{{post_id}}",
+                "comment"
+              ],
+              "raw": "{{base_url}}/api/community/posts/{{post_id}}/comment",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"I would love to join the study group!\"}"
+            },
+            "method": "POST"
+          },
+          "name": "Add Comment to Post"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "{{post_id}}",
+                "react"
+              ],
+              "raw": "{{base_url}}/api/community/posts/{{post_id}}/react",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reactionType\":\"like\"}"
+            },
+            "method": "POST"
+          },
+          "name": "Add Reaction to Post"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "{{post_id}}",
+                "pin"
+              ],
+              "raw": "{{base_url}}/api/community/posts/{{post_id}}/pin",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "method": "PATCH"
+          },
+          "name": "Pin Post (Instructor)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "{{post_id}}",
+                "pin"
+              ],
+              "raw": "{{base_url}}/api/community/posts/{{post_id}}/pin",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "method": "PATCH"
+          },
+          "name": "Pin Post (Student - Should Fail)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "comments",
+                "{{comment_id}}"
+              ],
+              "raw": "{{base_url}}/api/community/comments/{{comment_id}}",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Updated comment - I am definitely in for the study group!\"}"
+            },
+            "method": "PUT"
+          },
+          "name": "Update Comment (Owner)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "comments",
+                "{{comment_id}}"
+              ],
+              "raw": "{{base_url}}/api/community/comments/{{comment_id}}",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "method": "DELETE"
+          },
+          "name": "Delete Comment (Owner)"
+        },
+        {
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "{{post_id}}"
+              ],
+              "raw": "{{base_url}}/api/community/posts/{{post_id}}",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "method": "DELETE"
+          },
+          "name": "Delete Post (Owner)"
+        }
+      ],
+      "description": "Community forum posts, comments, reactions, and categories. All authenticated users can create posts and comments. Admins can manage categories. Instructors can pin/lock posts.",
+      "name": "🌐 Community"
     }
   ]
 }
