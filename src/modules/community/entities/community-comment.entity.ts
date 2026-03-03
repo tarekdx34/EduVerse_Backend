@@ -25,7 +25,7 @@ export class CommunityComment {
   commentText: string;
 
   @Column({ name: 'parent_comment_id', type: 'bigint', unsigned: true, nullable: true })
-  parentCommentId: number;
+  parentCommentId?: number;
 
   @Column({ name: 'upvote_count', type: 'int', default: 0 })
   upvoteCount: number;
