@@ -56,11 +56,6 @@ export class CourseInstructor {
   })
   createdAt: Date;
 
-  @UpdateDateColumn({
-    name: 'updated_at',
-  })
-  updatedAt: Date;
-
   @ManyToOne(() => CourseSection, {
     onDelete: 'CASCADE',
   })
