@@ -101,6 +101,8 @@ The API implements role-based access control with the following roles:
     .addTag('🎬 YouTube', 'YouTube video integration and uploads')
     .addTag('📋 Attendance', 'Attendance session and record management')
     .addTag('📝 Quizzes', 'Quiz creation, questions, attempts, and grading')
+    .addTag('Labs', 'Lab assignments, submissions, instructions, and attendance')
+    .addTag('Notifications', 'User notifications, preferences, and admin broadcast')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
