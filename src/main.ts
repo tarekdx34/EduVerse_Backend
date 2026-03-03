@@ -103,6 +103,8 @@ The API implements role-based access control with the following roles:
     .addTag('📝 Quizzes', 'Quiz creation, questions, attempts, and grading')
     .addTag('Labs', 'Lab assignments, submissions, instructions, and attendance')
     .addTag('Notifications', 'User notifications, preferences, and admin broadcast')
+    .addTag('💬 Messaging', 'WhatsApp-like real-time messaging with conversations, read receipts, and file sharing')
+    .addTag('💭 Discussions', 'Course discussion forums with threads, replies, pinning, and answer marking')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
