@@ -158,7 +158,8 @@ The system automatically checks for:
   @ApiResponse({ status: 409, description: 'Exam schedule conflict' })
   async create(@Body() dto: CreateExamScheduleDto, @Req() req: any) {
     const userId = req.user.userId || req.user.id;
-    return this.examService.create(dto, userId);
+    const roles = this.extractRoles(req.user);
+    return this.examService.create(dto, userId, roles);
   }
 
   @Put(':id')

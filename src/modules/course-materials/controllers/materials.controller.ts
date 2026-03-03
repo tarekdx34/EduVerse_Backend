@@ -119,7 +119,8 @@ For file-based materials, upload the file first using the Files API and pass the
     @Req() req: any,
   ) {
     const userId = req.user.userId || req.user.id;
-    return this.materialsService.create(courseId, dto, userId);
+    const roles = this.extractRoles(req.user);
+    return this.materialsService.create(courseId, dto, userId, roles);
   }
 
   @Post('video')
@@ -160,6 +161,7 @@ Returns material with:
     @Req() req: any,
   ) {
     const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
     return this.materialsService.uploadVideoMaterial(
       courseId,
       file,
@@ -167,6 +169,7 @@ Returns material with:
       dto.description || '',
       dto.tags || [],
       userId,
+      roles,
     );
   }
 
