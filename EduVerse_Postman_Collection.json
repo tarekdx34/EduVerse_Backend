@@ -6494,9 +6494,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/materials/{{material_id}}",
+              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "materials", "{{material_id}}"]
+              "path": ["api", "courses", "1", "materials", "{{material_id}}"]
             }
           },
           "event": [
@@ -6537,9 +6537,9 @@
               "raw": "{\n  \"title\": \"Week 1 Lecture Slides (Updated)\",\n  \"description\": \"Updated introduction slides\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/materials/{{material_id}}",
+              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "materials", "{{material_id}}"]
+              "path": ["api", "courses", "1", "materials", "{{material_id}}"]
             }
           },
           "event": [
@@ -6579,9 +6579,9 @@
               "raw": "{\n  \"isPublished\": false\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/materials/{{material_id}}/visibility",
+              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/visibility",
               "host": ["{{base_url}}"],
-              "path": ["api", "materials", "{{material_id}}", "visibility"]
+              "path": ["api", "courses", "1", "materials", "{{material_id}}", "visibility"]
             }
           },
           "event": [
@@ -6613,9 +6613,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/materials/{{material_id}}/download",
+              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/download",
               "host": ["{{base_url}}"],
-              "path": ["api", "materials", "{{material_id}}", "download"]
+              "path": ["api", "courses", "1", "materials", "{{material_id}}", "download"]
             }
           }
         },
@@ -6630,9 +6630,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/materials/{{material_id}}/embed",
+              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/embed",
               "host": ["{{base_url}}"],
-              "path": ["api", "materials", "{{material_id}}", "embed"]
+              "path": ["api", "courses", "1", "materials", "{{material_id}}", "embed"]
             }
           }
         },
@@ -6647,9 +6647,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/materials/{{material_id}}",
+              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "materials", "{{material_id}}"]
+              "path": ["api", "courses", "1", "materials", "{{material_id}}"]
             }
           },
           "event": [
@@ -6769,9 +6769,9 @@
               "raw": "{\n  \"title\": \"Week 2: Variables, Data Types, and Operators\",\n  \"description\": \"Updated description with operators\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/structure/{{structure_id}}",
+              "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "structure", "{{structure_id}}"]
+              "path": ["api", "courses", "1", "structure", "{{structure_id}}"]
             }
           },
           "event": [
@@ -6804,12 +6804,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    { \"id\": 1, \"orderIndex\": 0 },\n    { \"id\": 2, \"orderIndex\": 1 }\n  ]\n}"
+              "raw": "{\n  \"orderIds\": [1, 2]\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/structure/reorder",
+              "raw": "{{base_url}}/api/courses/1/structure/reorder",
               "host": ["{{base_url}}"],
-              "path": ["api", "structure", "reorder"]
+              "path": ["api", "courses", "1", "structure", "reorder"]
             }
           },
           "event": [
@@ -6837,9 +6837,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/structure/{{structure_id}}",
+              "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "structure", "{{structure_id}}"]
+              "path": ["api", "courses", "1", "structure", "{{structure_id}}"]
             }
           },
           "event": [
