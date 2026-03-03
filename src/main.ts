@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
@@ -23,6 +23,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  // Global class serializer interceptor (for @Exclude() decorator support)
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Swagger Configuration
   const config = new DocumentBuilder()
@@ -105,6 +108,10 @@ The API implements role-based access control with the following roles:
     .addTag('Notifications', 'User notifications, preferences, and admin broadcast')
     .addTag('💬 Messaging', 'WhatsApp-like real-time messaging with conversations, read receipts, and file sharing')
     .addTag('💭 Discussions', 'Course discussion forums with threads, replies, pinning, and answer marking')
+    .addTag('📢 Announcements', 'Course, department, and system-wide announcements with scheduling and targeting')
+    .addTag('🌐 Community Posts', 'Community forum posts with discussions, questions, and resource sharing')
+    .addTag('💬 Community Comments', 'Comments and replies on community posts')
+    .addTag('📁 Forum Categories', 'Forum category management for organizing community discussions')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
