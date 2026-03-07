@@ -12,6 +12,8 @@ import { GradeType } from '../enums';
 import { User } from '../../auth/entities/user.entity';
 import { Course } from '../../courses/entities/course.entity';
 import { Assignment } from '../../assignments/entities/assignment.entity';
+import { Quiz } from '../../quizzes/entities/quiz.entity';
+import { Lab } from '../../labs/entities/lab.entity';
 
 @Entity('grades')
 @Index(['userId', 'courseId'])
@@ -163,4 +165,18 @@ export class Grade {
   })
   @JoinColumn({ name: 'graded_by' })
   grader: User;
+
+  @ManyToOne(() => Quiz, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'quiz_id' })
+  quiz: Quiz;
+
+  @ManyToOne(() => Lab, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'lab_id' })
+  lab: Lab;
 }

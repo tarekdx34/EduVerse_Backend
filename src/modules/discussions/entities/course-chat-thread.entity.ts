@@ -8,6 +8,8 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
+import { User } from '../../auth/entities/user.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 @Entity('course_chat_threads')
 export class CourseChatThread {
@@ -47,6 +49,14 @@ export class CourseChatThread {
   // Relations
   @OneToMany(() => ChatMessage, (cm) => cm.thread)
   messages: ChatMessage[];
+
+  @ManyToOne(() => Course, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'created_by' })
+  creator: User;
 }
 
 import { ChatMessage } from './chat-message.entity';
