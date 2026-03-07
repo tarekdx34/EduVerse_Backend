@@ -6,6 +6,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Lab } from './lab.entity';
+import { User } from '../../auth/entities/user.entity';
+import { File } from '../../files/entities/file.entity';
 
 @Entity('lab_submissions')
 export class LabSubmission {
@@ -36,4 +38,12 @@ export class LabSubmission {
   @ManyToOne(() => Lab, (lab) => lab.submissions)
   @JoinColumn({ name: 'lab_id' })
   lab: Lab;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => File, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'file_id' })
+  file: File;
 }

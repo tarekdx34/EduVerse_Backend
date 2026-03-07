@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Lab } from './lab.entity';
+import { User } from '../../auth/entities/user.entity';
 
 @Entity('lab_attendance')
 export class LabAttendance {
@@ -37,4 +38,12 @@ export class LabAttendance {
   @ManyToOne(() => Lab, (lab) => lab.attendanceRecords)
   @JoinColumn({ name: 'lab_id' })
   lab: Lab;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'marked_by' })
+  marker: User;
 }
