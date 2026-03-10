@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 import { MessagingService } from '../services/messaging.service';
-import { WsSendMessageDto, WsTypingDto, WsMarkReadDto, WsDeleteMessageDto } from '../dto';
+import { WsSendMessageDto, WsTypingDto, WsMarkReadDto, WsDeleteMessageDto, WsEditMessageDto } from '../dto';
 
 interface AuthenticatedSocket extends Socket {
   userId?: number;
@@ -227,6 +227,39 @@ export class MessagingGateway implements OnGatewayConnection, OnGatewayDisconnec
       }
 
       return { event: 'delete_confirmed', data: result };
+    } catch (error) {
+      return { event: 'error', data: { message: error.message } };
+    }
+  }
+
+  // ============ EDIT MESSAGE (Real-time) ============
+
+  @SubscribeMessage('edit_message')
+  async handleEditMessage(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody() data: WsEditMessageDto,
+  ) {
+    if (!client.userId) return;
+
+    try {
+      const result = await this.messagingService.editMessage(
+        data.messageId,
+        client.userId,
+        data.text,
+      );
+
+      // Broadcast to conversation room
+      if (result.conversationId) {
+        const room = `conversation_${result.conversationId}`;
+        this.server.to(room).emit('message_edited', {
+          messageId: result.messageId,
+          text: result.text,
+          editedAt: result.editedAt,
+          editedBy: client.userId,
+        });
+      }
+
+      return { event: 'edit_confirmed', data: result };
     } catch (error) {
       return { event: 'error', data: { message: error.message } };
     }

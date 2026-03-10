@@ -1,13 +1,15 @@
 import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, Not, In } from 'typeorm';
+import { Repository, IsNull, Not, In, Like } from 'typeorm';
 import { Message } from '../entities/message.entity';
 import { MessageParticipant } from '../entities/message-participant.entity';
+import { User } from '../../auth/entities/user.entity';
 import {
   StartConversationDto,
   SendMessageDto,
   MessageQueryDto,
   SearchMessagesDto,
+  SearchUsersDto,
 } from '../dto';
 
 const DELETED_MARKER = '__DELETED__';
@@ -24,6 +26,8 @@ export class MessagingService {
     private messageRepository: Repository<Message>,
     @InjectRepository(MessageParticipant)
     private participantRepository: Repository<MessageParticipant>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   // ============ CONVERSATIONS ============
@@ -206,8 +210,9 @@ export class MessagingService {
       isDeleted: m.body === DELETED_MARKER,
       deletedText: m.body === DELETED_MARKER ? 'This message was deleted' : undefined,
       fileId: this.extractFileId(m.subject, m.parentMessageId),
-      replyToId: m.parentMessageId !== conversationId ? m.parentMessageId : null,
+      replyToId: m.replyToId || null,
       sentAt: m.sentAt,
+      editedAt: m.editedAt || null,
       status: this.getMessageStatus(m),
     }));
 
@@ -226,6 +231,7 @@ export class MessagingService {
       body: dto.text,
       messageType: 'direct', // child messages inherit type
       parentMessageId: conversationId,
+      replyToId: dto.replyToId || null,
       readStatus: false,
     });
 
@@ -264,6 +270,7 @@ export class MessagingService {
       senderId,
       text: saved.body,
       fileId: dto.fileId || null,
+      replyToId: saved.replyToId || null,
       sentAt: saved.sentAt,
       status: 'sent',
     };
@@ -404,6 +411,48 @@ export class MessagingService {
 
   getOnlineUserIds(): number[] {
     return Array.from(this.onlineUsers.keys());
+  }
+
+  // ============ EDIT MESSAGE ============
+
+  async editMessage(messageId: number, userId: number, text: string) {
+    const message = await this.messageRepository.findOne({ where: { id: messageId } });
+    if (!message) throw new NotFoundException('Message not found');
+    if (Number(message.senderId) !== Number(userId)) {
+      throw new ForbiddenException('Only the sender can edit a message');
+    }
+    if (message.body === DELETED_MARKER) {
+      throw new BadRequestException('Cannot edit a deleted message');
+    }
+
+    message.body = text;
+    message.editedAt = new Date();
+    await this.messageRepository.save(message);
+
+    return {
+      messageId: message.id,
+      conversationId: message.parentMessageId,
+      text: message.body,
+      editedAt: message.editedAt,
+    };
+  }
+
+  // ============ USER SEARCH ============
+
+  async searchUsers(query: string, limit: number = 20) {
+    const users = await this.userRepository
+      .createQueryBuilder('u')
+      .select(['u.userId', 'u.firstName', 'u.lastName', 'u.email'])
+      .where('u.firstName LIKE :q OR u.lastName LIKE :q OR u.email LIKE :q', { q: `%${query}%` })
+      .take(limit)
+      .getMany();
+
+    return users.map((u) => ({
+      userId: u.userId,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      email: u.email,
+    }));
   }
 
   // ============ HELPERS ============
