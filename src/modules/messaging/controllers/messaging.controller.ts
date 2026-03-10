@@ -29,6 +29,8 @@ import {
   SendMessageDto,
   MessageQueryDto,
   SearchMessagesDto,
+  EditMessageDto,
+  SearchUsersDto,
 } from '../dto';
 
 @ApiTags('💬 Messaging')
@@ -37,6 +39,16 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class MessagingController {
   constructor(private readonly messagingService: MessagingService) {}
+
+  @Get('users/search')
+  @ApiOperation({
+    summary: 'Search users',
+    description: 'Search for users by name or email. Available to all authenticated users. Useful for starting new conversations.',
+  })
+  @ApiResponse({ status: 200, description: 'Matching users' })
+  async searchUsers(@Query() dto: SearchUsersDto) {
+    return this.messagingService.searchUsers(dto.query, dto.limit);
+  }
 
   @Get('conversations')
   @ApiOperation({
@@ -94,6 +106,24 @@ export class MessagingController {
   ) {
     const userId = req.user.userId || req.user.id;
     return this.messagingService.sendMessage(id, userId, dto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Edit message',
+    description: 'Edit the text of a message. Only the original sender can edit. Updates the editedAt timestamp.',
+  })
+  @ApiParam({ name: 'id', description: 'Message ID', example: 1 })
+  @ApiBody({ type: EditMessageDto })
+  @ApiResponse({ status: 200, description: 'Message edited' })
+  @ApiResponse({ status: 403, description: 'Only the sender can edit' })
+  async editMessage(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: EditMessageDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    return this.messagingService.editMessage(id, userId, dto.text);
   }
 
   @Patch(':id/read')
