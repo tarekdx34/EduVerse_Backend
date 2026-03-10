@@ -9,6 +9,7 @@ import { plainToClass } from 'class-transformer';
 import { User, UserStatus } from './entities/user.entity';
 import { Role, RoleName } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
+import { UserPreference } from './entities/user-preference.entity';
 import {
   UserUpdateDto,
   UserStatusUpdateDto,
@@ -19,6 +20,12 @@ import {
   PermissionUpdateDto,
   PermissionAssignmentDto,
   UserFilterDto,
+  BulkPermissionsDto,
+  BulkImportResultDto,
+  BulkStatusDto,
+  UpdateProfileDto,
+  UpdatePreferencesDto,
+  ChangePasswordDto,
 } from './dto/user-management.dto';
 import {
   UserResponseDto,
@@ -37,6 +44,8 @@ export class UserManagementService {
     private roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
+    @InjectRepository(UserPreference)
+    private userPreferenceRepository: Repository<UserPreference>,
   ) {}
 
   // ============ USER MANAGEMENT ============
@@ -249,6 +258,19 @@ export class UserManagementService {
     return roles.map((role) => this.transformToRoleDto(role));
   }
 
+  async getRolesWithUserCounts(): Promise<any[]> {
+    const roles = await this.roleRepository
+      .createQueryBuilder('role')
+      .leftJoin('role.users', 'user')
+      .select('role.roleId', 'roleId')
+      .addSelect('role.roleName', 'roleName')
+      .addSelect('role.roleDescription', 'roleDescription')
+      .addSelect('COUNT(user.userId)', 'userCount')
+      .groupBy('role.roleId')
+      .getRawMany();
+    return roles.map(r => ({ ...r, userCount: parseInt(r.userCount) || 0 }));
+  }
+
   async getRoleById(roleId: number): Promise<RoleResponseDto> {
     const role = await this.roleRepository.findOne({
       where: { roleId },
@@ -333,6 +355,33 @@ export class UserManagementService {
   async getAllPermissions(): Promise<PermissionResponseDto[]> {
     const permissions = await this.permissionRepository.find();
     return permissions.map((p) => this.transformToPermissionDto(p));
+  }
+
+  async getPermissionMatrix(): Promise<any> {
+    const roles = await this.roleRepository.find({ relations: ['permissions'] });
+    const allPermissions = await this.permissionRepository.find({
+      order: { module: 'ASC', permissionName: 'ASC' },
+    });
+
+    const matrix: Record<number, number[]> = {};
+    roles.forEach(role => {
+      matrix[role.roleId] = role.permissions.map(p => p.permissionId);
+    });
+
+    return {
+      roles: roles.map(r => ({
+        roleId: r.roleId,
+        roleName: r.roleName,
+        roleDescription: r.roleDescription,
+      })),
+      permissions: allPermissions.map(p => ({
+        permissionId: p.permissionId,
+        permissionName: p.permissionName,
+        permissionDescription: p.permissionDescription,
+        module: p.module,
+      })),
+      matrix,
+    };
   }
 
   async getPermissionsByModule(module: string): Promise<PermissionResponseDto[]> {
@@ -467,6 +516,197 @@ export class UserManagementService {
     await this.roleRepository.save(role);
   }
 
+  async bulkSetPermissions(roleId: number, permissionIds: number[]): Promise<RoleResponseDto> {
+    const role = await this.roleRepository.findOne({
+      where: { roleId },
+      relations: ['permissions'],
+    });
+
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${roleId} not found`);
+    }
+
+    const permissions = await this.permissionRepository.findByIds(permissionIds);
+    role.permissions = permissions;
+    await this.roleRepository.save(role);
+
+    return this.getRoleById(roleId);
+  }
+
+  // ============ BULK IMPORT ============
+
+  async bulkImportUsers(fileBuffer: Buffer): Promise<BulkImportResultDto> {
+    const content = fileBuffer.toString('utf-8');
+    const lines = content.split(/\r?\n/).filter((line) => line.trim() !== '');
+
+    if (lines.length < 2) {
+      throw new BadRequestException('CSV file must contain a header row and at least one data row');
+    }
+
+    const header = lines[0].split(',').map((h) => h.trim().toLowerCase());
+    const emailIdx = header.indexOf('email');
+    const firstNameIdx = header.indexOf('firstname');
+    const lastNameIdx = header.indexOf('lastname');
+    const roleIdx = header.indexOf('role');
+    const phoneIdx = header.indexOf('phone');
+
+    if (emailIdx === -1 || firstNameIdx === -1 || lastNameIdx === -1 || roleIdx === -1) {
+      throw new BadRequestException(
+        'CSV must contain columns: email, firstName, lastName, role. Optional: phone',
+      );
+    }
+
+    const validRoleNames = Object.values(RoleName) as string[];
+    const result: BulkImportResultDto = { imported: 0, failed: 0, errors: [] };
+
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',').map((c) => c.trim());
+      const rowNum = i + 1;
+      const email = cols[emailIdx] || '';
+      const firstName = cols[firstNameIdx] || '';
+      const lastName = cols[lastNameIdx] || '';
+      const roleName = cols[roleIdx] || '';
+      const phone = phoneIdx !== -1 ? cols[phoneIdx] : undefined;
+
+      // Validate required fields
+      if (!email || !firstName || !lastName || !roleName) {
+        result.failed++;
+        result.errors.push({ row: rowNum, email: email || undefined, reason: 'Missing required fields' });
+        continue;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        result.failed++;
+        result.errors.push({ row: rowNum, email, reason: 'Invalid email format' });
+        continue;
+      }
+
+      // Validate role
+      if (!validRoleNames.includes(roleName)) {
+        result.failed++;
+        result.errors.push({ row: rowNum, email, reason: `Invalid role '${roleName}'. Valid: ${validRoleNames.join(', ')}` });
+        continue;
+      }
+
+      // Check for duplicate email
+      const existingUser = await this.userRepository.findOne({ where: { email } });
+      if (existingUser) {
+        result.failed++;
+        result.errors.push({ row: rowNum, email, reason: 'Email already exists' });
+        continue;
+      }
+
+      // Find role entity
+      const role = await this.roleRepository.findOne({ where: { roleName: roleName as RoleName } });
+      if (!role) {
+        result.failed++;
+        result.errors.push({ row: rowNum, email, reason: `Role '${roleName}' not found in database` });
+        continue;
+      }
+
+      try {
+        const user = this.userRepository.create({
+          email,
+          firstName,
+          lastName,
+          passwordHash: 'EduVerse@2024',
+          phone: phone || undefined,
+          roles: [role],
+        });
+
+        await this.userRepository.save(user);
+        result.imported++;
+      } catch (error) {
+        result.failed++;
+        result.errors.push({ row: rowNum, email, reason: error.message || 'Unknown error' });
+      }
+    }
+
+    return result;
+  }
+
+  // ============ BULK STATUS UPDATE ============
+
+  async bulkUpdateStatus(dto: BulkStatusDto): Promise<{ updated: number }> {
+    const result = await this.userRepository
+      .createQueryBuilder()
+      .update()
+      .set({ status: dto.status as any })
+      .whereInIds(dto.userIds)
+      .execute();
+
+    return { updated: result.affected || 0 };
+  }
+
+  // ============ USER STATISTICS ============
+
+  async getUserStatistics(): Promise<any> {
+    const totalUsers = await this.userRepository.count();
+    const activeUsers = await this.userRepository.count({ where: { status: 'active' as any } });
+    const inactiveUsers = await this.userRepository.count({ where: { status: 'inactive' as any } });
+    const suspendedUsers = await this.userRepository.count({ where: { status: 'suspended' as any } });
+    const pendingUsers = await this.userRepository.count({ where: { status: 'pending' as any } });
+
+    const registrationsByMonth = await this.userRepository
+      .createQueryBuilder('user')
+      .select("DATE_FORMAT(user.created_at, '%Y-%m')", 'month')
+      .addSelect('COUNT(*)', 'count')
+      .where('user.created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)')
+      .groupBy('month')
+      .orderBy('month', 'ASC')
+      .getRawMany();
+
+    const roleDistribution = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.roles', 'role')
+      .select('role.roleName', 'role')
+      .addSelect('COUNT(user.userId)', 'count')
+      .groupBy('role.roleName')
+      .getRawMany();
+
+    return {
+      totalUsers,
+      activeUsers,
+      inactiveUsers,
+      suspendedUsers,
+      pendingUsers,
+      registrationsByMonth,
+      roleDistribution,
+    };
+  }
+
+  // ============ USER EXPORT ============
+
+  async exportUsers(format: string): Promise<any> {
+    const users = await this.userRepository.find({
+      relations: ['roles'],
+      where: { deletedAt: IsNull() as any },
+    });
+
+    if (format === 'csv') {
+      const header = 'email,firstName,lastName,phone,status,roles,createdAt';
+      const rows = users.map((user) => {
+        const roles = user.roles ? (user.roles as Role[]).map((r) => r.roleName).join(';') : '';
+        const phone = user.phone || '';
+        const createdAt = user.createdAt ? user.createdAt.toISOString() : '';
+        return `${user.email},${user.firstName},${user.lastName},${phone},${user.status},${roles},${createdAt}`;
+      });
+      return [header, ...rows].join('\n');
+    }
+
+    return users.map((user) => ({
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      status: user.status,
+      roles: user.roles ? (user.roles as Role[]).map((r) => r.roleName) : [],
+      createdAt: user.createdAt,
+    }));
+  }
+
   // ============ HELPER METHODS ============
 
   private transformToUserDto(user: User): UserResponseDto {
@@ -513,5 +753,97 @@ export class UserManagementService {
     return plainToClass(PermissionResponseDto, permission, {
       excludeExtraneousValues: false,
     });
+  }
+
+  // ============ USER SELF-SERVICE ============
+
+  async getProfile(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { userId },
+      relations: ['roles'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    const fields = [user.firstName, user.lastName, user.email, user.phone, user.profilePictureUrl, user.bio];
+    const filled = fields.filter(f => f && String(f).trim().length > 0).length;
+    const completeness = Math.round((filled / fields.length) * 100);
+
+    return {
+      userId: user.userId,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      profilePictureUrl: user.profilePictureUrl,
+      bio: user.bio,
+      socialLinks: user.socialLinks,
+      status: user.status,
+      emailVerified: user.emailVerified,
+      roles: user.roles?.map(r => r.roleName) || [],
+      createdAt: user.createdAt,
+      profileCompleteness: completeness,
+    };
+  }
+
+  async updateProfile(userId: number, dto: UpdateProfileDto) {
+    const user = await this.userRepository.findOne({ where: { userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    if (dto.firstName !== undefined) user.firstName = dto.firstName;
+    if (dto.lastName !== undefined) user.lastName = dto.lastName;
+    if (dto.phone !== undefined) user.phone = dto.phone;
+    if (dto.profilePictureUrl !== undefined) user.profilePictureUrl = dto.profilePictureUrl;
+    if (dto.bio !== undefined) user.bio = dto.bio;
+    if (dto.socialLinks !== undefined) user.socialLinks = dto.socialLinks;
+
+    await this.userRepository.save(user);
+    return this.getProfile(userId);
+  }
+
+  async getPreferences(userId: number) {
+    let prefs = await this.userPreferenceRepository.findOne({ where: { userId } });
+    if (!prefs) {
+      prefs = this.userPreferenceRepository.create({
+        userId,
+        language: 'en',
+        theme: 'light',
+        emailNotifications: true,
+        pushNotifications: true,
+      });
+      prefs = await this.userPreferenceRepository.save(prefs);
+    }
+    return {
+      language: prefs.language,
+      theme: prefs.theme,
+      emailNotifications: prefs.emailNotifications,
+      pushNotifications: prefs.pushNotifications,
+    };
+  }
+
+  async updatePreferences(userId: number, dto: UpdatePreferencesDto) {
+    let prefs = await this.userPreferenceRepository.findOne({ where: { userId } });
+    if (!prefs) {
+      prefs = this.userPreferenceRepository.create({ userId });
+    }
+    if (dto.language !== undefined) prefs.language = dto.language;
+    if (dto.theme !== undefined) prefs.theme = dto.theme;
+    if (dto.emailNotifications !== undefined) prefs.emailNotifications = dto.emailNotifications;
+    if (dto.pushNotifications !== undefined) prefs.pushNotifications = dto.pushNotifications;
+
+    await this.userPreferenceRepository.save(prefs);
+    return this.getPreferences(userId);
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const user = await this.userRepository.findOne({ where: { userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const isValid = await user.validatePassword(dto.currentPassword);
+    if (!isValid) throw new BadRequestException('Current password is incorrect');
+
+    user.passwordHash = dto.newPassword;
+    await this.userRepository.save(user);
+
+    return { message: 'Password changed successfully' };
   }
 }
