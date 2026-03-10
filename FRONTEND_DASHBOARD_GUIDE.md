@@ -375,13 +375,106 @@ Response: [{
 
 ### 4.7 Community / Forums Tab
 
+#### Community System Architecture
+
 ```
-GET /api/community/categories   → Forum categories
-GET /api/community/posts         → Community posts
-GET /api/community/posts/:id     → Post detail with comments
-POST /api/community/posts        → Create post
-POST /api/community/posts/:id/comment → Add comment
-POST /api/community/posts/:id/react   → Toggle reaction
+Platform
+├── Global Community (open to all authenticated users)
+│   └── Posts (+ comments, reactions, tags)
+├── Department Communities (restricted by enrollment)
+│   ├── "CS Cohort 2026" community → Posts
+│   ├── "CS Cohort 2027" community → Posts
+│   └── "CS General Discussion" community → Posts
+└── Courses
+    └── Discussions (Q&A) — separate /api/discussions endpoints
+```
+
+#### Communities
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/community/communities` | Any | List accessible communities (global + enrolled dept). Paginated: `{data:[], meta:{total,page,limit,totalPages}}` |
+| POST | `/api/community/communities` | Admin/Instructor/DeptHead | Create community. Body: `{name, description, communityType: "global"\|"department", departmentId?}` |
+| GET | `/api/community/communities/:communityId` | Any (access checked) | Get community details |
+| PUT | `/api/community/communities/:communityId` | Admin/Owner | Update community. Body: `{name?, description?, isActive?}` |
+| GET | `/api/community/communities/:communityId/posts` | Any (access checked) | Paginated posts in community |
+| POST | `/api/community/communities/:communityId/posts` | Any (access checked) | Create post. Body: `{communityId, title, content, postType: "discussion"\|"question"\|"announcement"\|"resource", tags?: string[]}` |
+
+#### Convenience Routes
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/community/global` | Any | Global community posts. Supports `?tag=name` filter |
+| POST | `/api/community/global/posts` | Any | Create post in global community |
+| GET | `/api/community/department/:departmentId` | Enrolled/Admin | List communities for a department |
+| GET | `/api/community/my-departments` | Any | Returns `{departmentIds: number[]}` |
+
+#### Tags
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/community/tags` | Any | List all tags |
+| POST | `/api/community/tags` | Admin/Instructor/TA | Create tag. Body: `{name}` |
+
+#### Post / Comment / Reaction Endpoints
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/community/posts/:id` | Any | Post detail with comments |
+| PUT | `/api/community/posts/:id` | Owner/Admin | Update post |
+| DELETE | `/api/community/posts/:id` | Owner/Admin | Delete post |
+| GET | `/api/community/posts/:id/comments` | Any | Comments list (paginated) |
+| POST | `/api/community/posts/:id/comments` | Any | Add comment. Body: `{content}` |
+| GET | `/api/community/posts/:id/reactions` | Any | Reactions list |
+| POST | `/api/community/posts/:id/reactions` | Any | Toggle reaction. Body: `{reactionType: "like"\|"helpful"\|"insightful"\|"thanks"}` |
+
+#### Access Control
+
+- **Global communities:** Any authenticated user can read and post.
+- **Department communities:** Only users enrolled in courses within that department (enrollment → section → course → department chain). Admins and instructors/TAs bypass this restriction.
+- **Tags** are auto-created when included in post creation if they don't already exist.
+
+#### Response Format
+
+All list endpoints return paginated responses:
+
+```json
+{
+  "data": [ ... ],
+  "meta": { "total": 42, "page": 1, "limit": 10, "totalPages": 5 }
+}
+```
+
+#### TypeScript Interfaces
+
+```typescript
+interface Community {
+  id: number;
+  name: string;
+  description: string;
+  communityType: 'global' | 'department';
+  departmentId: number | null;
+  isActive: boolean;
+  createdById: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CommunityPost {
+  id: number;
+  communityId: number;
+  authorId: number;
+  title: string;
+  content: string;
+  postType: 'discussion' | 'question' | 'announcement' | 'resource';
+  isPinned: boolean;
+  tags: string[];
+  commentCount: number;
+  reactionCount: number;
+  authorName: string;
+  createdAt: string;
+  updatedAt: string;
+}
 ```
 
 ### 4.8 Messaging Tab
@@ -418,10 +511,91 @@ PATCH /api/notifications/read-all   → Mark all read
 ### 4.11 Profile & Settings
 
 ```
-GET /api/auth/me                    → Current profile
-GET /api/notifications/preferences  → Notification settings
-PUT /api/notifications/preferences  → Update settings
+GET  /api/auth/me                    → Current profile (basic)
+GET  /api/users/profile              → Full profile with completeness score
+PUT  /api/users/profile              → Update profile
+GET  /api/users/preferences          → Get preferences (creates defaults if none)
+PUT  /api/users/preferences          → Update preferences
+PATCH /api/users/password            → Change password
+GET  /api/notifications/preferences  → Notification settings
+PUT  /api/notifications/preferences  → Update settings
 ```
+
+#### User Profile (Self-Service)
+
+```
+GET /api/users/profile
+Authorization: Bearer <token>
+
+Response: {
+  "userId": 1,
+  "email": "student@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "+1234567890",
+  "profilePictureUrl": "https://...",
+  "bio": "Computer Science student interested in AI.",
+  "socialLinks": { "linkedin": "https://linkedin.com/in/johndoe", "github": "https://github.com/johndoe" },
+  "completenessScore": 85
+}
+```
+
+- `completenessScore` is a 0-100 value computed by the backend based on how many profile fields are filled.
+
+```
+PUT /api/users/profile
+Authorization: Bearer <token>
+Body: {
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "+1234567890",
+  "profilePictureUrl": "https://...",
+  "bio": "Updated bio text.",
+  "socialLinks": { "linkedin": "https://linkedin.com/in/johndoe" }
+}
+```
+
+#### User Preferences
+
+```
+GET /api/users/preferences
+Authorization: Bearer <token>
+
+Response: {
+  "language": "en",
+  "theme": "light",
+  "emailNotifications": true,
+  "pushNotifications": true
+}
+```
+
+- If the user has no preferences record yet, the backend auto-creates one with defaults on first `GET`.
+
+```
+PUT /api/users/preferences
+Authorization: Bearer <token>
+Body: {
+  "language": "ar",
+  "theme": "dark",
+  "emailNotifications": false,
+  "pushNotifications": true
+}
+```
+
+#### Change Password
+
+```
+PATCH /api/users/password
+Authorization: Bearer <token>
+Body: {
+  "currentPassword": "OldPass123!",
+  "newPassword": "NewPass456!"
+}
+
+Response: { "message": "Password updated successfully" }
+```
+
+- `newPassword` must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
 
 ---
 
@@ -720,9 +894,79 @@ GET    /api/admin/users/search?query=...         → Search users
 POST   /api/admin/users/:id/roles                → Assign role to user
 DELETE /api/admin/users/:id/roles/:roleId        → Remove role from user
 GET    /api/admin/users/:id/permissions           → View effective permissions
+POST   /api/admin/users/bulk-import              → CSV bulk import users (multipart)
+POST   /api/admin/users/bulk-status              → Bulk update user statuses
+GET    /api/admin/users/statistics               → User statistics & counts
+GET    /api/admin/users/export?format=csv|json   → Export user list
 ```
 
-**User status values:** `active`, `inactive`, `suspended`
+**User status values:** `active`, `inactive`, `suspended`, `pending`
+
+#### Bulk Import (CSV Upload)
+
+```
+POST /api/admin/users/bulk-import
+Authorization: Bearer <admin_token>
+Content-Type: multipart/form-data
+Body: file=<users.csv>
+
+CSV Columns: email,firstName,lastName,role,phone
+
+Response: {
+  "imported": 45,
+  "failed": 3,
+  "errors": [
+    { "row": 12, "email": "bad@example.com", "reason": "Duplicate email" }
+  ]
+}
+```
+
+#### Bulk Status Update
+
+```
+POST /api/admin/users/bulk-status
+Authorization: Bearer <admin_token>
+Body: {
+  "userIds": [5, 12, 34, 67],
+  "status": "suspended"
+}
+
+Response: { "updated": 4 }
+```
+
+#### User Statistics
+
+```
+GET /api/admin/users/statistics
+Authorization: Bearer <admin_token>
+
+Response: {
+  "totalUsers": 1250,
+  "active": 1100,
+  "inactive": 80,
+  "suspended": 20,
+  "pending": 50,
+  "registrationsByMonth": [
+    { "month": "2025-01", "count": 120 },
+    { "month": "2025-02", "count": 95 }
+  ],
+  "roleDistribution": [
+    { "role": "STUDENT", "count": 1000 },
+    { "role": "INSTRUCTOR", "count": 150 },
+    { "role": "ADMIN", "count": 5 }
+  ]
+}
+```
+
+#### Export Users
+
+```
+GET /api/admin/users/export?format=csv
+GET /api/admin/users/export?format=json
+Authorization: Bearer <admin_token>
+
+→ Returns downloadable file (CSV or JSON) with the full user list.
+```
 
 ### 6.3 Roles & Permissions Tab (IT_ADMIN only)
 
@@ -734,12 +978,64 @@ PUT    /api/admin/roles/:id                      → Update role (IT_ADMIN only)
 DELETE /api/admin/roles/:id                      → Delete role (IT_ADMIN only)
 POST   /api/admin/roles/:id/permissions          → Add permission to role
 DELETE /api/admin/roles/:id/permissions/:permId  → Remove permission
+GET    /api/admin/roles/with-users               → Roles with user counts
+PUT    /api/admin/roles/:id/permissions/bulk      → Replace all role permissions
 GET    /api/admin/permissions                    → List all permissions
 GET    /api/admin/permissions/module/:module      → Permissions by module
+GET    /api/admin/permissions/matrix             → Permission matrix for grid UI
 POST   /api/admin/permissions                    → Create permission (IT_ADMIN)
 PUT    /api/admin/permissions/:id                → Update permission (IT_ADMIN)
 DELETE /api/admin/permissions/:id                → Delete permission (IT_ADMIN)
 ```
+
+#### Roles with User Counts
+
+```
+GET /api/admin/roles/with-users
+Authorization: Bearer <admin_token>
+
+Response: [
+  { "roleId": 1, "name": "STUDENT", "userCount": 1000 },
+  { "roleId": 2, "name": "INSTRUCTOR", "userCount": 150 },
+  { "roleId": 3, "name": "ADMIN", "userCount": 5 }
+]
+```
+
+#### Bulk Replace Permissions
+
+```
+PUT /api/admin/roles/:id/permissions/bulk
+Authorization: Bearer <it_admin_token>
+Body: {
+  "permissionIds": [1, 3, 5, 8, 12]
+}
+
+→ Replaces ALL permissions for the role with the given set.
+```
+
+#### Permission Matrix
+
+```
+GET /api/admin/permissions/matrix
+Authorization: Bearer <admin_token>
+
+Response: {
+  "roles": [
+    { "roleId": 1, "name": "STUDENT" },
+    { "roleId": 2, "name": "INSTRUCTOR" }
+  ],
+  "permissions": [
+    { "permissionId": 1, "name": "view_courses", "module": "courses" },
+    { "permissionId": 2, "name": "edit_courses", "module": "courses" }
+  ],
+  "matrix": {
+    "1": [1],
+    "2": [1, 2]
+  }
+}
+```
+
+- Use this to render a role × permission grid UI. The `matrix` maps `roleId` → array of assigned `permissionId`s.
 
 ### 6.4 Campus Management Tab
 
@@ -908,7 +1204,7 @@ Admin:
 | App Logo | Static |
 | Search Bar | `GET /api/files/search`, `GET /api/messages/search` |
 | Notification Bell | `GET /api/notifications/unread-count` → dropdown with `GET /api/notifications` |
-| User Avatar | From `GET /api/auth/me → profilePictureUrl` |
+| User Avatar | From `GET /api/auth/me → profilePictureUrl` or `GET /api/users/profile → profilePictureUrl, bio, socialLinks` |
 | User Menu | Logout: `POST /api/auth/logout` |
 
 ### 8.3 Notification Dropdown
@@ -1335,6 +1631,10 @@ Body: { same structure with updated values }
 | POST | `/users/:id/roles` | JWT | ADMIN, IT_ADMIN | Assign role |
 | DELETE | `/users/:id/roles/:roleId` | JWT | ADMIN, IT_ADMIN | Remove role |
 | GET | `/users/:id/permissions` | JWT | ADMIN, IT_ADMIN | User permissions |
+| POST | `/users/bulk-import` | JWT | ADMIN, IT_ADMIN | CSV bulk import users (multipart, field: `file`) |
+| POST | `/users/bulk-status` | JWT | ADMIN, IT_ADMIN | Bulk update user statuses |
+| GET | `/users/statistics` | JWT | ADMIN, IT_ADMIN | User statistics & counts |
+| GET | `/users/export?format=csv\|json` | JWT | ADMIN, IT_ADMIN | Export user list as CSV or JSON |
 | GET | `/roles` | JWT | ADMIN, IT_ADMIN | List roles |
 | GET | `/roles/:id` | JWT | ADMIN, IT_ADMIN | Role details |
 | POST | `/roles` | JWT | IT_ADMIN | Create role |
@@ -1342,13 +1642,26 @@ Body: { same structure with updated values }
 | DELETE | `/roles/:id` | JWT | IT_ADMIN | Delete role |
 | POST | `/roles/:id/permissions` | JWT | IT_ADMIN | Add permission |
 | DELETE | `/roles/:id/permissions/:permId` | JWT | IT_ADMIN | Remove permission |
+| GET | `/roles/with-users` | JWT | ADMIN, IT_ADMIN | Roles list with user count per role |
+| PUT | `/roles/:id/permissions/bulk` | JWT | IT_ADMIN | Replace all permissions for a role |
 | GET | `/permissions` | JWT | ADMIN, IT_ADMIN | List permissions |
 | GET | `/permissions/module/:module` | JWT | ADMIN, IT_ADMIN | Permissions by module |
+| GET | `/permissions/matrix` | JWT | ADMIN, IT_ADMIN | Permission matrix for grid UI |
 | POST | `/permissions` | JWT | IT_ADMIN | Create permission |
 | PUT | `/permissions/:id` | JWT | IT_ADMIN | Update permission |
 | DELETE | `/permissions/:id` | JWT | IT_ADMIN | Delete permission |
 
-### Campus (`/api/campuses`, `/api/departments`, `/api/programs`)
+### Users Self-Service (`/api/users`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/profile` | JWT | Any | Get current user profile with completeness score (0-100) |
+| PUT | `/profile` | JWT | Any | Update profile (firstName, lastName, phone, profilePictureUrl, bio, socialLinks) |
+| GET | `/preferences` | JWT | Any | Get preferences (creates defaults if none exist) |
+| PUT | `/preferences` | JWT | Any | Update preferences (language, theme, emailNotifications, pushNotifications) |
+| PATCH | `/password` | JWT | Any | Change password (body: currentPassword, newPassword) |
+
+### Campus(`/api/campuses`, `/api/departments`, `/api/programs`)
 
 | Method | Path | Auth | Roles | Description |
 |--------|------|------|-------|-------------|
