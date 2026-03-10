@@ -10,12 +10,14 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserManagementController } from './user-management.controller';
 import { UserManagementService } from './user-management.service';
+import { UserProfileController } from './user-profile.controller';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { Session } from './entities/session.entity';
 import { PasswordReset } from './entities/password-reset.entity';
 import { TwoFactorAuth } from './entities/two-factor-auth.entity';
+import { UserPreference } from './entities/user-preference.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { EmailModule } from '../email/email.module';
 
@@ -28,6 +30,7 @@ import { EmailModule } from '../email/email.module';
       Session,
       PasswordReset,
       TwoFactorAuth,
+      UserPreference,
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
@@ -51,7 +54,7 @@ import { EmailModule } from '../email/email.module';
     }),
     EmailModule,
   ],
-  controllers: [AuthController, UserManagementController],
+  controllers: [AuthController, UserManagementController, UserProfileController],
   providers: [AuthService, UserManagementService, JwtStrategy],
   exports: [AuthService, UserManagementService],
 })
