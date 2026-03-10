@@ -39,8 +39,8 @@ curl "http://localhost:8081/youtube/channel/CHANNEL_ID/videos"
 ## 🔑 Environment Variables
 
 ```env
-YOUTUBE_CLIENT_ID=848014702654-2vod612m90egc4611ef7c7qke5j7bjqt.apps.googleusercontent.com
-YOUTUBE_CLIENT_SECRET=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
+YOUTUBE_CLIENT_ID=
+YOUTUBE_CLIENT_SECRET=
 YOUTUBE_REDIRECT_URI=http://localhost:8081/youtube/callback
 YOUTUBE_REFRESH_TOKEN=  # Obtain via OAuth flow
 ```
