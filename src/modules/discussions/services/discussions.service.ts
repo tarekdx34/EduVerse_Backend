@@ -16,10 +16,41 @@ export class DiscussionsService {
     private messageRepository: Repository<ChatMessage>,
   ) {}
 
+  // ============ ENROLLMENT CHECK ============
+
+  /**
+   * Validate user has access to a course's discussions.
+   * Admin/IT_Admin and Instructor/TA are always allowed.
+   * Students must be enrolled in the course via course_enrollments.
+   */
+  private async validateCourseAccess(courseId: number, userId: number, roles: string[]): Promise<void> {
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    const isStaff = roles.includes('instructor') || roles.includes('teaching_assistant');
+
+    if (isAdmin || isStaff) return;
+
+    const enrollment = await this.threadRepository.manager.query(
+      `SELECT 1 FROM course_enrollments ce
+       JOIN course_sections cs ON ce.section_id = cs.section_id
+       WHERE ce.user_id = ? AND cs.course_id = ? AND ce.enrollment_status = 'enrolled'
+       LIMIT 1`,
+      [userId, courseId],
+    );
+
+    if (!enrollment || enrollment.length === 0) {
+      throw new ForbiddenException('You must be enrolled in this course to access its discussions');
+    }
+  }
+
   // ============ THREADS ============
 
-  async findAll(query: ThreadQueryDto) {
+  async findAll(query: ThreadQueryDto, userId: number, roles: string[]) {
     const { courseId, page = 1, limit = 20 } = query;
+
+    if (courseId) {
+      await this.validateCourseAccess(courseId, userId, roles);
+    }
+
     const qb = this.threadRepository.createQueryBuilder('t');
 
     if (courseId) qb.andWhere('t.courseId = :courseId', { courseId });
@@ -40,8 +71,9 @@ export class DiscussionsService {
     return thread;
   }
 
-  async getThreadWithReplies(id: number, page = 1, limit = 50) {
+  async getThreadWithReplies(id: number, userId: number, roles: string[], page = 1, limit = 50) {
     const thread = await this.findById(id);
+    await this.validateCourseAccess(thread.courseId, userId, roles);
 
     // Increment view count
     await this.threadRepository.increment({ id }, 'viewCount', 1);
@@ -67,7 +99,8 @@ export class DiscussionsService {
     };
   }
 
-  async create(dto: CreateThreadDto, userId: number): Promise<CourseChatThread> {
+  async create(dto: CreateThreadDto, userId: number, roles: string[]): Promise<CourseChatThread> {
+    await this.validateCourseAccess(dto.courseId, userId, roles);
     const thread = this.threadRepository.create({
       courseId: dto.courseId,
       createdBy: userId,
@@ -102,8 +135,9 @@ export class DiscussionsService {
 
   // ============ REPLIES ============
 
-  async addReply(threadId: number, userId: number, dto: CreateReplyDto): Promise<ChatMessage> {
+  async addReply(threadId: number, userId: number, roles: string[], dto: CreateReplyDto): Promise<ChatMessage> {
     const thread = await this.findById(threadId);
+    await this.validateCourseAccess(thread.courseId, userId, roles);
     if (thread.isLocked) {
       throw new BadRequestException('This thread is locked and cannot receive new replies');
     }

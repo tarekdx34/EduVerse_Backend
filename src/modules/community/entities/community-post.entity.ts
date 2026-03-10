@@ -7,20 +7,27 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Course } from '../../courses/entities/course.entity';
 import { PostType } from '../enums';
 import { CommunityComment } from './community-comment.entity';
 import { CommunityReaction } from './community-reaction.entity';
+import { Community } from './community.entity';
+import { CommunityTag } from './community-tag.entity';
 
 @Entity('community_posts')
 export class CommunityPost {
   @PrimaryGeneratedColumn({ name: 'post_id', type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({ name: 'course_id', type: 'bigint', unsigned: true })
-  courseId: number;
+  @Column({ name: 'course_id', type: 'bigint', unsigned: true, nullable: true })
+  courseId: number | null;
+
+  @Column({ name: 'community_id', type: 'bigint', unsigned: true, nullable: true })
+  communityId: number | null;
 
   @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
@@ -65,13 +72,25 @@ export class CommunityPost {
   @JoinColumn({ name: 'user_id' })
   author: User;
 
-  @ManyToOne(() => Course, { eager: true })
+  @ManyToOne(() => Course, { eager: true, nullable: true })
   @JoinColumn({ name: 'course_id' })
   course: Course;
+
+  @ManyToOne(() => Community, (community) => community.posts, { nullable: true })
+  @JoinColumn({ name: 'community_id' })
+  community: Community;
 
   @OneToMany(() => CommunityComment, (comment) => comment.post)
   comments: CommunityComment[];
 
   @OneToMany(() => CommunityReaction, (reaction) => reaction.post)
   reactions: CommunityReaction[];
+
+  @ManyToMany(() => CommunityTag, (tag) => tag.posts, { eager: true })
+  @JoinTable({
+    name: 'community_post_tags',
+    joinColumn: { name: 'post_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
+  })
+  tags: CommunityTag[];
 }
