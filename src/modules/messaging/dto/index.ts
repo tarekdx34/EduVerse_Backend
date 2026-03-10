@@ -106,3 +106,30 @@ export class WsDeleteMessageDto {
   messageId: number;
   forEveryone: boolean;
 }
+
+export class WsEditMessageDto {
+  messageId: number;
+  text: string;
+}
+
+// ============ Edit Message ============
+export class EditMessageDto {
+  @ApiProperty({ description: 'New message text', example: 'Updated message content' })
+  @IsString()
+  text: string;
+}
+
+// ============ Search Users ============
+export class SearchUsersDto {
+  @ApiProperty({ description: 'Search query (name or email)', example: 'tarek' })
+  @IsString()
+  query: string;
+
+  @ApiPropertyOptional({ description: 'Max results', example: 20, default: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  limit?: number = 20;
+}

@@ -27,11 +27,17 @@ export class Message {
   @Column({ name: 'parent_message_id', type: 'bigint', unsigned: true, nullable: true })
   parentMessageId: number;
 
+  @Column({ name: 'reply_to_id', type: 'bigint', unsigned: true, nullable: true })
+  replyToId: number | null;
+
   @Column({ name: 'read_status', type: 'tinyint', default: 0 })
   readStatus: boolean;
 
   @Column({ name: 'sent_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   sentAt: Date;
+
+  @Column({ name: 'edited_at', type: 'timestamp', nullable: true })
+  editedAt: Date | null;
 
   // Relations
   @ManyToOne(() => Message, (m) => m.replies, { nullable: true })
@@ -40,6 +46,10 @@ export class Message {
 
   @OneToMany(() => Message, (m) => m.parentMessage)
   replies: Message[];
+
+  @ManyToOne(() => Message, { nullable: true })
+  @JoinColumn({ name: 'reply_to_id' })
+  replyTo: Message;
 
   @OneToMany(() => MessageParticipant, (mp) => mp.message)
   participants: MessageParticipant[];

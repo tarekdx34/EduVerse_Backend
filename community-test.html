@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduVerse Community &amp; Discussions Tester</title>
+  <style>
+    /* ── Reset & Tokens ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --card:     #22263a;
+      --border:   #2e3350;
+      --accent:   #6c63ff;
+      --accent2:  #00d4aa;
+      --danger:   #ff4d6d;
+      --warn:     #ffa940;
+      --text:     #e2e8f0;
+      --muted:    #8892a4;
+      --radius:   12px;
+      --shadow:   0 4px 24px rgba(0,0,0,.45);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ──────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: .5px; }
+    header span { font-size: .78rem; color: var(--muted); }
+
+    /* ── Login Bar ───────────────────────────────────────────── */
+    .login-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .login-bar label { font-size: .78rem; color: var(--muted); white-space: nowrap; }
+    .login-bar input, .login-bar select {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: .82rem;
+    }
+    .login-bar input:focus, .login-bar select:focus { outline: none; border-color: var(--accent); }
+    .login-bar .user-info {
+      font-size: .78rem; color: var(--accent2); margin-left: auto;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    button {
+      cursor: pointer; border: none; border-radius: 6px;
+      font-size: .78rem; font-weight: 600; padding: 6px 14px;
+      transition: opacity .15s, transform .1s;
+    }
+    button:hover { opacity: .85; }
+    button:active { transform: scale(.97); }
+    .btn-primary  { background: var(--accent);  color: #fff; }
+    .btn-success  { background: var(--accent2); color: #0f1117; }
+    .btn-danger   { background: var(--danger);  color: #fff; }
+    .btn-warn     { background: var(--warn);    color: #0f1117; }
+    .btn-ghost    { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+    .btn-sm       { padding: 4px 10px; font-size: .72rem; }
+    .btn-xs       { padding: 2px 8px; font-size: .68rem; }
+    button:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* ── Tabs ────────────────────────────────────────────────── */
+    .tab-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; gap: 0;
+    }
+    .tab-btn {
+      padding: 10px 24px; font-size: .88rem; font-weight: 600;
+      background: transparent; color: var(--muted);
+      border: none; border-bottom: 3px solid transparent;
+      cursor: pointer; transition: all .2s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+    /* ── Main Content ────────────────────────────────────────── */
+    .tab-content { display: none; flex: 1; overflow: hidden; }
+    .tab-content.active { display: flex; flex-direction: column; flex: 1; }
+
+    .main-layout {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────── */
+    .sidebar {
+      width: 30%; min-width: 280px; max-width: 400px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .sidebar-filters {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .sidebar-filters .filter-row {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .sidebar-filters label {
+      font-size: .72rem; color: var(--muted); min-width: 60px; white-space: nowrap;
+    }
+    .sidebar-filters input, .sidebar-filters select {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 5px 8px; border-radius: 6px; font-size: .78rem;
+    }
+    .sidebar-filters input:focus, .sidebar-filters select:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .item-list {
+      flex: 1; overflow-y: auto; padding: 8px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .item-list::-webkit-scrollbar { width: 4px; }
+    .item-list::-webkit-scrollbar-track { background: transparent; }
+    .item-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── Item Cards ──────────────────────────────────────────── */
+    .item-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px; cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .item-card:hover { border-color: var(--accent); background: #282c44; }
+    .item-card.selected { border-color: var(--accent); background: #2a2e4a; }
+    .item-card .card-title {
+      font-size: .82rem; font-weight: 600; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .item-card .card-meta {
+      font-size: .68rem; color: var(--muted);
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block; font-size: .62rem; font-weight: 700;
+      padding: 1px 7px; border-radius: 10px; text-transform: uppercase;
+    }
+    .badge-discussion { background: #6c63ff33; color: #a39dff; }
+    .badge-question   { background: #00d4aa33; color: #00d4aa; }
+    .badge-announcement { background: #ffa94033; color: #ffa940; }
+    .badge-resource   { background: #ff4d6d33; color: #ff4d6d; }
+    .badge-answer     { background: #00d4aa33; color: #00d4aa; }
+    .badge-endorsed   { background: #ffa94033; color: #ffa940; }
+
+    /* ── Detail Panel ────────────────────────────────────────── */
+    .detail-panel {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+      background: var(--bg);
+    }
+    .detail-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .detail-header h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .detail-header .detail-meta {
+      font-size: .72rem; color: var(--muted);
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    }
+    .detail-actions {
+      padding: 8px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    }
+    .detail-body {
+      flex: 1; overflow-y: auto; padding: 16px 20px;
+    }
+    .detail-body::-webkit-scrollbar { width: 4px; }
+    .detail-body::-webkit-scrollbar-track { background: transparent; }
+    .detail-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .content-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+      margin-bottom: 16px; font-size: .85rem; line-height: 1.6;
+      white-space: pre-wrap; word-break: break-word;
+    }
+
+    /* ── Reactions ────────────────────────────────────────────── */
+    .reactions-row {
+      display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .reaction-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 12px; border-radius: 20px; font-size: .75rem;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); cursor: pointer; transition: all .15s;
+    }
+    .reaction-btn:hover { border-color: var(--accent); background: #2e3350; }
+    .reaction-btn.active { border-color: var(--accent); background: #6c63ff33; }
+    .reaction-btn .count { font-weight: 700; color: var(--accent2); }
+
+    /* ── Comments / Replies ──────────────────────────────────── */
+    .comments-section h3, .replies-section h3 {
+      font-size: .88rem; font-weight: 600; margin-bottom: 10px;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    }
+    .comment-item, .reply-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;
+    }
+    .comment-item.nested { margin-left: 24px; border-left: 3px solid var(--accent); }
+    .reply-item.nested { margin-left: 24px; border-left: 3px solid var(--accent); }
+    .comment-header, .reply-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+      font-size: .75rem; color: var(--muted);
+    }
+    .comment-header strong, .reply-header strong { color: var(--text); }
+    .comment-text, .reply-text {
+      font-size: .82rem; line-height: 1.5; margin-bottom: 6px; white-space: pre-wrap;
+    }
+    .comment-actions, .reply-actions {
+      display: flex; gap: 6px; align-items: center;
+    }
+
+    .compose-comment, .compose-reply {
+      margin-top: 12px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .compose-comment textarea, .compose-reply textarea {
+      width: 100%; resize: vertical; min-height: 60px; max-height: 200px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 12px; border-radius: 8px;
+      font-size: .82rem; font-family: inherit; line-height: 1.4;
+    }
+    .compose-comment textarea:focus, .compose-reply textarea:focus {
+      outline: none; border-color: var(--accent);
+    }
+
+    /* ── Pagination ──────────────────────────────────────────── */
+    .pagination {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0; justify-content: center;
+      font-size: .75rem; color: var(--muted);
+    }
+
+    /* ── Create Form (expandable) ────────────────────────────── */
+    .create-form-wrapper {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .create-form-toggle {
+      padding: 8px 20px; cursor: pointer; font-size: .82rem;
+      font-weight: 600; color: var(--accent2);
+      display: flex; align-items: center; gap: 6px;
+      user-select: none;
+    }
+    .create-form-toggle:hover { color: var(--accent); }
+    .create-form-body {
+      display: none; padding: 12px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .create-form-body.open { display: block; }
+    .create-form-body .form-row {
+      display: flex; gap: 10px; align-items: center; margin-bottom: 8px;
+    }
+    .create-form-body label {
+      font-size: .75rem; color: var(--muted); min-width: 80px; white-space: nowrap;
+    }
+    .create-form-body input, .create-form-body select, .create-form-body textarea {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 10px; border-radius: 6px;
+      font-size: .82rem; font-family: inherit;
+    }
+    .create-form-body textarea { min-height: 60px; resize: vertical; }
+    .create-form-body input:focus, .create-form-body select:focus, .create-form-body textarea:focus {
+      outline: none; border-color: var(--accent);
+    }
+
+    /* ── Categories Panel ────────────────────────────────────── */
+    .categories-panel {
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .categories-toggle {
+      padding: 8px 12px; cursor: pointer; font-size: .78rem;
+      font-weight: 600; color: var(--warn);
+      display: flex; align-items: center; gap: 6px;
+      user-select: none;
+    }
+    .categories-toggle:hover { color: var(--accent); }
+    .categories-body {
+      display: none; padding: 8px 12px;
+      border-top: 1px solid var(--border);
+      max-height: 300px; overflow-y: auto;
+    }
+    .categories-body.open { display: block; }
+    .cat-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px; border-radius: 6px; font-size: .78rem;
+      background: var(--card); border: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+    .cat-item .cat-name { flex: 1; font-weight: 600; }
+    .cat-item .cat-desc { font-size: .68rem; color: var(--muted); }
+    .cat-add-form {
+      display: flex; gap: 6px; align-items: center; margin-top: 8px; flex-wrap: wrap;
+    }
+    .cat-add-form input {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 5px 8px; border-radius: 6px; font-size: .75rem;
+    }
+    .cat-add-form input:focus { outline: none; border-color: var(--accent); }
+
+    /* ── Empty / Placeholder States ──────────────────────────── */
+    .empty-state {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: .85rem; text-align: center; padding: 40px;
+    }
+
+    /* ── Response Log ────────────────────────────────────────── */
+    .log-panel {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .log-toggle-bar {
+      padding: 6px 24px; cursor: pointer; font-size: .78rem;
+      font-weight: 600; color: var(--muted);
+      display: flex; align-items: center; gap: 8px;
+      user-select: none;
+    }
+    .log-toggle-bar:hover { color: var(--text); }
+    .log-body {
+      display: none; max-height: 300px; overflow-y: auto;
+      padding: 8px 24px; border-top: 1px solid var(--border);
+    }
+    .log-body.open { display: block; }
+    .log-body::-webkit-scrollbar { width: 4px; }
+    .log-body::-webkit-scrollbar-track { background: transparent; }
+    .log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .log-entry {
+      font-size: .72rem; padding: 6px 10px; border-radius: 6px;
+      margin-bottom: 4px; background: var(--card); border-left: 3px solid var(--border);
+      word-break: break-word; font-family: 'Cascadia Code', 'Fira Code', monospace;
+    }
+    .log-entry.success { border-color: var(--accent2); }
+    .log-entry.error   { border-color: var(--danger); color: var(--danger); }
+    .log-entry .log-ts  { color: var(--muted); margin-right: 8px; }
+    .log-entry .log-method {
+      display: inline-block; font-weight: 700; padding: 1px 6px;
+      border-radius: 4px; margin-right: 6px; font-size: .65rem;
+      background: rgba(255,255,255,.08);
+    }
+    .log-entry .log-method.get    { color: var(--accent2); }
+    .log-entry .log-method.post   { color: var(--accent); }
+    .log-entry .log-method.put    { color: var(--warn); }
+    .log-entry .log-method.patch  { color: #a78bfa; }
+    .log-entry .log-method.delete { color: var(--danger); }
+    .log-entry pre {
+      margin-top: 4px; white-space: pre-wrap; opacity: .8;
+      font-size: .68rem; max-height: 200px; overflow-y: auto;
+    }
+
+    /* ── Edit Modal ──────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.6); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; width: 440px; max-width: 95vw;
+      box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px;
+    }
+    .modal h3 { font-size: .95rem; font-weight: 700; }
+    .modal label { font-size: .75rem; color: var(--muted); }
+    .modal input, .modal select, .modal textarea {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 10px; border-radius: 6px;
+      font-size: .82rem; font-family: inherit;
+    }
+    .modal textarea { min-height: 80px; resize: vertical; }
+    .modal input:focus, .modal select:focus, .modal textarea:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+    /* ── Utility ─────────────────────────────────────────────── */
+    .flex-1 { flex: 1; }
+    .hidden { display: none !important; }
+    .text-muted { color: var(--muted); }
+    .text-accent { color: var(--accent); }
+    .text-accent2 { color: var(--accent2); }
+    .text-danger { color: var(--danger); }
+    .text-warn { color: var(--warn); }
+    .gap-8 { gap: 8px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mt-8 { margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════ -->
+<header>
+  <h1>🌐 EduVerse Community &amp; Discussions Tester</h1>
+  <span>REST API test client</span>
+  <div style="flex:1"></div>
+  <span style="font-size:.72rem; color:var(--muted);">Server:</span>
+  <code id="serverDisplay" style="font-size:.72rem; color:var(--accent2);">http://localhost:8081</code>
+</header>
+
+<!-- ══ LOGIN BAR ═══════════════════════════════════════════════ -->
+<div class="login-bar">
+  <label>👤 Quick Login →</label>
+  <select id="loginPreset" onchange="applyPreset()" style="min-width:160px;">
+    <option value="">-- Pick a user --</option>
+    <option value="student">🎓 Student (student.tarek)</option>
+    <option value="instructor">👨‍🏫 Instructor (instructor.tarek)</option>
+    <option value="admin">🛡️ Admin (admin.tarek)</option>
+    <option value="ta">📋 TA (ta.tarek)</option>
+    <option value="it_admin">🔧 IT Admin (it_admin.tarek)</option>
+  </select>
+  <input id="loginEmail" placeholder="email@example.com" value="student.tarek@example.com" style="min-width:200px;" />
+  <input id="loginPass" type="password" placeholder="password" value="SecureP@ss123" style="width:130px;" />
+  <button class="btn-success btn-sm" id="loginBtn" onclick="doLogin()">🔑 Login</button>
+  <button class="btn-danger btn-sm hidden" id="logoutBtn" onclick="doLogout()">Logout</button>
+  <span class="user-info" id="userInfo"></span>
+</div>
+
+<!-- ══ TAB BAR ═════════════════════════════════════════════════ -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabCommunity" onclick="switchTab('community')" disabled>🏘️ Community</button>
+  <button class="tab-btn" id="tabDiscussions" onclick="switchTab('discussions')" disabled>💬 Discussions</button>
+</div>
+
+<!-- ══ COMMUNITY TAB ══════════════════════════════════════════ -->
+<div class="tab-content active" id="contentCommunity" style="flex:1; display:flex; flex-direction:column;">
+
+  <!-- Categories Panel -->
+  <div class="categories-panel" id="catPanel">
+    <div class="categories-toggle" onclick="toggleCategories()">📁 Categories <span id="catArrow">▶</span></div>
+    <div class="categories-body" id="catBody">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <label style="font-size:.72rem;color:var(--muted);">Course ID:</label>
+        <input id="catCourseFilter" type="number" placeholder="All" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:6px;font-size:.75rem;" />
+        <button class="btn-ghost btn-xs" onclick="loadCategories()">🔄 Refresh</button>
+      </div>
+      <div id="catList"></div>
+      <div class="cat-add-form" id="catAddForm">
+        <input id="catNewCourseId" type="number" placeholder="Course ID" style="width:80px;" />
+        <input id="catNewName" placeholder="Name" style="flex:1;min-width:100px;" />
+        <input id="catNewDesc" placeholder="Description (optional)" style="flex:1;min-width:100px;" />
+        <button class="btn-primary btn-xs" onclick="createCategory()">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-filters">
+        <div class="filter-row">
+          <label>Course ID</label>
+          <input id="postCourseFilter" type="number" placeholder="All" />
+        </div>
+        <div class="filter-row">
+          <label>Type</label>
+          <select id="postTypeFilter">
+            <option value="">All</option>
+            <option value="discussion">Discussion</option>
+            <option value="question">Question</option>
+            <option value="announcement">Announcement</option>
+            <option value="resource">Resource</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <label>Sort</label>
+          <select id="postSortBy">
+            <option value="recent">Recent</option>
+            <option value="popular">Popular</option>
+            <option value="most_comments">Most Comments</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <button class="btn-primary btn-sm" onclick="loadPosts()" style="flex:1;">🔄 Refresh Posts</button>
+        </div>
+      </div>
+      <div class="item-list" id="postList">
+        <div class="empty-state">Login to view posts</div>
+      </div>
+      <div class="pagination" id="postPagination"></div>
+    </div>
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="postDetail">
+      <div class="empty-state">Select a post to view details</div>
+    </div>
+  </div>
+
+  <!-- Create Post Form -->
+  <div class="create-form-wrapper">
+    <div class="create-form-toggle" onclick="toggleCreatePost()">➕ Create New Post <span id="createPostArrow">▶</span></div>
+    <div class="create-form-body" id="createPostForm">
+      <div class="form-row">
+        <label>Title</label>
+        <input id="newPostTitle" placeholder="Post title" />
+      </div>
+      <div class="form-row">
+        <label>Content</label>
+        <textarea id="newPostContent" placeholder="Write your post content..."></textarea>
+      </div>
+      <div class="form-row">
+        <label>Course ID</label>
+        <input id="newPostCourseId" type="number" placeholder="Required" style="max-width:120px;" />
+        <label>Type</label>
+        <select id="newPostType" style="max-width:160px;">
+          <option value="discussion">Discussion</option>
+          <option value="question">Question</option>
+          <option value="announcement">Announcement</option>
+          <option value="resource">Resource</option>
+        </select>
+        <button class="btn-success" onclick="createPost()">📝 Create Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DISCUSSIONS TAB ════════════════════════════════════════ -->
+<div class="tab-content" id="contentDiscussions" style="flex:1; flex-direction:column;">
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-filters">
+        <div class="filter-row">
+          <label>Course ID</label>
+          <input id="discCourseFilter" type="number" placeholder="All" />
+        </div>
+        <div class="filter-row">
+          <button class="btn-primary btn-sm" onclick="loadThreads()" style="flex:1;">🔄 Refresh Threads</button>
+        </div>
+      </div>
+      <div class="item-list" id="threadList">
+        <div class="empty-state">Login to view threads</div>
+      </div>
+      <div class="pagination" id="threadPagination"></div>
+    </div>
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="threadDetail">
+      <div class="empty-state">Select a thread to view details</div>
+    </div>
+  </div>
+
+  <!-- Create Thread Form -->
+  <div class="create-form-wrapper">
+    <div class="create-form-toggle" onclick="toggleCreateThread()">➕ Create New Thread <span id="createThreadArrow">▶</span></div>
+    <div class="create-form-body" id="createThreadForm">
+      <div class="form-row">
+        <label>Course ID</label>
+        <input id="newThreadCourseId" type="number" placeholder="Required" style="max-width:120px;" />
+      </div>
+      <div class="form-row">
+        <label>Title</label>
+        <input id="newThreadTitle" placeholder="Thread title" />
+      </div>
+      <div class="form-row">
+        <label>Description</label>
+        <textarea id="newThreadDesc" placeholder="Optional description..."></textarea>
+      </div>
+      <div class="form-row" style="justify-content:flex-end;">
+        <button class="btn-success" onclick="createThread()">📝 Create Thread</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT MODAL ═════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3 id="editModalTitle">Edit</h3>
+    <div id="editModalFields"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost btn-sm" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-primary btn-sm" id="editModalSave" onclick="saveEditModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESPONSE LOG ═══════════════════════════════════════════ -->
+<div class="log-panel">
+  <div class="log-toggle-bar" onclick="toggleLog()">
+    📋 Response Log <span id="logArrow">▶</span>
+    <span id="logCount" style="font-size:.68rem;color:var(--accent);">0 entries</span>
+    <div style="flex:1"></div>
+    <button class="btn-ghost btn-xs" onclick="event.stopPropagation(); clearLog();">Clear</button>
+  </div>
+  <div class="log-body" id="logBody"></div>
+</div>
+
+<!-- ══ SCRIPT ═════════════════════════════════════════════════ -->
+<script>
+/* ────────────────────────────────────────────────────────────
+   STATE
+──────────────────────────────────────────────────────────── */
+const BASE_URL = 'http://localhost:8081';
+let authToken = null;
+let currentUser = null;
+let currentTab = 'community';
+
+// Community state
+let postsPage = 1;
+let selectedPostId = null;
+let commentsPage = 1;
+
+// Discussions state
+let threadsPage = 1;
+let selectedThreadId = null;
+let repliesPage = 1;
+
+// Edit modal callback
+let editModalCallback = null;
+
+const USER_PRESETS = {
+  student:    { email: 'student.tarek@example.com',    password: 'SecureP@ss123' },
+  instructor: { email: 'instructor.tarek@example.com', password: 'SecureP@ss123' },
+  admin:      { email: 'admin.tarek@example.com',      password: 'SecureP@ss123' },
+  ta:         { email: 'ta.tarek@example.com',          password: 'SecureP@ss123' },
+  it_admin:   { email: 'it_admin.tarek@example.com',    password: 'SecureP@ss123' },
+};
+
+/* ────────────────────────────────────────────────────────────
+   PRESETS
+──────────────────────────────────────────────────────────── */
+function applyPreset() {
+  const sel = document.getElementById('loginPreset').value;
+  if (!sel || !USER_PRESETS[sel]) return;
+  document.getElementById('loginEmail').value = USER_PRESETS[sel].email;
+  document.getElementById('loginPass').value  = USER_PRESETS[sel].password;
+}
+
+/* ────────────────────────────────────────────────────────────
+   API HELPER
+──────────────────────────────────────────────────────────── */
+async function api(method, path, body = null, qs = {}) {
+  const url = new URL(path, BASE_URL);
+  Object.entries(qs).forEach(([k, v]) => {
+    if (v !== '' && v !== null && v !== undefined) url.searchParams.set(k, v);
+  });
+
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (authToken) opts.headers['Authorization'] = `Bearer ${authToken}`;
+  if (body && ['POST', 'PUT', 'PATCH'].includes(method)) {
+    opts.body = JSON.stringify(body);
+  }
+
+  const startTime = Date.now();
+  let res, data, ok;
+  try {
+    res = await fetch(url.toString(), opts);
+    const text = await res.text();
+    try { data = JSON.parse(text); } catch { data = text; }
+    ok = res.ok;
+  } catch (e) {
+    data = { error: e.message };
+    ok = false;
+  }
+  const elapsed = Date.now() - startTime;
+
+  addLogEntry(method, url.pathname + url.search, ok ? res?.status : 'ERR', data, elapsed, ok);
+  if (!ok) {
+    const msg = data?.message || data?.error || JSON.stringify(data);
+    throw new Error(`${res?.status || 'Network Error'}: ${msg}`);
+  }
+  return data;
+}
+
+/* ────────────────────────────────────────────────────────────
+   LOGIN / LOGOUT
+──────────────────────────────────────────────────────────── */
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value.trim();
+  if (!email || !pass) return alert('Enter email and password first.');
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = '⏳ Logging in...';
+
+  try {
+    const data = await api('POST', '/api/auth/login', { email, password: pass, rememberMe: false });
+    const token = data.accessToken || data.access_token || data.token
+               || data.data?.accessToken || data.data?.access_token;
+    if (!token) throw new Error('No token in response: ' + JSON.stringify(data));
+
+    authToken = token;
+    currentUser = data.user || null;
+
+    document.getElementById('userInfo').textContent =
+      currentUser ? `✅ ${currentUser.firstName || ''} ${currentUser.lastName || ''} (${currentUser.role || 'N/A'})` : '✅ Logged in';
+    document.getElementById('logoutBtn').classList.remove('hidden');
+    document.getElementById('loginBtn').classList.add('hidden');
+    document.getElementById('tabCommunity').disabled = false;
+    document.getElementById('tabDiscussions').disabled = false;
+
+    // Auto-load data
+    loadPosts();
+  } catch (e) {
+    alert('Login failed: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '🔑 Login';
+  }
+}
+
+function doLogout() {
+  authToken = null;
+  currentUser = null;
+  document.getElementById('userInfo').textContent = '';
+  document.getElementById('logoutBtn').classList.add('hidden');
+  document.getElementById('loginBtn').classList.remove('hidden');
+  document.getElementById('tabCommunity').disabled = true;
+  document.getElementById('tabDiscussions').disabled = true;
+  document.getElementById('postList').innerHTML = '<div class="empty-state">Login to view posts</div>';
+  document.getElementById('postDetail').innerHTML = '<div class="empty-state">Select a post to view details</div>';
+  document.getElementById('threadList').innerHTML = '<div class="empty-state">Login to view threads</div>';
+  document.getElementById('threadDetail').innerHTML = '<div class="empty-state">Select a thread to view details</div>';
+  selectedPostId = null;
+  selectedThreadId = null;
+}
+
+/* ────────────────────────────────────────────────────────────
+   TABS
+──────────────────────────────────────────────────────────── */
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabCommunity').classList.toggle('active', tab === 'community');
+  document.getElementById('tabDiscussions').classList.toggle('active', tab === 'discussions');
+  document.getElementById('contentCommunity').classList.toggle('active', tab === 'community');
+  document.getElementById('contentDiscussions').classList.toggle('active', tab === 'discussions');
+  document.getElementById('contentCommunity').style.display = tab === 'community' ? 'flex' : 'none';
+  document.getElementById('contentDiscussions').style.display = tab === 'discussions' ? 'flex' : 'none';
+  if (tab === 'discussions' && authToken) loadThreads();
+}
+
+/* ────────────────────────────────────────────────────────────
+   TOGGLE HELPERS
+──────────────────────────────────────────────────────────── */
+function toggleCategories() {
+  const body = document.getElementById('catBody');
+  const arrow = document.getElementById('catArrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▼' : '▶';
+  if (body.classList.contains('open') && authToken) loadCategories();
+}
+
+function toggleCreatePost() {
+  const body = document.getElementById('createPostForm');
+  const arrow = document.getElementById('createPostArrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▼' : '▶';
+}
+
+function toggleCreateThread() {
+  const body = document.getElementById('createThreadForm');
+  const arrow = document.getElementById('createThreadArrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▼' : '▶';
+}
+
+function toggleLog() {
+  const body = document.getElementById('logBody');
+  const arrow = document.getElementById('logArrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▼' : '▶';
+}
+
+/* ────────────────────────────────────────────────────────────
+   CATEGORIES
+──────────────────────────────────────────────────────────── */
+async function loadCategories() {
+  const courseId = document.getElementById('catCourseFilter').value;
+  try {
+    const data = await api('GET', '/api/community/categories', null, { courseId: courseId || undefined });
+    const cats = Array.isArray(data) ? data : (data.data || data.categories || []);
+    renderCategories(cats);
+  } catch (e) {
+    document.getElementById('catList').innerHTML = `<div style="color:var(--danger);font-size:.78rem;">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderCategories(cats) {
+  const el = document.getElementById('catList');
+  if (!cats.length) { el.innerHTML = '<div style="color:var(--muted);font-size:.75rem;">No categories found</div>'; return; }
+  el.innerHTML = cats.map(c => `
+    <div class="cat-item">
+      <span class="cat-name">${esc(c.name)}</span>
+      <span class="cat-desc">${esc(c.description || '')}</span>
+      <span style="font-size:.65rem;color:var(--muted);">ID:${c.categoryId || c.id}</span>
+      <button class="btn-ghost btn-xs" onclick="editCategory(${c.categoryId || c.id}, '${esc(c.name)}', '${esc(c.description || '')}')">✏️</button>
+      <button class="btn-danger btn-xs" onclick="deleteCategory(${c.categoryId || c.id})">🗑</button>
+    </div>
+  `).join('');
+}
+
+async function createCategory() {
+  const courseId = document.getElementById('catNewCourseId').value;
+  const name = document.getElementById('catNewName').value.trim();
+  const description = document.getElementById('catNewDesc').value.trim();
+  if (!courseId || !name) return alert('Course ID and Name are required.');
+  try {
+    await api('POST', '/api/community/categories', { courseId: Number(courseId), name, description: description || undefined });
+    document.getElementById('catNewName').value = '';
+    document.getElementById('catNewDesc').value = '';
+    loadCategories();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+function editCategory(id, name, desc) {
+  openEditModal('Edit Category', [
+    { key: 'name', label: 'Name', value: name },
+    { key: 'description', label: 'Description', value: desc, type: 'textarea' },
+  ], async (vals) => {
+    await api('PUT', `/api/community/categories/${id}`, vals);
+    loadCategories();
+  });
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Delete this category?')) return;
+  try {
+    await api('DELETE', `/api/community/categories/${id}`);
+    loadCategories();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   POSTS — LIST
+──────────────────────────────────────────────────────────── */
+async function loadPosts(page = 1) {
+  if (!authToken) return;
+  postsPage = page;
+  const courseId = document.getElementById('postCourseFilter').value;
+  const postType = document.getElementById('postTypeFilter').value;
+  const sortBy   = document.getElementById('postSortBy').value;
+
+  const listEl = document.getElementById('postList');
+  listEl.innerHTML = '<div class="empty-state">⏳ Loading...</div>';
+
+  try {
+    const data = await api('GET', '/api/community/posts', null, {
+      courseId: courseId || undefined,
+      postType: postType || undefined,
+      sortBy,
+      page,
+      limit: 20,
+    });
+    const posts = Array.isArray(data) ? data : (data.data || data.posts || []);
+    const total = data.total || data.totalCount || posts.length;
+    const totalPages = data.totalPages || Math.ceil(total / 20) || 1;
+    renderPostList(posts);
+    renderPagination('postPagination', postsPage, totalPages, loadPosts);
+  } catch (e) {
+    listEl.innerHTML = `<div class="empty-state" style="color:var(--danger);">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderPostList(posts) {
+  const el = document.getElementById('postList');
+  if (!posts.length) { el.innerHTML = '<div class="empty-state">No posts found</div>'; return; }
+  el.innerHTML = posts.map(p => {
+    const id = p.postId || p.id;
+    const pinned = p.isPinned ? '📌 ' : '';
+    const locked = p.isLocked ? '🔒 ' : '';
+    const typeBadge = p.postType ? `<span class="badge badge-${p.postType}">${p.postType}</span>` : '';
+    const author = p.author?.firstName
+      ? `${p.author.firstName} ${p.author.lastName || ''}`
+      : (p.authorName || p.userName || 'Unknown');
+    return `
+      <div class="item-card ${selectedPostId == id ? 'selected' : ''}" onclick="viewPost(${id})">
+        <div class="card-title">${pinned}${locked}${esc(p.title)} ${typeBadge}</div>
+        <div class="card-meta">
+          <span>👤 ${esc(author)}</span>
+          <span>👁 ${p.viewCount ?? 0}</span>
+          <span>👍 ${p.upvoteCount ?? p.likeCount ?? 0}</span>
+          <span>💬 ${p.replyCount ?? p.commentCount ?? 0}</span>
+          <span>${timeAgo(p.createdAt)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ────────────────────────────────────────────────────────────
+   POSTS — DETAIL
+──────────────────────────────────────────────────────────── */
+async function viewPost(id, commentPage = 1) {
+  selectedPostId = id;
+  commentsPage = commentPage;
+  const detail = document.getElementById('postDetail');
+  detail.innerHTML = '<div class="empty-state">⏳ Loading post...</div>';
+
+  // Highlight selected card
+  document.querySelectorAll('#postList .item-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#postList .item-card').forEach(c => {
+    if (c.onclick?.toString().includes(id)) c.classList.add('selected');
+  });
+
+  try {
+    const data = await api('GET', `/api/community/posts/${id}`, null, { page: commentPage, limit: 50 });
+    const post = data.post || data.data || data;
+    const comments = data.comments || post.comments || [];
+    const reactions = data.reactions || post.reactions || post.reactionSummary || {};
+    const totalComments = data.totalComments || data.total || comments.length;
+    const totalPages = data.totalPages || Math.ceil(totalComments / 50) || 1;
+
+    renderPostDetail(post, comments, reactions, totalPages);
+  } catch (e) {
+    detail.innerHTML = `<div class="empty-state" style="color:var(--danger);">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderPostDetail(post, comments, reactions, totalPages) {
+  const id = post.postId || post.id;
+  const author = post.author?.firstName
+    ? `${post.author.firstName} ${post.author.lastName || ''}`
+    : (post.authorName || post.userName || 'Unknown');
+  const typeBadge = post.postType ? `<span class="badge badge-${post.postType}">${post.postType}</span>` : '';
+  const pinLabel = post.isPinned ? '📌 Pinned' : '📌 Pin';
+  const lockLabel = post.isLocked ? '🔒 Locked' : '🔒 Lock';
+
+  // Reaction data (normalize)
+  const rx = {};
+  if (Array.isArray(reactions)) {
+    reactions.forEach(r => { rx[r.reactionType || r.type] = r.count || r.total || 0; });
+  } else if (typeof reactions === 'object') {
+    Object.assign(rx, reactions);
+  }
+
+  const detail = document.getElementById('postDetail');
+  detail.innerHTML = `
+    <div class="detail-header">
+      <h2>${esc(post.title)} ${typeBadge}</h2>
+      <div class="detail-meta">
+        <span>👤 ${esc(author)}</span>
+        <span>👁 ${post.viewCount ?? 0} views</span>
+        <span>🕐 ${formatDate(post.createdAt)}</span>
+        ${post.isPinned ? '<span style="color:var(--warn);">📌 Pinned</span>' : ''}
+        ${post.isLocked ? '<span style="color:var(--danger);">🔒 Locked</span>' : ''}
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn-ghost btn-sm" onclick="editPost(${id})">✏️ Edit</button>
+      <button class="btn-danger btn-sm" onclick="deletePost(${id})">🗑 Delete</button>
+      <button class="btn-warn btn-sm" onclick="togglePin(${id})">${pinLabel}</button>
+      <button class="btn-ghost btn-sm" onclick="toggleLock(${id})" style="border-color:var(--danger);color:var(--danger);">${lockLabel}</button>
+    </div>
+    <div class="detail-body">
+      <div class="content-block">${esc(post.content || post.body || '')}</div>
+
+      <div class="reactions-row">
+        <button class="reaction-btn ${rx.like ? 'active' : ''}" onclick="react(${id}, 'like')">
+          👍 Like <span class="count">${rx.like || 0}</span>
+        </button>
+        <button class="reaction-btn ${rx.helpful ? 'active' : ''}" onclick="react(${id}, 'helpful')">
+          💡 Helpful <span class="count">${rx.helpful || 0}</span>
+        </button>
+        <button class="reaction-btn ${rx.insightful ? 'active' : ''}" onclick="react(${id}, 'insightful')">
+          🔍 Insightful <span class="count">${rx.insightful || 0}</span>
+        </button>
+        <button class="reaction-btn ${rx.thanks ? 'active' : ''}" onclick="react(${id}, 'thanks')">
+          🙏 Thanks <span class="count">${rx.thanks || 0}</span>
+        </button>
+      </div>
+
+      <div class="comments-section">
+        <h3>💬 Comments (${comments.length})</h3>
+        ${renderComments(comments, id)}
+        <div id="commentPagination"></div>
+      </div>
+
+      <div class="compose-comment">
+        <div id="replyIndicator" style="display:none;font-size:.75rem;color:var(--accent2);margin-bottom:4px;">
+          ↩ Replying to comment <span id="replyToId"></span>
+          <span style="cursor:pointer;color:var(--danger);margin-left:8px;" onclick="cancelReply()">✕ Cancel</span>
+        </div>
+        <textarea id="newCommentText" placeholder="Write a comment..."></textarea>
+        <input type="hidden" id="parentCommentId" value="" />
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-primary btn-sm" onclick="addComment(${id})">💬 Submit Comment</button>
+        </div>
+      </div>
+    </div>
+  `;
+  renderPagination('commentPagination', commentsPage, totalPages, (p) => viewPost(id, p));
+}
+
+function renderComments(comments, postId, depth = 0) {
+  if (!comments || !comments.length) return '<div style="color:var(--muted);font-size:.78rem;padding:8px 0;">No comments yet.</div>';
+
+  return comments.map(c => {
+    const cId = c.commentId || c.id;
+    const author = c.author?.firstName
+      ? `${c.author.firstName} ${c.author.lastName || ''}`
+      : (c.authorName || c.userName || 'Unknown');
+    const nested = depth > 0 ? 'nested' : '';
+    const children = c.replies || c.children || [];
+
+    return `
+      <div class="comment-item ${nested}">
+        <div class="comment-header">
+          <strong>${esc(author)}</strong>
+          <span>🕐 ${timeAgo(c.createdAt)}</span>
+          <span style="color:var(--muted);font-size:.65rem;">ID:${cId}</span>
+        </div>
+        <div class="comment-text">${esc(c.commentText || c.text || c.content || '')}</div>
+        <div class="comment-actions">
+          <button class="btn-ghost btn-xs" onclick="setReplyTo(${cId})">↩ Reply</button>
+          <button class="btn-ghost btn-xs" onclick="editComment(${cId}, '${escAttr(c.commentText || c.text || c.content || '')}')">✏️</button>
+          <button class="btn-danger btn-xs" onclick="deleteComment(${cId}, ${postId})">🗑</button>
+        </div>
+      </div>
+      ${children.length ? renderComments(children, postId, depth + 1) : ''}
+    `;
+  }).join('');
+}
+
+/* ────────────────────────────────────────────────────────────
+   POST ACTIONS
+──────────────────────────────────────────────────────────── */
+async function createPost() {
+  const title = document.getElementById('newPostTitle').value.trim();
+  const content = document.getElementById('newPostContent').value.trim();
+  const courseId = document.getElementById('newPostCourseId').value;
+  const postType = document.getElementById('newPostType').value;
+  if (!title || !content || !courseId) return alert('Title, Content, and Course ID are required.');
+  try {
+    await api('POST', '/api/community/posts', { title, content, courseId: Number(courseId), postType });
+    document.getElementById('newPostTitle').value = '';
+    document.getElementById('newPostContent').value = '';
+    loadPosts();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+function editPost(id) {
+  const titleEl = document.querySelector('.detail-header h2');
+  const contentEl = document.querySelector('.content-block');
+  const currentTitle = titleEl ? titleEl.textContent.trim() : '';
+  const currentContent = contentEl ? contentEl.textContent.trim() : '';
+
+  openEditModal('Edit Post', [
+    { key: 'title', label: 'Title', value: currentTitle },
+    { key: 'content', label: 'Content', value: currentContent, type: 'textarea' },
+    { key: 'postType', label: 'Post Type', value: '', type: 'select', options: ['discussion', 'question', 'announcement', 'resource'] },
+  ], async (vals) => {
+    const body = {};
+    if (vals.title) body.title = vals.title;
+    if (vals.content) body.content = vals.content;
+    if (vals.postType) body.postType = vals.postType;
+    await api('PUT', `/api/community/posts/${id}`, body);
+    viewPost(id);
+    loadPosts(postsPage);
+  });
+}
+
+async function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
+  try {
+    await api('DELETE', `/api/community/posts/${id}`);
+    selectedPostId = null;
+    document.getElementById('postDetail').innerHTML = '<div class="empty-state">Post deleted</div>';
+    loadPosts(postsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function togglePin(id) {
+  try {
+    await api('PATCH', `/api/community/posts/${id}/pin`);
+    viewPost(id);
+    loadPosts(postsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function toggleLock(id) {
+  try {
+    await api('PATCH', `/api/community/posts/${id}/lock`);
+    viewPost(id);
+    loadPosts(postsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   REACTIONS
+──────────────────────────────────────────────────────────── */
+async function react(postId, reactionType) {
+  try {
+    await api('POST', `/api/community/posts/${postId}/react`, { reactionType });
+    viewPost(postId, commentsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   COMMENTS
+──────────────────────────────────────────────────────────── */
+function setReplyTo(commentId) {
+  document.getElementById('parentCommentId').value = commentId;
+  document.getElementById('replyIndicator').style.display = 'block';
+  document.getElementById('replyToId').textContent = '#' + commentId;
+  document.getElementById('newCommentText').focus();
+}
+
+function cancelReply() {
+  document.getElementById('parentCommentId').value = '';
+  document.getElementById('replyIndicator').style.display = 'none';
+}
+
+async function addComment(postId) {
+  const commentText = document.getElementById('newCommentText').value.trim();
+  if (!commentText) return alert('Comment cannot be empty.');
+  const parentCommentId = document.getElementById('parentCommentId').value || undefined;
+  try {
+    const body = { commentText };
+    if (parentCommentId) body.parentCommentId = Number(parentCommentId);
+    await api('POST', `/api/community/posts/${postId}/comment`, body);
+    document.getElementById('newCommentText').value = '';
+    cancelReply();
+    viewPost(postId, commentsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+function editComment(commentId, currentText) {
+  openEditModal('Edit Comment', [
+    { key: 'commentText', label: 'Comment', value: currentText, type: 'textarea' },
+  ], async (vals) => {
+    await api('PUT', `/api/community/comments/${commentId}`, vals);
+    if (selectedPostId) viewPost(selectedPostId, commentsPage);
+  });
+}
+
+async function deleteComment(commentId, postId) {
+  if (!confirm('Delete this comment?')) return;
+  try {
+    await api('DELETE', `/api/community/comments/${commentId}`);
+    viewPost(postId, commentsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   DISCUSSIONS — THREADS LIST
+──────────────────────────────────────────────────────────── */
+async function loadThreads(page = 1) {
+  if (!authToken) return;
+  threadsPage = page;
+  const courseId = document.getElementById('discCourseFilter').value;
+  const listEl = document.getElementById('threadList');
+  listEl.innerHTML = '<div class="empty-state">⏳ Loading...</div>';
+
+  try {
+    const data = await api('GET', '/api/discussions', null, {
+      courseId: courseId || undefined,
+      page,
+      limit: 20,
+    });
+    const threads = Array.isArray(data) ? data : (data.data || data.threads || []);
+    const total = data.total || data.totalCount || threads.length;
+    const totalPages = data.totalPages || Math.ceil(total / 20) || 1;
+    renderThreadList(threads);
+    renderPagination('threadPagination', threadsPage, totalPages, loadThreads);
+  } catch (e) {
+    listEl.innerHTML = `<div class="empty-state" style="color:var(--danger);">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderThreadList(threads) {
+  const el = document.getElementById('threadList');
+  if (!threads.length) { el.innerHTML = '<div class="empty-state">No threads found</div>'; return; }
+  el.innerHTML = threads.map(t => {
+    const id = t.threadId || t.id;
+    const pinned = t.isPinned ? '📌 ' : '';
+    const locked = t.isLocked ? '🔒 ' : '';
+    const creator = t.creator?.firstName
+      ? `${t.creator.firstName} ${t.creator.lastName || ''}`
+      : (t.creatorName || t.authorName || t.userName || 'Unknown');
+    return `
+      <div class="item-card ${selectedThreadId == id ? 'selected' : ''}" onclick="viewThread(${id})">
+        <div class="card-title">${pinned}${locked}${esc(t.title)}</div>
+        <div class="card-meta">
+          <span>👤 ${esc(creator)}</span>
+          <span>👁 ${t.viewCount ?? 0}</span>
+          <span>💬 ${t.replyCount ?? t.messageCount ?? 0}</span>
+          <span>${timeAgo(t.createdAt)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ────────────────────────────────────────────────────────────
+   DISCUSSIONS — THREAD DETAIL
+──────────────────────────────────────────────────────────── */
+async function viewThread(id, replyPage = 1) {
+  selectedThreadId = id;
+  repliesPage = replyPage;
+  const detail = document.getElementById('threadDetail');
+  detail.innerHTML = '<div class="empty-state">⏳ Loading thread...</div>';
+
+  document.querySelectorAll('#threadList .item-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#threadList .item-card').forEach(c => {
+    if (c.onclick?.toString().includes(id)) c.classList.add('selected');
+  });
+
+  try {
+    const data = await api('GET', `/api/discussions/${id}`, null, { page: replyPage, limit: 50 });
+    const thread = data.thread || data.data || data;
+    const replies = data.replies || data.messages || thread.replies || thread.messages || [];
+    const totalReplies = data.totalReplies || data.total || replies.length;
+    const totalPages = data.totalPages || Math.ceil(totalReplies / 50) || 1;
+
+    renderThreadDetail(thread, replies, totalPages);
+  } catch (e) {
+    detail.innerHTML = `<div class="empty-state" style="color:var(--danger);">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderThreadDetail(thread, replies, totalPages) {
+  const id = thread.threadId || thread.id;
+  const creator = thread.creator?.firstName
+    ? `${thread.creator.firstName} ${thread.creator.lastName || ''}`
+    : (thread.creatorName || thread.authorName || thread.userName || 'Unknown');
+  const pinLabel = thread.isPinned ? '📌 Pinned' : '📌 Pin';
+  const lockLabel = thread.isLocked ? '🔒 Locked' : '🔒 Lock';
+
+  const detail = document.getElementById('threadDetail');
+  detail.innerHTML = `
+    <div class="detail-header">
+      <h2>${esc(thread.title)}</h2>
+      <div class="detail-meta">
+        <span>👤 ${esc(creator)}</span>
+        <span>👁 ${thread.viewCount ?? 0} views</span>
+        <span>🕐 ${formatDate(thread.createdAt)}</span>
+        ${thread.isPinned ? '<span style="color:var(--warn);">📌 Pinned</span>' : ''}
+        ${thread.isLocked ? '<span style="color:var(--danger);">🔒 Locked</span>' : ''}
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn-ghost btn-sm" onclick="editThread(${id})">✏️ Edit</button>
+      <button class="btn-danger btn-sm" onclick="deleteThread(${id})">🗑 Delete</button>
+      <button class="btn-warn btn-sm" onclick="toggleThreadPin(${id})">${pinLabel}</button>
+      <button class="btn-ghost btn-sm" onclick="toggleThreadLock(${id})" style="border-color:var(--danger);color:var(--danger);">${lockLabel}</button>
+    </div>
+    <div class="detail-body">
+      ${thread.description ? `<div class="content-block">${esc(thread.description)}</div>` : ''}
+
+      <div class="replies-section">
+        <h3>💬 Replies (${replies.length})</h3>
+        ${renderReplies(replies, id)}
+        <div id="replyPagination"></div>
+      </div>
+
+      <div class="compose-reply">
+        <div id="replyToIndicator" style="display:none;font-size:.75rem;color:var(--accent2);margin-bottom:4px;">
+          ↩ Replying to message <span id="replyToMsgId"></span>
+          <span style="cursor:pointer;color:var(--danger);margin-left:8px;" onclick="cancelThreadReply()">✕ Cancel</span>
+        </div>
+        <textarea id="newReplyText" placeholder="Write a reply..."></textarea>
+        <input type="hidden" id="parentMessageId" value="" />
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-primary btn-sm" onclick="addReply(${id})">💬 Submit Reply</button>
+        </div>
+      </div>
+    </div>
+  `;
+  renderPagination('replyPagination', repliesPage, totalPages, (p) => viewThread(id, p));
+}
+
+function renderReplies(replies, threadId, depth = 0) {
+  if (!replies || !replies.length) return '<div style="color:var(--muted);font-size:.78rem;padding:8px 0;">No replies yet.</div>';
+
+  return replies.map(r => {
+    const rId = r.replyId || r.messageId || r.id;
+    const author = r.author?.firstName
+      ? `${r.author.firstName} ${r.author.lastName || ''}`
+      : (r.authorName || r.userName || 'Unknown');
+    const nested = depth > 0 ? 'nested' : '';
+    const children = r.replies || r.children || [];
+    const answerBadge = r.isAnswer ? '<span class="badge badge-answer">✅ Answer</span>' : '';
+    const endorsedBadge = r.isEndorsed
+      ? `<span class="badge badge-endorsed">⭐ Endorsed${r.endorsedBy ? ` by ${esc(r.endorsedBy.firstName || r.endorsedByName || '')}` : ''}</span>`
+      : '';
+
+    return `
+      <div class="reply-item ${nested}">
+        <div class="reply-header">
+          <strong>${esc(author)}</strong>
+          ${answerBadge} ${endorsedBadge}
+          <span>🕐 ${timeAgo(r.createdAt)}</span>
+          <span style="color:var(--muted);font-size:.65rem;">ID:${rId}</span>
+        </div>
+        <div class="reply-text">${esc(r.messageText || r.text || r.content || '')}</div>
+        <div class="reply-actions">
+          <button class="btn-ghost btn-xs" onclick="setThreadReplyTo(${rId})">↩ Reply</button>
+          <button class="btn-ghost btn-xs" onclick="markAnswer(${rId})" title="Toggle mark as answer">✅ ${r.isAnswer ? 'Unmark' : 'Mark'} Answer</button>
+          <button class="btn-ghost btn-xs" onclick="endorseReply(${rId})" title="Toggle endorsement">⭐ ${r.isEndorsed ? 'Unendorse' : 'Endorse'}</button>
+        </div>
+      </div>
+      ${children.length ? renderReplies(children, threadId, depth + 1) : ''}
+    `;
+  }).join('');
+}
+
+/* ────────────────────────────────────────────────────────────
+   THREAD ACTIONS
+──────────────────────────────────────────────────────────── */
+async function createThread() {
+  const courseId = document.getElementById('newThreadCourseId').value;
+  const title = document.getElementById('newThreadTitle').value.trim();
+  const description = document.getElementById('newThreadDesc').value.trim();
+  if (!courseId || !title) return alert('Course ID and Title are required.');
+  try {
+    await api('POST', '/api/discussions', {
+      courseId: Number(courseId), title, description: description || undefined
+    });
+    document.getElementById('newThreadTitle').value = '';
+    document.getElementById('newThreadDesc').value = '';
+    loadThreads();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+function editThread(id) {
+  const titleEl = document.querySelector('#threadDetail .detail-header h2');
+  const descEl = document.querySelector('#threadDetail .content-block');
+  openEditModal('Edit Thread', [
+    { key: 'title', label: 'Title', value: titleEl?.textContent?.trim() || '' },
+    { key: 'description', label: 'Description', value: descEl?.textContent?.trim() || '', type: 'textarea' },
+  ], async (vals) => {
+    const body = {};
+    if (vals.title) body.title = vals.title;
+    if (vals.description) body.description = vals.description;
+    await api('PUT', `/api/discussions/${id}`, body);
+    viewThread(id);
+    loadThreads(threadsPage);
+  });
+}
+
+async function deleteThread(id) {
+  if (!confirm('Delete this thread?')) return;
+  try {
+    await api('DELETE', `/api/discussions/${id}`);
+    selectedThreadId = null;
+    document.getElementById('threadDetail').innerHTML = '<div class="empty-state">Thread deleted</div>';
+    loadThreads(threadsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function toggleThreadPin(id) {
+  try {
+    await api('PATCH', `/api/discussions/${id}/pin`);
+    viewThread(id);
+    loadThreads(threadsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function toggleThreadLock(id) {
+  try {
+    await api('PATCH', `/api/discussions/${id}/lock`);
+    viewThread(id);
+    loadThreads(threadsPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   REPLIES
+──────────────────────────────────────────────────────────── */
+function setThreadReplyTo(messageId) {
+  document.getElementById('parentMessageId').value = messageId;
+  document.getElementById('replyToIndicator').style.display = 'block';
+  document.getElementById('replyToMsgId').textContent = '#' + messageId;
+  document.getElementById('newReplyText').focus();
+}
+
+function cancelThreadReply() {
+  document.getElementById('parentMessageId').value = '';
+  document.getElementById('replyToIndicator').style.display = 'none';
+}
+
+async function addReply(threadId) {
+  const messageText = document.getElementById('newReplyText').value.trim();
+  if (!messageText) return alert('Reply cannot be empty.');
+  const parentMessageId = document.getElementById('parentMessageId').value || undefined;
+  try {
+    const body = { messageText };
+    if (parentMessageId) body.parentMessageId = Number(parentMessageId);
+    await api('POST', `/api/discussions/${threadId}/reply`, body);
+    document.getElementById('newReplyText').value = '';
+    cancelThreadReply();
+    viewThread(threadId, repliesPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function markAnswer(replyId) {
+  try {
+    await api('PATCH', `/api/discussions/replies/${replyId}/mark-answer`);
+    if (selectedThreadId) viewThread(selectedThreadId, repliesPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function endorseReply(replyId) {
+  try {
+    await api('PATCH', `/api/discussions/replies/${replyId}/endorse`);
+    if (selectedThreadId) viewThread(selectedThreadId, repliesPage);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   EDIT MODAL
+──────────────────────────────────────────────────────────── */
+function openEditModal(title, fields, callback) {
+  document.getElementById('editModalTitle').textContent = title;
+  editModalCallback = callback;
+
+  const container = document.getElementById('editModalFields');
+  container.innerHTML = fields.map(f => {
+    if (f.type === 'textarea') {
+      return `<div style="margin-bottom:8px;"><label>${esc(f.label)}</label><textarea id="editField_${f.key}">${esc(f.value)}</textarea></div>`;
+    }
+    if (f.type === 'select') {
+      const opts = f.options.map(o => `<option value="${o}" ${o === f.value ? 'selected' : ''}>${o}</option>`).join('');
+      return `<div style="margin-bottom:8px;"><label>${esc(f.label)}</label><select id="editField_${f.key}"><option value="">-- No change --</option>${opts}</select></div>`;
+    }
+    return `<div style="margin-bottom:8px;"><label>${esc(f.label)}</label><input id="editField_${f.key}" value="${escAttr(f.value)}" /></div>`;
+  }).join('');
+
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editModalCallback = null;
+}
+
+async function saveEditModal() {
+  if (!editModalCallback) return;
+  const fields = document.getElementById('editModalFields');
+  const inputs = fields.querySelectorAll('input, textarea, select');
+  const vals = {};
+  inputs.forEach(inp => {
+    const key = inp.id.replace('editField_', '');
+    if (inp.value.trim()) vals[key] = inp.value.trim();
+  });
+
+  try {
+    await editModalCallback(vals);
+    closeEditModal();
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   PAGINATION
+──────────────────────────────────────────────────────────── */
+function renderPagination(containerId, currentPage, totalPages, onPageChange) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+  let html = '';
+  html += `<button class="btn-ghost btn-xs" ${currentPage <= 1 ? 'disabled' : ''} onclick="void 0">◀ Prev</button>`;
+  html += `<span>Page ${currentPage} of ${totalPages}</span>`;
+  html += `<button class="btn-ghost btn-xs" ${currentPage >= totalPages ? 'disabled' : ''} onclick="void 0">Next ▶</button>`;
+  el.innerHTML = html;
+
+  const btns = el.querySelectorAll('button');
+  btns[0].onclick = () => { if (currentPage > 1) onPageChange(currentPage - 1); };
+  btns[1].onclick = () => { if (currentPage < totalPages) onPageChange(currentPage + 1); };
+}
+
+/* ────────────────────────────────────────────────────────────
+   RESPONSE LOG
+──────────────────────────────────────────────────────────── */
+let logEntries = 0;
+
+function addLogEntry(method, url, status, body, elapsed, ok) {
+  logEntries++;
+  document.getElementById('logCount').textContent = `${logEntries} entries`;
+
+  const logBody = document.getElementById('logBody');
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${ok ? 'success' : 'error'}`;
+
+  const ts = new Date().toLocaleTimeString();
+  let bodyStr;
+  try { bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2); }
+  catch { bodyStr = String(body); }
+
+  entry.innerHTML = `
+    <span class="log-ts">${ts}</span>
+    <span class="log-method ${method.toLowerCase()}">${method}</span>
+    <span>${esc(url)}</span>
+    <span style="margin-left:8px;opacity:.7;">${status} (${elapsed}ms)</span>
+    <pre>${esc(bodyStr)}</pre>
+  `;
+  logBody.prepend(entry);
+}
+
+function clearLog() {
+  document.getElementById('logBody').innerHTML = '';
+  logEntries = 0;
+  document.getElementById('logCount').textContent = '0 entries';
+}
+
+/* ────────────────────────────────────────────────────────────
+   UTILITIES
+──────────────────────────────────────────────────────────── */
+function esc(s) {
+  if (!s) return '';
+  const div = document.createElement('div');
+  div.textContent = String(s);
+  return div.innerHTML;
+}
+
+function escAttr(s) {
+  return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return d.toLocaleDateString();
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return 'N/A';
+  return new Date(dateStr).toLocaleString();
+}
+
+/* ────────────────────────────────────────────────────────────
+   INIT
+──────────────────────────────────────────────────────────── */
+document.getElementById('serverDisplay').textContent = BASE_URL;
+// Start with community tab visible
+document.getElementById('contentDiscussions').style.display = 'none';
+</script>
+</body>
+</html>
