@@ -49,6 +49,12 @@ export class User {
   @Column({ name: 'profile_picture_url', type: 'text', nullable: true })
   profilePictureUrl?: string;
 
+  @Column({ type: 'text', nullable: true })
+  bio?: string;
+
+  @Column({ name: 'social_links', type: 'json', nullable: true })
+  socialLinks?: Record<string, string>;
+
   @Column({ name: 'campus_id', nullable: true })
   campusId?: number;
 
