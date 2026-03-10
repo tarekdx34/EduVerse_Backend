@@ -94,7 +94,9 @@ Content-Type: application/json
     "firstName": "John",
     "lastName": "Doe",
     "email": "student@example.com",
-    "role": "student"
+    "role": "student",
+    "bio": "Computer Science student interested in AI",
+    "socialLinks": { "github": "https://github.com/johndoe", "linkedin": "https://linkedin.com/in/johndoe" }
   }
 }
 ```
@@ -116,9 +118,15 @@ Authorization: Bearer <accessToken>
   "firstName": "John",
   "lastName": "Doe",
   "email": "student@example.com",
-  "role": "student"
+  "role": "student",
+  "bio": "Computer Science student interested in AI",
+  "socialLinks": { "github": "https://github.com/johndoe", "linkedin": "https://linkedin.com/in/johndoe" }
 }
 ```
+
+> **Note**: `bio` (text, nullable) and `socialLinks` (JSON, nullable) are optional profile fields. They may be `null` if the user hasn't set them.
+
+> **Tip**: For a richer profile view with a `profileCompleteness` score (0–100), use `GET /api/users/profile` with the same `Authorization` header. This is useful when displaying a user's full profile page.
 
 ---
 
