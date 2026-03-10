@@ -7,11 +7,17 @@ import {
   Body,
   Param,
   Query,
+  Res,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import type { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
@@ -20,8 +26,12 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { Roles } from './roles.decorator';
+import { RoleName } from './entities/role.entity';
 import { UserManagementService } from './user-management.service';
 import {
   UserUpdateDto,
@@ -33,6 +43,8 @@ import {
   PermissionUpdateDto,
   PermissionAssignmentDto,
   UserFilterDto,
+  BulkPermissionsDto,
+  BulkStatusDto,
 } from './dto/user-management.dto';
 import {
   UserResponseDto,
@@ -99,6 +111,107 @@ Retrieves a paginated list of all users in the system with optional filters.
     if (campusId) filters.campusId = campusId;
 
     return this.userManagementService.getUsers(page, size, sort, filters);
+  }
+
+  @Post('users/bulk-import')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseGuards(RolesGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Bulk import users from CSV' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Import results' })
+  async bulkImportUsers(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('CSV file is required');
+    return this.userManagementService.bulkImportUsers(file.buffer);
+  }
+
+  @Get('users/search')
+  @ApiOperation({
+    summary: 'Search users',
+    description: `
+## Search Users
+
+Search for users by name, email, or other criteria.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN, IT_ADMIN
+
+### Search Fields
+- Email address
+- First name
+- Last name
+- Combined full name
+
+### Notes
+- Search is case-insensitive
+- Partial matches are supported
+- Returns up to 50 results
+    `,
+  })
+  @ApiQuery({ name: 'query', description: 'Search term', type: String, example: 'john' })
+  @ApiResponse({ status: 200, description: 'Search results' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async searchUsers(@Query('query') query: string): Promise<UserListResponseDto[]> {
+    return this.userManagementService.searchUsers(query);
+  }
+
+  // ============ BULK STATUS UPDATE ============
+
+  @Post('users/bulk-status')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Bulk update user status' })
+  @ApiResponse({ status: 200, description: 'Users status updated' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async bulkUpdateStatus(@Body() dto: BulkStatusDto) {
+    return this.userManagementService.bulkUpdateStatus(dto);
+  }
+
+  // ============ USER STATISTICS ============
+
+  @Get('users/statistics')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Get user statistics' })
+  @ApiResponse({ status: 200, description: 'User statistics' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async getUserStatistics() {
+    return this.userManagementService.getUserStatistics();
+  }
+
+  // ============ USER EXPORT ============
+
+  @Get('users/export')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Export users' })
+  @ApiQuery({ name: 'format', required: false, enum: ['csv', 'json'], example: 'json' })
+  @ApiResponse({ status: 200, description: 'Exported user data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async exportUsers(
+    @Query('format') format: string = 'json',
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const data = await this.userManagementService.exportUsers(format);
+
+    if (format === 'csv') {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=users.csv');
+      return data;
+    }
+
+    return data;
   }
 
   @Get('users/:id')
@@ -234,38 +347,6 @@ Changes the status of a user account (activate, deactivate, suspend).
     return this.userManagementService.updateUserStatus(userId, statusDto);
   }
 
-  @Get('users/search')
-  @ApiOperation({
-    summary: 'Search users',
-    description: `
-## Search Users
-
-Search for users by name, email, or other criteria.
-
-### Access Control
-- **Authentication Required**: ✅ Yes (Bearer Token)
-- **Roles Required**: ADMIN, IT_ADMIN
-
-### Search Fields
-- Email address
-- First name
-- Last name
-- Combined full name
-
-### Notes
-- Search is case-insensitive
-- Partial matches are supported
-- Returns up to 50 results
-    `,
-  })
-  @ApiQuery({ name: 'query', description: 'Search term', type: String, example: 'john' })
-  @ApiResponse({ status: 200, description: 'Search results' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
-  async searchUsers(@Query('query') query: string): Promise<UserListResponseDto[]> {
-    return this.userManagementService.searchUsers(query);
-  }
-
   // ============ USER ROLE MANAGEMENT ============
 
   @Post('users/:id/roles')
@@ -395,6 +476,28 @@ Returns all available roles in the system.
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   async getAllRoles(): Promise<RoleResponseDto[]> {
     return this.userManagementService.getAllRoles();
+  }
+
+  @Get('roles/with-users')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'List roles with user counts',
+    description: `
+## Roles with User Counts
+
+Returns all roles along with the number of users assigned to each role.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN, IT_ADMIN
+    `,
+  })
+  @ApiResponse({ status: 200, description: 'List of roles with user counts' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async getRolesWithUserCounts() {
+    return this.userManagementService.getRolesWithUserCounts();
   }
 
   @Get('roles/:id')
@@ -572,6 +675,39 @@ Removes a permission from a role.
     return this.userManagementService.removePermissionFromRole(roleId, permissionId);
   }
 
+  @Put('roles/:id/permissions/bulk')
+  @Roles(RoleName.IT_ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Bulk replace role permissions',
+    description: `
+## Bulk Replace Role Permissions
+
+Replaces all permissions for a role with the provided set.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: IT_ADMIN only
+
+### Notes
+- This replaces ALL existing permissions — any not included will be removed
+- Pass an empty array to remove all permissions
+    `,
+  })
+  @ApiParam({ name: 'id', description: 'Role ID', type: Number })
+  @ApiBody({ type: BulkPermissionsDto })
+  @ApiResponse({ status: 200, description: 'Permissions replaced successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - IT Admin access required' })
+  @ApiResponse({ status: 404, description: 'Role not found' })
+  async bulkSetPermissions(
+    @Param('id', ParseIntPipe) roleId: number,
+    @Body() bulkDto: BulkPermissionsDto,
+  ): Promise<RoleResponseDto> {
+    return this.userManagementService.bulkSetPermissions(roleId, bulkDto.permissionIds);
+  }
+
   // ============ PERMISSION MANAGEMENT ENDPOINTS ============
 
   @Get('permissions')
@@ -592,6 +728,33 @@ Returns all available permissions in the system.
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   async getAllPermissions(): Promise<PermissionResponseDto[]> {
     return this.userManagementService.getAllPermissions();
+  }
+
+  @Get('permissions/matrix')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Get permission matrix',
+    description: `
+## Permission Matrix
+
+Returns a matrix showing which permissions are assigned to which roles.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN, IT_ADMIN
+
+### Response Structure
+- **roles**: List of all roles (id, name, description)
+- **permissions**: List of all permissions (id, name, description, module) sorted by module
+- **matrix**: Object mapping roleId → array of permissionIds
+    `,
+  })
+  @ApiResponse({ status: 200, description: 'Permission matrix' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async getPermissionMatrix() {
+    return this.userManagementService.getPermissionMatrix();
   }
 
   @Get('permissions/module/:module')
