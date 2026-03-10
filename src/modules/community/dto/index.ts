@@ -6,3 +6,7 @@ export * from './update-comment.dto';
 export * from './create-reaction.dto';
 export * from './create-category.dto';
 export * from './update-category.dto';
+export * from './create-community.dto';
+export * from './update-community.dto';
+export * from './community-query.dto';
+export * from './create-tag.dto';

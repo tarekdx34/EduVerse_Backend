@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsNumber, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsNumber, MaxLength, IsArray } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PostType } from '../enums';
 
@@ -14,17 +14,17 @@ export class CreatePostDto {
 
   @ApiProperty({
     description: 'Post content/body',
-    example: 'Anyone interested in forming a study group for the upcoming midterm? We can meet on weekends.',
+    example: 'Anyone interested in forming a study group for the upcoming midterm?',
   })
   @IsString()
   content: string;
 
   @ApiProperty({
-    description: 'Course ID where the post belongs',
+    description: 'Community ID where the post belongs',
     example: 1,
   })
   @IsNumber()
-  courseId: number;
+  communityId: number;
 
   @ApiPropertyOptional({
     description: 'Type of post',
@@ -34,4 +34,14 @@ export class CreatePostDto {
   @IsOptional()
   @IsEnum(PostType)
   postType?: PostType;
+
+  @ApiPropertyOptional({
+    description: 'Tag names to attach to the post',
+    example: ['study-group', 'midterm'],
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 }

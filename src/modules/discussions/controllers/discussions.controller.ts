@@ -42,8 +42,10 @@ export class DiscussionsController {
     description: 'List discussion threads with optional course filter. Pinned threads appear first.',
   })
   @ApiResponse({ status: 200, description: 'Threads retrieved' })
-  async findAll(@Query() query: ThreadQueryDto) {
-    return this.discussionsService.findAll(query);
+  async findAll(@Query() query: ThreadQueryDto, @Req() req: any) {
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r: any) => r.roleName || r.name) || [];
+    return this.discussionsService.findAll(query, userId, roles);
   }
 
   @Post()
@@ -56,7 +58,8 @@ export class DiscussionsController {
   @ApiResponse({ status: 201, description: 'Thread created' })
   async create(@Body() dto: CreateThreadDto, @Req() req: any) {
     const userId = req.user.userId || req.user.id;
-    return this.discussionsService.create(dto, userId);
+    const roles = req.user.roles?.map((r: any) => r.roleName || r.name) || [];
+    return this.discussionsService.create(dto, userId, roles);
   }
 
   @Get(':id')
@@ -68,10 +71,13 @@ export class DiscussionsController {
   @ApiResponse({ status: 200, description: 'Thread with replies' })
   async getThreadWithReplies(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.discussionsService.getThreadWithReplies(id, page || 1, limit || 50);
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r: any) => r.roleName || r.name) || [];
+    return this.discussionsService.getThreadWithReplies(id, userId, roles, page || 1, limit || 50);
   }
 
   @Put(':id')
@@ -121,7 +127,8 @@ export class DiscussionsController {
     @Req() req: any,
   ) {
     const userId = req.user.userId || req.user.id;
-    return this.discussionsService.addReply(id, userId, dto);
+    const roles = req.user.roles?.map((r: any) => r.roleName || r.name) || [];
+    return this.discussionsService.addReply(id, userId, roles, dto);
   }
 
   @Patch(':id/pin')
