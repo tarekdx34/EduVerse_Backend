@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { CommunityPost } from '../entities/community-post.entity';
 import { CommunityComment } from '../entities/community-comment.entity';
 import { CommunityReaction } from '../entities/community-reaction.entity';
+import { CommunityTag } from '../entities/community-tag.entity';
 import {
   CreatePostDto,
   UpdatePostDto,
@@ -29,30 +30,34 @@ export class CommunityPostsService {
     private commentRepository: Repository<CommunityComment>,
     @InjectRepository(CommunityReaction)
     private reactionRepository: Repository<CommunityReaction>,
+    @InjectRepository(CommunityTag)
+    private tagRepository: Repository<CommunityTag>,
   ) {}
 
   /**
    * List posts with filtering and pagination
    */
   async findAll(query: PostQueryDto) {
-    const { courseId, postType, sortBy = 'recent', page = 1, limit = 20 } = query;
+    const { communityId, postType, tag, sortBy = 'recent', page = 1, limit = 20 } = query;
 
     const qb = this.postRepository.createQueryBuilder('p')
       .leftJoinAndSelect('p.author', 'author')
-      .leftJoinAndSelect('p.course', 'course');
+      .leftJoinAndSelect('p.community', 'community')
+      .leftJoinAndSelect('p.tags', 'tags');
 
-    // Apply filters
-    if (courseId) {
-      qb.andWhere('p.courseId = :courseId', { courseId });
+    if (communityId) {
+      qb.andWhere('p.communityId = :communityId', { communityId });
     }
     if (postType) {
       qb.andWhere('p.postType = :postType', { postType });
+    }
+    if (tag) {
+      qb.andWhere('tags.name = :tag', { tag: tag.toLowerCase().trim() });
     }
 
     // Sorting: pinned posts always first
     qb.orderBy('p.isPinned', 'DESC');
 
-    // Apply sort order
     switch (sortBy) {
       case 'popular':
         qb.addOrderBy('p.upvoteCount', 'DESC');
@@ -87,7 +92,7 @@ export class CommunityPostsService {
   async findOne(id: number, page = 1, limit = 50): Promise<any> {
     const post = await this.postRepository.findOne({
       where: { id },
-      relations: ['author', 'course'],
+      relations: ['author', 'community', 'tags'],
     });
 
     if (!post) {
@@ -125,9 +130,6 @@ export class CommunityPostsService {
     };
   }
 
-  /**
-   * Get reaction summary for a post
-   */
   private async getReactionSummary(postId: number) {
     const result = await this.reactionRepository
       .createQueryBuilder('r')
@@ -147,20 +149,47 @@ export class CommunityPostsService {
    * Create a new post
    */
   async create(dto: CreatePostDto, userId: number): Promise<CommunityPost> {
+    // Handle tags
+    let tags: CommunityTag[] = [];
+    if (dto.tags && dto.tags.length > 0) {
+      tags = await this.findOrCreateTags(dto.tags);
+    }
+
     const post = this.postRepository.create({
-      ...dto,
+      title: dto.title,
+      content: dto.content,
+      communityId: dto.communityId,
+      postType: dto.postType,
       userId,
+      tags,
     });
 
     const saved = await this.postRepository.save(post);
-    this.logger.log(`Post ${saved.id} created by user ${userId}`);
+    this.logger.log(`Post ${saved.id} created by user ${userId} in community ${dto.communityId}`);
 
-    // Reload with relations
     const result = await this.postRepository.findOne({
       where: { id: saved.id },
-      relations: ['author', 'course'],
+      relations: ['author', 'community', 'tags'],
     });
     return result!;
+  }
+
+  /**
+   * Find or create tags by name
+   */
+  private async findOrCreateTags(names: string[]): Promise<CommunityTag[]> {
+    const tags: CommunityTag[] = [];
+    for (const rawName of names) {
+      const name = rawName.toLowerCase().trim();
+      if (!name) continue;
+      let tag = await this.tagRepository.findOne({ where: { name } });
+      if (!tag) {
+        tag = this.tagRepository.create({ name });
+        tag = await this.tagRepository.save(tag);
+      }
+      tags.push(tag);
+    }
+    return tags;
   }
 
   /**
@@ -184,7 +213,7 @@ export class CommunityPostsService {
 
     const result = await this.postRepository.findOne({
       where: { id: saved.id },
-      relations: ['author', 'course'],
+      relations: ['author', 'community', 'tags'],
     });
     return result!;
   }
@@ -224,7 +253,6 @@ export class CommunityPostsService {
       throw new BadRequestException('This post is locked and cannot receive new comments');
     }
 
-    // Validate parent comment exists if provided
     if (dto.parentCommentId) {
       const parentComment = await this.commentRepository.findOne({
         where: { id: dto.parentCommentId, postId },
@@ -242,8 +270,6 @@ export class CommunityPostsService {
     });
 
     const saved = await this.commentRepository.save(comment);
-
-    // Update reply count
     await this.postRepository.increment({ id: postId }, 'replyCount', 1);
 
     this.logger.log(`Comment ${saved.id} added to post ${postId} by user ${userId}`);
@@ -265,20 +291,16 @@ export class CommunityPostsService {
       throw new PostNotFoundException(postId);
     }
 
-    // Check if reaction exists
     const existingReaction = await this.reactionRepository.findOne({
       where: { postId, userId, reactionType: dto.reactionType },
     });
 
     if (existingReaction) {
-      // Remove reaction
       await this.reactionRepository.remove(existingReaction);
       await this.postRepository.decrement({ id: postId }, 'upvoteCount', 1);
-      
       this.logger.log(`Reaction ${dto.reactionType} removed from post ${postId} by user ${userId}`);
       return { action: 'removed', reactionType: dto.reactionType };
     } else {
-      // Add reaction
       const reaction = this.reactionRepository.create({
         postId,
         userId,
@@ -286,7 +308,6 @@ export class CommunityPostsService {
       });
       await this.reactionRepository.save(reaction);
       await this.postRepository.increment({ id: postId }, 'upvoteCount', 1);
-      
       this.logger.log(`Reaction ${dto.reactionType} added to post ${postId} by user ${userId}`);
       return { action: 'added', reactionType: dto.reactionType };
     }
@@ -311,12 +332,11 @@ export class CommunityPostsService {
 
     post.isPinned = !post.isPinned;
     const saved = await this.postRepository.save(post);
-    
     this.logger.log(`Post ${id} ${saved.isPinned ? 'pinned' : 'unpinned'} by user ${userId}`);
 
     const result = await this.postRepository.findOne({
       where: { id: saved.id },
-      relations: ['author', 'course'],
+      relations: ['author', 'community', 'tags'],
     });
     return result!;
   }
@@ -340,12 +360,11 @@ export class CommunityPostsService {
 
     post.isLocked = !post.isLocked;
     const saved = await this.postRepository.save(post);
-    
     this.logger.log(`Post ${id} ${saved.isLocked ? 'locked' : 'unlocked'} by user ${userId}`);
 
     const result = await this.postRepository.findOne({
       where: { id: saved.id },
-      relations: ['author', 'course'],
+      relations: ['author', 'community', 'tags'],
     });
     return result!;
   }

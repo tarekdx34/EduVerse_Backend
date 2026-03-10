@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "EduVerse API - Full Collection",
-    "description": "EduVerse API - Full Collection with 22 module folders, 180+ requests. Covers Auth, Users, Campus, Departments, Programs, Semesters, Courses, Sections, Schedules, Enrollments, Assignments, Grades, Rubrics, Files, Attendance, Quizzes, Labs, Notifications, Messaging, Discussions, Announcements, and Community.",
+    "description": "EduVerse API - Full Collection with 31 module folders, 190+ requests. Covers Auth, Users, Campus, Departments, Programs, Semesters, Courses, Sections, Schedules, Enrollments, Assignments, Grades, Rubrics, Files, Attendance, Quizzes, Labs, Notifications, Messaging, Discussions, Announcements, Community, Schedule, Exams, Calendar, Integrations, Materials, Structure, User Profile & Preferences, Admin User Management (Enhanced), and Admin Roles & Permissions (Enhanced).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -5131,564 +5131,491 @@
     {
       "item": [
         {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Response has data', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
+          "name": "List Communities",
           "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "categories"
-              ],
-              "raw": "{{base_url}}/api/community/categories",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "method": "GET"
-          },
-          "name": "List Forum Categories"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 201', function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "pm.test('Response has id', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('id');",
-                  "    pm.collectionVariables.set('category_id', jsonData.id);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "categories"
-              ],
-              "raw": "{{base_url}}/api/community/categories",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"name\":\"Test Category\",\"description\":\"A test forum category\",\"courseId\":1,\"orderIndex\":5}"
-            },
-            "method": "POST"
-          },
-          "name": "Create Forum Category (Admin)"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 403 Forbidden', function () {",
-                  "    pm.response.to.have.status(403);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "categories"
-              ],
-              "raw": "{{base_url}}/api/community/categories",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{student_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"name\":\"Student Category\",\"description\":\"Students cannot create categories\",\"courseId\":1}"
-            },
-            "method": "POST"
-          },
-          "name": "Create Forum Category (Student - Should Fail)"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Response has data and meta', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData).to.have.property('meta');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
             "url": {
+              "raw": "{{base_url}}/api/community/communities",
+              "host": [
+                "{{base_url}}"
+              ],
               "path": [
                 "api",
                 "community",
+                "communities"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Community (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/communities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "communities"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Math Cohort 2027\",\"description\":\"Mathematics dept community\",\"communityType\":\"department\",\"departmentId\":2}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Community Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/communities/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "communities",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Community",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/communities/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "communities",
+                "2"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"description\":\"Updated description\"}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Community Posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/communities/1/posts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "communities",
+                "1",
                 "posts"
-              ],
-              "raw": "{{base_url}}/api/community/posts",
-              "host": [
-                "{{base_url}}"
               ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "method": "GET"
+            }
           },
-          "name": "List Community Posts"
+          "response": []
         },
         {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 201', function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "pm.test('Response has post id', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('id');",
-                  "    pm.collectionVariables.set('post_id', jsonData.id);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
+          "name": "Create Post in Community",
           "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
             "url": {
+              "raw": "{{base_url}}/api/community/communities/1/posts",
+              "host": [
+                "{{base_url}}"
+              ],
               "path": [
                 "api",
                 "community",
+                "communities",
+                "1",
                 "posts"
-              ],
-              "raw": "{{base_url}}/api/community/posts",
-              "host": [
-                "{{base_url}}"
               ]
             },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"communityId\":1,\"title\":\"Test Post\",\"content\":\"Testing community posts\",\"postType\":\"discussion\",\"tags\":[\"study-tips\",\"general\"]}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Global Posts",
+          "request": {
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{student_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"title\":\"Study Group Discussion\",\"content\":\"Anyone want to form a study group for the upcoming exam?\",\"courseId\":1,\"postType\":\"discussion\"}"
-            },
-            "method": "POST"
-          },
-          "name": "Create Community Post (Student)"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Response has post fields', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('title');",
-                  "    pm.expect(jsonData).to.have.property('content');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
             "url": {
+              "raw": "{{base_url}}/api/community/global",
+              "host": [
+                "{{base_url}}"
+              ],
               "path": [
                 "api",
                 "community",
-                "posts",
-                "{{post_id}}"
-              ],
-              "raw": "{{base_url}}/api/community/posts/{{post_id}}",
+                "global"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Global Posts by Tag",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/global?tag=study-tips",
               "host": [
                 "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "global"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "study-tips"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Global Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/global/posts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "global",
+                "posts"
               ]
             },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Global Discussion\",\"content\":\"A global community post\",\"postType\":\"discussion\"}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Department Communities",
+          "request": {
+            "method": "GET",
             "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/department/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "department",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/my-departments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "my-departments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Tags",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/tags",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "tags"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tag",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
               {
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}"
               }
             ],
-            "method": "GET"
-          },
-          "name": "Get Post by ID"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 201', function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "pm.test('Response has comment id', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('id');",
-                  "    pm.collectionVariables.set('comment_id', jsonData.id);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
             "url": {
+              "raw": "{{base_url}}/api/community/tags",
+              "host": [
+                "{{base_url}}"
+              ],
               "path": [
                 "api",
                 "community",
-                "posts",
-                "{{post_id}}",
-                "comment"
-              ],
-              "raw": "{{base_url}}/api/community/posts/{{post_id}}/comment",
-              "host": [
-                "{{base_url}}"
+                "tags"
               ]
             },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "body": {
               "mode": "raw",
-              "raw": "{\"content\":\"I would love to join the study group!\"}"
-            },
-            "method": "POST"
+              "raw": "{\"name\":\"study-tips\"}"
+            }
           },
-          "name": "Add Comment to Post"
+          "response": []
         },
         {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200 or 201', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
+          "name": "Get Post by ID",
           "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "posts",
-                "{{post_id}}",
-                "react"
-              ],
-              "raw": "{{base_url}}/api/community/posts/{{post_id}}/react",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{student_token}}"
-              },
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/posts/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Comment to Post",
+          "request": {
+            "method": "POST",
+            "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/api/community/posts/1/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "1",
+                "comments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Great post!\"}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Reaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/posts/1/reactions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "posts",
+                "1",
+                "reactions"
+              ]
+            },
             "body": {
               "mode": "raw",
               "raw": "{\"reactionType\":\"like\"}"
-            },
-            "method": "POST"
+            }
           },
-          "name": "Add Reaction to Post"
+          "response": []
         },
         {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
+          "name": "Delete Post",
           "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
             "url": {
+              "raw": "{{base_url}}/api/community/posts/1",
+              "host": [
+                "{{base_url}}"
+              ],
               "path": [
                 "api",
                 "community",
                 "posts",
-                "{{post_id}}",
-                "pin"
-              ],
-              "raw": "{{base_url}}/api/community/posts/{{post_id}}/pin",
-              "host": [
-                "{{base_url}}"
+                "1"
               ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{instructor_token}}"
-              }
-            ],
-            "method": "PATCH"
-          },
-          "name": "Pin Post (Instructor)"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 403 Forbidden', function () {",
-                  "    pm.response.to.have.status(403);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
             }
-          ],
-          "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "posts",
-                "{{post_id}}",
-                "pin"
-              ],
-              "raw": "{{base_url}}/api/community/posts/{{post_id}}/pin",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "PATCH"
           },
-          "name": "Pin Post (Student - Should Fail)"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "comments",
-                "{{comment_id}}"
-              ],
-              "raw": "{{base_url}}/api/community/comments/{{comment_id}}",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"content\":\"Updated comment - I am definitely in for the study group!\"}"
-            },
-            "method": "PUT"
-          },
-          "name": "Update Comment (Owner)"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "comments",
-                "{{comment_id}}"
-              ],
-              "raw": "{{base_url}}/api/community/comments/{{comment_id}}",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "DELETE"
-          },
-          "name": "Delete Comment (Owner)"
-        },
-        {
-          "event": [
-            {
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              },
-              "listen": "test"
-            }
-          ],
-          "request": {
-            "url": {
-              "path": [
-                "api",
-                "community",
-                "posts",
-                "{{post_id}}"
-              ],
-              "raw": "{{base_url}}/api/community/posts/{{post_id}}",
-              "host": [
-                "{{base_url}}"
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "method": "DELETE"
-          },
-          "name": "Delete Post (Owner)"
+          "response": []
         }
       ],
-      "description": "Community forum posts, comments, reactions, and categories. All authenticated users can create posts and comments. Admins can manage categories. Instructors can pin/lock posts.",
+      "description": "Community management with communities, posts, comments, reactions, tags, and global feed. Supports department-based and custom communities with tagging system.",
       "name": "🌐 Community"
     },
     {
@@ -5707,8 +5634,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/schedule/my/daily",
-              "host": ["{{base_url}}"],
-              "path": ["api", "schedule", "my", "daily"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "schedule",
+                "my",
+                "daily"
+              ]
             }
           },
           "event": [
@@ -5745,8 +5679,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/schedule/my/weekly",
-              "host": ["{{base_url}}"],
-              "path": ["api", "schedule", "my", "weekly"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "schedule",
+                "my",
+                "weekly"
+              ]
             }
           },
           "event": [
@@ -5782,8 +5723,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/schedule/section/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "schedule", "section", "1"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "schedule",
+                "section",
+                "1"
+              ]
             }
           },
           "event": [
@@ -5816,8 +5764,14 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/schedule/academic",
-              "host": ["{{base_url}}"],
-              "path": ["api", "schedule", "academic"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "schedule",
+                "academic"
+              ]
             }
           },
           "event": [
@@ -5857,8 +5811,14 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/exams/schedule",
-              "host": ["{{base_url}}"],
-              "path": ["api", "exams", "schedule"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "schedule"
+              ]
             }
           },
           "event": [
@@ -5900,8 +5860,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/exams/schedule",
-              "host": ["{{base_url}}"],
-              "path": ["api", "exams", "schedule"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "schedule"
+              ]
             }
           },
           "event": [
@@ -5935,8 +5901,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "exams", "schedule", "{{exam_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "schedule",
+                "{{exam_id}}"
+              ]
             }
           },
           "event": [
@@ -5979,8 +5952,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "exams", "schedule", "{{exam_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "schedule",
+                "{{exam_id}}"
+              ]
             }
           },
           "event": [
@@ -6013,8 +5993,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/exams/schedule/conflicts",
-              "host": ["{{base_url}}"],
-              "path": ["api", "exams", "schedule", "conflicts"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "schedule",
+                "conflicts"
+              ]
             }
           },
           "event": [
@@ -6047,8 +6034,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "exams", "schedule", "{{exam_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "schedule",
+                "{{exam_id}}"
+              ]
             }
           },
           "event": [
@@ -6083,8 +6077,14 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/calendar/events",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "events"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "events"
+              ]
             }
           },
           "event": [
@@ -6126,8 +6126,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/calendar/events",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "events"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "events"
+              ]
             }
           },
           "event": [
@@ -6161,8 +6167,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "events", "{{calendar_event_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "events",
+                "{{calendar_event_id}}"
+              ]
             }
           },
           "event": [
@@ -6204,8 +6217,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "events", "{{calendar_event_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "events",
+                "{{calendar_event_id}}"
+              ]
             }
           },
           "event": [
@@ -6238,8 +6258,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "events", "{{calendar_event_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "events",
+                "{{calendar_event_id}}"
+              ]
             }
           },
           "event": [
@@ -6274,8 +6301,14 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/calendar/integrations",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "integrations"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "integrations"
+              ]
             }
           },
           "event": [
@@ -6316,8 +6349,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/calendar/integrations/connect",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "integrations", "connect"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "integrations",
+                "connect"
+              ]
             }
           },
           "event": [
@@ -6351,8 +6391,16 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/calendar/integrations/{{integration_id}}/sync",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "integrations", "{{integration_id}}", "sync"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "integrations",
+                "{{integration_id}}",
+                "sync"
+              ]
             }
           },
           "event": [
@@ -6381,8 +6429,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/calendar/integrations/{{integration_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "calendar", "integrations", "{{integration_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "calendar",
+                "integrations",
+                "{{integration_id}}"
+              ]
             }
           },
           "event": [
@@ -6417,8 +6472,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials"
+              ]
             }
           },
           "event": [
@@ -6460,8 +6522,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials"
+              ]
             }
           },
           "event": [
@@ -6495,8 +6564,16 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials", "{{material_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "{{material_id}}"
+              ]
             }
           },
           "event": [
@@ -6538,8 +6615,16 @@
             },
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials", "{{material_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "{{material_id}}"
+              ]
             }
           },
           "event": [
@@ -6580,8 +6665,17 @@
             },
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/visibility",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials", "{{material_id}}", "visibility"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "{{material_id}}",
+                "visibility"
+              ]
             }
           },
           "event": [
@@ -6614,8 +6708,17 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/download",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials", "{{material_id}}", "download"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "{{material_id}}",
+                "download"
+              ]
             }
           }
         },
@@ -6631,8 +6734,17 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/embed",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials", "{{material_id}}", "embed"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "{{material_id}}",
+                "embed"
+              ]
             }
           }
         },
@@ -6648,8 +6760,16 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "materials", "{{material_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "{{material_id}}"
+              ]
             }
           },
           "event": [
@@ -6684,8 +6804,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/courses/1/structure",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "structure"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "structure"
+              ]
             }
           },
           "event": [
@@ -6727,8 +6854,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/courses/1/structure",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "structure"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "structure"
+              ]
             }
           },
           "event": [
@@ -6770,8 +6904,16 @@
             },
             "url": {
               "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "structure", "{{structure_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "structure",
+                "{{structure_id}}"
+              ]
             }
           },
           "event": [
@@ -6808,8 +6950,16 @@
             },
             "url": {
               "raw": "{{base_url}}/api/courses/1/structure/reorder",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "structure", "reorder"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "structure",
+                "reorder"
+              ]
             }
           },
           "event": [
@@ -6838,8 +6988,16 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses", "1", "structure", "{{structure_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "structure",
+                "{{structure_id}}"
+              ]
             }
           },
           "event": [
@@ -6857,7 +7015,392 @@
           ]
         }
       ]
+    },
+    {
+      "name": "👤 User Profile & Preferences",
+      "item": [
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "profile"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"bio\":\"My bio\",\"socialLinks\":{\"github\":\"https://github.com/me\"}}"
+            }
+          }
+        },
+        {
+          "name": "Get Preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "preferences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "preferences"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"language\":\"en\",\"theme\":\"dark\",\"emailNotifications\":true,\"pushNotifications\":true}"
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"currentPassword\":\"SecureP@ss123\",\"newPassword\":\"NewSecureP@ss123!\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Admin - User Management (Enhanced)",
+      "item": [
+        {
+          "name": "Bulk Import Users (CSV)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/bulk-import",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "bulk-import"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bulk Status Change",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/bulk-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "bulk-status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"userIds\":[57,58],\"status\":\"active\"}"
+            }
+          }
+        },
+        {
+          "name": "User Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/statistics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "statistics"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Users (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/export?format=json",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Users (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/export?format=csv",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Admin - Roles & Permissions (Enhanced)",
+      "item": [
+        {
+          "name": "Roles with User Counts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles/with-users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles",
+                "with-users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bulk Set Permissions for Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles/1/permissions/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles",
+                "1",
+                "permissions",
+                "bulk"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"permissionIds\":[1,2,3]}"
+            }
+          }
+        },
+        {
+          "name": "Permission Matrix",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/permissions/matrix",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "permissions",
+                "matrix"
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
-

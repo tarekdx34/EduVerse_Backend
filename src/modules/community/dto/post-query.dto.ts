@@ -1,17 +1,17 @@
-import { IsOptional, IsEnum, IsNumber, Min } from 'class-validator';
+import { IsOptional, IsEnum, IsNumber, IsString, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { PostType } from '../enums';
 
 export class PostQueryDto {
   @ApiPropertyOptional({
-    description: 'Filter by course ID',
+    description: 'Filter by community ID',
     example: 1,
   })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  courseId?: number;
+  communityId?: number;
 
   @ApiPropertyOptional({
     description: 'Filter by post type',
@@ -20,6 +20,14 @@ export class PostQueryDto {
   @IsOptional()
   @IsEnum(PostType)
   postType?: PostType;
+
+  @ApiPropertyOptional({
+    description: 'Filter by tag name',
+    example: 'study-group',
+  })
+  @IsOptional()
+  @IsString()
+  tag?: string;
 
   @ApiPropertyOptional({
     description: 'Sort by field',
