@@ -5,6 +5,7 @@ export enum MaterialType {
   READING = 'reading',
   LINK = 'link',
   DOCUMENT = 'document',
+  OTHER = 'other',
 }
 
 export enum OrganizationType {

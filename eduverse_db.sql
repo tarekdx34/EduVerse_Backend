@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 01, 2026 at 03:56 PM
+-- Generation Time: Mar 10, 2026 at 08:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -324,7 +324,7 @@ CREATE TABLE `announcements` (
 --
 
 INSERT INTO `announcements` (`announcement_id`, `course_id`, `created_by`, `title`, `content`, `announcement_type`, `priority`, `target_audience`, `is_published`, `published_at`, `expires_at`, `attachment_file_id`, `view_count`, `created_at`, `updated_at`) VALUES
-(1, 1, 8, 'Welcome to CS101!', 'Welcome to Introduction to Computer Science. Looking forward to an exciting semester of learning!', 'course', 'medium', 'all', 1, '2025-01-15 08:00:00', NULL, NULL, 42, '2025-01-15 08:00:00', '2025-01-15 08:00:00'),
+(1, 1, 8, 'Welcome to CS101!', 'Welcome to Introduction to Computer Science. Looking forward to an exciting semester of learning!', 'course', 'medium', 'all', 1, '2025-01-15 08:00:00', NULL, NULL, 44, '2025-01-15 08:00:00', '2026-03-05 19:16:32'),
 (2, 1, 8, 'Assignment 1 Released', 'The first assignment is now available in the course materials section. Due date: February 1st.', 'course', 'high', 'students', 1, '2025-01-20 09:00:00', NULL, NULL, 38, '2025-01-20 09:00:00', '2025-01-20 09:00:00'),
 (3, NULL, 1, 'Campus WiFi Maintenance', 'Network maintenance scheduled for this weekend. Expect brief outages.', 'campus', 'medium', 'all', 1, '2025-02-10 06:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (4, 2, 3, 'Midterm Exam Schedule', 'The midterm exam will be held on March 15, 2025 from 2:00 PM to 4:00 PM.', 'course', 'high', 'students', 1, '2025-02-12 10:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
@@ -412,6 +412,7 @@ CREATE TABLE `assignments` (
   `submission_type` enum('file','text','link','multiple') DEFAULT 'file',
   `max_file_size_mb` int(11) DEFAULT 10,
   `allowed_file_types` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -422,17 +423,26 @@ CREATE TABLE `assignments` (
 -- Dumping data for table `assignments`
 --
 
-INSERT INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`, `instructions`, `max_score`, `weight`, `due_date`, `available_from`, `late_submission_allowed`, `late_penalty_percent`, `submission_type`, `max_file_size_mb`, `allowed_file_types`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'Create a complete program with proper comments and documentation', 100.00, 0.00, '2025-02-01 23:59:59', '2025-01-20 08:00:00', 1, 0.00, 'file', 10, NULL, 8, '2025-01-20 08:00:00', '2025-01-20 08:00:00', NULL),
-(2, 1, 'Assignment 2: Functions and Modules', 'Implement functions and modules for a simple application', 'Submit your code with test cases', 100.00, 0.00, '2025-02-15 23:59:59', '2025-01-27 08:00:00', 1, 0.00, 'file', 10, NULL, 8, '2025-01-27 08:00:00', '2025-01-27 08:00:00', NULL),
-(3, 2, 'Assignment 1: Linked Lists', 'Implement a linked list', 'Create a linked list class with basic operations', 100.00, 20.00, '2025-03-10 21:59:59', '2025-02-19 22:00:00', 1, 15.00, 'file', 10, NULL, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(4, 3, 'Assignment 1: SQL Queries', 'Database query practice', 'Write SQL queries for the given scenarios', 100.00, 15.00, '2025-03-05 21:59:59', '2025-02-14 22:00:00', 0, 0.00, 'text', 10, NULL, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(5, 3, 'Midterm Quiz', 'Comprehensive quiz covering weeks 1-6', 'Answer all questions to the best of your ability', 50.00, 0.00, '2025-03-01 23:59:59', '2025-02-01 08:00:00', 0, 0.00, 'text', 10, NULL, 10, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
-(6, 5, 'Lab Assignment 1: OOP Design', 'Design and implement OOP concepts in a project', 'Implement the provided specification', 120.00, 0.00, '2025-02-10 23:59:59', '2025-01-25 08:00:00', 1, 0.00, 'file', 10, NULL, 12, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
-(7, 6, 'Assignment 1: SQL Queries', 'Write SQL queries to retrieve and manipulate data', 'Write queries following best practices', 100.00, 0.00, '2025-02-05 23:59:59', '2025-01-28 08:00:00', 1, 0.00, 'file', 10, NULL, 14, '2025-01-28 08:00:00', '2025-01-28 08:00:00', NULL),
-(8, 7, 'Project: Web Application', 'Build a complete web application using modern frameworks', 'Follow the project specification document', 200.00, 0.00, '2025-03-15 23:59:59', '2025-02-01 08:00:00', 1, 0.00, 'file', 10, NULL, 15, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
-(9, 9, 'Problem Set 1: Statistical Analysis', 'Solve statistical problems using real datasets', 'Show all work and calculations', 100.00, 0.00, '2025-02-08 23:59:59', '2025-01-30 08:00:00', 1, 0.00, 'file', 10, NULL, 16, '2025-01-30 08:00:00', '2025-01-30 08:00:00', NULL),
-(10, 10, 'Essay: Literary Analysis', 'Write a comprehensive literary analysis essay', 'Submit as PDF with proper formatting', 100.00, 0.00, '2025-02-12 23:59:59', '2025-01-31 08:00:00', 1, 0.00, 'file', 10, NULL, 17, '2025-01-31 08:00:00', '2025-01-31 08:00:00', NULL);
+INSERT INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`, `instructions`, `max_score`, `weight`, `due_date`, `available_from`, `late_submission_allowed`, `late_penalty_percent`, `submission_type`, `max_file_size_mb`, `allowed_file_types`, `status`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 1, 'Assignment 1: Programming Basics', 'Write a program that demonstrates basic programming concepts', 'Create a complete program with proper comments and documentation', 100.00, 0.00, '2025-02-01 23:59:59', '2025-01-20 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 8, '2025-01-20 08:00:00', '2025-01-20 08:00:00', NULL),
+(2, 1, 'Assignment 2: Functions and Modules', 'Implement functions and modules for a simple application', 'Submit your code with test cases', 100.00, 0.00, '2025-02-15 23:59:59', '2025-01-27 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 8, '2025-01-27 08:00:00', '2025-01-27 08:00:00', NULL),
+(3, 1, 'Updated Assignment Title', 'string', 'string', 150.00, 100.00, '2026-03-01 21:08:59', '2026-02-01 21:08:59', 0, 0.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'published', 3, '2025-11-20 13:42:59', '2026-03-05 19:16:23', NULL),
+(4, 3, 'Assignment 1: SQL Queries', 'Database query practice', 'Write SQL queries for the given scenarios', 100.00, 15.00, '2025-03-05 21:59:59', '2025-02-14 22:00:00', 0, 0.00, 'text', 10, NULL, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(5, 3, 'Midterm Quiz', 'Comprehensive quiz covering weeks 1-6', 'Answer all questions to the best of your ability', 50.00, 0.00, '2025-03-01 23:59:59', '2025-02-01 08:00:00', 0, 0.00, 'text', 10, NULL, 'draft', 10, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(6, 5, 'Lab Assignment 1: OOP Design', 'Design and implement OOP concepts in a project', 'Implement the provided specification', 120.00, 0.00, '2025-02-10 23:59:59', '2025-01-25 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 12, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
+(7, 6, 'Assignment 1: SQL Queries', 'Write SQL queries to retrieve and manipulate data', 'Write queries following best practices', 100.00, 0.00, '2025-02-05 23:59:59', '2025-01-28 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 14, '2025-01-28 08:00:00', '2025-01-28 08:00:00', NULL),
+(8, 7, 'Project: Web Application', 'Build a complete web application using modern frameworks', 'Follow the project specification document', 200.00, 0.00, '2025-03-15 23:59:59', '2025-02-01 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 15, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(9, 9, 'Problem Set 1: Statistical Analysis', 'Solve statistical problems using real datasets', 'Show all work and calculations', 100.00, 0.00, '2025-02-08 23:59:59', '2025-01-30 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 16, '2025-01-30 08:00:00', '2025-01-30 08:00:00', NULL),
+(10, 10, 'Essay: Literary Analysis', 'Write a comprehensive literary analysis essay', 'Submit as PDF with proper formatting', 100.00, 0.00, '2025-02-12 23:59:59', '2025-01-31 08:00:00', 1, 0.00, 'file', 10, NULL, 'draft', 17, '2025-01-31 08:00:00', '2025-01-31 08:00:00', NULL),
+(11, 1, 'Homework 1', 'string', 'string', 100.00, 100.00, '2026-03-01 21:08:59', '2026-03-02 21:08:59', 0, 0.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'draft', 56, '2026-03-01 21:09:28', '2026-03-01 21:09:28', NULL),
+(12, 1, 'Test Assignment', 'A test', 'Do this', 100.00, 10.00, '2026-06-01 23:59:59', NULL, 0, 0.00, 'file', 10, NULL, 'draft', 58, '2026-03-02 13:31:32', '2026-03-02 13:31:32', NULL),
+(13, 1, 'AutoAssign', 'Test', 'Do', 100.00, 10.00, '2026-12-01 23:59:59', NULL, 0, 0.00, 'file', 10, NULL, 'draft', 58, '2026-03-02 13:50:32', '2026-03-02 13:50:32', NULL),
+(14, 1, 'Bad', 'x', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 57, '2026-03-02 13:50:33', '2026-03-02 13:50:33', NULL),
+(15, 1, 'Postman Test Assignment', 'An assignment created from Postman', 'Complete the tasks listed below', 100.00, 15.00, '2026-06-15 23:59:59', '2026-06-01 00:00:00', 1, 10.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'published', 58, '2026-03-02 23:31:42', '2026-03-02 23:31:42', NULL),
+(16, 1, 'Postman Test Assignment', 'An assignment created from Postman', 'Complete the tasks listed below', 100.00, 15.00, '2026-06-15 23:59:59', '2026-06-01 00:00:00', 1, 10.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'published', 58, '2026-03-02 23:51:56', '2026-03-02 23:51:56', NULL),
+(17, 1, 'Postman Test Assignment', 'An assignment created from Postman', 'Complete the tasks listed below', 100.00, 15.00, '2026-06-15 23:59:59', '2026-06-01 00:00:00', 1, 10.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'published', 58, '2026-03-03 00:23:17', '2026-03-03 00:23:17', NULL),
+(18, 1, 'Postman Test Assignment', 'An assignment created from Postman', 'Complete the tasks listed below', 100.00, 15.00, '2026-06-15 23:59:59', '2026-06-01 00:00:00', 1, 10.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'published', 58, '2026-03-03 18:34:02', '2026-03-03 18:34:02', NULL),
+(19, 1, 'Postman Test Assignment', 'An assignment created from Postman', 'Complete the tasks listed below', 100.00, 15.00, '2026-06-15 23:59:59', '2026-06-01 00:00:00', 1, 10.00, 'file', 10, '[\"pdf\",\"docx\",\"zip\"]', 'published', 58, '2026-03-05 19:16:23', '2026-03-05 19:16:23', NULL);
 
 -- --------------------------------------------------------
 
@@ -517,7 +527,94 @@ INSERT INTO `attendance_records` (`record_id`, `session_id`, `user_id`, `attenda
 (7, 2, 22, 'present', '2025-02-05 09:03:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
 (8, 2, 23, 'present', '2025-02-05 09:00:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
 (9, 2, 24, 'late', '2025-02-05 09:15:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
-(10, 2, 25, 'present', '2025-02-05 08:58:00', 'manual', NULL, NULL, '2026-03-01 14:55:40');
+(10, 2, 25, 'present', '2025-02-05 08:58:00', 'manual', NULL, NULL, '2026-03-01 14:55:40'),
+(17, 11, 7, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(18, 11, 8, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(19, 11, 9, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(20, 11, 10, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(21, 11, 11, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(22, 11, 25, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(23, 11, 30, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(24, 11, 34, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(25, 11, 13, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(26, 11, 14, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(27, 11, 15, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(28, 11, 16, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(29, 11, 21, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(30, 11, 22, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(31, 11, 23, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(32, 11, 24, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(33, 11, 26, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(34, 11, 27, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(35, 11, 28, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(36, 11, 29, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:05:42'),
+(37, 12, 7, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(38, 12, 8, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(39, 12, 9, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(40, 12, 10, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(41, 12, 11, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(42, 12, 25, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(43, 12, 30, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(44, 12, 34, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(45, 12, 13, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(46, 12, 14, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(47, 12, 15, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(48, 12, 16, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(49, 12, 21, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(50, 12, 22, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(51, 12, 23, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(52, 12, 24, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(53, 12, 26, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(54, 12, 27, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(55, 12, 28, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(56, 12, 29, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:47'),
+(57, 13, 7, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(58, 13, 8, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(59, 13, 9, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(60, 13, 10, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(61, 13, 11, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(62, 13, 25, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(63, 13, 30, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(64, 13, 34, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(65, 13, 13, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(66, 13, 14, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(67, 13, 15, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(68, 13, 16, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(69, 13, 21, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(70, 13, 22, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(71, 13, 23, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(72, 13, 24, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(73, 13, 26, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(74, 13, 27, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(75, 13, 28, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(76, 13, 29, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:06:53'),
+(77, 14, 7, 'late', NULL, 'manual', NULL, 'Came in late', '2026-03-02 14:08:07'),
+(78, 14, 8, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(79, 14, 9, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(80, 14, 10, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(81, 14, 11, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(82, 14, 25, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(83, 14, 30, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(84, 14, 34, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(85, 14, 13, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(86, 14, 14, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(87, 14, 15, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(88, 14, 16, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(89, 14, 21, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(90, 14, 22, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(91, 14, 23, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(92, 14, 24, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(93, 14, 26, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(94, 14, 27, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(95, 14, 28, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(96, 14, 29, 'absent', NULL, 'manual', NULL, NULL, '2026-03-02 14:07:07'),
+(97, 14, 57, 'present', NULL, 'manual', NULL, NULL, '2026-03-02 14:08:05'),
+(118, 17, 57, 'late', NULL, 'manual', NULL, 'Arrived 10 min late', '2026-03-02 23:42:38'),
+(119, 17, 58, 'present', NULL, 'manual', NULL, NULL, '2026-03-02 23:42:38'),
+(120, 17, 59, 'absent', NULL, 'manual', NULL, 'No show', '2026-03-02 23:42:38'),
+(121, 18, 57, 'late', NULL, 'manual', NULL, 'Arrived 10 min late', '2026-03-02 23:47:21'),
+(122, 18, 58, 'present', NULL, 'manual', NULL, NULL, '2026-03-02 23:47:21'),
+(123, 18, 59, 'absent', NULL, 'manual', NULL, 'No show', '2026-03-02 23:47:21');
 
 -- --------------------------------------------------------
 
@@ -557,7 +654,18 @@ INSERT INTO `attendance_sessions` (`session_id`, `section_id`, `session_date`, `
 (7, 3, '2025-02-05', 'lecture', 10, '13:00:00', '14:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-05 08:00:00', '2026-03-01 14:55:40'),
 (8, 5, '2025-02-03', 'lab', 12, '15:00:00', '16:30:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
 (9, 9, '2025-02-04', 'lecture', 16, '14:00:00', '15:00:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-04 08:00:00', '2026-03-01 14:55:40'),
-(10, 10, '2025-02-05', 'lecture', 17, '13:00:00', '14:00:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-05 08:00:00', '2026-03-01 14:55:40');
+(10, 10, '2025-02-05', 'lecture', 17, '13:00:00', '14:00:00', NULL, 0, 0, 0, 'completed', NULL, '2025-02-05 08:00:00', '2026-03-01 14:55:40'),
+(11, 1, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', NULL, 20, 0, 20, 'scheduled', 'Test session', '2026-03-02 14:05:42', '2026-03-02 14:05:42'),
+(12, 1, '2026-03-15', 'lecture', 58, '09:00:00', '10:30:00', NULL, 20, 0, 20, 'scheduled', 'Retest session', '2026-03-02 14:06:47', '2026-03-02 14:06:47'),
+(13, 1, '2026-03-16', 'lab', 58, NULL, NULL, NULL, 20, 0, 20, 'scheduled', NULL, '2026-03-02 14:06:53', '2026-03-02 14:06:53'),
+(14, 1, '2026-03-20', 'lecture', 58, '09:00:00', '10:30:00', NULL, 20, 2, 19, 'completed', 'Updated retest', '2026-03-02 14:07:07', '2026-03-02 14:08:14'),
+(16, 11, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', 'Room A101', 0, 0, 0, 'scheduled', 'Week 1 intro lecture', '2026-03-02 23:33:32', '2026-03-02 23:33:32'),
+(17, 11, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', 'Room B202', 0, 2, 1, 'completed', 'Updated notes', '2026-03-02 23:42:38', '2026-03-02 23:42:39'),
+(18, 11, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', 'Room B202', 0, 2, 1, 'completed', 'Updated notes', '2026-03-02 23:47:21', '2026-03-02 23:47:22'),
+(19, 11, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', 'Room A101', 0, 0, 0, 'scheduled', 'Week 1 intro lecture', '2026-03-02 23:51:58', '2026-03-02 23:51:58'),
+(20, 11, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', 'Room A101', 0, 0, 0, 'scheduled', 'Week 1 intro lecture', '2026-03-03 00:23:19', '2026-03-03 00:23:19'),
+(21, 11, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', 'Room A101', 0, 0, 0, 'scheduled', 'Week 1 intro lecture', '2026-03-03 18:34:04', '2026-03-03 18:34:04'),
+(22, 11, '2026-03-02', 'lecture', 58, '09:00:00', '10:30:00', 'Room A101', 0, 0, 0, 'scheduled', 'Week 1 intro lecture', '2026-03-05 19:16:25', '2026-03-05 19:16:25');
 
 -- --------------------------------------------------------
 
@@ -665,6 +773,7 @@ CREATE TABLE `calendar_events` (
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `location` varchar(255) DEFAULT NULL,
+  `color` varchar(7) DEFAULT NULL,
   `start_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `end_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `schedule_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -731,10 +840,13 @@ CREATE TABLE `campuses` (
 --
 
 INSERT INTO `campuses` (`campus_id`, `campus_name`, `campus_code`, `address`, `city`, `country`, `phone`, `email`, `timezone`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Main Campus', 'MC001', '123 University Ave', 'New York', 'USA', '+1-555-0100', 'info@maincampus.edu', 'America/New_York', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
+(1, 'Updated Campus Name', 'MC001', '123 University Ave', 'New York', 'USA', '+1-555-0100', 'info@maincampus.edu', 'America/New_York', 'active', '2025-11-20 13:42:59', '2026-03-02 23:28:34'),
 (2, 'Downtown Campus', 'DC002', '456 Downtown St', 'Los Angeles', 'USA', '+1-555-0200', 'info@downtown.edu', 'America/Los_Angeles', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (3, 'Online Campus', 'OC003', '789 Virtual Plaza', 'Chicago', 'USA', '+1-555-0300', 'info@online.edu', 'America/Chicago', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(4, 'Main Campus Updated', 'MAIN2', '456 University Ave', 'Boston', 'USA', '+1-555-0456', 'main2@university.edu', 'America/Boston', 'inactive', '2025-11-26 18:16:28', '2025-11-26 18:22:21');
+(4, 'Main Campus Updated', 'MAIN2', '456 University Ave', 'Boston', 'USA', '+1-555-0456', 'main2@university.edu', 'America/Boston', 'inactive', '2025-11-26 18:16:28', '2025-11-26 18:22:21'),
+(14, 'Test Campus Z', 'TCZ', '123 St', 'NYC', 'US', '555-1234', NULL, 'UTC', 'active', '2026-03-02 13:29:51', '2026-03-02 13:29:51'),
+(15, 'AutoTest', 'AT1', NULL, NULL, NULL, NULL, NULL, 'UTC', 'active', '2026-03-02 13:49:12', '2026-03-02 13:49:12'),
+(16, 'Test Campus', 'TC01', '123 Test St', 'Cairo', 'Egypt', '+20 123 456 7890', 'campus@test.com', 'Africa/Cairo', 'active', '2026-03-02 23:28:34', '2026-03-02 23:28:34');
 
 -- --------------------------------------------------------
 
@@ -836,7 +948,14 @@ CREATE TABLE `chat_messages` (
 --
 
 INSERT INTO `chat_messages` (`message_id`, `thread_id`, `user_id`, `message_text`, `parent_message_id`, `is_answer`, `is_endorsed`, `endorsed_by`, `upvote_count`, `created_at`, `updated_at`) VALUES
-(6, 3, 13, 'Here is a great YouTube playlist for data structures: [link]', NULL, 0, 0, NULL, 7, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(6, 3, 13, 'Here is a great YouTube playlist for data structures: [link]', NULL, 0, 0, NULL, 7, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(9, 5, 58, 'I have uploaded the lecture slides to the course files. Check Chapter 5 section for detailed notes.', NULL, 0, 0, NULL, 0, '2026-03-03 18:24:42', '2026-03-03 18:24:42'),
+(10, 5, 57, 'Thank you professor! I found the slides very helpful.', 9, 0, 0, NULL, 0, '2026-03-03 18:24:43', '2026-03-03 18:24:43'),
+(11, 6, 58, 'Great initiative! Focus on the key theorems from Chapter 7 as they carry the most weight.', NULL, 1, 1, 58, 0, '2026-03-03 18:26:57', '2026-03-05 19:16:31'),
+(12, 6, 57, 'Thanks professor! Will definitely prioritize Chapter 7.', 11, 0, 0, NULL, 0, '2026-03-03 18:26:58', '2026-03-03 18:26:58'),
+(13, 6, 58, 'I recommend using an adjacency list for sparse graphs and a matrix for dense ones. BFS is optimal for shortest path.', NULL, 0, 0, NULL, 0, '2026-03-03 18:34:12', '2026-03-03 18:34:12'),
+(14, 6, 57, 'Would a priority queue help with Dijkstras implementation?', 11, 0, 0, NULL, 0, '2026-03-03 18:34:12', '2026-03-03 18:34:12'),
+(15, 6, 60, 'OH', NULL, 0, 0, NULL, 0, '2026-03-10 17:28:42', '2026-03-10 17:28:42');
 
 -- --------------------------------------------------------
 
@@ -862,12 +981,41 @@ CREATE TABLE `collaborative_grading` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `communities`
+--
+
+CREATE TABLE `communities` (
+  `community_id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `community_type` enum('global','department') NOT NULL,
+  `department_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `cover_image_url` varchar(500) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_by` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `communities`
+--
+
+INSERT INTO `communities` (`community_id`, `name`, `description`, `community_type`, `department_id`, `cover_image_url`, `is_active`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'Global Community', 'Platform-wide community for all users', 'global', NULL, NULL, 1, 1, '2026-03-10 18:48:58', '2026-03-10 18:48:58'),
+(2, 'Math Cohort 2026', 'Updated: Math department community for the 2026 cohort students', 'department', 2, NULL, 1, 59, '2026-03-10 19:04:02', '2026-03-10 19:05:33'),
+(3, 'Mechanical Engineering General', 'ME community', 'department', 5, NULL, 1, 59, '2026-03-10 19:04:27', '2026-03-10 19:04:27');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `community_posts`
 --
 
 CREATE TABLE `community_posts` (
   `post_id` bigint(20) UNSIGNED NOT NULL,
-  `course_id` bigint(20) UNSIGNED NOT NULL,
+  `course_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `community_id` bigint(20) UNSIGNED DEFAULT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
@@ -885,8 +1033,11 @@ CREATE TABLE `community_posts` (
 -- Dumping data for table `community_posts`
 --
 
-INSERT INTO `community_posts` (`post_id`, `course_id`, `user_id`, `title`, `content`, `post_type`, `is_pinned`, `is_locked`, `view_count`, `upvote_count`, `reply_count`, `created_at`, `updated_at`) VALUES
-(3, 2, 12, 'Study Group for Midterm', 'Anyone interested in forming a study group for the upcoming midterm? We can meet on weekends.', 'discussion', 0, 0, 38, 8, 5, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+INSERT INTO `community_posts` (`post_id`, `course_id`, `community_id`, `user_id`, `title`, `content`, `post_type`, `is_pinned`, `is_locked`, `view_count`, `upvote_count`, `reply_count`, `created_at`, `updated_at`) VALUES
+(3, NULL, 1, 12, 'Study Group for Midterm', 'Anyone interested in forming a study group for the upcoming midterm? We can meet on weekends.', 'discussion', 0, 0, 44, 10, 6, '2025-11-20 13:43:00', '2026-03-10 18:49:07'),
+(7, NULL, 1, 58, 'Post 1 Trying to test the posts', 'Post 1 Content', 'announcement', 0, 0, 8, 4, 2, '2026-03-10 17:25:16', '2026-03-10 18:49:07'),
+(8, NULL, 1, 57, 'First Tagged Post', 'Testing tags system', 'discussion', 0, 0, 0, 0, 0, '2026-03-10 19:04:01', '2026-03-10 19:04:01'),
+(9, NULL, 2, 57, 'Math Study Group', 'Anyone want to study linear algebra?', 'discussion', 0, 0, 0, 0, 0, '2026-03-10 19:04:33', '2026-03-10 19:04:33');
 
 -- --------------------------------------------------------
 
@@ -905,6 +1056,15 @@ CREATE TABLE `community_post_comments` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `community_post_comments`
+--
+
+INSERT INTO `community_post_comments` (`comment_id`, `post_id`, `user_id`, `comment_text`, `parent_comment_id`, `upvote_count`, `created_at`, `updated_at`) VALUES
+(8, 3, 57, 'My comment', NULL, 0, '2026-03-10 17:20:31', '2026-03-10 17:20:31'),
+(9, 7, 58, 'Hi guys', NULL, 0, '2026-03-10 17:25:34', '2026-03-10 17:25:34'),
+(10, 7, 60, 'Done', NULL, 0, '2026-03-10 17:25:52', '2026-03-10 17:25:52');
+
 -- --------------------------------------------------------
 
 --
@@ -918,6 +1078,61 @@ CREATE TABLE `community_post_reactions` (
   `reaction_type` enum('like','helpful','insightful','thanks') DEFAULT 'like',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `community_post_reactions`
+--
+
+INSERT INTO `community_post_reactions` (`reaction_id`, `post_id`, `user_id`, `reaction_type`, `created_at`) VALUES
+(15, 3, 57, 'like', '2026-03-10 17:20:23'),
+(16, 3, 57, 'helpful', '2026-03-10 17:20:24'),
+(17, 7, 58, 'like', '2026-03-10 17:25:21'),
+(18, 7, 58, 'insightful', '2026-03-10 17:25:23'),
+(19, 7, 58, 'thanks', '2026-03-10 17:25:24'),
+(20, 7, 58, 'helpful', '2026-03-10 17:25:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `community_post_tags`
+--
+
+CREATE TABLE `community_post_tags` (
+  `post_id` bigint(20) UNSIGNED NOT NULL,
+  `tag_id` bigint(20) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `community_post_tags`
+--
+
+INSERT INTO `community_post_tags` (`post_id`, `tag_id`) VALUES
+(8, 1),
+(8, 2),
+(9, 3),
+(9, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `community_tags`
+--
+
+CREATE TABLE `community_tags` (
+  `tag_id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `community_tags`
+--
+
+INSERT INTO `community_tags` (`tag_id`, `name`, `created_at`) VALUES
+(1, 'study-tips', '2026-03-10 19:04:00'),
+(2, 'exam-prep', '2026-03-10 19:04:01'),
+(3, 'math', '2026-03-10 19:04:33'),
+(4, 'study-group', '2026-03-10 19:04:33');
 
 -- --------------------------------------------------------
 
@@ -977,7 +1192,7 @@ CREATE TABLE `courses` (
 --
 
 INSERT INTO `courses` (`course_id`, `department_id`, `course_name`, `course_code`, `course_description`, `credits`, `level`, `syllabus_url`, `status`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Introduction to Programming', 'CS101', 'Basic programming concepts using Python', 3, 'freshman', NULL, 'active', '2025-11-27 18:18:48', '2025-11-27 18:18:48', NULL),
+(1, 1, 'Updated Course Name', 'CS101', 'Basic programming concepts using Python', 3, 'freshman', NULL, 'active', '2025-11-27 18:18:48', '2026-03-02 23:29:23', NULL),
 (2, 1, 'Data Structures', 'CS201', 'Fundamental data structures and algorithms', 3, 'sophomore', 'https://example.com/amir.pdf', 'active', '2025-11-20 13:42:59', '2025-11-29 00:27:15', NULL),
 (3, 1, 'Database Systems', 'CS301', 'Database design and SQL', 3, 'junior', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
 (4, 1, 'Artificial Intelligence', 'CS401', 'Introduction to AI and machine learning', 4, 'senior', NULL, 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
@@ -994,7 +1209,10 @@ INSERT INTO `courses` (`course_id`, `department_id`, `course_name`, `course_code
 (15, 6, 'Calculus I', 'SCI101', 'Differential and integral calculus', 4, 'freshman', '/uploads/syllabi/SCI101.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
 (16, 1, 'intro to digital', 'CS2024', 'Study of advanced data structures and algorithm optimization techniques', 4, 'junior', 'https://example.com/syllabus-advanced.pdf', 'inactive', '2025-11-27 18:13:14', '2025-11-27 18:14:45', '2025-11-27 18:14:45'),
 (17, 1, 'Electro 4', 'EEE2026', 'Study of advanced electro 4', 2, 'junior', 'https://example.com/syllabus-advanced.pdf', 'active', '2025-11-30 15:49:58', '2025-11-30 15:52:42', '2025-11-30 15:52:42'),
-(18, 3, 'Strategic Management', 'BUS401', 'Corporate strategy and competitive analysis', 3, 'senior', '/uploads/syllabi/BUS401.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL);
+(18, 3, 'Strategic Management', 'BUS401', 'Corporate strategy and competitive analysis', 3, 'senior', '/uploads/syllabi/BUS401.pdf', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(19, 1, 'Test Course Z2', 'TCZ2', 'A test course', 3, 'freshman', NULL, 'active', '2026-03-02 13:31:15', '2026-03-02 13:31:15', NULL),
+(20, 1, 'Auto Course', 'AC99', 'Test', 3, 'freshman', NULL, 'active', '2026-03-02 13:50:13', '2026-03-02 13:50:13', NULL),
+(21, 1, 'Test Course', 'TC101', 'A test course for postman', 3, 'senior', NULL, 'active', '2026-03-03 18:35:43', '2026-03-03 18:35:43', NULL);
 
 -- --------------------------------------------------------
 
@@ -1036,6 +1254,7 @@ CREATE TABLE `course_chat_threads` (
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
+  `status` enum('open','answered','closed') DEFAULT 'open',
   `is_pinned` tinyint(1) DEFAULT 0,
   `is_locked` tinyint(1) DEFAULT 0,
   `view_count` int(11) DEFAULT 0,
@@ -1048,8 +1267,13 @@ CREATE TABLE `course_chat_threads` (
 -- Dumping data for table `course_chat_threads`
 --
 
-INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `title`, `description`, `is_pinned`, `is_locked`, `view_count`, `reply_count`, `created_at`, `updated_at`) VALUES
-(3, 2, 12, 'Data Structures Study Tips', 'Share study resources and tips', 0, 0, 56, 15, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `title`, `description`, `status`, `is_pinned`, `is_locked`, `view_count`, `reply_count`, `created_at`, `updated_at`) VALUES
+(3, 2, 12, 'Data Structures Study Tips', 'Share study resources and tips', 'open', 0, 0, 57, 15, '2025-11-20 13:43:00', '2026-03-10 17:28:50'),
+(5, 1, 57, 'Help with Midterm Review - Chapter 5', 'Can anyone share their notes on Chapter 5? I missed the lecture and need help understanding the key concepts.', 'open', 0, 0, 2, 2, '2026-03-03 18:24:20', '2026-03-10 17:28:48'),
+(6, 1, 57, 'Tips for Final Project - Data Structures & Algorithms', 'Updated: Including both data structures and algorithm choices for the graph module.', 'open', 1, 0, 6, 5, '2026-03-03 18:26:52', '2026-03-10 17:28:47'),
+(8, 1, 57, 'Tips for Final Project - Data Structures', 'What data structures would you recommend for implementing the graph traversal module?', 'open', 0, 0, 0, 0, '2026-03-03 18:34:11', '2026-03-03 18:34:11'),
+(10, 1, 57, 'Temporary Thread - Delete Test', 'This thread can be safely deleted for testing purposes.', 'open', 0, 0, 3, 0, '2026-03-03 18:43:55', '2026-03-03 18:44:57'),
+(11, 1, 57, 'Tips for Final Project - Data Structures', 'What data structures would you recommend for implementing the graph traversal module?', 'open', 0, 0, 1, 0, '2026-03-05 19:16:30', '2026-03-10 17:28:46');
 
 -- --------------------------------------------------------
 
@@ -1148,7 +1372,9 @@ INSERT INTO `course_enrollments` (`enrollment_id`, `user_id`, `section_id`, `pro
 (227, 29, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
 (228, 32, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
 (229, 34, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
-(230, 36, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40');
+(230, 36, 5, 1, '2026-03-01 14:55:40', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-01 14:55:40'),
+(231, 57, 7, NULL, '2026-03-04 14:13:13', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-04 14:13:13'),
+(232, 57, 8, NULL, '2026-03-04 14:13:22', 'enrolled', NULL, NULL, NULL, NULL, '2026-03-04 14:13:22');
 
 -- --------------------------------------------------------
 
@@ -1198,6 +1424,7 @@ CREATE TABLE `course_materials` (
   `uploaded_by` bigint(20) UNSIGNED NOT NULL,
   `is_published` tinyint(1) DEFAULT 1,
   `published_at` timestamp NULL DEFAULT NULL,
+  `view_count` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1206,8 +1433,8 @@ CREATE TABLE `course_materials` (
 -- Dumping data for table `course_materials`
 --
 
-INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `material_type`, `title`, `description`, `external_url`, `order_index`, `uploaded_by`, `is_published`, `published_at`, `created_at`, `updated_at`) VALUES
-(4, 2, 4, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, 1, 3, 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
+INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `material_type`, `title`, `description`, `external_url`, `order_index`, `uploaded_by`, `is_published`, `published_at`, `view_count`, `created_at`, `updated_at`) VALUES
+(4, 2, 4, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, 1, 3, 1, NULL, 0, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
 
 -- --------------------------------------------------------
 
@@ -1234,7 +1461,8 @@ INSERT INTO `course_prerequisites` (`prerequisite_id`, `course_id`, `prerequisit
 (4, 6, 5, 1, '2025-11-20 13:42:59'),
 (5, 8, 5, 1, '2025-11-27 17:54:45'),
 (6, 1, 5, 1, '2025-11-27 18:22:51'),
-(7, 1, 4, 1, '2025-11-30 15:56:30');
+(7, 1, 4, 1, '2025-11-30 15:56:30'),
+(8, 3, 1, 1, '2026-03-02 23:29:24');
 
 -- --------------------------------------------------------
 
@@ -1269,7 +1497,10 @@ INSERT INTO `course_schedules` (`schedule_id`, `section_id`, `day_of_week`, `sta
 (8, 4, 'thursday', '14:00:00', '15:30:00', '202', 'Building B', 'tutorial', '2024-12-15 10:00:00'),
 (9, 5, 'monday', '15:00:00', '16:30:00', '301', 'Lab Building', 'exam', '2024-12-15 10:00:00'),
 (10, 9, 'tuesday', '14:00:00', '15:30:00', '320', 'Building C', 'lecture', '2025-11-27 18:28:26'),
-(11, 1, 'monday', '14:00:00', '15:30:00', '355', 'Building C', 'lecture', '2025-11-27 18:30:21');
+(11, 1, 'monday', '14:00:00', '15:30:00', '355', 'Building C', 'lecture', '2025-11-27 18:30:21'),
+(12, 2, 'monday', '09:00:00', '10:30:00', '101', 'Building A', 'lecture', '2026-03-01 21:05:48'),
+(13, 1, 'monday', '11:00:00', '12:30:00', '102', 'Main', 'lecture', '2026-03-02 13:31:16'),
+(14, 1, 'tuesday', '14:00:00', '15:30:00', '201', NULL, 'lecture', '2026-03-02 13:50:19');
 
 -- --------------------------------------------------------
 
@@ -1301,10 +1532,17 @@ INSERT INTO `course_sections` (`section_id`, `course_id`, `semester_id`, `sectio
 (4, 2, 2, '02', 40, 38, 'Room 202B', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
 (5, 3, 2, '01', 45, 40, 'Lab 301', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
 (6, 4, 2, '01', 35, 32, 'Room 401A', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
-(7, 5, 2, '01', 40, 38, 'Room 501A', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
-(8, 9, 2, '01', 50, 45, 'Room 601A', 'open', '2024-12-15 10:00:00', '2025-02-15 09:30:00'),
+(7, 5, 2, '01', 40, 39, 'Room 501A', 'open', '2024-12-15 10:00:00', '2026-03-04 14:13:13'),
+(8, 9, 2, '01', 50, 46, 'Room 601A', 'open', '2024-12-15 10:00:00', '2026-03-04 14:13:22'),
 (9, 2, 3, '2', 50, 6, 'Building C, Room 320', 'open', '2025-11-27 18:25:02', '2025-11-30 16:13:44'),
-(10, 1, 3, '2', 45, 9, 'Building B, Room 215', 'open', '2025-11-30 16:00:35', '2025-11-30 16:13:44');
+(10, 1, 3, '2', 45, 9, 'Building B, Room 215', 'open', '2025-11-30 16:00:35', '2025-11-30 16:13:44'),
+(11, 1, 1, '1', 35, 0, 'Room B202', 'open', '2026-03-02 13:30:09', '2026-03-05 19:16:22'),
+(12, 1, 1, '2', 30, 0, NULL, 'open', '2026-03-02 13:50:17', '2026-03-02 13:50:17'),
+(13, 1, 1, '3', 30, 0, 'Room A101', 'open', '2026-03-02 23:30:18', '2026-03-02 23:30:18'),
+(14, 1, 1, '4', 30, 0, 'Room A101', 'open', '2026-03-02 23:51:54', '2026-03-02 23:51:54'),
+(15, 1, 1, '5', 30, 0, 'Room A101', 'open', '2026-03-03 00:23:16', '2026-03-03 00:23:16'),
+(16, 1, 1, '6', 30, 0, 'Room A101', 'open', '2026-03-03 18:34:00', '2026-03-03 18:34:00'),
+(17, 1, 1, '7', 30, 0, 'Room A101', 'open', '2026-03-05 19:16:21', '2026-03-05 19:16:21');
 
 -- --------------------------------------------------------
 
@@ -1409,12 +1647,15 @@ CREATE TABLE `departments` (
 --
 
 INSERT INTO `departments` (`department_id`, `campus_id`, `department_name`, `department_code`, `head_of_department_id`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Computer Science', 'CS', NULL, 'Department of Computer Science and Engineering', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
+(1, 1, 'Updated Department', 'CS', NULL, 'Department of Computer Science and Engineering', 'active', '2025-11-20 13:42:59', '2026-03-05 19:16:19'),
 (2, 1, 'Mathematics', 'MATH', NULL, 'Department of Mathematics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (3, 1, 'Physics', 'PHY', NULL, 'Department of Physics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (4, 2, 'Business Administration', 'BUS', NULL, 'School of Business', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (5, 2, 'Engineering', 'ENG', NULL, 'School of Engineering', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(6, 3, 'Science', 'SCI', NULL, 'Department of mathematics, physics, and chemistry', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00');
+(6, 3, 'Science', 'SCI', NULL, 'Department of mathematics, physics, and chemistry', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(14, 1, 'Test Dept Z', 'TDZ', NULL, 'Test', 'active', '2026-03-02 13:29:52', '2026-03-02 13:29:52'),
+(15, 1, 'AutoDept', 'AD1', NULL, NULL, 'active', '2026-03-02 13:49:17', '2026-03-02 13:49:17'),
+(16, 1, 'Test Department', 'TD01', NULL, 'A test department', 'active', '2026-03-02 23:28:49', '2026-03-02 23:28:49');
 
 -- --------------------------------------------------------
 
@@ -1485,11 +1726,13 @@ CREATE TABLE `exam_schedules` (
   `course_id` bigint(20) UNSIGNED NOT NULL,
   `semester_id` bigint(20) UNSIGNED NOT NULL,
   `exam_type` enum('midterm','final','quiz','makeup') NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
   `exam_date` date NOT NULL,
   `start_time` time NOT NULL,
   `duration_minutes` int(11) NOT NULL,
   `location` varchar(255) DEFAULT NULL,
   `instructions` text DEFAULT NULL,
+  `status` enum('scheduled','in_progress','completed','cancelled','postponed') DEFAULT 'scheduled',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1662,7 +1905,15 @@ INSERT INTO `folders` (`folder_id`, `folder_name`, `parent_folder_id`, `created_
 (2, 'CS101 Materials', NULL, 2, '/course_materials/cs101', 1, 0, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (3, 'CS201 Materials', NULL, 3, '/course_materials/cs201', 1, 0, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (4, 'Assignments', NULL, 1, '/assignments', 0, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
-(5, 'Student Submissions', NULL, 1, '/student_submissions', 0, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59');
+(5, 'Student Submissions', NULL, 1, '/student_submissions', 0, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
+(7, 'MergeTestFolder', NULL, 59, NULL, 0, 0, '2026-03-02 14:05:02', '2026-03-02 14:05:02'),
+(8, 'Lecture Notes', NULL, 59, NULL, 0, 0, '2026-03-02 23:33:11', '2026-03-02 23:33:11'),
+(9, 'Test PM Folder', NULL, 59, NULL, 0, 0, '2026-03-02 23:42:38', '2026-03-02 23:42:38'),
+(10, 'Test PM Folder', NULL, 59, NULL, 0, 0, '2026-03-02 23:47:21', '2026-03-02 23:47:21'),
+(11, 'Lecture Notes', NULL, 59, NULL, 0, 0, '2026-03-02 23:51:58', '2026-03-02 23:51:58'),
+(12, 'Lecture Notes', NULL, 59, NULL, 0, 0, '2026-03-03 00:23:19', '2026-03-03 00:23:19'),
+(13, 'Lecture Notes', NULL, 59, NULL, 0, 0, '2026-03-03 18:34:04', '2026-03-03 18:34:04'),
+(14, 'Lecture Notes', NULL, 59, NULL, 0, 0, '2026-03-05 19:16:25', '2026-03-05 19:16:25');
 
 -- --------------------------------------------------------
 
@@ -1685,7 +1936,8 @@ CREATE TABLE `forum_categories` (
 
 INSERT INTO `forum_categories` (`category_id`, `course_id`, `category_name`, `description`, `order_index`, `created_at`) VALUES
 (4, 2, 'General Discussion', 'General CS201 discussions', 1, '2025-11-20 13:43:00'),
-(5, 2, 'Project Discussions', 'Discuss course projects', 2, '2025-11-20 13:43:00');
+(5, 2, 'Project Discussions', 'Discuss course projects', 2, '2025-11-20 13:43:00'),
+(6, 1, 'Test Category', 'A test forum category', 5, '2026-03-05 19:16:32');
 
 -- --------------------------------------------------------
 
@@ -1843,6 +2095,7 @@ CREATE TABLE `labs` (
   `available_from` timestamp NULL DEFAULT NULL,
   `max_score` decimal(5,2) DEFAULT 100.00,
   `weight` decimal(5,2) DEFAULT 0.00,
+  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -1852,8 +2105,12 @@ CREATE TABLE `labs` (
 -- Dumping data for table `labs`
 --
 
-INSERT INTO `labs` (`lab_id`, `course_id`, `title`, `description`, `lab_number`, `due_date`, `available_from`, `max_score`, `weight`, `created_by`, `created_at`, `updated_at`) VALUES
-(3, 2, 'Lab 1: Array Implementation', 'Implement dynamic arrays', 1, '2025-03-01 21:59:59', '2025-02-14 22:00:00', 100.00, 10.00, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+INSERT INTO `labs` (`lab_id`, `course_id`, `title`, `description`, `lab_number`, `due_date`, `available_from`, `max_score`, `weight`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(3, 2, 'Lab 1: Array Implementation', 'Implement dynamic arrays', 1, '2025-03-01 21:59:59', '2025-02-14 22:00:00', 100.00, 10.00, 'draft', 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(4, 1, 'Data Structures Lab 1 (Updated)', 'Updated description', 1, '2026-04-01 23:59:59', '2026-03-01 00:00:00', 100.00, 10.00, 'published', 58, '2026-03-03 00:09:55', '2026-03-03 00:09:58'),
+(7, 1, 'Data Structures Lab 1', 'Binary tree traversal lab', 1, '2026-04-01 23:59:59', '2026-03-01 00:00:00', 100.00, 10.00, 'published', 58, '2026-03-03 00:26:01', '2026-03-03 00:26:01'),
+(8, 1, 'Data Structures Lab 1', 'Binary tree traversal lab', 1, '2026-04-01 23:59:59', '2026-03-01 00:00:00', 100.00, 10.00, 'published', 58, '2026-03-03 18:34:08', '2026-03-03 18:34:08'),
+(9, 1, 'Data Structures Lab 1', 'Binary tree traversal lab', 1, '2026-04-01 23:59:59', '2026-03-01 00:00:00', 100.00, 10.00, 'published', 58, '2026-03-05 19:16:28', '2026-03-05 19:16:28');
 
 -- --------------------------------------------------------
 
@@ -1871,6 +2128,14 @@ CREATE TABLE `lab_attendance` (
   `marked_by` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `lab_attendance`
+--
+
+INSERT INTO `lab_attendance` (`attendance_id`, `lab_id`, `user_id`, `attendance_status`, `check_in_time`, `notes`, `marked_by`, `created_at`) VALUES
+(7, 4, 57, 'present', '2026-03-03 00:10:05', 'On time', 58, '2026-03-03 00:10:05'),
+(8, 7, 57, 'present', '2026-03-03 00:27:50', 'On time', 58, '2026-03-03 00:27:50');
 
 -- --------------------------------------------------------
 
@@ -1892,7 +2157,9 @@ CREATE TABLE `lab_instructions` (
 --
 
 INSERT INTO `lab_instructions` (`instruction_id`, `lab_id`, `file_id`, `instruction_text`, `order_index`, `created_at`) VALUES
-(7, 3, NULL, 'Implement a dynamic array class with push, pop, and resize methods', 1, '2025-11-20 13:43:00');
+(7, 3, NULL, 'Implement a dynamic array class with push, pop, and resize methods', 1, '2025-11-20 13:43:00'),
+(8, 4, NULL, 'Step 1: Implement the binary tree node class', 1, '2026-03-03 00:09:59'),
+(9, 7, NULL, 'Step 1: Implement the binary tree node class', 1, '2026-03-03 00:26:30');
 
 -- --------------------------------------------------------
 
@@ -1910,6 +2177,14 @@ CREATE TABLE `lab_submissions` (
   `is_late` tinyint(1) DEFAULT 0,
   `status` enum('submitted','graded','returned','resubmit') DEFAULT 'submitted'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `lab_submissions`
+--
+
+INSERT INTO `lab_submissions` (`submission_id`, `lab_id`, `user_id`, `file_id`, `submission_text`, `submitted_at`, `is_late`, `status`) VALUES
+(5, 4, 57, NULL, 'My binary tree implementation...', '2026-03-03 00:10:01', 0, 'graded'),
+(6, 7, 57, NULL, 'My binary tree implementation with inorder, preorder, and postorder traversals.', '2026-03-03 00:26:48', 0, 'submitted');
 
 -- --------------------------------------------------------
 
@@ -2145,20 +2420,94 @@ CREATE TABLE `messages` (
   `body` text NOT NULL,
   `message_type` enum('direct','group','announcement') DEFAULT 'direct',
   `parent_message_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `reply_to_id` bigint(20) UNSIGNED DEFAULT NULL,
   `read_status` tinyint(1) DEFAULT 0,
-  `sent_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `sent_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `edited_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `messages`
 --
 
-INSERT INTO `messages` (`message_id`, `sender_id`, `subject`, `body`, `message_type`, `parent_message_id`, `read_status`, `sent_at`) VALUES
-(1, 2, 'Welcome to CS101', 'Welcome to Introduction to Programming! I look forward to working with you this semester.', 'announcement', NULL, 0, '2025-11-20 13:43:00'),
-(2, 7, 'Question about Assignment 1', 'Professor Smith, I have a question about the first assignment. Can we use external libraries?', 'direct', NULL, 1, '2025-11-20 13:43:00'),
-(3, 2, 'RE: Question about Assignment 1', 'For this assignment, please use only built-in Python functions.', 'direct', NULL, 0, '2025-11-20 13:43:00'),
-(4, 3, 'CS201 Project Groups', 'Please form groups of 3-4 students for the final project.', 'announcement', NULL, 0, '2025-11-20 13:43:00'),
-(5, 22, 'Grade Discussion', 'I would like to discuss my quiz score from last week.', 'direct', NULL, 0, '2025-02-08 16:20:00');
+INSERT INTO `messages` (`message_id`, `sender_id`, `subject`, `body`, `message_type`, `parent_message_id`, `reply_to_id`, `read_status`, `sent_at`, `edited_at`) VALUES
+(1, 2, 'Welcome to CS101', 'Welcome to Introduction to Programming! I look forward to working with you this semester.', 'announcement', NULL, NULL, 0, '2025-11-20 13:43:00', NULL),
+(2, 7, 'Question about Assignment 1', 'Professor Smith, I have a question about the first assignment. Can we use external libraries?', 'direct', NULL, NULL, 1, '2025-11-20 13:43:00', NULL),
+(3, 2, 'RE: Question about Assignment 1', 'For this assignment, please use only built-in Python functions.', 'direct', NULL, NULL, 0, '2025-11-20 13:43:00', NULL),
+(4, 3, 'CS201 Project Groups', 'Please form groups of 3-4 students for the final project.', 'announcement', NULL, NULL, 0, '2025-11-20 13:43:00', NULL),
+(5, 22, 'Grade Discussion', 'I would like to discuss my quiz score from last week.', 'direct', NULL, NULL, 0, '2025-02-08 16:20:00', NULL),
+(6, 57, NULL, 'Hey instructor, I have a question about Assignment 1.', 'direct', NULL, NULL, 0, '2026-03-03 18:12:53', NULL),
+(7, 58, 'CS101 Study Group', 'Welcome to the CS101 Study Group!', 'group', NULL, NULL, 0, '2026-03-03 18:13:00', NULL),
+(8, 58, NULL, 'Sure, what is your question about Assignment 1?', 'direct', 6, NULL, 0, '2026-03-03 18:16:50', NULL),
+(9, 57, NULL, '__DELETED__', 'direct', 7, NULL, 0, '2026-03-03 18:18:28', NULL),
+(10, 57, NULL, 'This message will be deleted for everyone', 'direct', 6, NULL, 0, '2026-03-03 18:18:53', NULL),
+(11, 57, NULL, '__DELETED__', 'direct', 6, NULL, 0, '2026-03-03 18:20:17', NULL),
+(12, 59, NULL, 'Hi TA, please check lab grades.', 'direct', NULL, NULL, 0, '2026-03-03 18:23:55', NULL),
+(13, 59, 'Staff Meeting Room', 'Staff meeting discussion', 'group', NULL, NULL, 0, '2026-03-03 18:23:56', NULL),
+(14, 60, NULL, 'Sure, I will check them right away.', 'direct', 12, NULL, 0, '2026-03-03 18:23:59', NULL),
+(15, 59, NULL, 'Temporary message for deletion test', 'direct', 12, NULL, 0, '2026-03-03 18:24:01', NULL),
+(16, 59, NULL, '__DELETED__', 'direct', 12, NULL, 0, '2026-03-03 18:24:02', NULL),
+(17, 57, NULL, 'Hi professor, I have a question about the midterm format.', 'direct', 6, NULL, 0, '2026-03-03 18:34:10', NULL),
+(18, 58, 'CS201 Project Team', 'Welcome to our project discussion group!', 'group', NULL, NULL, 0, '2026-03-03 18:34:10', NULL),
+(19, 58, NULL, 'The midterm will be multiple choice and short answer. Focus on chapters 3-8.', 'direct', 6, NULL, 0, '2026-03-03 18:34:10', NULL),
+(20, 57, '{\"fileId\":1}', 'Here is my draft for review', 'direct', 6, NULL, 0, '2026-03-03 18:34:10', NULL),
+(21, 57, NULL, 'Hi professor, I have a question about the midterm format.', 'direct', 6, NULL, 0, '2026-03-05 19:16:29', NULL),
+(22, 58, 'CS201 Project Team', 'Welcome to our project discussion group!', 'group', NULL, NULL, 0, '2026-03-05 19:16:29', NULL),
+(23, 58, NULL, 'The midterm will be multiple choice and short answer. Focus on chapters 3-8.', 'direct', 6, NULL, 0, '2026-03-05 19:16:30', NULL),
+(24, 57, '{\"fileId\":1}', 'Here is my draft for review', 'direct', 6, NULL, 0, '2026-03-05 19:16:30', NULL),
+(25, 57, NULL, 'Hello', 'direct', 21, NULL, 0, '2026-03-10 14:21:19', NULL),
+(26, 58, NULL, 'Hi', 'direct', 21, NULL, 0, '2026-03-10 14:21:23', NULL),
+(27, 57, NULL, 'Why it is sent 2 times for me ?', 'direct', 21, NULL, 0, '2026-03-10 14:21:40', NULL),
+(28, 58, NULL, 'Me too idk', 'direct', 21, NULL, 0, '2026-03-10 14:21:45', NULL),
+(29, 57, NULL, '__DELETED__', 'direct', 21, NULL, 0, '2026-03-10 14:21:57', NULL),
+(30, 58, NULL, 'Oh it is deleted succeffully', 'direct', 21, NULL, 0, '2026-03-10 14:22:21', NULL),
+(31, 57, NULL, 'IK wow', 'direct', 21, NULL, 0, '2026-03-10 14:22:27', NULL),
+(32, 58, NULL, 'Helelo', 'direct', 21, NULL, 0, '2026-03-10 14:23:00', NULL),
+(33, 58, '{\"fileId\":2}', 'How to replay thoo', 'direct', 21, NULL, 0, '2026-03-10 14:23:37', NULL),
+(34, 57, NULL, 'Idk', 'direct', 21, NULL, 0, '2026-03-10 14:23:43', NULL),
+(35, 57, NULL, 'Hello', 'direct', 21, NULL, 0, '2026-03-10 14:24:55', NULL),
+(36, 58, NULL, 'Hi', 'direct', 21, NULL, 0, '2026-03-10 14:24:58', NULL),
+(37, 57, NULL, '__DELETED__', 'direct', 21, NULL, 0, '2026-03-10 14:25:06', NULL),
+(38, 57, NULL, 'Delete for me', 'direct', 21, NULL, 0, '2026-03-10 14:25:16', NULL),
+(39, 57, NULL, 'How to replay', 'direct', 21, NULL, 0, '2026-03-10 14:25:44', NULL),
+(40, 57, NULL, '12', 'direct', 21, NULL, 0, '2026-03-10 14:25:54', NULL),
+(41, 57, NULL, 'How to know if itis readed or not', 'direct', 21, NULL, 0, '2026-03-10 14:26:19', NULL),
+(42, 57, NULL, 'اهلا', 'direct', 21, NULL, 0, '2026-03-10 14:34:11', NULL),
+(43, 58, NULL, 'هلا', 'direct', 21, NULL, 0, '2026-03-10 14:34:15', NULL),
+(44, 58, NULL, 'ريبلاي', 'direct', 21, NULL, 0, '2026-03-10 14:34:25', NULL),
+(45, 57, NULL, 'طب ليه مش بل=ايت', 'direct', 21, NULL, 0, '2026-03-10 14:34:37', NULL),
+(46, 57, NULL, 'Replay to this', 'direct', 21, NULL, 0, '2026-03-10 14:34:58', NULL),
+(47, 58, NULL, 'Replayed', 'direct', 21, NULL, 0, '2026-03-10 14:35:08', NULL),
+(48, 58, NULL, 'why not showing that i replayed ?', 'direct', 21, NULL, 0, '2026-03-10 14:35:16', NULL),
+(49, 57, NULL, 'Hi', 'direct', 21, NULL, 0, '2026-03-10 14:37:42', NULL),
+(50, 57, NULL, 'Hi', 'direct', 21, NULL, 0, '2026-03-10 14:37:57', NULL),
+(51, 58, NULL, 'Hello', 'direct', 21, NULL, 0, '2026-03-10 14:38:00', NULL),
+(52, 57, NULL, 'Replay to me', 'direct', 21, NULL, 0, '2026-03-10 14:38:04', NULL),
+(53, 58, NULL, 'Replayed', 'direct', 21, NULL, 0, '2026-03-10 14:38:09', NULL),
+(54, 57, NULL, 'Still not visulaized', 'direct', 21, NULL, 0, '2026-03-10 14:38:17', NULL),
+(55, 57, NULL, '__DELETED__', 'direct', 21, NULL, 0, '2026-03-10 14:38:22', NULL),
+(56, 57, NULL, 'DELETE FOR ME ONLY', 'direct', 21, NULL, 0, '2026-03-10 14:38:47', NULL),
+(57, 57, NULL, 'hellp', 'direct', 6, NULL, 0, '2026-03-10 14:56:31', NULL),
+(58, 57, NULL, 'Hello', 'direct', 6, NULL, 0, '2026-03-10 14:56:46', NULL),
+(59, 58, NULL, 'Hi', 'direct', 6, NULL, 0, '2026-03-10 14:56:52', NULL),
+(60, 57, NULL, 'لا', 'direct', 6, NULL, 0, '2026-03-10 14:59:44', NULL),
+(61, 58, NULL, 'طب ما كدا فرونت اند بس', 'direct', 6, NULL, 0, '2026-03-10 14:59:53', NULL),
+(62, 57, NULL, 'Hi', 'direct', 6, NULL, 0, '2026-03-10 15:37:30', NULL),
+(63, 57, NULL, '__DELETED__', 'direct', 6, NULL, 0, '2026-03-10 15:37:34', NULL),
+(64, 58, NULL, 'Hello Tarek', 'direct', 6, NULL, 0, '2026-03-10 15:37:40', NULL),
+(65, 58, NULL, 'GN', 'direct', 6, NULL, 0, '2026-03-10 15:37:58', NULL),
+(66, 57, NULL, '__DELETED__', 'direct', 6, NULL, 0, '2026-03-10 15:38:17', NULL),
+(67, 58, NULL, 'WRW', 'direct', 6, NULL, 0, '2026-03-10 15:38:20', NULL),
+(68, 58, NULL, 'GA', 'direct', 6, NULL, 0, '2026-03-10 15:38:57', NULL),
+(69, 57, NULL, '??', 'direct', 6, 68, 0, '2026-03-10 15:39:01', NULL),
+(70, 58, NULL, '??', 'direct', 6, 69, 0, '2026-03-10 15:39:04', NULL),
+(71, 57, NULL, 'Gn', 'direct', 6, NULL, 0, '2026-03-10 15:39:22', NULL),
+(72, 58, NULL, 'GN', 'direct', 6, NULL, 0, '2026-03-10 15:39:25', NULL),
+(73, 58, NULL, 'REPLAY TO ME', 'direct', 6, NULL, 0, '2026-03-10 15:39:30', NULL),
+(74, 57, NULL, 'Replaying', 'direct', 6, 73, 0, '2026-03-10 15:39:39', NULL),
+(75, 58, NULL, 'Delete the message after me for all', 'direct', 6, NULL, 0, '2026-03-10 15:39:53', NULL),
+(76, 58, NULL, '__DELETED__', 'direct', 6, NULL, 0, '2026-03-10 15:39:55', NULL),
+(77, 58, NULL, 'Delete the message for only me', 'direct', 6, NULL, 0, '2026-03-10 15:40:12', NULL);
 
 -- --------------------------------------------------------
 
@@ -2188,7 +2537,157 @@ INSERT INTO `message_participants` (`participant_id`, `message_id`, `user_id`, `
 (7, 4, 23, NULL, NULL),
 (8, 4, 8, '2025-02-04 11:00:00', NULL),
 (9, 5, 22, '2025-02-08 16:20:00', NULL),
-(10, 5, 8, NULL, NULL);
+(10, 5, 8, NULL, NULL),
+(11, 6, 57, '2026-03-05 19:16:30', NULL),
+(12, 6, 58, NULL, NULL),
+(13, 7, 58, '2026-03-03 18:13:00', NULL),
+(14, 7, 57, '2026-03-03 18:18:38', NULL),
+(15, 7, 60, NULL, NULL),
+(16, 8, 58, '2026-03-03 18:16:50', NULL),
+(17, 8, 57, NULL, '2026-03-05 19:16:30'),
+(19, 9, 57, '2026-03-03 18:18:28', '2026-03-03 18:18:39'),
+(20, 9, 58, NULL, NULL),
+(21, 9, 60, NULL, NULL),
+(22, 10, 57, '2026-03-03 18:18:53', NULL),
+(23, 10, 58, NULL, NULL),
+(24, 11, 57, '2026-03-03 18:20:17', NULL),
+(25, 11, 58, NULL, NULL),
+(26, 12, 59, '2026-03-03 18:23:55', NULL),
+(27, 12, 60, NULL, NULL),
+(28, 13, 59, '2026-03-03 18:23:56', NULL),
+(29, 13, 57, NULL, NULL),
+(30, 13, 58, NULL, NULL),
+(31, 13, 60, NULL, NULL),
+(32, 14, 60, '2026-03-03 18:23:59', NULL),
+(33, 14, 59, '2026-03-03 18:24:00', NULL),
+(34, 15, 59, '2026-03-03 18:24:01', '2026-03-03 18:24:03'),
+(35, 15, 60, NULL, NULL),
+(36, 16, 59, '2026-03-03 18:24:02', NULL),
+(37, 16, 60, NULL, NULL),
+(38, 17, 57, '2026-03-03 18:34:10', NULL),
+(39, 17, 58, NULL, NULL),
+(40, 18, 58, '2026-03-03 18:34:10', NULL),
+(41, 18, 57, NULL, NULL),
+(42, 18, 60, NULL, NULL),
+(43, 19, 58, '2026-03-03 18:34:10', NULL),
+(44, 19, 57, NULL, NULL),
+(45, 20, 57, '2026-03-03 18:34:10', NULL),
+(46, 20, 58, NULL, NULL),
+(47, 21, 57, '2026-03-05 19:16:29', NULL),
+(48, 21, 58, NULL, NULL),
+(49, 22, 58, '2026-03-05 19:16:29', NULL),
+(50, 22, 57, NULL, NULL),
+(51, 22, 60, NULL, NULL),
+(52, 23, 58, '2026-03-05 19:16:30', NULL),
+(53, 23, 57, NULL, NULL),
+(54, 24, 57, '2026-03-05 19:16:30', NULL),
+(55, 24, 58, NULL, NULL),
+(56, 25, 57, '2026-03-10 14:21:19', NULL),
+(57, 25, 58, NULL, NULL),
+(58, 26, 58, '2026-03-10 14:21:23', NULL),
+(59, 26, 57, NULL, NULL),
+(60, 27, 57, '2026-03-10 14:21:40', NULL),
+(61, 27, 58, NULL, NULL),
+(62, 28, 58, '2026-03-10 14:21:45', NULL),
+(63, 28, 57, NULL, NULL),
+(64, 29, 57, '2026-03-10 14:21:57', NULL),
+(65, 29, 58, NULL, NULL),
+(66, 30, 58, '2026-03-10 14:22:21', NULL),
+(67, 30, 57, NULL, NULL),
+(68, 31, 57, '2026-03-10 14:22:27', '2026-03-10 14:22:33'),
+(69, 31, 58, NULL, NULL),
+(70, 32, 58, '2026-03-10 14:23:00', NULL),
+(71, 32, 57, NULL, NULL),
+(72, 33, 58, '2026-03-10 14:23:37', NULL),
+(73, 33, 57, NULL, NULL),
+(74, 34, 57, '2026-03-10 14:23:43', NULL),
+(75, 34, 58, NULL, NULL),
+(76, 35, 57, '2026-03-10 14:24:55', NULL),
+(77, 35, 58, NULL, NULL),
+(78, 36, 58, '2026-03-10 14:24:58', NULL),
+(79, 36, 57, NULL, NULL),
+(80, 37, 57, '2026-03-10 14:25:06', NULL),
+(81, 37, 58, NULL, NULL),
+(82, 38, 57, '2026-03-10 14:25:16', '2026-03-10 14:25:20'),
+(83, 38, 58, NULL, NULL),
+(84, 39, 57, '2026-03-10 14:25:44', NULL),
+(85, 39, 58, NULL, NULL),
+(86, 40, 57, '2026-03-10 14:25:54', NULL),
+(87, 40, 58, NULL, NULL),
+(88, 41, 57, '2026-03-10 14:26:19', NULL),
+(89, 41, 58, NULL, NULL),
+(90, 42, 57, '2026-03-10 14:34:11', NULL),
+(91, 42, 58, NULL, NULL),
+(92, 43, 58, '2026-03-10 14:34:15', NULL),
+(93, 43, 57, NULL, NULL),
+(94, 44, 58, '2026-03-10 14:34:25', NULL),
+(95, 44, 57, NULL, NULL),
+(96, 45, 57, '2026-03-10 14:34:37', NULL),
+(97, 45, 58, NULL, NULL),
+(98, 46, 57, '2026-03-10 14:34:58', NULL),
+(99, 46, 58, NULL, NULL),
+(100, 47, 58, '2026-03-10 14:35:08', NULL),
+(101, 47, 57, NULL, NULL),
+(102, 48, 58, '2026-03-10 14:35:16', NULL),
+(103, 48, 57, NULL, NULL),
+(104, 49, 57, '2026-03-10 14:37:42', NULL),
+(105, 49, 58, NULL, NULL),
+(106, 50, 57, '2026-03-10 14:37:57', NULL),
+(107, 50, 58, NULL, NULL),
+(108, 51, 58, '2026-03-10 14:38:00', NULL),
+(109, 51, 57, NULL, NULL),
+(110, 52, 57, '2026-03-10 14:38:04', NULL),
+(111, 52, 58, NULL, NULL),
+(112, 53, 58, '2026-03-10 14:38:09', NULL),
+(113, 53, 57, NULL, NULL),
+(114, 54, 57, '2026-03-10 14:38:17', NULL),
+(115, 54, 58, NULL, NULL),
+(116, 55, 57, '2026-03-10 14:38:22', NULL),
+(117, 55, 58, NULL, NULL),
+(118, 56, 57, '2026-03-10 14:38:47', '2026-03-10 14:38:51'),
+(119, 56, 58, NULL, NULL),
+(120, 57, 57, '2026-03-10 14:56:31', NULL),
+(121, 57, 58, NULL, NULL),
+(122, 58, 57, '2026-03-10 14:56:46', NULL),
+(123, 58, 58, NULL, NULL),
+(124, 59, 58, '2026-03-10 14:56:52', NULL),
+(125, 59, 57, NULL, NULL),
+(126, 60, 57, '2026-03-10 14:59:44', NULL),
+(127, 60, 58, NULL, NULL),
+(128, 61, 58, '2026-03-10 14:59:53', NULL),
+(129, 61, 57, NULL, NULL),
+(130, 62, 57, '2026-03-10 15:37:30', NULL),
+(131, 62, 58, NULL, NULL),
+(132, 63, 57, '2026-03-10 15:37:34', NULL),
+(133, 63, 58, NULL, NULL),
+(134, 64, 58, '2026-03-10 15:37:40', NULL),
+(135, 64, 57, NULL, NULL),
+(136, 65, 58, '2026-03-10 15:37:58', NULL),
+(137, 65, 57, NULL, NULL),
+(138, 66, 57, '2026-03-10 15:38:17', NULL),
+(139, 66, 58, NULL, NULL),
+(140, 67, 58, '2026-03-10 15:38:20', NULL),
+(141, 67, 57, NULL, NULL),
+(142, 68, 58, '2026-03-10 15:38:57', NULL),
+(143, 68, 57, NULL, NULL),
+(144, 69, 57, '2026-03-10 15:39:01', NULL),
+(145, 69, 58, NULL, NULL),
+(146, 70, 58, '2026-03-10 15:39:04', NULL),
+(147, 70, 57, NULL, NULL),
+(148, 71, 57, '2026-03-10 15:39:22', NULL),
+(149, 71, 58, NULL, NULL),
+(150, 72, 58, '2026-03-10 15:39:25', NULL),
+(151, 72, 57, NULL, NULL),
+(152, 73, 58, '2026-03-10 15:39:30', NULL),
+(153, 73, 57, NULL, NULL),
+(154, 74, 57, '2026-03-10 15:39:39', NULL),
+(155, 74, 58, NULL, NULL),
+(156, 75, 58, '2026-03-10 15:39:53', NULL),
+(157, 75, 57, NULL, NULL),
+(158, 76, 58, '2026-03-10 15:39:55', NULL),
+(159, 76, 57, NULL, NULL),
+(160, 77, 58, '2026-03-10 15:40:12', '2026-03-10 15:40:18'),
+(161, 77, 57, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2249,7 +2748,11 @@ INSERT INTO `notifications` (`notification_id`, `user_id`, `notification_type`, 
 (5, 8, 'grade', 'Grade Posted', 'Your grade for Assignment 1 has been posted', NULL, NULL, NULL, 1, NULL, 'medium', NULL, '2025-02-16 08:15:00'),
 (6, 9, 'deadline', 'Assignment Due Soon', 'Assignment 1 due in 2 days', NULL, NULL, NULL, 0, NULL, 'high', NULL, '2025-02-13 07:00:00'),
 (7, 21, 'message', 'Message Received', 'Dr. Ibrahim Ali replied to your message about Assignment 1.', 'message', 2, NULL, 1, NULL, 'medium', NULL, '2025-01-28 15:50:00'),
-(8, 22, 'grade', 'Grade Posted', 'Your grade for Quiz 1 has been posted.', 'quiz', 1, NULL, 0, NULL, 'medium', NULL, '2025-02-03 11:00:00');
+(8, 22, 'grade', 'Grade Posted', 'Your grade for Quiz 1 has been posted.', 'quiz', 1, NULL, 0, NULL, 'medium', NULL, '2025-02-03 11:00:00'),
+(10, 58, 'announcement', 'Test Notification', 'This is a test notification from admin', NULL, NULL, NULL, 0, NULL, 'high', NULL, '2026-03-03 00:10:09'),
+(14, 58, 'announcement', 'Important Announcement', 'All students must submit assignments by Friday', NULL, NULL, NULL, 0, NULL, 'high', '/assignments', '2026-03-03 00:23:24'),
+(16, 58, 'announcement', 'Important Announcement', 'All students must submit assignments by Friday', NULL, NULL, NULL, 0, NULL, 'high', '/assignments', '2026-03-03 18:34:09'),
+(22, 58, 'announcement', 'Important Announcement', 'All students must submit assignments by Friday', NULL, NULL, NULL, 0, NULL, 'high', '/assignments', '2026-03-05 19:16:29');
 
 -- --------------------------------------------------------
 
@@ -2284,7 +2787,55 @@ INSERT INTO `notification_preferences` (`preference_id`, `user_id`, `email_enabl
 (3, 9, 0, 1, 0, 0, 1, 1, 0, 1, '21:00:00', '06:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (4, 10, 1, 1, 0, 1, 0, 1, 1, 2, '22:00:00', '07:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (5, 11, 1, 1, 1, 1, 1, 1, 1, 5, '23:00:00', '09:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(6, 12, 1, 0, 0, 1, 1, 0, 0, 2, '22:00:00', '07:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(6, 12, 1, 0, 0, 1, 1, 0, 0, 2, '22:00:00', '07:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(7, 57, 1, 0, 0, 1, 1, 1, 0, 3, NULL, NULL, '2026-03-03 00:10:14', '2026-03-05 19:16:29');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `office_hour_appointments`
+--
+
+CREATE TABLE `office_hour_appointments` (
+  `appointment_id` bigint(20) UNSIGNED NOT NULL,
+  `slot_id` bigint(20) UNSIGNED NOT NULL,
+  `student_id` bigint(20) UNSIGNED NOT NULL,
+  `appointment_date` date NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `topic` varchar(255) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `status` enum('booked','confirmed','cancelled','completed','no_show') DEFAULT 'booked',
+  `cancelled_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `cancelled_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `office_hour_slots`
+--
+
+CREATE TABLE `office_hour_slots` (
+  `slot_id` bigint(20) UNSIGNED NOT NULL,
+  `instructor_id` bigint(20) UNSIGNED NOT NULL,
+  `day_of_week` enum('monday','tuesday','wednesday','thursday','friday','saturday','sunday') NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `mode` enum('in_person','online','hybrid') DEFAULT 'in_person',
+  `meeting_url` varchar(500) DEFAULT NULL,
+  `max_appointments` int(11) DEFAULT 4,
+  `is_recurring` tinyint(1) DEFAULT 1,
+  `effective_from` date DEFAULT NULL,
+  `effective_until` date DEFAULT NULL,
+  `status` enum('active','cancelled','suspended') DEFAULT 'active',
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -2332,6 +2883,13 @@ CREATE TABLE `password_resets` (
   `used_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `password_resets`
+--
+
+INSERT INTO `password_resets` (`reset_id`, `user_id`, `reset_token`, `expires_at`, `used`, `used_at`, `created_at`) VALUES
+(6, 59, '82d37db17f4603125601d3d8d0826fa52429f091ab9aebe30edd73b8296838c0', '2026-03-02 14:27:06', 0, NULL, '2026-03-02 13:27:06');
 
 -- --------------------------------------------------------
 
@@ -2482,7 +3040,7 @@ CREATE TABLE `programs` (
 --
 
 INSERT INTO `programs` (`program_id`, `department_id`, `program_name`, `program_code`, `degree_type`, `duration_years`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Bachelor of Computer Science', 'BCS', 'bachelor', 4, 'Undergraduate program in Computer Science', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
+(1, 1, 'Updated Program', 'BCS', 'bachelor', 4, 'Undergraduate program in Computer Science', 'active', '2025-11-20 13:42:59', '2026-03-02 23:28:59'),
 (2, 1, 'Master of Computer Science', 'MCS', 'master', 2, 'Graduate program in Computer Science', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (3, 2, 'Bachelor of Mathematics', 'BMATH', 'bachelor', 4, 'Undergraduate program in Mathematics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (4, 4, 'Bachelor of Business Administration', 'BBA', 'bachelor', 4, 'Undergraduate business program', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
@@ -2493,7 +3051,10 @@ INSERT INTO `programs` (`program_id`, `department_id`, `program_name`, `program_
 (9, 5, 'BA English Literature', 'BA-ENG', 'bachelor', 4, 'Bachelor of Arts in English Literature', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
 (10, 5, 'BA Arabic Language', 'BA-AR', 'bachelor', 4, 'Bachelor of Arts in Arabic Language and Culture', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
 (11, 6, 'BS Mathematics', 'BS-MATH', 'bachelor', 4, 'Bachelor of Science in Mathematics', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
-(12, 6, 'BS Physics', 'BS-PHYS', 'bachelor', 4, 'Bachelor of Science in Physics', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00');
+(12, 6, 'BS Physics', 'BS-PHYS', 'bachelor', 4, 'Bachelor of Science in Physics', 'active', '2024-09-01 08:00:00', '2024-09-01 08:00:00'),
+(15, 1, 'Test Prog Z2', 'TPZ2', 'bachelor', 4, NULL, 'active', '2026-03-02 13:31:14', '2026-03-02 13:31:14'),
+(16, 1, 'AutoProg', 'AP1', 'bachelor', 4, NULL, 'active', '2026-03-02 13:49:20', '2026-03-02 13:49:20'),
+(17, 1, 'Test Program', 'TP01', 'bachelor', 4, 'A test program', 'active', '2026-03-02 23:28:59', '2026-03-02 23:28:59');
 
 -- --------------------------------------------------------
 
@@ -2517,6 +3078,7 @@ CREATE TABLE `quizzes` (
   `available_from` timestamp NULL DEFAULT NULL,
   `available_until` timestamp NULL DEFAULT NULL,
   `weight` decimal(5,2) DEFAULT 0.00,
+  `status` enum('draft','published','closed','archived') DEFAULT 'draft',
   `created_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -2527,13 +3089,22 @@ CREATE TABLE `quizzes` (
 -- Dumping data for table `quizzes`
 --
 
-INSERT INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `instructions`, `quiz_type`, `time_limit_minutes`, `max_attempts`, `passing_score`, `randomize_questions`, `show_correct_answers`, `show_answers_after`, `available_from`, `available_until`, `weight`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Quiz 1: Introduction Concepts', 'Quick assessment of fundamental programming concepts', 'Answer all questions', 'graded', 15, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 8, '2025-01-25 08:00:00', '2025-01-25 08:00:00', NULL),
-(2, 1, 'Quiz 2: Control Flow', 'Test knowledge of conditionals and loops', 'Answer all questions', 'graded', 20, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 8, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
-(3, 2, 'Quiz 1: Arrays and Lists', 'Understanding arrays', NULL, 'graded', 60, 1, 75.00, 0, 1, 'after_due', '2025-02-14 22:00:00', '2025-02-25 21:59:59', 15.00, 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(4, 3, 'Quiz 1: Array and Linked Lists', 'Assessment of array and linked list concepts', 'Answer all questions', 'graded', 20, 1, 15.00, 1, 0, 'after_due', NULL, NULL, 10.00, 10, '2025-02-03 08:00:00', '2025-02-03 08:00:00', NULL),
-(5, 5, 'Quiz 1: OOP Principles', 'Test understanding of object-oriented programming', 'Answer all questions', 'graded', 25, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 12, '2025-02-05 08:00:00', '2025-02-05 08:00:00', NULL),
-(6, 9, 'Quiz 1: Statistical Concepts', 'Assessment of probability and statistics fundamentals', 'Answer all questions', 'graded', 30, 1, 12.00, 0, 1, 'after_due', NULL, NULL, 10.00, 16, '2025-02-07 08:00:00', '2025-02-07 08:00:00', NULL);
+INSERT INTO `quizzes` (`quiz_id`, `course_id`, `title`, `description`, `instructions`, `quiz_type`, `time_limit_minutes`, `max_attempts`, `passing_score`, `randomize_questions`, `show_correct_answers`, `show_answers_after`, `available_from`, `available_until`, `weight`, `status`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 1, 'Updated Quiz Title', 'Quick assessment of fundamental programming concepts', 'Answer all questions', 'graded', 45, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'published', 8, '2025-01-25 08:00:00', '2026-03-07 18:26:59', NULL),
+(2, 1, 'Quiz 2: Control Flow', 'Test knowledge of conditionals and loops', 'Answer all questions', 'graded', 20, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 8, '2025-02-01 08:00:00', '2025-02-01 08:00:00', NULL),
+(3, 2, 'Quiz 1: Arrays and Lists', 'Understanding arrays', NULL, 'graded', 60, 1, 75.00, 0, 1, 'after_due', '2025-02-14 22:00:00', '2025-02-25 21:59:59', 15.00, 'draft', 3, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(4, 3, 'Quiz 1: Array and Linked Lists', 'Assessment of array and linked list concepts', 'Answer all questions', 'graded', 20, 1, 15.00, 1, 0, 'after_due', NULL, NULL, 10.00, 'draft', 10, '2025-02-03 08:00:00', '2025-02-03 08:00:00', NULL),
+(5, 5, 'Quiz 1: OOP Principles', 'Test understanding of object-oriented programming', 'Answer all questions', 'graded', 25, 1, 12.00, 1, 1, 'after_due', NULL, NULL, 10.00, 'draft', 12, '2025-02-05 08:00:00', '2025-02-05 08:00:00', NULL),
+(6, 9, 'Quiz 1: Statistical Concepts', 'Assessment of probability and statistics fundamentals', 'Answer all questions', 'graded', 30, 1, 12.00, 0, 1, 'after_due', NULL, NULL, 10.00, 'draft', 16, '2025-02-07 08:00:00', '2025-02-07 08:00:00', NULL),
+(7, 1, 'Updated Merge Quiz', 'Testing', NULL, 'practice', 30, 3, 60.00, 1, 1, 'after_due', '2026-03-01 00:00:00', '2026-12-31 23:59:59', 0.00, 'draft', 58, '2026-03-02 14:10:15', '2026-03-02 14:10:25', '2026-03-02 14:10:25'),
+(8, 1, 'Midterm Quiz: Arrays and Data Structures', 'This quiz covers chapters 1-5', 'Answer all questions. No partial credit.', 'graded', 60, 2, 70.00, 0, 1, 'after_due', '2026-03-15 09:00:00', '2026-03-22 23:59:59', 15.00, 'draft', 59, '2026-03-02 14:34:32', '2026-03-02 14:34:32', NULL),
+(9, 1, 'Midterm Quiz: Arrays and Data Structures', 'This quiz covers chapters 1-5', 'Answer all questions. No partial credit.', 'graded', 60, 2, 70.00, 0, 1, 'after_due', '2026-03-15 09:00:00', '2026-03-22 23:59:59', 15.00, 'draft', 59, '2026-03-02 14:34:35', '2026-03-02 14:34:35', NULL),
+(10, 1, 'PM Test Quiz Fixed', 'A quiz from test', 'Answer all', 'graded', 30, 2, 60.00, 1, 1, 'after_due', '2026-03-01 00:00:00', '2026-06-30 23:59:59', 10.00, 'draft', 58, '2026-03-02 23:44:03', '2026-03-02 23:44:03', NULL),
+(11, 1, 'Updated Quiz', 'A quiz from test script', 'Answer all questions', 'graded', 45, 2, 60.00, 1, 1, 'after_due', '2026-03-01 00:00:00', '2026-06-30 23:59:59', 10.00, 'draft', 58, '2026-03-02 23:47:22', '2026-03-02 23:47:22', NULL),
+(12, 1, 'Midterm Quiz: Data Structures', 'Covers arrays, linked lists, and trees', 'Answer all questions. Time limit applies.', 'graded', 45, 2, 60.00, 1, 1, 'after_due', '2026-04-01 09:00:00', '2026-04-15 23:59:59', 15.00, 'draft', 58, '2026-03-02 23:52:00', '2026-03-02 23:52:00', NULL),
+(13, 1, 'Midterm Quiz: Data Structures', 'Covers arrays, linked lists, and trees', 'Answer all questions. Time limit applies.', 'graded', 45, 2, 60.00, 1, 1, 'after_due', '2026-04-01 09:00:00', '2026-04-15 23:59:59', 15.00, 'draft', 58, '2026-03-03 00:23:21', '2026-03-03 00:23:21', NULL),
+(14, 1, 'Midterm Quiz: Data Structures', 'Covers arrays, linked lists, and trees', 'Answer all questions. Time limit applies.', 'graded', 45, 2, 60.00, 1, 1, 'after_due', '2026-04-01 09:00:00', '2026-04-15 23:59:59', 15.00, 'draft', 58, '2026-03-03 18:34:06', '2026-03-03 18:34:06', NULL),
+(15, 1, 'Midterm Quiz: Data Structures', 'Covers arrays, linked lists, and trees', 'Answer all questions. Time limit applies.', 'graded', 45, 2, 60.00, 1, 1, 'after_due', '2026-04-01 09:00:00', '2026-04-15 23:59:59', 15.00, 'published', 58, '2026-03-05 19:16:26', '2026-03-07 18:27:08', NULL);
 
 -- --------------------------------------------------------
 
@@ -2571,6 +3142,15 @@ CREATE TABLE `quiz_attempts` (
   `ip_address` varchar(45) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `quiz_attempts`
+--
+
+INSERT INTO `quiz_attempts` (`attempt_id`, `quiz_id`, `user_id`, `attempt_number`, `started_at`, `submitted_at`, `score`, `time_taken_minutes`, `status`, `ip_address`) VALUES
+(5, 1, 57, 1, '2026-03-02 14:09:06', '2026-03-02 14:10:20', 0.00, 1, 'graded', NULL),
+(6, 10, 57, 1, '2026-03-02 23:44:03', '2026-03-02 23:44:03', 0.00, 0, 'graded', NULL),
+(7, 11, 57, 1, '2026-03-02 23:47:22', '2026-03-02 23:47:22', 0.00, 0, 'graded', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -2591,7 +3171,8 @@ CREATE TABLE `quiz_difficulty_levels` (
 INSERT INTO `quiz_difficulty_levels` (`difficulty_id`, `level_name`, `difficulty_value`, `description`) VALUES
 (1, 'Easy', 1, 'Basic level questions'),
 (2, 'Medium', 2, 'Intermediate level questions'),
-(3, 'Hard', 3, 'Advanced level questions');
+(3, 'Hard', 3, 'Advanced level questions'),
+(5, 'Very Hard', 5, 'Expert level - synthesis and evaluation');
 
 -- --------------------------------------------------------
 
@@ -2619,10 +3200,10 @@ CREATE TABLE `quiz_questions` (
 --
 
 INSERT INTO `quiz_questions` (`question_id`, `quiz_id`, `question_text`, `question_type`, `options`, `correct_answer`, `explanation`, `points`, `difficulty_level_id`, `order_index`, `created_at`, `updated_at`) VALUES
-(1, 1, 'What is a variable in programming?', '', NULL, NULL, NULL, 4.00, NULL, 1, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
-(2, 1, 'Which of the following is not a data type?', '', NULL, NULL, NULL, 4.00, NULL, 2, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
-(3, 1, 'What does IDE stand for?', '', NULL, NULL, NULL, 4.00, NULL, 3, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
-(4, 1, 'True or False: Comments improve code readability.', 'true_false', NULL, NULL, NULL, 4.00, NULL, 4, '2025-01-25 08:00:00', '2026-03-01 14:55:40'),
+(1, 1, 'Updated: What is the time complexity of binary search?', '', NULL, NULL, NULL, 15.00, NULL, 0, '2025-01-25 08:00:00', '2026-03-05 19:16:27'),
+(2, 1, 'Which of the following is not a data type?', '', NULL, NULL, NULL, 4.00, NULL, 1, '2025-01-25 08:00:00', '2026-03-05 19:16:27'),
+(3, 1, 'What does IDE stand for?', '', NULL, NULL, NULL, 4.00, NULL, 2, '2025-01-25 08:00:00', '2026-03-05 19:16:27'),
+(4, 1, 'True or False: Comments improve code readability.', 'true_false', NULL, NULL, NULL, 4.00, NULL, 3, '2025-01-25 08:00:00', '2026-03-05 19:16:27'),
 (5, 3, 'What is the time complexity of accessing an element in an array by index?', 'mcq', '[\"O(1)\", \"O(n)\", \"O(log n)\", \"O(n^2)\"]', '0', 'Array access by index is constant time', 15.00, 2, 1, '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (6, 2, 'What is the output of the loop: for(int i=0; i<3; i++)?', '', NULL, NULL, NULL, 4.00, NULL, 1, '2025-02-01 08:00:00', '2026-03-01 14:55:40'),
 (7, 2, 'Which statement is used to skip an iteration in a loop?', '', NULL, NULL, NULL, 4.00, NULL, 2, '2025-02-01 08:00:00', '2026-03-01 14:55:40'),
@@ -2637,7 +3218,13 @@ INSERT INTO `quiz_questions` (`question_id`, `quiz_id`, `question_text`, `questi
 (16, 4, 'Describe inheritance with an example.', 'short_answer', NULL, NULL, NULL, 5.00, NULL, 2, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
 (17, 4, 'What are the four pillars of OOP?', '', NULL, NULL, NULL, 5.00, NULL, 3, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
 (18, 4, 'True or False: A class can inherit from multiple classes in Java.', 'true_false', NULL, NULL, NULL, 5.00, NULL, 4, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
-(19, 4, 'What is the difference between a class and an object?', 'short_answer', NULL, NULL, NULL, 5.00, NULL, 5, '2025-02-03 08:00:00', '2026-03-01 14:55:40');
+(19, 4, 'What is the difference between a class and an object?', 'short_answer', NULL, NULL, NULL, 5.00, NULL, 5, '2025-02-03 08:00:00', '2026-03-01 14:55:40'),
+(21, 10, 'What is binary search complexity?', 'mcq', '[\"O(1)\",\"O(log n)\",\"O(n)\",\"O(n log n)\"]', 'O(log n)', 'Binary search halves the space', 10.00, 1, 0, '2026-03-02 23:44:03', '2026-03-02 23:44:19'),
+(22, 11, 'Updated: What is binary search complexity?', 'mcq', '[\"O(1)\",\"O(log n)\",\"O(n)\",\"O(n log n)\"]', 'O(log n)', 'Binary search halves the search space each step', 15.00, 1, 0, '2026-03-02 23:47:22', '2026-03-02 23:47:22'),
+(23, 1, 'What is the time complexity of binary search?', 'mcq', '[\"O(1)\",\"O(log n)\",\"O(n)\",\"O(n log n)\"]', 'O(log n)', 'Binary search divides the search space in half each iteration', 10.00, 1, 1, '2026-03-02 23:52:00', '2026-03-02 23:52:00'),
+(24, 1, 'What is the time complexity of binary search?', 'mcq', '[\"O(1)\",\"O(log n)\",\"O(n)\",\"O(n log n)\"]', 'O(log n)', 'Binary search divides the search space in half each iteration', 10.00, 1, 1, '2026-03-03 00:23:22', '2026-03-03 00:23:22'),
+(25, 1, 'What is the time complexity of binary search?', 'mcq', '[\"O(1)\",\"O(log n)\",\"O(n)\",\"O(n log n)\"]', 'O(log n)', 'Binary search divides the search space in half each iteration', 10.00, 1, 1, '2026-03-03 18:34:06', '2026-03-03 18:34:06'),
+(26, 1, 'What is the time complexity of binary search?', 'mcq', '[\"O(1)\",\"O(log n)\",\"O(n)\",\"O(n log n)\"]', 'O(log n)', 'Binary search divides the search space in half each iteration', 10.00, 1, 1, '2026-03-05 19:16:27', '2026-03-05 19:16:27');
 
 -- --------------------------------------------------------
 
@@ -2742,7 +3329,8 @@ INSERT INTO `roles` (`role_id`, `role_name`, `role_description`, `created_at`) V
 (2, 'instructor', 'Course instructor', '2025-11-20 13:42:59'),
 (3, 'teaching_assistant', 'Teaching Assistant', '2025-11-20 13:42:59'),
 (4, 'admin', 'System Administrator', '2025-11-20 13:42:59'),
-(5, 'department_head', 'Department Head', '2025-11-20 13:42:59');
+(5, 'department_head', 'Department Head', '2025-11-20 13:42:59'),
+(6, 'it_admin', 'IT Administrator', '2026-03-02 13:17:36');
 
 -- --------------------------------------------------------
 
@@ -2762,8 +3350,6 @@ CREATE TABLE `role_permissions` (
 --
 
 INSERT INTO `role_permissions` (`role_permission_id`, `role_id`, `permission_id`, `granted_at`) VALUES
-(1, 1, 1, '2025-11-20 13:42:59'),
-(2, 1, 2, '2025-11-20 13:42:59'),
 (3, 2, 1, '2025-11-20 13:42:59'),
 (4, 2, 3, '2025-11-20 13:42:59'),
 (5, 2, 4, '2025-11-20 13:42:59'),
@@ -2783,7 +3369,9 @@ INSERT INTO `role_permissions` (`role_permission_id`, `role_id`, `permission_id`
 (19, 5, 1, '2025-11-20 13:42:59'),
 (20, 5, 3, '2025-11-20 13:42:59'),
 (21, 5, 4, '2025-11-20 13:42:59'),
-(22, 5, 6, '2025-11-20 13:42:59');
+(22, 5, 6, '2025-11-20 13:42:59'),
+(23, 1, 1, '2026-03-10 18:15:14'),
+(24, 1, 2, '2026-03-10 18:15:14');
 
 -- --------------------------------------------------------
 
@@ -2808,7 +3396,17 @@ CREATE TABLE `rubrics` (
 --
 
 INSERT INTO `rubrics` (`rubric_id`, `course_id`, `rubric_name`, `description`, `criteria`, `total_points`, `created_by`, `created_at`, `updated_at`) VALUES
-(2, 2, 'Data Structures Project Rubric', 'Rubric for DS projects', '{\"criteria\": [{\"name\": \"Implementation\", \"points\": 50}, {\"name\": \"Efficiency\", \"points\": 25}, {\"name\": \"Documentation\", \"points\": 15}, {\"name\": \"Presentation\", \"points\": 10}]}', 100.00, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00');
+(2, 2, 'Data Structures Project Rubric', 'Rubric for DS projects', '{\"criteria\": [{\"name\": \"Implementation\", \"points\": 50}, {\"name\": \"Efficiency\", \"points\": 25}, {\"name\": \"Documentation\", \"points\": 15}, {\"name\": \"Presentation\", \"points\": 10}]}', 100.00, 3, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
+(3, 1, 'Test Rubric Z', 'A rubric', NULL, 100.00, 58, '2026-03-02 13:34:36', '2026-03-02 13:34:36'),
+(4, 1, 'AutoRubric', 'Test rubric', NULL, 100.00, 58, '2026-03-02 13:51:17', '2026-03-02 13:51:17'),
+(5, 1, 'MergeTest', 'Post-merge', NULL, 100.00, 58, '2026-03-02 14:04:57', '2026-03-02 14:04:57'),
+(6, 1, 'Essay Grading Rubric', 'Rubric for evaluating research essays', '[{\"name\":\"Content\",\"maxPoints\":40,\"description\":\"Quality of content\"},{\"name\":\"Grammar\",\"maxPoints\":30,\"description\":\"Writing quality\"},{\"name\":\"Format\",\"maxPoints\":30,\"description\":\"Proper formatting\"}]', 100.00, 58, '2026-03-02 23:32:57', '2026-03-02 23:32:57'),
+(7, 1, 'Test Rubric PM', 'Test rubric from postman test', '[{\"name\":\"Content\",\"maxPoints\":40},{\"name\":\"Grammar\",\"maxPoints\":30},{\"name\":\"Format\",\"maxPoints\":30}]', 100.00, 58, '2026-03-02 23:42:38', '2026-03-02 23:42:38'),
+(8, 1, 'Test Rubric PM', 'Test rubric from postman test', '[{\"name\":\"Content\",\"maxPoints\":40},{\"name\":\"Grammar\",\"maxPoints\":30},{\"name\":\"Format\",\"maxPoints\":30}]', 100.00, 58, '2026-03-02 23:47:21', '2026-03-02 23:47:21'),
+(9, 1, 'Essay Grading Rubric', 'Rubric for evaluating research essays', '[{\"name\":\"Content\",\"maxPoints\":40,\"description\":\"Quality of content\"},{\"name\":\"Grammar\",\"maxPoints\":30,\"description\":\"Writing quality\"},{\"name\":\"Format\",\"maxPoints\":30,\"description\":\"Proper formatting\"}]', 100.00, 58, '2026-03-02 23:51:57', '2026-03-02 23:51:57'),
+(10, 1, 'Essay Grading Rubric', 'Rubric for evaluating research essays', '[{\"name\":\"Content\",\"maxPoints\":40,\"description\":\"Quality of content\"},{\"name\":\"Grammar\",\"maxPoints\":30,\"description\":\"Writing quality\"},{\"name\":\"Format\",\"maxPoints\":30,\"description\":\"Proper formatting\"}]', 100.00, 58, '2026-03-03 00:23:19', '2026-03-03 00:23:19'),
+(11, 1, 'Essay Grading Rubric', 'Rubric for evaluating research essays', '[{\"name\":\"Content\",\"maxPoints\":40,\"description\":\"Quality of content\"},{\"name\":\"Grammar\",\"maxPoints\":30,\"description\":\"Writing quality\"},{\"name\":\"Format\",\"maxPoints\":30,\"description\":\"Proper formatting\"}]', 100.00, 58, '2026-03-03 18:34:03', '2026-03-03 18:34:03'),
+(12, 1, 'Essay Grading Rubric', 'Rubric for evaluating research essays', '[{\"name\":\"Content\",\"maxPoints\":40,\"description\":\"Quality of content\"},{\"name\":\"Grammar\",\"maxPoints\":30,\"description\":\"Writing quality\"},{\"name\":\"Format\",\"maxPoints\":30,\"description\":\"Proper formatting\"}]', 100.00, 58, '2026-03-05 19:16:24', '2026-03-05 19:16:24');
 
 -- --------------------------------------------------------
 
@@ -2953,11 +3551,14 @@ CREATE TABLE `semesters` (
 --
 
 INSERT INTO `semesters` (`semester_id`, `semester_name`, `semester_code`, `start_date`, `end_date`, `registration_start`, `registration_end`, `status`, `created_at`) VALUES
-(1, 'Fall 2024', 'FALL2024', '2024-09-01', '2024-12-20', '2024-08-15', '2024-08-31', 'completed', '2024-08-01 00:00:00'),
+(1, 'Fall 2026 Updated', 'FALL2024', '2024-09-01', '2024-12-20', '2024-08-15', '2024-08-31', 'completed', '2024-08-01 00:00:00'),
 (2, 'Spring 2025', 'SPR2025', '2025-01-15', '2025-05-30', '2024-12-15', '2025-01-10', 'active', '2024-12-01 00:00:00'),
 (3, 'Summer 2025', 'SU2025', '2025-06-01', '2025-08-15', '2025-05-01', '2025-05-25', 'upcoming', '2025-11-20 13:42:59'),
 (4, 'Fall 2025', 'F2025', '2025-09-01', '2025-12-31', '2025-08-01', '2025-08-25', 'active', '2025-11-26 18:54:24'),
-(7, 'Fall 2027', 'F2027', '2027-09-01', '2027-12-20', '2027-08-01', '2027-08-25', 'upcoming', '2025-11-26 19:28:01');
+(7, 'Fall 2027', 'F2027', '2027-09-01', '2027-12-20', '2027-08-01', '2027-08-25', 'upcoming', '2025-11-26 19:28:01'),
+(12, 'Fall 2026', 'F26', '2026-09-01', '2026-12-15', '2026-08-01', '2026-08-30', 'upcoming', '2026-03-02 13:29:55'),
+(13, 'Auto Sem', 'AS1', '2027-01-01', '2027-05-01', '2026-12-01', '2026-12-31', 'upcoming', '2026-03-02 13:49:23'),
+(14, 'Fall 2026', 'F2026', '2026-09-01', '2026-12-31', '2026-08-01', '2026-08-25', 'upcoming', '2026-03-02 23:29:09');
 
 -- --------------------------------------------------------
 
@@ -3017,7 +3618,298 @@ INSERT INTO `sessions` (`session_id`, `user_id`, `session_token`, `ip_address`, 
 (76, 34, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM0LCJlbWFpbCI6ImFtaXJfc3R1ZGVudEBjYW1wdXMuZWR1Iiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NjQ1MTg5MzMsImV4cCI6MTc2NTEyMzczM30.lea9RdkUal-n0yuoJSk0V6IVBZdW1npMS2szF_S_mYM', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:08:53', '2025-11-30 16:08:53', 0),
 (77, 29, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI5LCJlbWFpbCI6ImFtMzU2NjE0N0BnbWFpbC5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NjQ1MjA3NjQsImV4cCI6MTc2NTEyNTU2NH0.Je4CVQwAgdJ4D8xc09v0Im3iDiIuJReAX3eIlVHOY5A', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2025-12-07 16:39:24', '2025-11-30 16:39:24', 0),
 (78, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNDYyNTIsImV4cCI6MTc3MjY1MTA1Mn0.mdvXYoVNU6LLKHUjWmqPQTRTMytD13pRJJ4vgmRB16c', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 19:04:12', '2026-02-25 19:04:12', 0),
-(79, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNTAyNzQsImV4cCI6MTc3MjY1NTA3NH0.cbFdJWpQVM2tMCVcczIUJGcYqZrAH1SulzVLX9e9Lks', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 20:11:14', '2026-02-25 20:11:14', 0);
+(79, 36, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM2LCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwicm9sZXMiOlsic3R1ZGVudCJdLCJpYXQiOjE3NzIwNTAyNzQsImV4cCI6MTc3MjY1NTA3NH0.cbFdJWpQVM2tMCVcczIUJGcYqZrAH1SulzVLX9e9Lks', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-04 20:11:14', '2026-02-25 20:11:14', 0),
+(80, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzODI4MjgsImV4cCI6MTc3Mjk4NzYyOH0.mwUp2Z_FXBSPWy4Mv5EGWqs8r5SYP7fn0l0-9qeZ9Yg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 16:33:48', '2026-03-01 16:33:48', 0),
+(81, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzOTkwMDMsImV4cCI6MTc3MzAwMzgwM30.-wZ1fnzgbIgErm9zeDCY8d8bJkTLWQLqF3JcSMrTMwI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 21:03:23', '2026-03-01 21:03:23', 0),
+(82, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzIzOTk3MTUsImV4cCI6MTc3MzAwNDUxNX0.qzUcx45Odur_uc_kw3EIf8x8xR3Vp27nnL6b4X6CcwM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 21:15:15', '2026-03-01 21:15:15', 0),
+(83, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzI0MDAwMzksImV4cCI6MTc3MzAwNDgzOX0.TC1w_AEr4Sdk4XgKB7y9Id87kDn8R92a3KA_L7eBZ40', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-08 21:20:39', '2026-03-01 21:20:39', 0),
+(84, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzI0NTczNDIsImV4cCI6MTc3MzA2MjE0Mn0.DG-Gz75Hl0e1wk42Vhq3UbxJ2wZdE4JyYlqhrWLhcJo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:15:42', '2026-03-02 13:15:42', 0),
+(85, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzI0NTczNjAsImV4cCI6MTc3MzA2MjE2MH0.q-B1Wai6zRRkKov2C97DuwoqtqFW56OFkp1tf3COMaY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:16:00', '2026-03-02 13:16:00', 0),
+(86, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzI0NTc0MzIsImV4cCI6MTc3MzA2MjIzMn0.ZVVluOsp3Pe3ofUAQt2wo6T3pKQdUwSTlki72gFai5Y', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:17:12', '2026-03-02 13:17:12', 0),
+(87, 56, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU2LCJlbWFpbCI6ImFkbWludGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzI0NTc0NTUsImV4cCI6MTc3MzA2MjI1NX0.wWV6KgCFtQG8IoZUQ0maASkuuA1oaraR4EAHA2vU9_0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:17:35', '2026-03-02 13:17:35', 0),
+(88, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1NzU0MSwiZXhwIjoxNzczMDYyMzQxfQ.Pk1-QGtFJ8u5kDp95n0KGN8MKTERqs6B0JU5YqEWXu8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:01', '2026-03-02 13:19:01', 0),
+(89, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1NzU0MiwiZXhwIjoxNzczMDYyMzQyfQ.kT-TXy0EvBXvaD_s72bXPv9fojopnLxUB871_ZTos6I', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:02', '2026-03-02 13:19:02', 0),
+(90, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU3NTQzLCJleHAiOjE3NzMwNjIzNDN9.YctRyFG-bJ9AMgGlkwLmN-UfAgxN0mzHCc1whe7J8po', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:03', '2026-03-02 13:19:03', 0),
+(91, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1NzU0NSwiZXhwIjoxNzczMDYyMzQ1fQ.5wXxyK-p2dILps__7SxwZiMnPbyHCpnwb5yJMejbrRQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:05', '2026-03-02 13:19:05', 0),
+(92, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU3NTQ2LCJleHAiOjE3NzMwNjIzNDZ9.Epf4YqXyrkKSxDQ4XIQ5X18simAzm-iyGOy2WcADt7I', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:06', '2026-03-02 13:19:06', 0),
+(93, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1NzU3NSwiZXhwIjoxNzczMDYyMzc1fQ.szAOtYQNxy4m12Xx2wbs4sLkwUTmqoFfZNGsmXYyKNo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:35', '2026-03-02 13:19:35', 0),
+(94, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1NzU3NiwiZXhwIjoxNzczMDYyMzc2fQ.CTd2DU3gFlAzuGMuXaLa7gfcuc3KPCHEudOze7KL45Q', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:36', '2026-03-02 13:19:36', 0),
+(95, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU3NTc3LCJleHAiOjE3NzMwNjIzNzd9.y8m9TcHCMLy2-rhmURQlCduv7Ev4X5M9cpWbrvf05gA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:37', '2026-03-02 13:19:37', 0),
+(96, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1NzU3OCwiZXhwIjoxNzczMDYyMzc4fQ.5NjZQ4_q9Eyn3sORIx5e2UAZXjMxaU_v-2ZfsUCGZ7c', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:38', '2026-03-02 13:19:38', 0),
+(97, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU3NTc5LCJleHAiOjE3NzMwNjIzNzl9.i4vB6DEEXvhyTRYFiTeOa7GYbVTURS33HnRbH-K64-k', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:39', '2026-03-02 13:19:39', 0),
+(98, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1NzU4MCwiZXhwIjoxNzczMDYyMzgwfQ.dabDAEyusDQ0hAm3AYD_237EmE-bJhsMLz_cuhbXdRk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:40', '2026-03-02 13:19:40', 0),
+(100, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1NzU4NSwiZXhwIjoxNzczMDYyMzg1fQ.fcWiH6Ruelqp3RW1ownzAOrktTlSDcJOxWsXx9sZCG4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:45', '2026-03-02 13:19:45', 0),
+(102, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1NzU4OSwiZXhwIjoxNzczMDYyMzg5fQ.P0VG7CCyluCDiO6pJmne-MSi_MGlItd1SDgAB4EgxlQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:19:49', '2026-03-02 13:19:49', 0),
+(103, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU3NjEwLCJleHAiOjE3NzMwNjI0MTB9.BJBGBx3E8nTe48l-F64xY3eUgV3KMQfU0RpsIbayKts', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:20:10', '2026-03-02 13:20:10', 0),
+(104, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1NzYxMSwiZXhwIjoxNzczMDYyNDExfQ.D5BwQCTKKjOppR9aIl7OnMKfUx7gnh_zgF7fFuVFhWQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:20:11', '2026-03-02 13:20:11', 0),
+(105, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU3NjEyLCJleHAiOjE3NzMwNjI0MTJ9.BWOdvZybSXY02RCDutG_2RA5-MsryCDq6hVLEYEB5ok', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:20:12', '2026-03-02 13:20:12', 0),
+(106, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU3NjczLCJleHAiOjE3NzMwNjI0NzN9.pOI5BzK9H3mCOEK10-SF1Q3qxMiekQHGVwgyuc9NWeU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:21:13', '2026-03-02 13:21:13', 0),
+(107, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1NzY3NCwiZXhwIjoxNzczMDYyNDc0fQ.mgqDtlLTDPiaQAsT1B5e_9kEEbIk5vq2RYIbfd8FDgw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:21:14', '2026-03-02 13:21:14', 0),
+(108, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1NzY3NSwiZXhwIjoxNzczMDYyNDc1fQ.lxyWJDcc52TBbLfaIs19QOsmsGMbcL84jZsxIl_oRRU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:21:15', '2026-03-02 13:21:15', 0),
+(109, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1NzY3NiwiZXhwIjoxNzczMDYyNDc2fQ.c9uG5yBbtYooOd-Ep6rVQP6l_cza3doBLgIXHWYTaUU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:21:16', '2026-03-02 13:21:16', 0),
+(110, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU3Njc3LCJleHAiOjE3NzMwNjI0Nzd9.5P-So3BzhXESkIHFtIP5TBIUlJs-7Uh74MpdjP5Ko0k', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:21:17', '2026-03-02 13:21:17', 0),
+(111, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1Nzk4MiwiZXhwIjoxNzczMDYyNzgyfQ.ENt68zQp9sbwnJIJhfvX_yVcE5tsIppZUTWslD-ZROg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:22', '2026-03-02 13:26:22', 0),
+(112, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1Nzk4MywiZXhwIjoxNzczMDYyNzgzfQ.TM6MiyoiQmEkBrEx3vljTN0J1HPSFXeHbyZktpm4VwE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:23', '2026-03-02 13:26:23', 0),
+(113, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU3OTg0LCJleHAiOjE3NzMwNjI3ODR9.yzXNGiVJMzh8ZnzKd_6AUoU7hqRgeQ169liogLA4uWU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:24', '2026-03-02 13:26:24', 0),
+(114, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1Nzk4NSwiZXhwIjoxNzczMDYyNzg1fQ.3aQWOAMw610yq1ejND3As9O3bFvW6j7E7943AF5lw9k', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:25', '2026-03-02 13:26:25', 0),
+(115, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU3OTg2LCJleHAiOjE3NzMwNjI3ODZ9.wYsfn8IP0GB1pJS9EF-c4pGGCQS_uRXysp8NuM8pjho', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:26', '2026-03-02 13:26:26', 0),
+(116, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1ODAxNSwiZXhwIjoxNzczMDYyODE1fQ.mtMlLNgV_BqrMcZCTX5gQaV_kjqxQnYqh1ggfhqNMys', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:55', '2026-03-02 13:26:55', 0),
+(117, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1ODAxNiwiZXhwIjoxNzczMDYyODE2fQ.dJR2KFPk81ACf5E0BD7r8qVxIsX0wCx6uvM5XSe_aDU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:56', '2026-03-02 13:26:56', 0),
+(118, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MDE3LCJleHAiOjE3NzMwNjI4MTd9._JtPX6P9xBtft1AzxKZB3jw5RVYaCQbl7FYuV-qYkbA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:57', '2026-03-02 13:26:57', 0),
+(119, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1ODAxOCwiZXhwIjoxNzczMDYyODE4fQ.s_iGGwKJFvCEj0MfK4R5sCQpMI_hmSNGyozZQ6_DTvc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:26:58', '2026-03-02 13:26:58', 0),
+(120, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU4MDIwLCJleHAiOjE3NzMwNjI4MjB9.14ikw8qmjfGYzUB46G-U5m4c1axJKLzeSsO5FyNp1Hc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:27:00', '2026-03-02 13:27:00', 0),
+(121, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MDIyLCJleHAiOjE3NzMwNjI4MjJ9.XFTg2dvLrJBDzVjbc2f-rfETOvxNMmjT0S42WKLRxWM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:27:02', '2026-03-02 13:27:02', 0),
+(123, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MDI1LCJleHAiOjE3NzMwNjI4MjV9.MBvenZ8of-ZATv2kG6N8oTfwdAQhP6ReTbfcTCa1Qz8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:27:05', '2026-03-02 13:27:05', 0),
+(124, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MDU4LCJleHAiOjE3NzMwNjI4NTh9.RrfC4O4AxgpM52W_Ziy41v4e_LoDDhYVUl-Ql4056rc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:27:38', '2026-03-02 13:27:38', 0),
+(125, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1ODEwMiwiZXhwIjoxNzczMDYyOTAyfQ.nWFDZm5LOFxkw2nJGtuUov3WshoFcEEAZUq4tPRAIvM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:28:22', '2026-03-02 13:28:22', 0),
+(126, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1ODEwMywiZXhwIjoxNzczMDYyOTAzfQ.FglPBPPBH7nfQBDbOe4ATwYwCkMUe-dZW0UHyhnwilA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:28:23', '2026-03-02 13:28:23', 0),
+(127, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MTA0LCJleHAiOjE3NzMwNjI5MDR9.zQN36WBhyqdJaB34vs0Des643YQ9kktEdCdGc648x88', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:28:24', '2026-03-02 13:28:24', 0),
+(128, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1ODEwNSwiZXhwIjoxNzczMDYyOTA1fQ.Jbu5JJzEh9jyJcLvkNutoMetopqwQ9FHREH8jctfX4s', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:28:25', '2026-03-02 13:28:25', 0),
+(129, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU4MTA2LCJleHAiOjE3NzMwNjI5MDZ9.xxnuVIYPJDGE6LEcKV1Qb54hBxIRxpVtQuu2lnOrqUY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:28:26', '2026-03-02 13:28:26', 0),
+(130, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1ODE4NiwiZXhwIjoxNzczMDYyOTg2fQ.8ANquPJfrQYyP1ufWFKKt1clGDQuo1fY_hCU6_coPb8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:29:46', '2026-03-02 13:29:46', 0),
+(131, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1ODE4NywiZXhwIjoxNzczMDYyOTg3fQ.vkxq0Z_vcz0VFDpop2y25PgWlWEl6HPfHnRquBlOnQs', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:29:47', '2026-03-02 13:29:47', 0),
+(132, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MTg4LCJleHAiOjE3NzMwNjI5ODh9.R5i8NwvgX_tC8YNyuPbuSwYUud71Ktuut8wPcWkxNa0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:29:48', '2026-03-02 13:29:48', 0),
+(133, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1ODE4OSwiZXhwIjoxNzczMDYyOTg5fQ.SfPouYynNA4bTT7poH1jRhMukqitetQYeCIMWcrwdlk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:29:49', '2026-03-02 13:29:49', 0),
+(134, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU4MTkwLCJleHAiOjE3NzMwNjI5OTB9.3E08UPLeH36Z8KFirxwYUOjMYuh08xiAykYLhltt87s', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:29:50', '2026-03-02 13:29:50', 0),
+(135, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1ODI2OCwiZXhwIjoxNzczMDYzMDY4fQ.npGKlX-Orcn1W8egIVgLslSSFM-iTQVgIVfb4XIh7dE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:31:08', '2026-03-02 13:31:08', 0),
+(136, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1ODI3MCwiZXhwIjoxNzczMDYzMDcwfQ.gx6TS_utIOkGyNDbnVwVY1rVo2Rcqcapk_Y7VfhsV20', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:31:10', '2026-03-02 13:31:10', 0),
+(137, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MjcxLCJleHAiOjE3NzMwNjMwNzF9.xOkZSrC1YYALcfgdb4BeYIMNOn20ynOMCdfdOLNFBwk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:31:11', '2026-03-02 13:31:11', 0),
+(138, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1ODI3MiwiZXhwIjoxNzczMDYzMDcyfQ.9LParNysweYTwkWp-P04Tz7_mZb5ASEZS2ogWQfwDAY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:31:12', '2026-03-02 13:31:12', 0),
+(139, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU4MjczLCJleHAiOjE3NzMwNjMwNzN9.AWNFNy0JBYktWvEVHN5mgX7V6Fbx_cct9838H0Qa0O8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:31:13', '2026-03-02 13:31:13', 0),
+(140, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1ODMzNSwiZXhwIjoxNzczMDYzMTM1fQ.RRmntGmYLwUpqT5PzHo5P-wXP0P1Ah8Kf0jv3gO0d_E', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:32:15', '2026-03-02 13:32:15', 0),
+(141, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1ODMzNiwiZXhwIjoxNzczMDYzMTM2fQ.Zpor2RBtCgJTZSuaumuZhRmef3IqIFWsQ37xMjGyOGQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:32:16', '2026-03-02 13:32:16', 0),
+(142, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4MzM3LCJleHAiOjE3NzMwNjMxMzd9.1DK98HsuxAMFfgJQ211oFzsT6k3mDQxe_jvv4SfYRcE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:32:17', '2026-03-02 13:32:17', 0),
+(143, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1ODMzOCwiZXhwIjoxNzczMDYzMTM4fQ.CBWImHCs5mNGguJoAMqnfRU4oNZSCw-o33Zwr20GzlM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:32:18', '2026-03-02 13:32:18', 0),
+(144, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU4MzM5LCJleHAiOjE3NzMwNjMxMzl9.xef3Rwt29owN0tkOwz4OLyaZjYYzi8953IV3VfrbEw4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:32:19', '2026-03-02 13:32:19', 0),
+(145, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1ODQ3MSwiZXhwIjoxNzczMDYzMjcxfQ.s-4GllGdMj0W2AxrhzNrV8pncDFcg9obRlOz2uh8OiE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:34:31', '2026-03-02 13:34:31', 0),
+(146, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1ODQ3MiwiZXhwIjoxNzczMDYzMjcyfQ.od--UovKqLmk-2rmk3fjCaIK_6517_zPgv_jN4FbNQI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:34:32', '2026-03-02 13:34:32', 0),
+(147, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4NDczLCJleHAiOjE3NzMwNjMyNzN9.PsAxTeZciWqpI4bEC8Nt8lP3gy3HrGwGzZvweWgAXqg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:34:33', '2026-03-02 13:34:33', 0),
+(148, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1ODQ3NCwiZXhwIjoxNzczMDYzMjc0fQ.6mZYD1OulOAAImXGrSQraQknUz6eQcmQr_rikc-ORuQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:34:34', '2026-03-02 13:34:34', 0),
+(149, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU4NDc1LCJleHAiOjE3NzMwNjMyNzV9.RnuY__lxGNOTFabgJw6VkL6M-89iD1HOrW2WoiUMBj8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:34:35', '2026-03-02 13:34:35', 0),
+(150, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1ODQ5NiwiZXhwIjoxNzczMDYzMjk2fQ.zxBnZnSn40-JNKGDyc7liZtel-0FoLIb7dS4rGEt7Gg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:34:56', '2026-03-02 13:34:56', 0),
+(151, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU4NDk5LCJleHAiOjE3NzMwNjMyOTl9.jg8ytxOIilv_liCtRZmBUP-YFqfRJwLgAYUGmAUxPkg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:34:59', '2026-03-02 13:34:59', 0),
+(152, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5MTA3LCJleHAiOjE3NzMwNjM5MDd9.3cTCamjP8CIs4V6QQyPnHS9lvdXiaprILZHznTI83q4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:45:07', '2026-03-02 13:45:07', 0),
+(153, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5MTE3LCJleHAiOjE3NzMwNjM5MTd9.a-wn85SVilm1W6sBrGda79UVRprzB8NsAQCMs0295fw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:45:17', '2026-03-02 13:45:17', 0),
+(154, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1OTMyOSwiZXhwIjoxNzczMDY0MTI5fQ.42V8Ox7hTEcNkiuIhyXSk7GHnscaHRDtoOeJD2Fjldw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:48:49', '2026-03-02 13:48:49', 0),
+(155, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1OTMzMCwiZXhwIjoxNzczMDY0MTMwfQ.8N3TcKta0n__3z0DSecx7JV5HOPz4PUva7Jw8mrb5Ik', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:48:50', '2026-03-02 13:48:50', 0),
+(156, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5MzMxLCJleHAiOjE3NzMwNjQxMzF9.5rXS1Bog5XkhI474yKqMgctNdFaetrByXFbDyg-DB6A', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:48:51', '2026-03-02 13:48:51', 0),
+(157, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1OTMzMiwiZXhwIjoxNzczMDY0MTMyfQ.X1Viv9HkFImQbupphM8WLihQZiQDi8KcmQw8fKNQ-kc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:48:52', '2026-03-02 13:48:52', 0),
+(158, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU5MzMzLCJleHAiOjE3NzMwNjQxMzN9.B6bvOCg4P5J5zl9LDzrKsxNDz6ex7buN6NcZ9tXriB0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:48:53', '2026-03-02 13:48:53', 0),
+(159, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5MzM0LCJleHAiOjE3NzMwNjQxMzR9.IsOMY1xbVp8DlFwP3LHFMKD7gRxgqYTbh14wEIBcCZQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:48:54', '2026-03-02 13:48:54', 0),
+(160, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5MzM3LCJleHAiOjE3NzMwNjQxMzd9.pur4ZKvmFB8Bksrx67QNt2AC4OW7rDPWywcudHKZ9c0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:48:57', '2026-03-02 13:48:57', 0),
+(161, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50IiwiaW5zdHJ1Y3RvciJdLCJpYXQiOjE3NzI0NTk0MDMsImV4cCI6MTc3MzA2NDIwM30.YbLv-gX9xBfFD7LrZwNbZJTfgSVEiTLfvX5IN3eChv8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:50:03', '2026-03-02 13:50:03', 0),
+(162, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1OTQwNSwiZXhwIjoxNzczMDY0MjA1fQ.PinnDX0_gIKwHIebnvvQ1Gct-U9nHBf6I5mo3i6ug1w', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:50:05', '2026-03-02 13:50:05', 0),
+(163, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5NDA2LCJleHAiOjE3NzMwNjQyMDZ9.EmdYlE2-esGZhpIfJX514CP_RFA6_bZH8wO2IluHoYU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:50:06', '2026-03-02 13:50:06', 0),
+(164, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1OTQwNywiZXhwIjoxNzczMDY0MjA3fQ.JBH-TpbL8tmWt_hK7wY9MTNgtSZUB-5ocH2TpxBY8II', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:50:07', '2026-03-02 13:50:07', 0),
+(165, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU5NDA4LCJleHAiOjE3NzMwNjQyMDh9.eSlyY_96QSSZP8wj7EPA-DVib39XHhpI38qpvf4G1xU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:50:08', '2026-03-02 13:50:08', 0),
+(166, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50IiwiaW5zdHJ1Y3RvciJdLCJpYXQiOjE3NzI0NTk0NjMsImV4cCI6MTc3MzA2NDI2M30.Ou1OxNwxs7KxUx2ubEe13VKSxyzlkEjZsG2XCrN9Bz4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:51:03', '2026-03-02 13:51:03', 0),
+(167, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1OTQ2NCwiZXhwIjoxNzczMDY0MjY0fQ.2fvjZUezO8ISd2n_hkgaplkgZZhCrPPNkoH6mWHJixE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:51:04', '2026-03-02 13:51:04', 0),
+(168, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5NDY1LCJleHAiOjE3NzMwNjQyNjV9.9zwTLCgRB3xjcRR-d64i6gazF2V3yTj-jwSf32kaRIM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:51:05', '2026-03-02 13:51:05', 0),
+(169, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ1OTQ2NywiZXhwIjoxNzczMDY0MjY3fQ.TnlFpr10pa60WUq_YCrUI_AvXITsahvh2vT1hYUoiH0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:51:07', '2026-03-02 13:51:07', 0),
+(170, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDU5NDY4LCJleHAiOjE3NzMwNjQyNjh9.nMlKKIM-Ncmm6C1ERTGGSEvJ18_X9SsLmtqX059HIGo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:51:08', '2026-03-02 13:51:08', 0),
+(171, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50IiwiaW5zdHJ1Y3RvciJdLCJpYXQiOjE3NzI0NTk2MzIsImV4cCI6MTc3MzA2NDQzMn0.7djQ2ZacNr7I2aHrtYgKF4l3njdk2crOlDh-OnFSOGY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:53:52', '2026-03-02 13:53:52', 0),
+(172, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5NjUxLCJleHAiOjE3NzMwNjQ0NTF9.3N7K5hW4CaF36mSUT_rCxS3Ow6hzT42UKp9rg8JIXdA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:54:11', '2026-03-02 13:54:11', 0),
+(173, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1OTY1MywiZXhwIjoxNzczMDY0NDUzfQ.ljb3lEniXfdJn_Nu61u4ZuqxXashYTnC1wSfB9t7BYA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:54:13', '2026-03-02 13:54:13', 0),
+(174, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ1OTY3OCwiZXhwIjoxNzczMDY0NDc4fQ.VhG6r7R62deapTGuWLKyMCmb67z8pigGGyVvA-tVtZs', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:54:38', '2026-03-02 13:54:38', 0),
+(175, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ1OTY3OSwiZXhwIjoxNzczMDY0NDc5fQ.F4q0oiB7AORj4UPzK-hBpjs14tk2J7Jv3NK5ZtJkFoI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:54:39', '2026-03-02 13:54:39', 0),
+(176, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5NjgwLCJleHAiOjE3NzMwNjQ0ODB9.NZ6MdPSkBoS8rqYfgLniIz41KYaDVQX7uXUPj6XIKPQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:54:40', '2026-03-02 13:54:40', 0),
+(177, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDU5NzM4LCJleHAiOjE3NzMwNjQ1Mzh9.2KyCcqCZqpSeg4p-Zpe0uFgPX5muuMDlBim0vhjSmvQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 13:55:38', '2026-03-02 13:55:38', 0),
+(178, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ2MDI1MCwiZXhwIjoxNzczMDY1MDUwfQ.8WI-0AjH6c0tgBT9A_BK5eKj6iv3d8V6Z_HSWrpIdnE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:04:10', '2026-03-02 14:04:10', 0),
+(179, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDI1MiwiZXhwIjoxNzczMDY1MDUyfQ.koC88F_q0Zz2N8dNOLD0eSion03K6q8-fRWpeG2Y9kY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:04:12', '2026-03-02 14:04:12', 0),
+(180, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDYwMjUzLCJleHAiOjE3NzMwNjUwNTN9.B4sti42V8xEKJ6W1oZY98SxDxFKXAI1SGdyQnbZS-Co', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:04:13', '2026-03-02 14:04:13', 0),
+(181, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ2MDI1NCwiZXhwIjoxNzczMDY1MDU0fQ.35FmlsSb4wpIUTK8m50RRAP1JGLHH85PgQKCV4lOPKU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:04:14', '2026-03-02 14:04:14', 0),
+(182, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDYwMjU1LCJleHAiOjE3NzMwNjUwNTV9.8oDVVxfewDDmJwK0OahnGp4fFGgsUQOE1m0kJqU8i3I', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:04:15', '2026-03-02 14:04:15', 0),
+(183, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDYwMjU2LCJleHAiOjE3NzMwNjUwNTZ9.bGsqwE_v-cb4YFOJXzfZm_KSahluE4tahpD9A__-Bng', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:04:16', '2026-03-02 14:04:16', 0),
+(184, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDYwMjU5LCJleHAiOjE3NzMwNjUwNTl9.-zBpfcry7zurNLLcoAnNLpmsdA01wlbPkbOxTpKUhKs', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:04:19', '2026-03-02 14:04:19', 0),
+(185, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ2MDMzNiwiZXhwIjoxNzczMDY1MTM2fQ.CYhBoQwjlyR9HhuYbyrT1tTBXyeoKfm6C_9vX1f4gNw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:05:36', '2026-03-02 14:05:36', 0),
+(186, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDMzNywiZXhwIjoxNzczMDY1MTM3fQ.W4q4q994_GmON9v1vhOtivKswxfQuK3jWsG8Kw9Ie3E', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:05:37', '2026-03-02 14:05:37', 0),
+(187, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDYwMzM4LCJleHAiOjE3NzMwNjUxMzh9.gWzOD3qoziAXAPEl4anOaXzJt-7QIY1SW4tK_eBPT6k', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:05:38', '2026-03-02 14:05:38', 0),
+(188, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ2MDM0MCwiZXhwIjoxNzczMDY1MTQwfQ.h2cIduQS0lg5y7RhVAdF3GCSnYo93Ujet1cdJNWCcyI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:05:40', '2026-03-02 14:05:40', 0),
+(189, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDYwMzQxLCJleHAiOjE3NzMwNjUxNDF9.fRw_JMspiO9LoSxv69p9_SgMRBSmY9AFMogaR7T2m68', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:05:41', '2026-03-02 14:05:41', 0),
+(190, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDQwNiwiZXhwIjoxNzczMDY1MjA2fQ.dq4Hh86dYUCqEFZNQUFzdHogiZ2RGVzOC7Bge_oKfoE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:06:46', '2026-03-02 14:06:46', 0),
+(191, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDQyNiwiZXhwIjoxNzczMDY1MjI2fQ.cHemDIySwY7zQ5B5VQ5RuiXKUDxDL88PJTuZfjupwKw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:07:06', '2026-03-02 14:07:06', 0),
+(192, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDQzNiwiZXhwIjoxNzczMDY1MjM2fQ.mWVrUk6ZvCpvoOC3kChagducxcxileZkaQht9DYT9P4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:07:16', '2026-03-02 14:07:16', 0),
+(193, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDQ0NiwiZXhwIjoxNzczMDY1MjQ2fQ.JBg_hSRzWLjFMBnNpguUChTe0gnfVC-Xp_54qusT4WQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:07:26', '2026-03-02 14:07:26', 0);
+INSERT INTO `sessions` (`session_id`, `user_id`, `session_token`, `ip_address`, `user_agent`, `device_type`, `expires_at`, `created_at`, `remember_me`) VALUES
+(194, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDQ3OSwiZXhwIjoxNzczMDY1Mjc5fQ.SR9Otm58226bB3DMsr_nHw9I_EUToc2_w2KKfXp0E_o', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:07:59', '2026-03-02 14:07:59', 0),
+(195, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ2MDQ4MCwiZXhwIjoxNzczMDY1MjgwfQ.SqVCuLF51w4GrQqR5qFU_KfAD97Akqy7cAYAfXkRkWk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:08:00', '2026-03-02 14:08:00', 0),
+(196, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDYwNDgxLCJleHAiOjE3NzMwNjUyODF9.K3Ie0ywTyVugF46f48G1iW9s5NEhoYZvLRRbVsj_tYQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:08:01', '2026-03-02 14:08:01', 0),
+(197, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDUzNywiZXhwIjoxNzczMDY1MzM3fQ.F-jNRKc9W-6aVa7DFf0wgCwXwFEOAjYN53uuov0J0Tg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:08:57', '2026-03-02 14:08:57', 0),
+(198, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ2MDUzOCwiZXhwIjoxNzczMDY1MzM4fQ.gQc_AlmLG_RSDhckbvnLpKx6Dkg7VrpkyhT2XWwEHwk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:08:58', '2026-03-02 14:08:58', 0),
+(199, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDYwNTM5LCJleHAiOjE3NzMwNjUzMzl9.SnFgRHPKrs8RiQxTMCYKyAQj1-oD5QTLVX4fslfXqeE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:08:59', '2026-03-02 14:08:59', 0),
+(200, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDYxMywiZXhwIjoxNzczMDY1NDEzfQ.f1uwEUAYji2CY19JbmQx_BQB11zyNWAaA8TjGj-Aw-A', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:10:13', '2026-03-02 14:10:13', 0),
+(201, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ2MDYxNCwiZXhwIjoxNzczMDY1NDE0fQ.uyEAWXygIoPXYMr4OIOgdoWE2sU5yviS0yGEsZaLVzA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:10:14', '2026-03-02 14:10:14', 0),
+(202, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDY1MiwiZXhwIjoxNzczMDY1NDUyfQ.7NMsjG17GYQAyg7594QHHb2yLZXLgFQ0D_a96nvzdzc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:10:52', '2026-03-02 14:10:52', 0),
+(203, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ2MDY3MCwiZXhwIjoxNzczMDY1NDcwfQ.6XYfDFdpZoNf-wyEZ6DjanbBLlr44xjNbIgYGDlK6IU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-09 14:11:10', '2026-03-02 14:11:10', 0),
+(204, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ2MTc4NywiZXhwIjoxNzczMDY2NTg3fQ.Kfg8lPw4LE7crt35xwdboxj3CNhC21Sy8ILflv8OoiU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-09 14:29:47', '2026-03-02 14:29:47', 0),
+(205, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDYxODg4LCJleHAiOjE3NzMwNjY2ODh9.6wJB3EIlsHUztlcYLtUwQf-7_32epMRVHWZjXot2PA4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-09 14:31:28', '2026-03-02 14:31:28', 0),
+(206, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5MzkzMywiZXhwIjoxNzczMDk4NzMzfQ.ugxvp8JR0bfvWYV_1y5tVFP5GTsDGHnpYMKRFHe0Vl4', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2026-03-09 23:25:33', '2026-03-02 23:25:33', 0),
+(207, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NDAwMCwiZXhwIjoxNzczMDk4ODAwfQ.W3fzVJ_FsUKc-XJxgwHt3SykzUltBv6ClvnR01SNWeA', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2026-03-09 23:26:40', '2026-03-02 23:26:40', 0),
+(208, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDk0MDE1LCJleHAiOjE3NzMwOTg4MTV9.pEu0eY5w1TJSQAhq6QlZSs48o1fNP9VkaKo8qIa17iU', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2026-03-09 23:26:55', '2026-03-02 23:26:55', 0),
+(209, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ5NDAzMCwiZXhwIjoxNzczMDk4ODMwfQ.gc6BfnADZxsih3G6_6ZO3dVB2vz8kCuakn49996GCF0', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2026-03-09 23:27:10', '2026-03-02 23:27:10', 0),
+(210, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDk0MDQ1LCJleHAiOjE3NzMwOTg4NDV9.SeZgTlxobYGTg-DhCvmKjLrijrVEBO0FaFDM1lWyS9Y', '127.0.0.1', 'PostmanRuntime/7.49.1', 'desktop', '2026-03-09 23:27:25', '2026-03-02 23:27:25', 0),
+(211, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NDk1NywiZXhwIjoxNzczMDk5NzU3fQ.fFJc9XrbcRYPZSLeFnBaT7VgM-OdcZ7zlaFqOZaUpRc', '127.0.0.1', NULL, '', '2026-03-09 23:42:37', '2026-03-02 23:42:37', 0),
+(212, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NDk1NywiZXhwIjoxNzczMDk5NzU3fQ.dnxlxXFNaTuTod8xFZ_b-doYMB5jz779_XFmVaCs3Ec', '127.0.0.1', NULL, '', '2026-03-09 23:42:37', '2026-03-02 23:42:37', 0),
+(213, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDk0OTU3LCJleHAiOjE3NzMwOTk3NTd9.ta0C13xHdjVy-YTLFgFR56twhCIpFiuOV5yaTvDDSl0', '127.0.0.1', NULL, '', '2026-03-09 23:42:37', '2026-03-02 23:42:37', 0),
+(214, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ5NDk1OCwiZXhwIjoxNzczMDk5NzU4fQ.iSemHapJbRh7KO6i1i2YHFE3FBnz0z65SP1uHxvlA9M', '127.0.0.1', NULL, '', '2026-03-09 23:42:38', '2026-03-02 23:42:38', 0),
+(215, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDk0OTU4LCJleHAiOjE3NzMwOTk3NTh9.2BGIcrG5W3pEVKZIqLQrXnklU3B1dkovlx7SeRyz9g4', '127.0.0.1', NULL, '', '2026-03-09 23:42:38', '2026-03-02 23:42:38', 0),
+(216, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NTAxMCwiZXhwIjoxNzczMDk5ODEwfQ.4JRPF_rk62ISnW10Px1pzrZCAycaYvw-a-bbL-RGaoU', '127.0.0.1', NULL, '', '2026-03-09 23:43:30', '2026-03-02 23:43:30', 0),
+(217, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NTAxMCwiZXhwIjoxNzczMDk5ODEwfQ.pxjgspo8Kpcq-I3-yRizxdwkil-QoGsZzsjJ2ls7Uak', '127.0.0.1', NULL, '', '2026-03-09 23:43:30', '2026-03-02 23:43:30', 0),
+(218, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NTA0MywiZXhwIjoxNzczMDk5ODQzfQ.ZVEI0xKcbCQttCrL_jDn0FwrRcH7gfyP2nhTeXo8L8s', '127.0.0.1', NULL, '', '2026-03-09 23:44:03', '2026-03-02 23:44:03', 0),
+(219, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NTA0MywiZXhwIjoxNzczMDk5ODQzfQ.hLY7TclThJjWx4AX50R0RlXCrXmwkdsAcuz-_er14Ik', '127.0.0.1', NULL, '', '2026-03-09 23:44:03', '2026-03-02 23:44:03', 0),
+(220, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NTA1OSwiZXhwIjoxNzczMDk5ODU5fQ.ICPJPd5OnNElGPWZ1Q_o9JKsObA3Z3Vm5jbq5TRiIxM', '127.0.0.1', NULL, '', '2026-03-09 23:44:19', '2026-03-02 23:44:19', 0),
+(221, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NTI0MCwiZXhwIjoxNzczMTAwMDQwfQ.gKO4L31TDPmGqlEA9GvJy1hLcY9KLoqG28Gfx9hS4TU', '127.0.0.1', NULL, '', '2026-03-09 23:47:20', '2026-03-02 23:47:20', 0),
+(222, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NTI0MCwiZXhwIjoxNzczMTAwMDQwfQ.c7JlXXF170LFoDaL_YG4FQCRA5aB3G1U2l5ndy8HKaQ', '127.0.0.1', NULL, '', '2026-03-09 23:47:20', '2026-03-02 23:47:20', 0),
+(223, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDk1MjQxLCJleHAiOjE3NzMxMDAwNDF9.DKmiUKx-_MA3XOYqZHYFJLd3H9LIBVH5GqpygqNzGeY', '127.0.0.1', NULL, '', '2026-03-09 23:47:21', '2026-03-02 23:47:21', 0),
+(224, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ5NTI0MSwiZXhwIjoxNzczMTAwMDQxfQ.6GscVl5NMmnsPYOSoNrKkGhjs0EcRA0E9WDRBzKIPVo', '127.0.0.1', NULL, '', '2026-03-09 23:47:21', '2026-03-02 23:47:21', 0),
+(225, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDk1MjQxLCJleHAiOjE3NzMxMDAwNDF9.kJckShzNuMsd95Mgw3PY-F7ALycWBC61SSb7nOvQ0cA', '127.0.0.1', NULL, '', '2026-03-09 23:47:21', '2026-03-02 23:47:21', 0),
+(226, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NTM4MCwiZXhwIjoxNzczMTAwMTgwfQ.dK2sdRrjmObsmhPOlrA8hgzxfKwwevlKaoSBCWovRf8', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-09 23:49:40', '2026-03-02 23:49:40', 0),
+(227, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NTM5OSwiZXhwIjoxNzczMTAwMTk5fQ.wCS1XWq5MAXhcZ13qISNoi0Z1bPH93QWsZfGNePs4-A', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-09 23:49:59', '2026-03-02 23:49:59', 0),
+(228, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDk1NDExLCJleHAiOjE3NzMxMDAyMTF9.-BkjiWiI8X7QDIfFvH-t_TgNlzjTxj2fLZBnysEvWOQ', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-09 23:50:11', '2026-03-02 23:50:11', 0),
+(229, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ5NTQ0MywiZXhwIjoxNzczMTAwMjQzfQ.35suJaBXCxBeDlEoHqNdokSucbz38aCf7WxCMbtOfC4', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-09 23:50:43', '2026-03-02 23:50:43', 0),
+(230, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDk1NDYwLCJleHAiOjE3NzMxMDAyNjB9.bZY1lQYaHZLNInLGS7CGyuJQxo1fIxXB4EkKd5ZyZx8', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-09 23:51:00', '2026-03-02 23:51:00', 0),
+(231, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDk2NTkxLCJleHAiOjE3NzMxMDEzOTF9.MGweTB98iD3_jr3ErO5ami6rR6OyX2Hk6OCivv7QIMg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 00:09:51', '2026-03-03 00:09:51', 0),
+(232, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NjU5MiwiZXhwIjoxNzczMTAxMzkyfQ.b6FGQqhoLyQPAwA7hfBT7gX2y9AC_gKeJl3-sjTvuIU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 00:09:52', '2026-03-03 00:09:52', 0),
+(233, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NjU5MywiZXhwIjoxNzczMTAxMzkzfQ.QYR2oSWIpzy84lbnWLeuI_BaE-3t7iS5JwyqlWAV9Lg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 00:09:53', '2026-03-03 00:09:53', 0),
+(234, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NjY0MCwiZXhwIjoxNzczMTAxNDQwfQ.EqIVxOk7Qy88_0Js1M7KXl4i91rrivc5wyMdgiVJViM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 00:10:40', '2026-03-03 00:10:40', 0),
+(235, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDk2NjQxLCJleHAiOjE3NzMxMDE0NDF9.Im8nTQj1Th3XV0PbqoyI1hyDFevn_p_LIPeIyAX518c', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 00:10:41', '2026-03-03 00:10:41', 0),
+(236, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjQ5NzMxOCwiZXhwIjoxNzczMTAyMTE4fQ.5lILfFZ3CNqafhC26t9OOX3PRCEV_D2_VP7W1n8_me8', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 00:21:58', '2026-03-03 00:21:58', 0),
+(237, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjQ5NzMxOCwiZXhwIjoxNzczMTAyMTE4fQ.4htjJZ-dHtiqxEbTkddBZASovcSienjCWn_ZRABuer8', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 00:21:58', '2026-03-03 00:21:58', 0),
+(238, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNDk3MzE4LCJleHAiOjE3NzMxMDIxMTh9.Kg1463tQsOfxZRitcIs6XIiF_siFHfhDZHHjzguAK94', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 00:21:58', '2026-03-03 00:21:58', 0),
+(239, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjQ5NzMxOCwiZXhwIjoxNzczMTAyMTE4fQ.rC9QTa2mniUxvaO7qsAc7oC80gk0cU21AK95kIaU_vw', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 00:21:58', '2026-03-03 00:21:59', 0),
+(240, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNDk3MzE5LCJleHAiOjE3NzMxMDIxMTl9.EtYHz0SKrvkUSd0tYHo6ZNlo_9bSIfZ3LAAYwUdFAnE', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 00:21:59', '2026-03-03 00:21:59', 0),
+(241, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYxNDY4LCJleHAiOjE3NzMxNjYyNjh9.xookekgvYWKrbITlRXabDPNLcFEdmcPv2HIaGTdc1PE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:11:08', '2026-03-03 18:11:08', 0),
+(242, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYxNDc0LCJleHAiOjE3NzMxNjYyNzR9.gd3JOa9st32ug4ms2RQlt5SsaRn0kOCmyGF3KqIn1bc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:11:14', '2026-03-03 18:11:14', 0),
+(243, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MTQ4NCwiZXhwIjoxNzczMTY2Mjg0fQ.TeQEl2ABPoIxmDn0qm-pUGq2ztDZBeVfhOPNihHq6dE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:11:24', '2026-03-03 18:11:24', 0),
+(244, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MTQ4NSwiZXhwIjoxNzczMTY2Mjg1fQ.6HzM2Ok10vTeT0dWeTcUYMqAbF6P5VRbumFyhEpCERM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:11:25', '2026-03-03 18:11:25', 0),
+(245, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYxNDg2LCJleHAiOjE3NzMxNjYyODZ9.M3fY6heNGwToTFn26lcr-OY-9W-_W5wMuKHvpBfLvi8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:11:26', '2026-03-03 18:11:26', 0),
+(246, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MTQ4NywiZXhwIjoxNzczMTY2Mjg3fQ.epYDKupTKKjO_bBGadqNAEt7l70s8CZunjcFxMGxa3g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:11:27', '2026-03-03 18:11:27', 0),
+(247, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYxNDg4LCJleHAiOjE3NzMxNjYyODh9.E5Xrpolgty1CF00KYjQH0MazBngDGYQLHeC0pN4xm-A', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:11:28', '2026-03-03 18:11:28', 0),
+(248, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MTY4MiwiZXhwIjoxNzczMTY2NDgyfQ.-brZNhhdbhLCSdQf2cjHqhj7ZllZsmkQGXFn3DGIW9g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:14:42', '2026-03-03 18:14:42', 0),
+(249, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MTY4MywiZXhwIjoxNzczMTY2NDgzfQ.gbI579cMApasc98ra8DP3JX9sAfj9FUVkXQ_BgtJrwQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:14:43', '2026-03-03 18:14:43', 0),
+(250, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYxNjg0LCJleHAiOjE3NzMxNjY0ODR9.1Elo7GZTUrOKSfRYzOle7Flw5KHAaFW--c1d4CxJGiM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:14:44', '2026-03-03 18:14:44', 0),
+(251, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MTY4NSwiZXhwIjoxNzczMTY2NDg1fQ.g28hRe9jBb9izv_3OCqMW-VYIIfHaP4cjAQSVNJDSks', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:14:45', '2026-03-03 18:14:45', 0),
+(252, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYxNjg2LCJleHAiOjE3NzMxNjY0ODZ9.ZAXtjgTr3ge6EHD5vy0CuPD12lRhqAYpGPD_-_E7pLI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:14:46', '2026-03-03 18:14:46', 0),
+(253, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MTc5NiwiZXhwIjoxNzczMTY2NTk2fQ.DubARO9p5hYKbu9pN8-7ZHNgZaUh59gQMhQ0gWak_30', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:16:36', '2026-03-03 18:16:36', 0),
+(254, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MTc5NywiZXhwIjoxNzczMTY2NTk3fQ.f1o0hPHOE9aT3e4O5vXPvSF5yf8Fus8AXGH7ZvjI1JQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:16:37', '2026-03-03 18:16:37', 0),
+(255, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYxNzk4LCJleHAiOjE3NzMxNjY1OTh9.a0iC9EZJKZlgnm5ph-jV4u79v6yo_vg_Zs0pwQcOsX0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:16:38', '2026-03-03 18:16:38', 0),
+(256, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MTc5OSwiZXhwIjoxNzczMTY2NTk5fQ.Gu3bbg9SeetSVaRqVMikKKrEQj3qJJuR8DQGYbMcIHE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:16:39', '2026-03-03 18:16:39', 0),
+(257, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYxODAwLCJleHAiOjE3NzMxNjY2MDB9.2H_qfQe5v9kwYmU2MLDolCFSbN_tx7oY5A0rdxl5dLA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:16:40', '2026-03-03 18:16:40', 0),
+(258, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MTkwMiwiZXhwIjoxNzczMTY2NzAyfQ.aQWgdxmDSDz5g4u_oZSsUyjHMdbG1P6Rq0VXGStTR-Q', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:18:22', '2026-03-03 18:18:22', 0),
+(259, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MTkwMywiZXhwIjoxNzczMTY2NzAzfQ.0Rg5H1gSNBtPeS1yz83DeZGAF9awtVmI77cYXU-lZfE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:18:23', '2026-03-03 18:18:23', 0),
+(260, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYxOTA1LCJleHAiOjE3NzMxNjY3MDV9.OMr0weCvZKzOoxvGUiniEe5hDh0UKFvn1-b1m_IiY0E', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:18:25', '2026-03-03 18:18:25', 0),
+(261, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MTkwNiwiZXhwIjoxNzczMTY2NzA2fQ.rcX5oqqFuyYqMd6XGj1ZDHqqVPQBgToxRJrKaVZWLzI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:18:26', '2026-03-03 18:18:26', 0),
+(262, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYxOTA3LCJleHAiOjE3NzMxNjY3MDd9.9V6H_bRzo7PUieFC_Ob1irepG_XWJuAQ0OGCoZ93DQA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:18:27', '2026-03-03 18:18:27', 0),
+(263, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MjAxMSwiZXhwIjoxNzczMTY2ODExfQ._29Nw7C6lXe9mOIfq8eD-Tvpac1fMFMgMIqPSWxWz-g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:20:11', '2026-03-03 18:20:11', 0),
+(264, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MjAxMywiZXhwIjoxNzczMTY2ODEzfQ.C2k8tM3E9bS7ezx7tFrlWxPsL95uBeaTulIRlu_ZE4k', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:20:13', '2026-03-03 18:20:13', 0),
+(265, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYyMDE0LCJleHAiOjE3NzMxNjY4MTR9.Hqa-Asa0u5gKAu2wi6FMeKboW7N2vxh-EzOzamL-NT0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:20:14', '2026-03-03 18:20:14', 0),
+(266, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MjAxNSwiZXhwIjoxNzczMTY2ODE1fQ.0n7cM1LZDfNbMOkZMSaHQ4zAjkaCE2feznDdqrwK8Vk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:20:15', '2026-03-03 18:20:15', 0),
+(267, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYyMDE2LCJleHAiOjE3NzMxNjY4MTZ9.df9HQdscgd8acbdwnsXFyfop8_k3jzV0Kdj-NDcQGM0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:20:16', '2026-03-03 18:20:16', 0),
+(268, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MjEwMywiZXhwIjoxNzczMTY2OTAzfQ.alZoLx1VsXsBHgU4_MLd0g6kZu9ZbKpCy0_B1pumgFs', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:21:43', '2026-03-03 18:21:43', 0),
+(269, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MjEwNCwiZXhwIjoxNzczMTY2OTA0fQ.qnjmCGWah-Jt39m2_V8iulY7wYDFLgaXp_mMlpI5Zts', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:21:44', '2026-03-03 18:21:44', 0),
+(270, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYyMTA1LCJleHAiOjE3NzMxNjY5MDV9.h6ClI3MWuylbA5cl47YNFQCSMmk0_TyGuCANuErtqvg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:21:45', '2026-03-03 18:21:45', 0),
+(271, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MjEwNiwiZXhwIjoxNzczMTY2OTA2fQ.0qSMlzQqtJkjtMTT1Dos76me50hkgIAYeevzSYqwom8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:21:46', '2026-03-03 18:21:46', 0),
+(272, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYyMTA3LCJleHAiOjE3NzMxNjY5MDd9.qOHXUUiEFIkEY1h9i-CnuEOUT3m_GO4lVf5-OTRZf-k', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:21:47', '2026-03-03 18:21:47', 0),
+(273, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MjE5OSwiZXhwIjoxNzczMTY2OTk5fQ.irgiTfdQ1BE-WUdfv7PRdnbIqrXxQvGJfQ47eTWxegE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:23:19', '2026-03-03 18:23:19', 0),
+(274, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MjIwMCwiZXhwIjoxNzczMTY3MDAwfQ.rxvbVdfBDLgqfCTfvDpD29hJg_taTXYGONbV711zSMY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:23:20', '2026-03-03 18:23:20', 0),
+(275, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYyMjAxLCJleHAiOjE3NzMxNjcwMDF9.iQTmN0mzl6V-2IwA_7b1IMTQKd3NS58rWLo-ce0kRIU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:23:21', '2026-03-03 18:23:21', 0),
+(276, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MjIwMiwiZXhwIjoxNzczMTY3MDAyfQ.j5uB2j_TTKAfQwYFNUQNrjM_Pr5RLTt6V9ZibtEhroY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:23:22', '2026-03-03 18:23:22', 0),
+(277, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYyMjAzLCJleHAiOjE3NzMxNjcwMDN9.1Kk_O7YtBLGI8QjDKY6CCYB51FVFxK3ae-N1QA0amqM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:23:23', '2026-03-03 18:23:23', 0),
+(278, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MjQwNywiZXhwIjoxNzczMTY3MjA3fQ.CHLrU6BPbw5gPt5ZAciB6ZBtr73GuOR95FCOqAS2ync', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:26:47', '2026-03-03 18:26:47', 0),
+(279, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MjQwOCwiZXhwIjoxNzczMTY3MjA4fQ.5EtdxYXtyv64tfsTaAkUPz3NDjR0Ud6TE4yKgKSj-hA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:26:48', '2026-03-03 18:26:48', 0),
+(280, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYyNDA5LCJleHAiOjE3NzMxNjcyMDl9.AP2Uk5FeeWXcGTMQrQwo4PyXbuwc897PRmzPdmMaxMU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:26:49', '2026-03-03 18:26:49', 0),
+(281, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MjQxMCwiZXhwIjoxNzczMTY3MjEwfQ.eHbZHP53rRqaj9QhiVzp2hMZVz_O9OWpB-uvCBUbq60', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:26:50', '2026-03-03 18:26:50', 0),
+(282, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYyNDExLCJleHAiOjE3NzMxNjcyMTF9.72goPQbkKPEa1lspA5oVMdBZcsPRfOciw25jIewlIxw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:26:51', '2026-03-03 18:26:51', 0),
+(283, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MjcxNiwiZXhwIjoxNzczMTY3NTE2fQ.SgLO77OOo1F0Rvk7EfifQpAZFeZHYbAq5gdLjZihT00', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 18:31:56', '2026-03-03 18:31:56', 0),
+(284, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MjcxNiwiZXhwIjoxNzczMTY3NTE2fQ.7S06HxqPgOk4F5P_CrJcoeHdPSagN3TAw6Q4dnhCPUs', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 18:31:56', '2026-03-03 18:31:56', 0),
+(285, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYyNzE2LCJleHAiOjE3NzMxNjc1MTZ9.zKPvGzUhR0aM4CVuJHRqrSRbbB0d6rJ9I63vEAuxGSw', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 18:31:56', '2026-03-03 18:31:56', 0),
+(286, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MjcxNiwiZXhwIjoxNzczMTY3NTE2fQ.2w3xDrx9_32SAAVVQ13Z5XVOAfWUW8GAu-Zl1of9E7Q', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 18:31:56', '2026-03-03 18:31:56', 0),
+(287, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYyNzE3LCJleHAiOjE3NzMxNjc1MTd9.DeIHjKWuxddoIYXJgXcQx4UIAZyUVlpECfRW8XuoJ5w', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-10 18:31:57', '2026-03-03 18:31:57', 0),
+(288, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MzI5OCwiZXhwIjoxNzczMTY4MDk4fQ.qurTq0xBIoiuiiVulKE1lXoE8rh4fD02cDfHuAD8ER8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:41:38', '2026-03-03 18:41:38', 0),
+(289, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MzI5OSwiZXhwIjoxNzczMTY4MDk5fQ.dXIB_SLoFc4I6d2LFOw2W9rJodBRIt3FTim5oMMQYas', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:41:39', '2026-03-03 18:41:39', 0),
+(290, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYzMzAwLCJleHAiOjE3NzMxNjgxMDB9.aHppv02ayyP5U8Rc3s_iZUQu2RfWuRA7roHcTRy8kZk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:41:40', '2026-03-03 18:41:40', 0),
+(291, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU2MzQ3NCwiZXhwIjoxNzczMTY4Mjc0fQ.rUUgt3PNxg-DWnhPIHbSX7tNN1S7LQIjb-o_BPsguCM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:44:34', '2026-03-03 18:44:34', 0),
+(292, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjU2MzQ3NSwiZXhwIjoxNzczMTY4Mjc1fQ.80ti5Y-Q3GCS2kegglhoUCI8-No_PhiWqwXqHjFlHjM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:44:35', '2026-03-03 18:44:35', 0),
+(293, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNTYzNDc2LCJleHAiOjE3NzMxNjgyNzZ9.YnVdxDRD3AJ3uzhtNQbKGLIMLRj9u2X7je-ohjJ4jko', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:44:36', '2026-03-03 18:44:36', 0),
+(294, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjU2MzQ3NywiZXhwIjoxNzczMTY4Mjc3fQ.XP4ow6zpU_b5I2NuIyhu9le5_WLypxM8QFJp4F2YWPs', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:44:37', '2026-03-03 18:44:37', 0),
+(295, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNTYzNDc4LCJleHAiOjE3NzMxNjgyNzh9.dYQdphzyLRPhh02egW2gUhDG-fa2Y_ST1ZIIwSxXmag', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-10 18:44:38', '2026-03-03 18:44:38', 0),
+(296, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjU5MDE2NSwiZXhwIjoxNzczMTk0OTY1fQ.--0JxBcXPMgoN3LOvbG6O81nIwGaPooHvgzHQpoz2N8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 02:09:25', '2026-03-04 02:09:25', 0),
+(297, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjYzMzUzMCwiZXhwIjoxNzczMjM4MzMwfQ.hdCDI6mxpS1gLJ9YILpqQVpI3xZ16TAaNXN8D6lb2po', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 14:12:10', '2026-03-04 14:12:10', 0),
+(298, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjYzMzc5MywiZXhwIjoxNzczMjM4NTkzfQ.4iDLxd-eBjuHu2W349k_BhMEvOm6RMOCX5DZRNUK344', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 14:16:33', '2026-03-04 14:16:33', 0),
+(299, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjYzNTQzNiwiZXhwIjoxNzczMjQwMjM2fQ.lAR9rMF-ju48X5vWN5wYcYMBXwfilmH8Jy22ZswNQ5w', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 14:43:56', '2026-03-04 14:43:56', 0),
+(300, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjYzNTUwNywiZXhwIjoxNzczMjQwMzA3fQ.q70jA8tY2LymieLUys_W8MOuc6CsZEDJuTJA4G1Fkj4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 14:45:07', '2026-03-04 14:45:07', 0),
+(301, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNjM1NTc0LCJleHAiOjE3NzMyNDAzNzR9.iFY8AvbIujRP_SviiuClGR73oE1OP7tdPPqfniR9FJA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 14:46:14', '2026-03-04 14:46:14', 0),
+(302, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjYzNTYxMCwiZXhwIjoxNzczMjQwNDEwfQ.MzRbWHoYbMvBbsrbq4zkX_OvVfS-Eap0G7gUNhzUsuw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 14:46:50', '2026-03-04 14:46:50', 0),
+(303, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNjM1Njk2LCJleHAiOjE3NzMyNDA0OTZ9.BvXgmp6O7Q__5p1uJYN7tgt2ao-7G6xNcKeVXXqkoag', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 14:48:16', '2026-03-04 14:48:16', 0),
+(304, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjYzNjcwOSwiZXhwIjoxNzczMjQxNTA5fQ.B2pJyriF9tV7JUP4jK8VuyEbzgDrtlHAlnM8zIQJ_6E', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 15:05:09', '2026-03-04 15:05:09', 0),
+(305, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjYzNjc2OSwiZXhwIjoxNzczMjQxNTY5fQ.QrlUZKBiPXFbGgP4j4WbJC02DvOTC07AkYkCsC1C1QA', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 15:06:09', '2026-03-04 15:06:09', 0),
+(306, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNjM2OTE0LCJleHAiOjE3NzMyNDE3MTR9.uPEZ5oj4miZqL4oa-GiVwi9yKFAiew61XXCKlqk1KhI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-11 15:08:34', '2026-03-04 15:08:34', 0),
+(307, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjczODA3NywiZXhwIjoxNzczMzQyODc3fQ.UvGKNnUPhX3I32ZgdTVdNXt5JaRVInqQne5mlAGPhJA', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-12 19:14:37', '2026-03-05 19:14:37', 0),
+(308, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjczODA3NywiZXhwIjoxNzczMzQyODc3fQ.ATLKgcqksHkS5ghP35iRLkO4iJPa2yFULfcAEq9Sf1o', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-12 19:14:37', '2026-03-05 19:14:37', 0),
+(309, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyNzM4MDc3LCJleHAiOjE3NzMzNDI4Nzd9.-FMZoEZHO-zKFdXxnxrkTYdLl0mSkXk9RU6kfS7_nss', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-12 19:14:37', '2026-03-05 19:14:37', 0),
+(310, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjczODA3NywiZXhwIjoxNzczMzQyODc3fQ.QE9blGikSgmjhP1Y9CtkSii_p29Sm4ayv0m7YJW4CRk', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-12 19:14:37', '2026-03-05 19:14:37', 0),
+(311, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyNzM4MDc3LCJleHAiOjE3NzMzNDI4Nzd9.PiH8FuN6cRgKxgHYQ5v4UU_c6wowgt7NX_cgiOeHq6U', '127.0.0.1', 'PostmanRuntime/7.51.1', 'desktop', '2026-03-12 19:14:37', '2026-03-05 19:14:37', 0),
+(312, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjkxMTU0OSwiZXhwIjoxNzczNTE2MzQ5fQ.F1JusMWAfVl2Mwv79owOVwRzB8jBVXnmPQo-JTYWA_E', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:25:49', '2026-03-07 19:25:49', 0),
+(313, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjkxMTU3MCwiZXhwIjoxNzczNTE2MzcwfQ.liCIx_OEr_ugzY7pr-iWAgTFGNy6HtJqLGJb8BTkboU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:26:10', '2026-03-07 19:26:10', 0),
+(314, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzcyOTExNTkxLCJleHAiOjE3NzM1MTYzOTF9.oftvdhYSIGqUDuRy_gZpVIwNesgjdhmEfDWQETqbsuo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:26:31', '2026-03-07 19:26:31', 0),
+(315, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyOTExNjg3LCJleHAiOjE3NzM1MTY0ODd9.WYOM66cEVcMSglv_iyiinW9TKYcufVkO2dlUV5cyjX4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:28:07', '2026-03-07 19:28:07', 0),
+(316, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MjkxMTc0NiwiZXhwIjoxNzczNTE2NTQ2fQ.Fcf7dYGd1veT8IIRHKgLv5rQKX9Oa6ABF4RrXdHMctg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:29:06', '2026-03-07 19:29:06', 0),
+(317, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjkxMTc4NiwiZXhwIjoxNzczNTE2NTg2fQ.lSCiNlUOAtiM4LcZz1JsFV1a-kJLNEL0hKfBqHjZmLk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:29:46', '2026-03-07 19:29:46', 0),
+(318, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MjkxMjAxMCwiZXhwIjoxNzczNTE2ODEwfQ.u8c5CxXSdE0wB9Jb93cCrNIbnvvul5dCkB71B_wEvMc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:33:30', '2026-03-07 19:33:30', 0),
+(319, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjkxMjAzNywiZXhwIjoxNzczNTE2ODM3fQ.5aEJthyB-0kInni6Ez9Kiaatxft4y65_rTOC4lt_Vdo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:33:57', '2026-03-07 19:33:57', 0),
+(320, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzcyOTEyMDU0LCJleHAiOjE3NzM1MTY4NTR9.YdLlIkqNkZB-oz3EeZRm4Iw1j3_J_r61QR4wNmBfBp4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 19:34:14', '2026-03-07 19:34:14', 0),
+(321, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjkxMzgyMCwiZXhwIjoxNzczNTE4NjIwfQ.8GVcJlBmV03lKWEA4X_zGXM_qc31n0neQnJryOEDa2g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-14 20:03:40', '2026-03-07 20:03:40', 0),
+(322, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MjkxNDM3MCwiZXhwIjoxNzczNTE5MTcwfQ.dER_XTeZWDnFe2aa1P5vvGeoNP2DZ8u3XodU0n3L6yI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-14 20:12:50', '2026-03-07 20:12:50', 0),
+(323, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE0ODk1MywiZXhwIjoxNzczNzUzNzUzfQ.Q4s5HgpfHQ51Z44HZiIqLQ4Coxn3twjo4F_dyIlHL_w', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 13:22:33', '2026-03-10 13:22:33', 0),
+(324, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczMTQ5MjkzLCJleHAiOjE3NzM3NTQwOTN9.ISJK4iaTLUmjPN7jZYs64C-lk9Gh5Gk5aSr7tySAEJo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 13:28:13', '2026-03-10 13:28:13', 0),
+(325, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MTE4MCwiZXhwIjoxNzczNzU1OTgwfQ.6Qbk1ztrPM1MJ_nSmdOPt4-O_8KBWHXXBjMd7QlKnQk', '127.0.0.1', 'axios/1.13.2', 'desktop', '2026-03-17 13:59:40', '2026-03-10 13:59:40', 0),
+(326, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MTUwNywiZXhwIjoxNzczNzU2MzA3fQ.zvcEfT_NXP1XBkzu3vaWsMTA7d2xtd7LUzaQN0N7hvs', '127.0.0.1', 'axios/1.13.2', 'desktop', '2026-03-17 14:05:07', '2026-03-10 14:05:07', 0);
+INSERT INTO `sessions` (`session_id`, `user_id`, `session_token`, `ip_address`, `user_agent`, `device_type`, `expires_at`, `created_at`, `remember_me`) VALUES
+(327, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MTU1MywiZXhwIjoxNzczNzU2MzUzfQ.1bDpPNqGar07-I4c5z6QKV4NAmpmIQY1863mIz2-seI', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 14:05:53', '2026-03-10 14:05:53', 0),
+(328, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MTgyNSwiZXhwIjoxNzczNzU2NjI1fQ.P1Wo6WthMTbPbdnBELrYobIY-iNTj6WYrLc6SxAyvYU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 14:10:25', '2026-03-10 14:10:25', 0),
+(329, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MjA3NSwiZXhwIjoxNzczNzU2ODc1fQ.wBINDbNLBRASNGAzyMSXMQxlvF9c4fQOtHm0-YuqXmo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:14:35', '2026-03-10 14:14:35', 0),
+(330, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1MjA3OSwiZXhwIjoxNzczNzU2ODc5fQ.cD1ES2SGZmLqbDa-thegF8dP_ekIm-wyRFheTkmzMNc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:14:39', '2026-03-10 14:14:39', 0),
+(331, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MjQ1OSwiZXhwIjoxNzczNzU3MjU5fQ.a2jNMMHU2lS41FOf-D-UeQkW5e3FNsb57qxBEAGGM84', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:20:59', '2026-03-10 14:20:59', 0),
+(332, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1MjQ3MiwiZXhwIjoxNzczNzU3MjcyfQ.g7YqAKcO5V1Lkc0YfLdG_NBC7kuteWY35BG3qJje9-4', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:21:12', '2026-03-10 14:21:12', 0),
+(333, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MjY4NiwiZXhwIjoxNzczNzU3NDg2fQ.9AprDer9pp-iFvg2tl_4MHuLv59RG3sHOYuJNkxikIo', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:24:46', '2026-03-10 14:24:46', 0),
+(334, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1MjY4OSwiZXhwIjoxNzczNzU3NDg5fQ.q-xaynH5EWUChH6s5XyFA76sCYfbtg7Qskqwdy3xHHQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:24:49', '2026-03-10 14:24:49', 0),
+(335, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1Mjg3MywiZXhwIjoxNzczNzU3NjczfQ.AIHCS9rxInoBW3WxZ2I8K3lIpS9Q0AuWNy98BVkvKv8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:27:53', '2026-03-10 14:27:53', 0),
+(336, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1Mjg3NCwiZXhwIjoxNzczNzU3Njc0fQ.kOLYnvQv-qMOgbeNKfycmg0SXyRAHVxluzeeWzC551A', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:27:54', '2026-03-10 14:27:54', 0),
+(337, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MzIzNCwiZXhwIjoxNzczNzU4MDM0fQ.p7MHVdPoP1ZLrDCy4N7HFa0hzB7dKbcN2nrTAi4hOlg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:33:54', '2026-03-10 14:33:54', 0),
+(338, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1MzIzOCwiZXhwIjoxNzczNzU4MDM4fQ.m64T-hsmijYXBjbG6Tyn8Hy82z46ADsT5nzziFQY7KU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:33:58', '2026-03-10 14:33:58', 0),
+(339, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1MzQ1MywiZXhwIjoxNzczNzU4MjUzfQ.oo6LIjqE7ICNxDz8derVGwQQ7kHDepxa4n25o53pa8c', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:37:33', '2026-03-10 14:37:33', 0),
+(340, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1MzQ1NSwiZXhwIjoxNzczNzU4MjU1fQ.XaiGBEkaZyRhPSNU95Pex2Lwn0Lo0Wc7xTygTqBnAFE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:37:35', '2026-03-10 14:37:35', 0),
+(341, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1MzQ2NywiZXhwIjoxNzczNzU4MjY3fQ.QK1W0cLh-ZC1Y4AFvkuxV2QDyLNolF4oOINXVVECAkc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:37:47', '2026-03-10 14:37:47', 0),
+(342, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1NDU3MSwiZXhwIjoxNzczNzU5MzcxfQ.tKXXUqf5iOxFjBz-5_8QbRD6wRxaVi36IMbairdabLM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:56:11', '2026-03-10 14:56:11', 0),
+(343, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1NDU3MSwiZXhwIjoxNzczNzU5MzcxfQ.b_M0SHOI2no5DGMHZ2WZt5i99QnNlI00bamobTvMOq8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 14:56:11', '2026-03-10 14:56:11', 0),
+(344, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1NzAzMywiZXhwIjoxNzczNzYxODMzfQ.PAPS9zRVD0btY1GC4YCDnsNicbWvyzPgB29hOO5_HVY', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 15:37:13', '2026-03-10 15:37:13', 0),
+(345, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1NzAzNSwiZXhwIjoxNzczNzYxODM1fQ.fMKwuVhXrmJxWzjyA3RsgXsAsV3NR9rnX_QEMf7aCEk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 15:37:15', '2026-03-10 15:37:15', 0),
+(346, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE1NzMxNCwiZXhwIjoxNzczNzYyMTE0fQ.lrWCdn17BupF6FKsy1_qHnAseHNbVLWO6FwDkZKFQzU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 15:41:54', '2026-03-10 15:41:54', 0),
+(347, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE1NzM4MSwiZXhwIjoxNzczNzYyMTgxfQ.2ujJdnGFn_73cPfxagmQj9DZkJiTLgg9Oe_EEMEWuPg', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 15:43:01', '2026-03-10 15:43:01', 0),
+(348, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2MzIxMywiZXhwIjoxNzczNzY4MDEzfQ.gduVvB_FQn7eT1gRJtXDNi8CMbTstOiwwBmM5u2UakQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 17:20:13', '2026-03-10 17:20:13', 0),
+(349, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2MzQ2NSwiZXhwIjoxNzczNzY4MjY1fQ.uYX9XA6w8TROaC54dnRek4vP1E7ZnsqMIRm5OEJ8gis', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 17:24:25', '2026-03-10 17:24:25', 0),
+(350, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzE2MzQ4MCwiZXhwIjoxNzczNzY4MjgwfQ.AD37KrPvFMCq6z_08mW4ugNfJL7dvJ3jqNf7vVJHVpk', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 17:24:40', '2026-03-10 17:24:40', 0),
+(351, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MzE2MzU0MSwiZXhwIjoxNzczNzY4MzQxfQ.fejWvj9i6BAY1bK5scZMy1WoZqyidKzX791TqGQ3jJM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-17 17:25:41', '2026-03-10 17:25:41', 0),
+(352, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczMTY1OTg2LCJleHAiOjE3NzM3NzA3ODZ9.cfvq5jNTaVZ1ENiIz0sPijnH9uCtDUGBp3OuGlLzaM0', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:06:26', '2026-03-10 18:06:26', 0),
+(353, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2NTk4NywiZXhwIjoxNzczNzcwNzg3fQ.0o-qE0LnKkWozPay5coN-l8HAyC7de9MHAryRXBNyY0', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:06:27', '2026-03-10 18:06:27', 0),
+(354, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2NjAxMywiZXhwIjoxNzczNzcwODEzfQ.KLP7YVkwvYxTEdkhyWx5kXBQZdXDNAcxAAxMJHK7MZ0', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:06:53', '2026-03-10 18:06:53', 0),
+(355, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczMTY2NDQzLCJleHAiOjE3NzM3NzEyNDN9.sejiKRPx5kTD6jCMP0rarN7HXKvDCDYMgqIQFAd63VI', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:14:03', '2026-03-10 18:14:03', 0),
+(356, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2NjQ0MywiZXhwIjoxNzczNzcxMjQzfQ.6snYGE1GN2uTCklZ0WRZi3NJjBwgK6CgT0N80DC6rLE', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:14:03', '2026-03-10 18:14:03', 0),
+(357, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2NjQ2MiwiZXhwIjoxNzczNzcxMjYyfQ.fjqcYIUobJE9Wpe6B53PrvZ03IaiXcmkGFhEHQ8Ud8I', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:14:22', '2026-03-10 18:14:22', 0),
+(358, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2NjQ2MywiZXhwIjoxNzczNzcxMjYzfQ.fmpzQEFcypjnNwmD6qnuzOr0EkySL0WWE8oAbF4Ll5I', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:14:23', '2026-03-10 18:14:23', 0),
+(359, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzczMTY2NTEzLCJleHAiOjE3NzM3NzEzMTN9.pS43OMZPA_kpU_o-EuI_lgHr016L_JqyumayAFCl_Tk', '127.0.0.1', 'curl/8.14.1', 'desktop', '2026-03-17 18:15:13', '2026-03-10 18:15:13', 0),
+(360, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTE5MSwiZXhwIjoxNzczNzczOTkxfQ.nQhfO7vr0fkjPwirbBPv1Mx5Mc77hruzGQDMt663M90', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 18:59:51', '2026-03-10 18:59:51', 0),
+(361, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTI5MCwiZXhwIjoxNzczNzc0MDkwfQ.g-JALTlLCKgzNEtd9UpiEFXZt7YjoyKplLPt4-Luw3M', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:01:30', '2026-03-10 19:01:30', 0),
+(362, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTQxNSwiZXhwIjoxNzczNzc0MjE1fQ.Ctuc5jw51QtobG5JinaAp8KQp7l3GLQkunH4OvA8LPM', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:03:35', '2026-03-10 19:03:35', 0),
+(363, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczMTY5NDM4LCJleHAiOjE3NzM3NzQyMzh9.zTwWbjK3NLKfaFRmDDHEs6drYPe-XkqxGkalQA0xgrc', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:03:58', '2026-03-10 19:03:58', 0),
+(364, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTQzOSwiZXhwIjoxNzczNzc0MjM5fQ.P7t8DNlR9P-vKE4hLotAkTt-q-jXHbQFJYVjdl4ukPE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:03:59', '2026-03-10 19:03:59', 0),
+(365, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczMTY5NDY2LCJleHAiOjE3NzM3NzQyNjZ9.Muju8TTqS9H39LEOLM_UHAwDLhCYdZnJ0pAStHUodbs', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:04:26', '2026-03-10 19:04:26', 0),
+(366, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTQ2OCwiZXhwIjoxNzczNzc0MjY4fQ.9wwMj0-QYSyxQ76MhNcZFagMHlNGxqaqCXRfId-qEck', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:04:28', '2026-03-10 19:04:28', 0),
+(367, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTUwNiwiZXhwIjoxNzczNzc0MzA2fQ.b2zbc_Zreg4qpyy5omyyEj_JgEE6jp2lLt6pfoy46jE', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:05:06', '2026-03-10 19:05:06', 0),
+(368, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTUyOCwiZXhwIjoxNzczNzc0MzI4fQ.jg7N7cuPPZCxDufT0N_3yjATonJYor_xg8KQbSRwhe8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:05:28', '2026-03-10 19:05:28', 0),
+(369, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczMTY5NTMyLCJleHAiOjE3NzM3NzQzMzJ9.BoZcyTQkAbQYbzCE4ZNGuLSofsYWI9ItRmFxJMg_oWw', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:05:32', '2026-03-10 19:05:32', 0),
+(370, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzE2OTU1OSwiZXhwIjoxNzczNzc0MzU5fQ.KKKpGpNSmY1k4gGM3AxteetB9m0IBMzVh1G02H5jqXU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:05:59', '2026-03-10 19:05:59', 0),
+(371, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczMTY5NTYyLCJleHAiOjE3NzM3NzQzNjJ9.k9hIuUgmNIx-vHjySCHaItGtleSjCyBrn1gbM2SvXz0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-17 19:06:02', '2026-03-10 19:06:02', 0);
 
 -- --------------------------------------------------------
 
@@ -3154,6 +4046,25 @@ INSERT INTO `study_group_members` (`member_id`, `group_id`, `user_id`, `role`, `
 (5, 2, 12, 'creator', '2025-11-20 13:43:00'),
 (6, 2, 13, 'member', '2025-11-20 13:43:00'),
 (7, 2, 14, 'member', '2025-11-20 13:43:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subscription_plans`
+--
+
+CREATE TABLE `subscription_plans` (
+  `plan_id` bigint(20) UNSIGNED NOT NULL,
+  `plan_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `currency` varchar(3) DEFAULT 'USD',
+  `billing_cycle` enum('monthly','quarterly','yearly') DEFAULT 'monthly',
+  `features` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`features`)),
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -3343,6 +4254,8 @@ CREATE TABLE `users` (
   `last_name` varchar(100) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `profile_picture_url` varchar(500) DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `social_links` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`social_links`)),
   `campus_id` bigint(20) UNSIGNED DEFAULT NULL,
   `status` enum('active','inactive','suspended','pending') DEFAULT 'active',
   `email_verified` tinyint(1) DEFAULT 0,
@@ -3356,57 +4269,67 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `email`, `password_hash`, `first_name`, `last_name`, `phone`, `profile_picture_url`, `campus_id`, `status`, `email_verified`, `last_login_at`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'admin@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John', 'Admin', '+1-555-1001', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(2, 'prof.smith@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Robert', 'Smith', '+1-555-1002', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(3, 'prof.johnson@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Emily', 'Johnson', '+1-555-1003', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(4, 'prof.williams@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Michael', 'Williams', '+1-555-1004', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(5, 'ta.brown@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah', 'Brown', '+1-555-1005', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(6, 'ta.davis@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'James', 'Davis', '+1-555-1006', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(7, 'alice.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Alice', 'Anderson', '+1-555-2001', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(8, 'bob.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bob', 'Martinez', '+1-555-2002', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(9, 'carol.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Carol', 'Garcia', '+1-555-2003', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(10, 'david.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'David', 'Rodriguez', '+1-555-2004', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(11, 'emma.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Emma', 'Wilson', '+1-555-2005', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(12, 'frank.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Frank', 'Lopez', '+1-555-2006', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(13, 'grace.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Grace', 'Lee', '+1-555-2007', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(14, 'henry.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Henry', 'Walker', '+1-555-2008', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(15, 'ivy.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ivy', 'Hall', '+1-555-2009', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(16, 'jack.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jack', 'Allen', '+1-555-2010', NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
-(17, 'amir123@campus.edu', '$2a$12$C311w/5Myorf1.zx35NarOlekceRfdFvjGr1xUgx0s4GHxky4JaQa', 'Amir', 'Doe', '+1234567890', NULL, 1, 'active', 1, '2025-11-24 23:24:53', '2025-11-24 23:02:53', '2025-11-24 23:24:53', NULL),
-(18, 'amir.user@campus.edu', '$2a$12$Rq1HOfy3QufvhHKiKrGQFeqyHsX896gCod41jJF1r.XNUUIeQMd4i', 'Test', 'amir2', '+1234567800', NULL, 1, 'active', 1, '2025-11-24 23:33:35', '2025-11-24 23:29:12', '2025-11-24 23:33:35', NULL),
-(19, 'amir1234@campus.edu', '$2b$10$Z0TxzhBdcMLt2YuGEbPmTe/nYpEvVPw6I8E7h7cHUaS79NpKv.Lwq', 'Amir', 'Mohamed', '+125451526', NULL, 1, 'active', 1, '2025-11-25 18:00:40', '2025-11-25 02:17:12', '2025-11-25 18:00:41', NULL),
-(20, 'ta.salim.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Salim', 'Noor', '+20-100-444-0003', NULL, 2, 'active', 1, '2025-02-13 15:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(21, 'student.ali.youssef@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ali', 'Youssef', '+20-100-555-0001', NULL, 1, 'active', 1, '2025-02-15 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(22, 'student.maya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Maya', 'Ibrahim', '+20-100-555-0002', NULL, 1, 'active', 1, '2025-02-15 16:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(23, 'student.zain.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Zain', 'Ahmed', '+20-100-555-0003', NULL, 1, 'active', 1, '2025-02-15 18:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(24, 'student.hana.khalil@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Hana', 'Khalil', '+20-100-555-0004', NULL, 1, 'active', 1, '2025-02-14 17:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(25, 'am3566146@gmail.com', '$2b$10$lqumSGY0jP1eCtbxIlQQveE1nD7m37YU9jJRrwoGoDlBenDS1EQqi', 'Amir', 'Hamdi', '+201234567890', NULL, NULL, 'active', 1, '2025-11-30 16:05:00', '2025-11-26 15:22:14', '2025-11-30 16:04:59', NULL),
-(26, 'student.mariam.fahmy@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Mariam', 'Fahmy', '+20-100-555-0006', NULL, 1, 'active', 1, '2025-02-13 18:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(27, 'student.rashid.nour@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Rashid', 'Nour', '+20-100-555-0007', NULL, 1, 'active', 1, '2025-02-13 17:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(28, 'student.sara.aziz@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Sara', 'Aziz', '+20-100-555-0008', NULL, 2, 'active', 1, '2025-02-15 15:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(29, 'am3566147@gmail.com', '$2b$10$oplLjPdOuM19aeyZg9CQJuhUoiQxN00m2LjMTGd4.IDrIs2WI/nUC', 'John', 'Doe', NULL, NULL, NULL, 'active', 1, '2025-11-30 16:39:24', '2025-11-26 18:02:35', '2025-11-30 16:39:24', NULL),
-(30, 'am3566143@gmail.com', '$2b$10$1ZlE/jNftUxyDDR5b6Kd2eLR3IB5ZUN9LCrVDU9E0zsMP5mfy4/q.', 'Amir', 'Hamdi', '+2015464646445', NULL, NULL, 'active', 1, '2025-11-27 00:40:27', '2025-11-26 23:31:32', '2025-11-27 00:40:27', NULL),
-(31, 'student.amr.shaker@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Amr', 'Shaker', '+20-100-555-0011', NULL, 2, 'active', 1, '2025-02-13 16:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(32, 'student.dalal.hassan@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Dalal', 'Hassan', '+20-100-555-0012', NULL, 1, 'active', 1, '2025-02-12 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(33, 'amirhamdidx720@gmail.com', '$2b$10$pl4Dx6LsyXtolFjT3s.X5u.mYMJSYrkM98nDz1IkuCck.O7d3cl52', 'Amir', 'Hamdi', NULL, NULL, NULL, 'active', 1, '2025-11-27 00:36:46', '2025-11-27 00:32:35', '2025-11-27 00:36:46', NULL),
-(34, 'amir_student@campus.edu', '$2b$10$pmCL5b.Hv9aPeH9MBxHEHuB4YQiZyMz5tZTIEh6xjRDUUB/K5hqaK', 'Amir', 'Strudent', NULL, NULL, NULL, 'active', 1, '2025-11-30 16:08:53', '2025-11-30 16:08:06', '2025-11-30 16:08:53', NULL),
-(35, 'amir@edu.com', '$2b$10$wPRxhFVeedYmnpkDJWzgZuUH4qn2cjd9zF65tCSfrUnSRbjleFhOS', 'Test', 'User', '+20201234567', NULL, NULL, 'pending', 0, NULL, '2026-02-25 19:01:54', '2026-02-25 19:01:54', NULL),
-(36, 'john.doe@example.com', '$2b$10$HNLv5bD5GbRDJzyOlJr0FuP5A6ibEUhKWkKbbm/ytOhFTffEmy8VG', 'John', 'Doe', '+1234567890', NULL, NULL, 'active', 1, '2026-02-25 20:11:14', '2026-02-25 19:02:43', '2026-02-25 20:11:14', NULL),
-(37, 'student.fouad.ali@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Fouad', 'Ali', '+20-100-555-0017', NULL, 3, 'active', 1, '2025-02-15 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(38, 'student.lina.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Lina', 'Noor', '+20-100-555-0018', NULL, 3, 'active', 1, '2025-02-14 18:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(39, 'student.sami.aziz@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Sami', 'Aziz', '+20-100-555-0019', NULL, 3, 'active', 1, '2025-02-13 19:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(40, 'student.joud.mohammad@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Joud', 'Mohammad', '+20-100-555-0020', NULL, 1, 'active', 1, '2025-02-12 18:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(41, 'student.rayan.saleh@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Rayan', 'Saleh', '+20-100-555-0021', NULL, 1, 'active', 1, '2025-02-11 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(42, 'student.ghada.hussein@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ghada', 'Hussein', '+20-100-555-0022', NULL, 2, 'active', 1, '2025-02-10 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(43, 'student.tariq.samir@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Tariq', 'Samir', '+20-100-555-0023', NULL, 2, 'active', 1, '2025-02-09 18:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(44, 'student.souad.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Souad', 'Noor', '+20-100-555-0024', NULL, 2, 'active', 1, '2025-02-08 17:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(45, 'student.walid.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Walid', 'Ahmed', '+20-100-555-0025', NULL, 1, 'active', 1, '2025-02-07 19:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(46, 'student.yasmine.khalil@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Yasmine', 'Khalil', '+20-100-555-0026', NULL, 1, 'active', 1, '2025-02-06 16:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(47, 'student.ismail.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ismail', 'Ahmed', '+20-100-555-0027', NULL, 3, 'active', 1, '2025-02-15 20:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(48, 'student.zainab.saleh@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Zainab', 'Saleh', '+20-100-555-0028', NULL, 3, 'active', 1, '2025-02-14 19:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(49, 'student.jamal.abdel@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Jamal', 'Abdel', '+20-100-555-0029', NULL, 3, 'active', 1, '2025-02-13 18:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
-(50, 'student.haya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Haya', 'Ibrahim', '+20-100-555-0030', NULL, 1, 'active', 1, '2025-02-12 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL);
+INSERT INTO `users` (`user_id`, `email`, `password_hash`, `first_name`, `last_name`, `phone`, `profile_picture_url`, `bio`, `social_links`, `campus_id`, `status`, `email_verified`, `last_login_at`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'admin@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John', 'Admin', '+1-555-1001', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(2, 'prof.smith@campus.edu', '$2b$10$BtLRojkSErhQ3Tq8e519k.zWzNU9y8y8rFecMQFGboSBTgpXaeZTC', 'Robert', 'Smith', '+1-555-1002', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2026-03-02 14:33:23', '2026-03-02 14:33:23'),
+(3, 'prof.johnson@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Emily', 'Johnson', '+1-555-1003', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(4, 'prof.williams@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Michael', 'Williams', '+1-555-1004', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(5, 'ta.brown@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah', 'Brown', '+1-555-1005', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(6, 'ta.davis@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'James', 'Davis', '+1-555-1006', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(7, 'alice.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Alice', 'Anderson', '+1-555-2001', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(8, 'bob.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bob', 'Martinez', '+1-555-2002', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(9, 'carol.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Carol', 'Garcia', '+1-555-2003', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(10, 'david.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'David', 'Rodriguez', '+1-555-2004', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(11, 'emma.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Emma', 'Wilson', '+1-555-2005', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(12, 'frank.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Frank', 'Lopez', '+1-555-2006', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(13, 'grace.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Grace', 'Lee', '+1-555-2007', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(14, 'henry.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Henry', 'Walker', '+1-555-2008', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(15, 'ivy.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ivy', 'Hall', '+1-555-2009', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(16, 'jack.student@campus.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jack', 'Allen', '+1-555-2010', NULL, NULL, NULL, 1, 'active', 1, NULL, '2025-11-20 13:42:59', '2025-11-20 13:42:59', NULL),
+(17, 'amir123@campus.edu', '$2a$12$C311w/5Myorf1.zx35NarOlekceRfdFvjGr1xUgx0s4GHxky4JaQa', 'Amir', 'Doe', '+1234567890', NULL, NULL, NULL, 1, 'active', 1, '2025-11-24 23:24:53', '2025-11-24 23:02:53', '2025-11-24 23:24:53', NULL),
+(18, 'amir.user@campus.edu', '$2a$12$Rq1HOfy3QufvhHKiKrGQFeqyHsX896gCod41jJF1r.XNUUIeQMd4i', 'Test', 'amir2', '+1234567800', NULL, NULL, NULL, 1, 'active', 1, '2025-11-24 23:33:35', '2025-11-24 23:29:12', '2025-11-24 23:33:35', NULL),
+(19, 'amir1234@campus.edu', '$2b$10$Z0TxzhBdcMLt2YuGEbPmTe/nYpEvVPw6I8E7h7cHUaS79NpKv.Lwq', 'Amir', 'Mohamed', '+125451526', NULL, NULL, NULL, 1, 'active', 1, '2025-11-25 18:00:40', '2025-11-25 02:17:12', '2025-11-25 18:00:41', NULL),
+(20, 'ta.salim.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Salim', 'Noor', '+20-100-444-0003', NULL, NULL, NULL, 2, 'active', 1, '2025-02-13 15:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(21, 'student.ali.youssef@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ali', 'Youssef', '+20-100-555-0001', NULL, NULL, NULL, 1, 'active', 1, '2025-02-15 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(22, 'student.maya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Maya', 'Ibrahim', '+20-100-555-0002', NULL, NULL, NULL, 1, 'active', 1, '2025-02-15 16:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(23, 'student.zain.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Zain', 'Ahmed', '+20-100-555-0003', NULL, NULL, NULL, 1, 'active', 1, '2025-02-15 18:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(24, 'student.hana.khalil@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Hana', 'Khalil', '+20-100-555-0004', NULL, NULL, NULL, 1, 'active', 1, '2025-02-14 17:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(25, 'am3566146@gmail.com', '$2b$10$lqumSGY0jP1eCtbxIlQQveE1nD7m37YU9jJRrwoGoDlBenDS1EQqi', 'Amir', 'Hamdi', '+201234567890', NULL, NULL, NULL, NULL, 'active', 1, '2025-11-30 16:05:00', '2025-11-26 15:22:14', '2025-11-30 16:04:59', NULL),
+(26, 'student.mariam.fahmy@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Mariam', 'Fahmy', '+20-100-555-0006', NULL, NULL, NULL, 1, 'active', 1, '2025-02-13 18:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(27, 'student.rashid.nour@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Rashid', 'Nour', '+20-100-555-0007', NULL, NULL, NULL, 1, 'active', 1, '2025-02-13 17:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(28, 'student.sara.aziz@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Sara', 'Aziz', '+20-100-555-0008', NULL, NULL, NULL, 2, 'active', 1, '2025-02-15 15:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(29, 'am3566147@gmail.com', '$2b$10$oplLjPdOuM19aeyZg9CQJuhUoiQxN00m2LjMTGd4.IDrIs2WI/nUC', 'John', 'Doe', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2025-11-30 16:39:24', '2025-11-26 18:02:35', '2025-11-30 16:39:24', NULL),
+(30, 'am3566143@gmail.com', '$2b$10$1ZlE/jNftUxyDDR5b6Kd2eLR3IB5ZUN9LCrVDU9E0zsMP5mfy4/q.', 'Amir', 'Hamdi', '+2015464646445', NULL, NULL, NULL, NULL, 'active', 1, '2025-11-27 00:40:27', '2025-11-26 23:31:32', '2025-11-27 00:40:27', NULL),
+(31, 'student.amr.shaker@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Amr', 'Shaker', '+20-100-555-0011', NULL, NULL, NULL, 2, 'active', 1, '2025-02-13 16:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(32, 'student.dalal.hassan@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Dalal', 'Hassan', '+20-100-555-0012', NULL, NULL, NULL, 1, 'active', 1, '2025-02-12 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(33, 'amirhamdidx720@gmail.com', '$2b$10$pl4Dx6LsyXtolFjT3s.X5u.mYMJSYrkM98nDz1IkuCck.O7d3cl52', 'Amir', 'Hamdi', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2025-11-27 00:36:46', '2025-11-27 00:32:35', '2025-11-27 00:36:46', NULL),
+(34, 'amir_student@campus.edu', '$2b$10$pmCL5b.Hv9aPeH9MBxHEHuB4YQiZyMz5tZTIEh6xjRDUUB/K5hqaK', 'Amir', 'Strudent', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2025-11-30 16:08:53', '2025-11-30 16:08:06', '2025-11-30 16:08:53', NULL),
+(35, 'amir@edu.com', '$2b$10$wPRxhFVeedYmnpkDJWzgZuUH4qn2cjd9zF65tCSfrUnSRbjleFhOS', 'Test', 'User', '+20201234567', NULL, NULL, NULL, NULL, 'pending', 0, NULL, '2026-02-25 19:01:54', '2026-02-25 19:01:54', NULL),
+(36, 'john.doe@example.com', '$2b$10$HNLv5bD5GbRDJzyOlJr0FuP5A6ibEUhKWkKbbm/ytOhFTffEmy8VG', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-02-25 20:11:14', '2026-02-25 19:02:43', '2026-02-25 20:11:14', NULL),
+(37, 'student.fouad.ali@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Fouad', 'Ali', '+20-100-555-0017', NULL, NULL, NULL, 3, 'active', 1, '2025-02-15 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(38, 'student.lina.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Lina', 'Noor', '+20-100-555-0018', NULL, NULL, NULL, 3, 'active', 1, '2025-02-14 18:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(39, 'student.sami.aziz@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Sami', 'Aziz', '+20-100-555-0019', NULL, NULL, NULL, 3, 'active', 1, '2025-02-13 19:20:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(40, 'student.joud.mohammad@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Joud', 'Mohammad', '+20-100-555-0020', NULL, NULL, NULL, 1, 'active', 1, '2025-02-12 18:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(41, 'student.rayan.saleh@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Rayan', 'Saleh', '+20-100-555-0021', NULL, NULL, NULL, 1, 'active', 1, '2025-02-11 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(42, 'student.ghada.hussein@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ghada', 'Hussein', '+20-100-555-0022', NULL, NULL, NULL, 2, 'active', 1, '2025-02-10 17:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(43, 'student.tariq.samir@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Tariq', 'Samir', '+20-100-555-0023', NULL, NULL, NULL, 2, 'active', 1, '2025-02-09 18:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(44, 'student.souad.noor@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Souad', 'Noor', '+20-100-555-0024', NULL, NULL, NULL, 2, 'active', 1, '2025-02-08 17:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(45, 'student.walid.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Walid', 'Ahmed', '+20-100-555-0025', NULL, NULL, NULL, 1, 'active', 1, '2025-02-07 19:30:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(46, 'student.yasmine.khalil@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Yasmine', 'Khalil', '+20-100-555-0026', NULL, NULL, NULL, 1, 'active', 1, '2025-02-06 16:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(47, 'student.ismail.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ismail', 'Ahmed', '+20-100-555-0027', NULL, NULL, NULL, 3, 'active', 1, '2025-02-15 20:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(48, 'student.zainab.saleh@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Zainab', 'Saleh', '+20-100-555-0028', NULL, NULL, NULL, 3, 'active', 1, '2025-02-14 19:15:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(49, 'student.jamal.abdel@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Jamal', 'Abdel', '+20-100-555-0029', NULL, NULL, NULL, 3, 'active', 1, '2025-02-13 18:45:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(50, 'student.haya.ibrahim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Haya', 'Ibrahim', '+20-100-555-0030', NULL, NULL, NULL, 1, 'active', 1, '2025-02-12 19:00:00', '2024-09-01 08:00:00', '2024-09-01 08:00:00', NULL),
+(51, 'admin.ahmed@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Ahmed', 'Hassan', '+20-100-111-0001', NULL, NULL, NULL, 1, 'active', 1, '2025-02-15 07:00:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
+(52, 'admin.fatima@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Fatima', 'Khalil', '+20-100-111-0002', NULL, NULL, NULL, 1, 'active', 1, '2025-02-14 12:30:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
+(53, 'admin.karim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Karim', 'Mohamed', '+20-100-111-0003', NULL, NULL, NULL, 2, 'active', 1, '2025-02-13 09:15:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
+(56, 'admintarek@example.com', '$2b$10$Q2Np7QKr5aDtpwBYgf4Zi.5SaZ1GtMs8Y.C7xgP4d5FyVmwMUoJae', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-02 13:17:35', '2026-03-01 16:32:28', '2026-03-02 13:17:35', NULL),
+(57, 'student.tarek@example.com', '$2b$10$LSP94K9E4dItX.1SlHzY4.8X.m3GokWgyGQWppzI9S6ARrpEgjp4.', 'StudentUpdated', 'Tarek', NULL, NULL, 'Test bio from Sprint 3 testing', '{\"github\":\"https://github.com/test\"}', NULL, 'active', 1, '2026-03-10 19:05:59', '2026-03-02 13:17:13', '2026-03-10 19:05:59', NULL),
+(58, 'instructor.tarek@example.com', '$2b$10$RU6fgXm2NqYTHxolk6QWHOq2/dQ9FPu/vYL5QCMHYLgiALcvaOdJi', 'Tarek', 'Instructor', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-10 17:24:40', '2026-03-02 13:17:14', '2026-03-10 17:24:40', NULL),
+(59, 'admin.tarek@example.com', '$2b$10$P3HIhwwNVVYRTY8dM9bUU.E1jfyQAI4qOv8MId8cozPNVI2OSBJtK', 'Tarek', 'Admin', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-10 19:06:02', '2026-03-02 13:17:15', '2026-03-10 19:06:02', NULL),
+(60, 'ta.tarek@example.com', '$2b$10$ZNeL4pilwwieU42jvS.e2OfgCamtEX6UZF.8/wPp./gjN6GY7b/Z.', 'Tarek', 'TA', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-10 17:25:41', '2026-03-02 13:18:41', '2026-03-10 17:25:41', NULL),
+(61, 'it_admin.tarek@example.com', '$2b$10$EJkScTvamvd/ThfdVedTvuS9eY2484LRX7U5B31nbyC44DZBrRbwG', 'Tarek', 'ITAdmin', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-10 18:15:13', '2026-03-02 13:18:42', '2026-03-10 18:15:13', NULL),
+(62, 'testdel999@example.com', '$2b$10$iSkjrSWfZz9mc.DDwM3tTuMmxbH5tiEc7EGtTVi5ZegO8ktZ2fxKi', 'Test', 'Del', NULL, NULL, NULL, NULL, NULL, 'active', 1, NULL, '2026-03-02 13:27:01', '2026-03-02 13:27:01', NULL);
 
 -- --------------------------------------------------------
 
@@ -3503,6 +4426,30 @@ INSERT INTO `user_levels` (`level_id`, `user_id`, `current_level`, `total_xp`, `
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_preferences`
+--
+
+CREATE TABLE `user_preferences` (
+  `preference_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `language` varchar(10) NOT NULL DEFAULT 'en',
+  `theme` varchar(20) NOT NULL DEFAULT 'light',
+  `email_notifications` tinyint(1) NOT NULL DEFAULT 1,
+  `push_notifications` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `user_preferences`
+--
+
+INSERT INTO `user_preferences` (`preference_id`, `user_id`, `language`, `theme`, `email_notifications`, `push_notifications`, `created_at`, `updated_at`) VALUES
+(1, 57, 'ar', 'dark', 1, 1, '2026-03-10 18:14:04', '2026-03-10 18:14:04');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user_roles`
 --
 
@@ -3547,7 +4494,32 @@ INSERT INTO `user_roles` (`user_role_id`, `user_id`, `role_id`, `assigned_at`, `
 (39, 33, 1, '2025-11-27 00:32:35', NULL),
 (40, 34, 1, '2025-11-30 16:08:06', NULL),
 (41, 35, 1, '2026-02-25 19:01:54', NULL),
-(42, 36, 1, '2026-02-25 19:02:43', NULL);
+(42, 36, 1, '2026-02-25 19:02:43', NULL),
+(46, 56, 4, '2026-03-01 16:32:28', NULL),
+(47, 57, 1, '2026-03-02 13:17:13', NULL),
+(48, 58, 2, '2026-03-02 13:17:14', NULL),
+(49, 59, 4, '2026-03-02 13:17:15', NULL),
+(50, 60, 3, '2026-03-02 13:18:41', NULL),
+(51, 61, 6, '2026-03-02 13:18:42', NULL),
+(52, 62, 1, '2026-03-02 13:27:01', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_subscriptions`
+--
+
+CREATE TABLE `user_subscriptions` (
+  `subscription_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `plan_id` bigint(20) UNSIGNED NOT NULL,
+  `status` enum('active','cancelled','expired','suspended') DEFAULT 'active',
+  `started_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `cancelled_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -3996,12 +4968,22 @@ ALTER TABLE `collaborative_grading`
   ADD KEY `idx_status` (`status`);
 
 --
+-- Indexes for table `communities`
+--
+ALTER TABLE `communities`
+  ADD PRIMARY KEY (`community_id`),
+  ADD KEY `idx_community_type` (`community_type`),
+  ADD KEY `idx_department` (`department_id`),
+  ADD KEY `communities_creator_fk` (`created_by`);
+
+--
 -- Indexes for table `community_posts`
 --
 ALTER TABLE `community_posts`
   ADD PRIMARY KEY (`post_id`),
   ADD KEY `idx_course` (`course_id`),
-  ADD KEY `idx_user` (`user_id`);
+  ADD KEY `idx_user` (`user_id`),
+  ADD KEY `idx_community` (`community_id`);
 
 --
 -- Indexes for table `community_post_comments`
@@ -4020,6 +5002,20 @@ ALTER TABLE `community_post_reactions`
   ADD UNIQUE KEY `unique_post_user_reaction` (`post_id`,`user_id`,`reaction_type`),
   ADD KEY `idx_post` (`post_id`),
   ADD KEY `idx_user` (`user_id`);
+
+--
+-- Indexes for table `community_post_tags`
+--
+ALTER TABLE `community_post_tags`
+  ADD PRIMARY KEY (`post_id`,`tag_id`),
+  ADD KEY `post_tags_tag_fk` (`tag_id`);
+
+--
+-- Indexes for table `community_tags`
+--
+ALTER TABLE `community_tags`
+  ADD PRIMARY KEY (`tag_id`),
+  ADD UNIQUE KEY `unique_tag_name` (`name`);
 
 --
 -- Indexes for table `content_translations`
@@ -4429,7 +5425,8 @@ ALTER TABLE `messages`
   ADD KEY `idx_sender` (`sender_id`),
   ADD KEY `idx_sent` (`sent_at`),
   ADD KEY `idx_sender_type` (`sender_id`,`message_type`),
-  ADD KEY `idx_sent_read` (`sent_at`,`read_status`);
+  ADD KEY `idx_sent_read` (`sent_at`,`read_status`),
+  ADD KEY `fk_messages_reply_to` (`reply_to_id`);
 
 --
 -- Indexes for table `message_participants`
@@ -4465,6 +5462,21 @@ ALTER TABLE `notifications`
 ALTER TABLE `notification_preferences`
   ADD PRIMARY KEY (`preference_id`),
   ADD UNIQUE KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `office_hour_appointments`
+--
+ALTER TABLE `office_hour_appointments`
+  ADD PRIMARY KEY (`appointment_id`),
+  ADD KEY `fk_appointment_slot` (`slot_id`),
+  ADD KEY `fk_appointment_student` (`student_id`);
+
+--
+-- Indexes for table `office_hour_slots`
+--
+ALTER TABLE `office_hour_slots`
+  ADD PRIMARY KEY (`slot_id`),
+  ADD KEY `fk_office_hours_instructor` (`instructor_id`);
 
 --
 -- Indexes for table `offline_sync_queue`
@@ -4741,6 +5753,12 @@ ALTER TABLE `study_group_members`
   ADD KEY `idx_user` (`user_id`);
 
 --
+-- Indexes for table `subscription_plans`
+--
+ALTER TABLE `subscription_plans`
+  ADD PRIMARY KEY (`plan_id`);
+
+--
 -- Indexes for table `support_tickets`
 --
 ALTER TABLE `support_tickets`
@@ -4842,6 +5860,13 @@ ALTER TABLE `user_levels`
   ADD KEY `idx_tier` (`tier`);
 
 --
+-- Indexes for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  ADD PRIMARY KEY (`preference_id`),
+  ADD UNIQUE KEY `uq_user_preferences_user_id` (`user_id`);
+
+--
 -- Indexes for table `user_roles`
 --
 ALTER TABLE `user_roles`
@@ -4849,6 +5874,14 @@ ALTER TABLE `user_roles`
   ADD UNIQUE KEY `unique_user_role` (`user_id`,`role_id`),
   ADD KEY `idx_user` (`user_id`),
   ADD KEY `idx_role` (`role_id`);
+
+--
+-- Indexes for table `user_subscriptions`
+--
+ALTER TABLE `user_subscriptions`
+  ADD PRIMARY KEY (`subscription_id`),
+  ADD KEY `fk_subscription_user` (`user_id`),
+  ADD KEY `fk_subscription_plan` (`plan_id`);
 
 --
 -- Indexes for table `voice_recordings`
@@ -4962,7 +5995,7 @@ ALTER TABLE `ai_usage_statistics`
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `announcement_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `announcement_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `api_integrations`
@@ -4980,7 +6013,7 @@ ALTER TABLE `api_rate_limits`
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `assignment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `assignment_submissions`
@@ -4998,13 +6031,13 @@ ALTER TABLE `attendance_photos`
 -- AUTO_INCREMENT for table `attendance_records`
 --
 ALTER TABLE `attendance_records`
-  MODIFY `record_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `record_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=124;
 
 --
 -- AUTO_INCREMENT for table `attendance_sessions`
 --
 ALTER TABLE `attendance_sessions`
-  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `audit_logs`
@@ -5028,7 +6061,7 @@ ALTER TABLE `branding_settings`
 -- AUTO_INCREMENT for table `calendar_events`
 --
 ALTER TABLE `calendar_events`
-  MODIFY `event_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `event_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `calendar_integrations`
@@ -5040,7 +6073,7 @@ ALTER TABLE `calendar_integrations`
 -- AUTO_INCREMENT for table `campuses`
 --
 ALTER TABLE `campuses`
-  MODIFY `campus_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `campus_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `certificates`
@@ -5064,7 +6097,7 @@ ALTER TABLE `chatbot_messages`
 -- AUTO_INCREMENT for table `chat_messages`
 --
 ALTER TABLE `chat_messages`
-  MODIFY `message_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `message_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `collaborative_grading`
@@ -5073,22 +6106,34 @@ ALTER TABLE `collaborative_grading`
   MODIFY `collab_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `communities`
+--
+ALTER TABLE `communities`
+  MODIFY `community_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `community_posts`
 --
 ALTER TABLE `community_posts`
-  MODIFY `post_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `post_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `community_post_comments`
 --
 ALTER TABLE `community_post_comments`
-  MODIFY `comment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `comment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `community_post_reactions`
 --
 ALTER TABLE `community_post_reactions`
-  MODIFY `reaction_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `reaction_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `community_tags`
+--
+ALTER TABLE `community_tags`
+  MODIFY `tag_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `content_translations`
@@ -5100,7 +6145,7 @@ ALTER TABLE `content_translations`
 -- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
-  MODIFY `course_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `course_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `course_analytics`
@@ -5112,7 +6157,7 @@ ALTER TABLE `course_analytics`
 -- AUTO_INCREMENT for table `course_chat_threads`
 --
 ALTER TABLE `course_chat_threads`
-  MODIFY `thread_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `thread_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `course_enrollments`
@@ -5136,19 +6181,19 @@ ALTER TABLE `course_materials`
 -- AUTO_INCREMENT for table `course_prerequisites`
 --
 ALTER TABLE `course_prerequisites`
-  MODIFY `prerequisite_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `prerequisite_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `course_schedules`
 --
 ALTER TABLE `course_schedules`
-  MODIFY `schedule_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `schedule_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `course_sections`
 --
 ALTER TABLE `course_sections`
-  MODIFY `section_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `section_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `course_tas`
@@ -5172,7 +6217,7 @@ ALTER TABLE `deadline_reminders`
 -- AUTO_INCREMENT for table `departments`
 --
 ALTER TABLE `departments`
-  MODIFY `department_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `department_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `device_tokens`
@@ -5184,7 +6229,7 @@ ALTER TABLE `device_tokens`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `verification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `exam_schedules`
@@ -5232,13 +6277,13 @@ ALTER TABLE `file_versions`
 -- AUTO_INCREMENT for table `folders`
 --
 ALTER TABLE `folders`
-  MODIFY `folder_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `folder_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `forum_categories`
 --
 ALTER TABLE `forum_categories`
-  MODIFY `category_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `category_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `generated_reports`
@@ -5274,25 +6319,25 @@ ALTER TABLE `image_text_extractions`
 -- AUTO_INCREMENT for table `labs`
 --
 ALTER TABLE `labs`
-  MODIFY `lab_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `lab_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `lab_attendance`
 --
 ALTER TABLE `lab_attendance`
-  MODIFY `attendance_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `attendance_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `lab_instructions`
 --
 ALTER TABLE `lab_instructions`
-  MODIFY `instruction_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `instruction_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `lab_submissions`
 --
 ALTER TABLE `lab_submissions`
-  MODIFY `submission_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `submission_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `language_preferences`
@@ -5352,13 +6397,13 @@ ALTER TABLE `login_attempts`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `message_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `message_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `message_participants`
 --
 ALTER TABLE `message_participants`
-  MODIFY `participant_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `participant_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=162;
 
 --
 -- AUTO_INCREMENT for table `milestone_definitions`
@@ -5370,13 +6415,25 @@ ALTER TABLE `milestone_definitions`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `notification_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `notification_preferences`
 --
 ALTER TABLE `notification_preferences`
-  MODIFY `preference_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `preference_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `office_hour_appointments`
+--
+ALTER TABLE `office_hour_appointments`
+  MODIFY `appointment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `office_hour_slots`
+--
+ALTER TABLE `office_hour_slots`
+  MODIFY `slot_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `offline_sync_queue`
@@ -5388,7 +6445,7 @@ ALTER TABLE `offline_sync_queue`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `reset_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `reset_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `payment_transactions`
@@ -5424,13 +6481,13 @@ ALTER TABLE `points_rules`
 -- AUTO_INCREMENT for table `programs`
 --
 ALTER TABLE `programs`
-  MODIFY `program_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `program_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `quizzes`
 --
 ALTER TABLE `quizzes`
-  MODIFY `quiz_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `quiz_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `quiz_answers`
@@ -5442,19 +6499,19 @@ ALTER TABLE `quiz_answers`
 -- AUTO_INCREMENT for table `quiz_attempts`
 --
 ALTER TABLE `quiz_attempts`
-  MODIFY `attempt_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `attempt_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `quiz_difficulty_levels`
 --
 ALTER TABLE `quiz_difficulty_levels`
-  MODIFY `difficulty_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `difficulty_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `quiz_questions`
 --
 ALTER TABLE `quiz_questions`
-  MODIFY `question_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `question_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `report_templates`
@@ -5478,19 +6535,19 @@ ALTER TABLE `reward_redemptions`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `role_permissions`
 --
 ALTER TABLE `role_permissions`
-  MODIFY `role_permission_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `role_permission_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `rubrics`
 --
 ALTER TABLE `rubrics`
-  MODIFY `rubric_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `rubric_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `scheduled_notifications`
@@ -5520,7 +6577,7 @@ ALTER TABLE `security_logs`
 -- AUTO_INCREMENT for table `semesters`
 --
 ALTER TABLE `semesters`
-  MODIFY `semester_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `semester_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `server_monitoring`
@@ -5532,7 +6589,7 @@ ALTER TABLE `server_monitoring`
 -- AUTO_INCREMENT for table `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `session_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=372;
 
 --
 -- AUTO_INCREMENT for table `ssl_certificates`
@@ -5563,6 +6620,12 @@ ALTER TABLE `study_groups`
 --
 ALTER TABLE `study_group_members`
   MODIFY `member_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `subscription_plans`
+--
+ALTER TABLE `subscription_plans`
+  MODIFY `plan_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `support_tickets`
@@ -5610,7 +6673,7 @@ ALTER TABLE `two_factor_auth`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `user_badges`
@@ -5631,10 +6694,22 @@ ALTER TABLE `user_levels`
   MODIFY `level_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  MODIFY `preference_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `user_roles`
 --
 ALTER TABLE `user_roles`
-  MODIFY `user_role_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `user_role_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+
+--
+-- AUTO_INCREMENT for table `user_subscriptions`
+--
+ALTER TABLE `user_subscriptions`
+  MODIFY `subscription_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `voice_recordings`
@@ -5864,10 +6939,18 @@ ALTER TABLE `collaborative_grading`
   ADD CONSTRAINT `collaborative_grading_ibfk_4` FOREIGN KEY (`grader_2_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `communities`
+--
+ALTER TABLE `communities`
+  ADD CONSTRAINT `communities_creator_fk` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `communities_dept_fk` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `community_posts`
 --
 ALTER TABLE `community_posts`
-  ADD CONSTRAINT `community_posts_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`course_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `community_posts_community_fk` FOREIGN KEY (`community_id`) REFERENCES `communities` (`community_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `community_posts_course_fk` FOREIGN KEY (`course_id`) REFERENCES `courses` (`course_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `community_posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
@@ -5884,6 +6967,13 @@ ALTER TABLE `community_post_comments`
 ALTER TABLE `community_post_reactions`
   ADD CONSTRAINT `community_post_reactions_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `community_posts` (`post_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `community_post_reactions_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `community_post_tags`
+--
+ALTER TABLE `community_post_tags`
+  ADD CONSTRAINT `post_tags_post_fk` FOREIGN KEY (`post_id`) REFERENCES `community_posts` (`post_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `post_tags_tag_fk` FOREIGN KEY (`tag_id`) REFERENCES `community_tags` (`tag_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `content_translations`
@@ -6190,6 +7280,7 @@ ALTER TABLE `login_attempts`
 -- Constraints for table `messages`
 --
 ALTER TABLE `messages`
+  ADD CONSTRAINT `fk_messages_reply_to` FOREIGN KEY (`reply_to_id`) REFERENCES `messages` (`message_id`) ON DELETE SET NULL,
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`parent_message_id`) REFERENCES `messages` (`message_id`) ON DELETE CASCADE;
 
@@ -6218,6 +7309,19 @@ ALTER TABLE `notifications`
 --
 ALTER TABLE `notification_preferences`
   ADD CONSTRAINT `notification_preferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `office_hour_appointments`
+--
+ALTER TABLE `office_hour_appointments`
+  ADD CONSTRAINT `fk_appointment_slot` FOREIGN KEY (`slot_id`) REFERENCES `office_hour_slots` (`slot_id`),
+  ADD CONSTRAINT `fk_appointment_student` FOREIGN KEY (`student_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `office_hour_slots`
+--
+ALTER TABLE `office_hour_slots`
+  ADD CONSTRAINT `fk_office_hours_instructor` FOREIGN KEY (`instructor_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `offline_sync_queue`
@@ -6445,11 +7549,24 @@ ALTER TABLE `user_levels`
   ADD CONSTRAINT `user_levels_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  ADD CONSTRAINT `fk_user_preferences_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `user_roles`
 --
 ALTER TABLE `user_roles`
   ADD CONSTRAINT `user_roles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `user_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_subscriptions`
+--
+ALTER TABLE `user_subscriptions`
+  ADD CONSTRAINT `fk_subscription_plan` FOREIGN KEY (`plan_id`) REFERENCES `subscription_plans` (`plan_id`),
+  ADD CONSTRAINT `fk_subscription_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `voice_recordings`
