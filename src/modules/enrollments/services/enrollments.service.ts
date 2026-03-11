@@ -73,6 +73,23 @@ export class EnrollmentsService {
     private semesterRepository: Repository<Semester>,
   ) {}
 
+  async getEnrollmentPeriods(): Promise<any[]> {
+    const semesters = await this.semesterRepository.find({
+      order: { startDate: 'DESC' },
+    });
+
+    return semesters.map(s => ({
+      id: s.id,
+      semesterName: s.name,
+      semesterCode: s.code,
+      registrationStart: s.registrationStart,
+      registrationEnd: s.registrationEnd,
+      semesterStart: s.startDate,
+      semesterEnd: s.endDate,
+      status: s.status,
+    }));
+  }
+
   async enrollStudent(userId: number, enrollCourseDto: EnrollCourseDto): Promise<EnrollmentResponseDto> {
     const { sectionId } = enrollCourseDto;
 
