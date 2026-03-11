@@ -37,6 +37,7 @@ import {
   QueryMaterialsDto,
   ToggleVisibilityDto,
   UploadVideoMaterialDto,
+  BulkCreateMaterialDto,
 } from '../dto';
 
 @ApiTags('📚 Course Materials')
@@ -123,37 +124,164 @@ For file-based materials, upload the file first using the Files API and pass the
     return this.materialsService.create(courseId, dto, userId, roles);
   }
 
+  @Post('bulk')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Bulk create materials',
+    description: `
+## Bulk Create Course Materials
+
+Creates multiple materials in a single request. Maximum 50 materials per request.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles**: INSTRUCTOR, TA, ADMIN
+
+### Use Cases
+- Setting up course content at the beginning of a semester
+- Importing materials from another course
+- Uploading multiple lecture notes at once
+
+### Request Body
+\`\`\`json
+{
+  "materials": [
+    { "title": "Lecture 1", "materialType": "lecture", "weekNumber": 1 },
+    { "title": "Lecture 2", "materialType": "lecture", "weekNumber": 2 }
+  ]
+}
+\`\`\`
+    `,
+  })
+  @ApiParam({ name: 'courseId', description: 'Course ID', type: Number, example: 1 })
+  @ApiBody({ type: BulkCreateMaterialDto })
+  @ApiResponse({ status: 201, description: 'Materials created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  async bulkCreate(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Body() dto: BulkCreateMaterialDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.materialsService.bulkCreate(courseId, dto.materials, userId, roles);
+  }
+
   @Post('video')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('video'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Upload video material',
+    summary: 'Upload video material to YouTube',
     description: `
 ## Upload Video Material via YouTube
 
-Uploads a video to YouTube and creates a material record.
+Uploads a video file to YouTube (as unlisted) and creates a course material record.
 
 ### Access Control
 - **Authentication Required**: ✅ Yes (Bearer Token)
-- **Roles**: INSTRUCTOR, TA, ADMIN
+- **Roles**: INSTRUCTOR, TA, ADMIN, IT_ADMIN
+- **Authorization**: Must be assigned to the course (or be admin)
+
+### Supported Video Formats
+\`mp4\`, \`avi\`, \`mov\`, \`webm\`, \`mkv\`, \`flv\`, \`wmv\`
 
 ### Upload Flow
-1. Video is uploaded to YouTube (unlisted)
-2. YouTube returns video ID and URL
-3. Material record created with embed URL
+1. Backend validates user is authorized for this course
+2. Video is uploaded to YouTube (unlisted privacy)
+3. YouTube returns video ID and URL
+4. Material record created with:
+   - \`externalUrl\`: YouTube embed URL
+   - \`youtubeVideoId\`: Original YouTube video ID (for future updates/deletes)
+   - Other metadata (weekNumber, orderIndex, isPublished)
+
+### Form Data Fields
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| video | file | ✅ | Video file to upload |
+| title | string | ✅ | Video title (max 255 chars) |
+| description | string | ❌ | Video description |
+| tags | string[] | ❌ | Tags for the video |
+| weekNumber | number | ❌ | Week to assign (1-52) |
+| orderIndex | number | ❌ | Sort order (default: 0) |
+| isPublished | boolean | ❌ | Publish immediately (default: false/draft) |
 
 ### Response
-Returns material with:
-- \`externalUrl\`: YouTube embed URL
-- Can be used in iframe: \`<iframe src="{externalUrl}"></iframe>\`
+Returns material object with:
+- \`externalUrl\`: YouTube embed URL for iframe
+- \`youtubeVideoId\`: YouTube video ID
+- \`youtubeUrl\`: Full YouTube watch URL
+- \`embedUrl\`: Embed URL for iframe usage
     `,
   })
   @ApiParam({ name: 'courseId', description: 'Course ID', type: Number, example: 1 })
-  @ApiResponse({ status: 201, description: 'Video uploaded and material created' })
-  @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['video', 'title'],
+      properties: {
+        video: {
+          type: 'string',
+          format: 'binary',
+          description: 'Video file (mp4, avi, mov, webm, mkv)',
+        },
+        title: {
+          type: 'string',
+          example: 'Lecture 1: Introduction to Data Structures',
+          maxLength: 255,
+        },
+        description: {
+          type: 'string',
+          example: 'This video covers the basics of data structures.',
+        },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['lecture', 'data-structures', 'cs101'],
+        },
+        weekNumber: {
+          type: 'integer',
+          example: 1,
+          minimum: 1,
+          maximum: 52,
+        },
+        orderIndex: {
+          type: 'integer',
+          example: 0,
+          default: 0,
+        },
+        isPublished: {
+          type: 'boolean',
+          example: false,
+          default: false,
+        },
+      },
+    },
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Video uploaded to YouTube and material created',
+    schema: {
+      example: {
+        materialId: 1,
+        courseId: 1,
+        title: 'Lecture 1: Introduction',
+        materialType: 'video',
+        externalUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        youtubeVideoId: 'dQw4w9WgXcQ',
+        weekNumber: 1,
+        orderIndex: 0,
+        isPublished: false,
+        youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data or YouTube upload failed' })
+  @ApiResponse({ status: 403, description: 'Forbidden - not assigned to course' })
   async uploadVideo(
     @Param('courseId', ParseIntPipe) courseId: number,
     @UploadedFile() file: Express.Multer.File,
@@ -170,6 +298,9 @@ Returns material with:
       dto.tags || [],
       userId,
       roles,
+      dto.weekNumber,
+      dto.orderIndex,
+      dto.isPublished,
     );
   }
 
@@ -324,6 +455,42 @@ Returns file information including download URL.
     const userId = req.user.userId || req.user.id;
     const roles = this.extractRoles(req.user);
     return this.materialsService.download(id, userId, roles);
+  }
+
+  @Post(':id/view')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Track material view',
+    description: `
+## Track Material View
+
+Records that a user viewed a material and increments the view counter.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles**: ALL
+
+### Use Cases
+- Analytics tracking for course engagement
+- Identifying popular materials
+- Measuring student participation
+
+### Response
+Returns updated view count for the material.
+    `,
+  })
+  @ApiParam({ name: 'courseId', description: 'Course ID', type: Number, example: 1 })
+  @ApiParam({ name: 'id', description: 'Material ID', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'View tracked successfully' })
+  @ApiResponse({ status: 404, description: 'Material not found' })
+  async trackView(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.materialsService.trackView(id, userId, roles);
   }
 
   @Get(':id/embed')

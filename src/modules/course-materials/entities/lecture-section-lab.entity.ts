@@ -5,6 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  UpdateDateColumn,
   Index,
 } from 'typeorm';
 import { Course } from '../../courses/entities/course.entity';
@@ -85,4 +86,9 @@ export class LectureSectionLab {
     name: 'created_at',
   })
   createdAt: Date;
+
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
+  updatedAt: Date;
 }
