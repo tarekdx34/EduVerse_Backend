@@ -2257,16 +2257,29 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courseId\": 1,\n  \"semesterId\": 2,\n  \"sectionNumber\": \"99\",\n  \"maxCapacity\": 30,\n  \"location\": \"Room TEST\"\n}"
+              "raw": "{\n  \"courseId\": 1,\n  \"semesterId\": 2,\n  \"sectionNumber\": \"77\",\n  \"maxCapacity\": 30,\n  \"location\": \"Room TEST\"\n}"
             }
           },
           "response": [],
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var body = JSON.parse(pm.request.body.raw);",
+                  "body.sectionNumber = String(Math.floor(Math.random() * 900) + 100);",
+                  "pm.request.body.raw = JSON.stringify(body);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));"
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "var json = pm.response.json();",
+                  "if (json.sectionId || json.section_id) pm.collectionVariables.set('createdSectionId', json.sectionId || json.section_id);"
                 ],
                 "type": "text/javascript"
               }
