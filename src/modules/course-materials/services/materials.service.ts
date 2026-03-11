@@ -78,6 +78,10 @@ export class MaterialsService {
       qb.andWhere('material.material_type = :materialType', { materialType });
     }
 
+    if (weekNumber !== undefined) {
+      qb.andWhere('material.week_number = :weekNumber', { weekNumber });
+    }
+
     if (search) {
       qb.andWhere('(material.title LIKE :search OR material.description LIKE :search)', { 
         search: `%${search}%` 
@@ -134,11 +138,15 @@ export class MaterialsService {
       }
     }
 
+    // Default isPublished to false (draft) if not specified - per spec
+    const isPublished = dto.isPublished ?? false;
+
     const material = this.materialRepo.create({
       ...dto,
       courseId,
       uploadedBy: userId,
-      publishedAt: dto.isPublished ? new Date() : null,
+      isPublished,
+      publishedAt: isPublished ? new Date() : null,
     });
 
     return this.materialRepo.save(material);
@@ -233,10 +241,73 @@ export class MaterialsService {
       throw new NotFoundException('Associated file not found');
     }
 
+    // Increment download count
+    await this.materialRepo.increment({ materialId: id }, 'downloadCount', 1);
+
     return {
       material,
       file,
       downloadUrl: file.filePath,
+    };
+  }
+
+  /**
+   * Track material view
+   */
+  async trackView(id: number, userId: number, roles: string[]) {
+    const material = await this.findById(id, userId, roles);
+    
+    // Increment view count
+    await this.materialRepo.increment({ materialId: id }, 'viewCount', 1);
+    
+    return { 
+      message: 'View tracked successfully',
+      materialId: id,
+      viewCount: material.viewCount + 1,
+    };
+  }
+
+  /**
+   * Bulk create materials
+   */
+  async bulkCreate(
+    courseId: number, 
+    materials: CreateMaterialDto[], 
+    userId: number, 
+    roles: string[]
+  ) {
+    // Check if user is admin or assigned to this course
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    
+    if (!isAdmin) {
+      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      if (!isAssigned) {
+        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+      }
+    }
+
+    const createdMaterials: CourseMaterial[] = [];
+    
+    for (const dto of materials) {
+      // Default isPublished to false (draft) if not specified - per spec
+      const isPublished = dto.isPublished ?? false;
+      
+      const material = this.materialRepo.create({
+        ...dto,
+        courseId,
+        uploadedBy: userId,
+        isPublished,
+        publishedAt: isPublished ? new Date() : null,
+      });
+      
+      const saved = await this.materialRepo.save(material);
+      createdMaterials.push(saved);
+    }
+
+    return {
+      message: `Successfully created ${createdMaterials.length} materials`,
+      count: createdMaterials.length,
+      data: createdMaterials,
     };
   }
 
@@ -275,7 +346,15 @@ export class MaterialsService {
     tags: string[],
     userId: number,
     roles: string[],
+    weekNumber?: number,
+    orderIndex?: number,
+    isPublished?: boolean,
   ) {
+    // Validate file exists
+    if (!file || !file.buffer) {
+      throw new BadRequestException('Video file is required');
+    }
+
     // Check if user is admin or assigned to this course
     const isAdmin = roles.includes('admin') || roles.includes('it_admin');
     
@@ -287,12 +366,23 @@ export class MaterialsService {
     }
 
     // Upload to YouTube via existing service
-    const youtubeResult = await this.youtubeService.uploadVideoFromBuffer(
-      file.buffer,
-      title,
-      description || '',
-      tags,
-    );
+    let youtubeResult;
+    try {
+      youtubeResult = await this.youtubeService.uploadVideoFromBuffer(
+        file.buffer,
+        title,
+        description || '',
+        tags,
+      );
+    } catch (error) {
+      console.error('YouTube upload failed:', error);
+      throw new BadRequestException(
+        `Failed to upload video to YouTube: ${error.message || 'Unknown error'}`,
+      );
+    }
+
+    // Determine publish status (default: draft/false)
+    const shouldPublish = isPublished ?? false;
 
     // Create material record with YouTube data
     const material = this.materialRepo.create({
@@ -301,11 +391,20 @@ export class MaterialsService {
       description,
       materialType: MaterialType.VIDEO,
       externalUrl: `https://www.youtube.com/embed/${youtubeResult.videoId}`,
+      youtubeVideoId: youtubeResult.videoId,
       uploadedBy: userId,
-      isPublished: true,
-      publishedAt: new Date(),
+      isPublished: shouldPublish,
+      publishedAt: shouldPublish ? new Date() : null,
+      weekNumber: weekNumber ?? null,
+      orderIndex: orderIndex ?? 0,
     });
 
-    return this.materialRepo.save(material);
+    const savedMaterial = await this.materialRepo.save(material);
+
+    return {
+      ...savedMaterial,
+      youtubeUrl: youtubeResult.videoUrl,
+      embedUrl: `https://www.youtube.com/embed/${youtubeResult.videoId}`,
+    };
   }
 }

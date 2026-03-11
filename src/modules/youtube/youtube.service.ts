@@ -185,4 +185,113 @@ export class YoutubeService {
       throw error;
     }
   }
+
+  /**
+   * Search videos on YouTube
+   */
+  async searchVideos(query: string, maxResults: number = 10) {
+    try {
+      const response = await this.youtube.search.list({
+        part: ['snippet'],
+        q: query,
+        type: ['video'],
+        maxResults,
+      });
+
+      return {
+        success: true,
+        items: response.data.items?.map((item) => ({
+          videoId: item.id?.videoId,
+          title: item.snippet?.title,
+          description: item.snippet?.description,
+          thumbnail: item.snippet?.thumbnails?.high?.url,
+          channelTitle: item.snippet?.channelTitle,
+          publishedAt: item.snippet?.publishedAt,
+          videoUrl: `https://www.youtube.com/watch?v=${item.id?.videoId}`,
+          embedUrl: `https://www.youtube.com/embed/${item.id?.videoId}`,
+        })),
+        totalResults: response.data.pageInfo?.totalResults,
+        resultsPerPage: response.data.pageInfo?.resultsPerPage,
+      };
+    } catch (error) {
+      console.error('Error searching videos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get video details by ID
+   */
+  async getVideoDetails(videoId: string) {
+    try {
+      const response = await this.youtube.videos.list({
+        part: ['snippet', 'contentDetails', 'statistics', 'status'],
+        id: [videoId],
+      });
+
+      if (!response.data.items || response.data.items.length === 0) {
+        return {
+          success: false,
+          message: 'Video not found',
+        };
+      }
+
+      const video = response.data.items[0];
+      return {
+        success: true,
+        video: {
+          videoId: video.id,
+          title: video.snippet?.title,
+          description: video.snippet?.description,
+          thumbnail: video.snippet?.thumbnails?.high?.url,
+          channelId: video.snippet?.channelId,
+          channelTitle: video.snippet?.channelTitle,
+          publishedAt: video.snippet?.publishedAt,
+          duration: video.contentDetails?.duration,
+          viewCount: video.statistics?.viewCount,
+          likeCount: video.statistics?.likeCount,
+          commentCount: video.statistics?.commentCount,
+          privacyStatus: video.status?.privacyStatus,
+          videoUrl: `https://www.youtube.com/watch?v=${video.id}`,
+          embedUrl: `https://www.youtube.com/embed/${video.id}`,
+        },
+      };
+    } catch (error) {
+      console.error('Error getting video details:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get videos from a channel
+   */
+  async getChannelVideos(channelId: string, maxResults: number = 10) {
+    try {
+      const response = await this.youtube.search.list({
+        part: ['snippet'],
+        channelId,
+        type: ['video'],
+        maxResults,
+        order: 'date',
+      });
+
+      return {
+        success: true,
+        items: response.data.items?.map((item) => ({
+          videoId: item.id?.videoId,
+          title: item.snippet?.title,
+          description: item.snippet?.description,
+          thumbnail: item.snippet?.thumbnails?.high?.url,
+          publishedAt: item.snippet?.publishedAt,
+          videoUrl: `https://www.youtube.com/watch?v=${item.id?.videoId}`,
+          embedUrl: `https://www.youtube.com/embed/${item.id?.videoId}`,
+        })),
+        totalResults: response.data.pageInfo?.totalResults,
+        resultsPerPage: response.data.pageInfo?.resultsPerPage,
+      };
+    } catch (error) {
+      console.error('Error getting channel videos:', error);
+      throw error;
+    }
+  }
 }
