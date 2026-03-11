@@ -8,14 +8,14 @@ This documentation contains the complete implementation plan for building out th
 
 ## Sprint Status Overview
 
-| Sprint | Phases Covered | Status | Notes |
-|--------|---------------|--------|-------|
-| Sprint 1 | Phase 1 (Core Academic Operations) | ✅ DONE | Assignments, Grades, Quizzes, Attendance, Labs |
-| Sprint 2 | Phase 2 (Communication & Collaboration) | ✅ DONE | Notifications, Discussions, Announcements, Chat, Community |
-| Sprint 3 | Phase 3-5 (Scheduling, Analytics, Materials) | ✅ DONE | Schedule, Analytics, Reports, Search, Course Materials |
-| Sprint 4 | Phase 6-7 (User Management, System Admin) | 🔲 REMAINING | User profiles, settings, system monitoring, backups |
-| Sprint 5 | Phase 8-9 (Advanced Features, Tasks) | 🔲 REMAINING | Tasks, Reminders, advanced features |
-| Sprint 6 | Phase 10-12 (Gamification, Payments, AI) | 🔲 REMAINING | Gamification, Payments, Certificates, AI (external team) |
+| Sprint | Focus Area | Dev A | Dev B | Dev C | Status |
+|--------|-----------|-------|-------|-------|--------|
+| Sprint 1 | Core Academic | Assignments + Grades | Attendance + Quizzes | Labs + Notifications | ✅ DONE |
+| Sprint 2 | Communication + Content | Messaging + Discussions | Announcements + Community | Schedule + Course Materials | ✅ DONE |
+| Sprint 3 | Analytics + Admin | Analytics + Reports | User Mgmt + Roles & Permissions | Tasks & Reminders + Search | ✅ DONE |
+| Sprint 4 | System & IT + Advanced | Security & Audit + System Settings | Monitoring + Backup | Study Groups + Office Hours + Peer Review | 🔲 REMAINING |
+| Sprint 5 | Advanced (continued) | Live Sessions + Localization | Support & Feedback + Certificates | Voice & Transcription | 🔲 REMAINING |
+| Sprint 6 | Last Priority | Gamification | Payments | AI Integration (external team) | 🔲 REMAINING |
 
 ---
 
@@ -78,27 +78,33 @@ This documentation contains the complete implementation plan for building out th
 
 ### Sprint 1 - Core Academic Operations ✅
 
-**Modules delivered:** Assignments, Grades, Quizzes, Attendance, Labs
+**Modules delivered:** Assignments (10 endpoints), Grades (11 endpoints), Attendance (21 endpoints), Quizzes (19 endpoints), Labs (13 endpoints), Notifications (9 endpoints)
 
-Sprint 1 established the foundational academic modules. Each module provides full CRUD operations and role-based access for Instructors, TAs, and Students. These modules are individually functional but were built in isolation. They do not yet communicate with each other (e.g., quiz grading does not write to the Grades module).
+**Dev A** built Assignments + Grades, **Dev B** built Attendance + Quizzes, **Dev C** built Labs + Notifications.
 
-**Dependency note:** Sprint 1 modules are prerequisites for Analytics (Sprint 3), Tasks (Sprint 5), and Schedule integration (Sprint 3). See [Integration Gaps](#integration-gaps-found-in-done-sprints) below.
+Sprint 1 established the foundational academic modules. Each module provides full CRUD operations and role-based access for Instructors, TAs, and Students. Attendance module stands out with Excel import/export and AI-powered face recognition. Quizzes support auto-grading for MCQ/True-False. The Notifications module was also built in this sprint but is isolated — no other module calls `NotificationsService`.
 
-### Sprint 2 - Communication & Collaboration ✅
+**Dependency note:** Sprint 1 modules are prerequisites for Analytics (Sprint 3) and Schedule integration (Sprint 2). See [Integration Gaps](#integration-gaps-found-in-done-sprints) below.
 
-**Modules delivered:** Notifications, Discussions, Announcements, Chat, Community
+### Sprint 2 - Communication & Content ✅
 
-Sprint 2 delivered all communication channels. The Chat module uses WebSocket for real-time messaging. Notifications infrastructure exists but is not wired to any event producer - no other module calls `NotificationsService` to send notifications on actions like assignment creation or grade posting.
+**Modules delivered:** Messaging (12 endpoints), Discussions (10 endpoints), Announcements (9 endpoints), Community (25 endpoints), Schedule (14 endpoints), Course Materials (18 endpoints)
 
-**Dependency note:** Notifications must be integrated as a cross-cutting concern across Sprint 1 and Sprint 3 modules. See [Integration Gaps](#integration-gaps-found-in-done-sprints) below.
+**Dev A** built Messaging + Discussions, **Dev B** built Announcements + Community, **Dev C** built Schedule (Enhanced) + Course Materials.
 
-### Sprint 3 - Scheduling, Analytics, Materials ✅
+Sprint 2 delivered all communication channels and content management. The Messaging module uses WebSocket via Socket.IO for real-time messaging. Community has rich features including posts, comments, reactions, forum categories, and tags. Course Materials integrates with YouTube for video uploads. Schedule supports exam conflict detection and external calendar integrations.
 
-**Modules delivered:** Schedule, Analytics, Reports, Search, Course Materials
+**Dependency note:** Schedule should pull deadline data from Sprint 1 modules (Assignments, Quizzes, Labs) but this integration is not yet wired. See [Integration Gaps](#integration-gaps-found-in-done-sprints) below.
 
-Sprint 3 introduced the scheduling calendar, analytics dashboards, report generation, search, and course materials. However, these modules operate on their own data stores and do not aggregate from the academic modules delivered in Sprint 1. The Search module maintains its own index but does not index content from other modules.
+### Sprint 3 - Analytics & Administration ✅
 
-**Dependency note:** Analytics and Reports need data pipelines from Sprint 1 modules. Schedule needs deadline feeds from Assignments, Quizzes, and Labs.
+**Modules delivered:** Analytics (11 endpoints), Reports (6 endpoints), User Management Enhanced (in Auth module), Roles & Permissions Enhanced (in Auth module), Tasks & Reminders (10 endpoints), Search (6 endpoints)
+
+**Dev A** built Analytics + Reports, **Dev B** enhanced User Management + Roles & Permissions, **Dev C** built Tasks & Reminders + Search.
+
+Sprint 3 introduced analytics dashboards, report generation, task management, and search. However, Analytics and Reports operate on their own data stores and do not aggregate from academic modules delivered in Sprint 1. The Search module maintains its own index but does not index content from Assignments, Quizzes, Labs, Discussions, or Announcements. Tasks module supports manual task creation but does not auto-generate tasks from assignment/quiz/lab deadlines.
+
+**Dependency note:** Analytics and Reports need data pipelines from Sprint 1 modules. Tasks need auto-generation from Sprint 1 deadlines. Search needs to index content from Sprints 1-2.
 
 ---
 
@@ -138,75 +144,113 @@ Sprint 3 introduced the scheduling calendar, analytics dashboards, report genera
 | 3 | Scheduling & Calendar | 1 module | 🟠 High | ✅ DONE | [Phase 3](./phase-03-scheduling.md) |
 | 4 | Analytics & Reporting | 2 modules | 🟡 Medium | ✅ DONE | [Phase 4](./phase-04-analytics.md) |
 | 5 | Course Content & Materials | 1 module | 🟡 Medium | ✅ DONE | [Phase 5](./phase-05-materials.md) |
-| 6 | User Management & Admin | 2 modules | 🟡 Medium | 🔄 REMAINING | [Phase 8](./phase-08-user-management.md) |
-| 7 | System & IT Administration | 4 modules | 🟡 Medium | 🔄 REMAINING | [Phase 9](./phase-09-system-admin.md) |
-| 8 | Advanced Features | 7 modules | 🟢 Lower | 🔄 REMAINING | [Phase 11](./phase-11-advanced.md) |
-| 9 | Tasks & Reminders | 1 module | 🟢 Lower | 🔄 REMAINING | [Phase 6](./phase-06-gamification.md) |
-| 10 | Gamification | 1 module | 🔵 Last | 🔄 REMAINING | [Phase 6](./phase-06-gamification.md) |
-| 11 | Payments & Certificates | 2 modules | 🔵 Last | 🔄 REMAINING | [Phase 10](./phase-10-payments.md) |
-| 12 | AI Features (External Team) | 1 module | 🔵 Last | 🔄 REMAINING | [Phase 7](./phase-07-ai.md) |
+| 6 | User Management & Admin | 2 modules | 🟡 Medium | 🔲 REMAINING | [Phase 8](./phase-08-user-management.md) |
+| 7 | System & IT Administration | 4 modules | 🟡 Medium | 🔲 REMAINING | [Phase 9](./phase-09-system-admin.md) |
+| 8 | Advanced Features | 7 modules | 🟢 Lower | 🔲 REMAINING | [Phase 11](./phase-11-advanced.md) |
+| 9 | Tasks & Reminders | 1 module | 🟢 Lower | 🔲 REMAINING | [Phase 6](./phase-06-gamification.md) |
+| 10 | Gamification | 1 module | 🔵 Last | 🔲 REMAINING | [Phase 6](./phase-06-gamification.md) |
+| 11 | Payments & Certificates | 2 modules | 🔵 Last | 🔲 REMAINING | [Phase 10](./phase-10-payments.md) |
+| 12 | AI Features (External Team) | 1 module | 🔵 Last | 🔲 REMAINING | [Phase 7](./phase-07-ai.md) |
 
 **Total: 32 new modules across 12 phases**
 
 ### Sprint-to-Phase Dependency Chain
 
 ```
-Sprint 1 (Phase 1) ──► Sprint 3 (Phases 3-5) ──► Sprint 4 (Phases 6-7)
-    │                       │                          │
-    │  Grades, Quizzes,     │  Analytics, Schedule,    │  User profiles need
-    │  Labs, Assignments    │  Search depend on        │  enrollment + grade
-    │  are prerequisites    │  Sprint 1 data           │  data from Phase 1
-    │                       │                          │
-    ▼                       ▼                          ▼
-Sprint 2 (Phase 2) ──► Sprint 5 (Phases 8-9) ──► Sprint 6 (Phases 10-12)
-    │                       │                          │
-    │  Notifications,       │  Tasks auto-generate     │  Gamification reads
-    │  Discussions,         │  from Sprint 1 deadlines;│  from Grades, Quizzes,
-    │  Announcements        │  Advanced features       │  Attendance; AI needs
-    │                       │  integrate all modules   │  all prior data
-    ▼                       ▼                          ▼
-  Notifications must      Tasks (Phase 9) needs      Payments (Phase 11) needs
-  be wired into ALL       Assignments, Quizzes,      Enrollments, Courses;
-  event-producing         Labs deadline feeds        AI (Phase 12) needs
-  modules (Phases 1-5)                               full data access
+Sprint 1 (Core Academic) ──────────────────────────────────────┐
+  ├── Dev A: Assignments + Grades                               │
+  ├── Dev B: Attendance + Quizzes                               │
+  ├── Dev C: Labs + Notifications                               │
+  │                                                             │
+  │  Provides: academic data + notification infrastructure      │
+  ▼                                                             │
+Sprint 2 (Communication + Content) ────────────────────────────┤
+  ├── Dev A: Messaging + Discussions                            │
+  ├── Dev B: Announcements + Community                          │
+  ├── Dev C: Schedule + Course Materials                        │
+  │                                                             │
+  │  Provides: communication channels + content management      │
+  ▼                                                             │
+Sprint 3 (Analytics + Admin) ──────────────────────────────────┤
+  ├── Dev A: Analytics + Reports  ← needs Sprint 1 data        │
+  ├── Dev B: User Mgmt + Roles   ← extends Auth module         │
+  ├── Dev C: Tasks + Search       ← needs Sprint 1 deadlines   │
+  │                                                             │
+  │  Provides: analytics, admin tools, search, task management  │
+  ▼                                                             │
+Sprint 4 (System & IT + Advanced) ─────────────────────────────┤
+  ├── Dev A: Security & Audit + System Settings                 │
+  ├── Dev B: Monitoring + Backup                                │
+  ├── Dev C: Study Groups + Office Hours + Peer Review          │
+  │                                                             │
+  │  Provides: IT admin tools, advanced academic features       │
+  ▼                                                             │
+Sprint 5 (Advanced continued) ─────────────────────────────────┤
+  ├── Dev A: Live Sessions + Localization                       │
+  ├── Dev B: Support & Feedback + Certificates                  │
+  ├── Dev C: Voice & Transcription                              │
+  │                                                             │
+  │  Provides: live classes, multi-language, certificates       │
+  ▼                                                             │
+Sprint 6 (Last Priority) ─────────────────────────────────────┘
+  ├── Dev A: Gamification         ← needs Sprint 1-3 data
+  ├── Dev B: Payments             ← needs Enrollments, Courses
+  └── Dev C: AI Integration       ← external team, needs all data
 ```
 
 ---
 
 ## Enhanced Remaining Sprints
 
-### Sprint 4 - User Management & System Admin (Phases 6-7) 🔲
+### Sprint 4 - System & IT Administration (Phase 9 + Phase 11 partial) 🔲
+
+**Dev A:** Security & Audit + System Settings | **Dev B:** Monitoring + Backup | **Dev C:** Study Groups + Office Hours + Peer Review
 
 **New connections/APIs identified:**
-- User profiles should pull enrollment history from the Enrollments module
-- User settings should allow notification preferences (ties to Notifications module)
-- System monitoring should track API usage across all existing modules
-- Backup system should cover all database tables introduced in Sprints 1-3
-- Integration configuration should support Chat WebSocket connections and YouTube API
+- Security & Audit must log events from Auth module (login, logout, password changes, failed attempts)
+- Audit trail should capture academic data changes (grade changes, assignment updates, quiz modifications)
+- System settings should store configurable values used by existing modules (AI_ATTENDANCE_SERVICE_URL, YouTube API keys)
+- Monitoring should track API usage and WebSocket connection health across all modules
+- Backup system must cover all 137+ database tables including all tables introduced in Sprints 1-3
+- Study Groups must verify enrollment (students must be in the same course)
+- Study Groups, Office Hours, and Peer Review must all integrate with Notifications
+- Office Hours must integrate with Schedule (create calendar events for slots)
+- Peer Review must link to Assignments and feed scores into Grades
 
-**Prerequisites from done sprints:** Auth, Campus, Enrollments, Notifications, Chat
+**Prerequisites from done sprints:** Auth, Campus, Enrollments, Notifications, Messaging, Schedule, Assignments, Grades
 
-### Sprint 5 - Advanced Features & Tasks (Phases 8-9) 🔲
+### Sprint 5 - Advanced Features (Phase 11 continued) 🔲
 
-**New connections/APIs identified:**
-- Tasks module must expose `POST /tasks/auto-generate` endpoint that reads deadlines from Assignments, Quizzes, and Labs
-- Tasks should subscribe to creation events from Assignments, Quizzes, and Labs to auto-generate student task items
-- Reminders should integrate with Notifications to deliver deadline alerts
-- Advanced features (e.g., office hours, peer review) should integrate with Schedule and Enrollments
-- Office hours should create Schedule events and send Notifications on booking
-
-**Prerequisites from done sprints:** Assignments, Quizzes, Labs (Sprint 1), Notifications (Sprint 2), Schedule (Sprint 3)
-
-### Sprint 6 - Gamification, Payments, AI (Phases 10-12) 🔲
+**Dev A:** Live Sessions + Localization | **Dev B:** Support & Feedback + Certificates | **Dev C:** Voice & Transcription
 
 **New connections/APIs identified:**
-- Gamification should read from Grades, Quizzes, Attendance, and Labs for XP/badge calculations
+- Live Sessions must integrate with Schedule (create calendar events), Notifications (notify on session start/schedule), Course Materials (store recordings as materials via YouTube), and Attendance (auto-mark attendance for participants)
+- Localization (TranslationService) must be injectable into all Sprint 1-3 modules that have translatable content
+- Support Tickets must integrate with Notifications (notify staff on new ticket, notify user on response)
+- Certificates must verify course completion via Grades (all assignments graded, minimum GPA met) and Enrollments (enrollment status 'completed')
+- Certificates must integrate with Notifications (notify student when certificate is generated)
+- Voice Transcription should store transcriptions as supplementary Course Materials
+
+**Prerequisites from done sprints:** Assignments, Quizzes, Labs (Sprint 1), Notifications (Sprint 1), Schedule (Sprint 2), Course Materials (Sprint 2), Grades (Sprint 1)
+
+### Sprint 6 - Gamification, Payments, AI (Phase 6, 10, 7) 🔲
+
+**Dev A:** Gamification | **Dev B:** Payments | **Dev C:** AI Integration Interfaces (external team)
+
+**New connections/APIs identified:**
+- Gamification must read from Grades, Quizzes, Attendance, Labs, and Community for XP/badge calculations
+- Gamification should expose `GamificationService` for other modules to call `awardXP()` on events
 - Gamification leaderboards should aggregate data via Analytics module
+- Gamification must integrate with Notifications (notify on badge earned, level up)
 - Payments module needs Enrollments for course fee association and Courses for pricing
-- Certificates should verify completion via Grades and Attendance
-- AI module (external team) needs read access to all Sprint 1-5 data via standardized query APIs
+- Payments should block enrollment if payment is pending; release on payment completion
+- Payments must integrate with Notifications (notify on payment due, success, refund)
+- Certificates (Sprint 5) may require payment verification before generation
+- AI module needs read access to Course Materials (for summarization), Quizzes (for generation), Assignments (for AI grading), and Grades (for writing AI grades)
+- AI must integrate with Notifications (notify when AI task completes)
+- AI should integrate with Search (index AI-generated content)
 
-**Prerequisites from done sprints:** Grades, Quizzes, Attendance, Labs (Sprint 1), Analytics (Sprint 3), Enrollments (existing)
+**Prerequisites from done sprints:** Grades, Quizzes, Attendance, Labs (Sprint 1), Analytics (Sprint 3), Community (Sprint 2), Enrollments, Courses (existing)
 
 ---
 
