@@ -121,18 +121,18 @@ The database uses a **centralized translation pattern** via these tables:
 
 ## Sprint Overview
 
-| Sprint | Focus | Dev A | Dev B | Dev C |
-|--------|-------|-------|-------|-------|
-| 1 | Core Academic | Assignments + Grades | Attendance + Quizzes | Labs + Notifications |
-| 2 | Communication + Content | Messaging + Discussions | Announcements + Community | Schedule + Course Materials |
-| 3 | Analytics + Admin | Analytics + Reports | User Management + Roles & Permissions | Tasks & Reminders + Search |
-| 4 | System & IT + Advanced | Security & Audit + System Settings | Monitoring + Backup | Study Groups + Office Hours + Peer Review |
-| 5 | Advanced (continued) | Live Sessions + Localization | Support & Feedback + Certificates | Voice & Transcription |
-| 6 | Last Priority | Gamification | Payments | AI Integration (external team) |
+| Sprint | Focus | Dev A | Dev B | Dev C | Status |
+|--------|-------|-------|-------|-------|--------|
+| 1 | Core Academic | Assignments + Grades | Attendance + Quizzes | Labs + Notifications | ✅ DONE |
+| 2 | Communication + Content | Messaging + Discussions | Announcements + Community | Schedule + Course Materials | ✅ DONE |
+| 3 | Analytics + Admin | Analytics + Reports | User Management + Roles & Permissions | Tasks & Reminders + Search | ✅ DONE |
+| 4 | System & IT + Advanced | Security & Audit + System Settings | Monitoring + Backup | Study Groups + Office Hours + Peer Review | 🔲 REMAINING |
+| 5 | Advanced (continued) | Live Sessions + Localization | Support & Feedback + Certificates | Voice & Transcription | 🔲 REMAINING |
+| 6 | Last Priority | Gamification | Payments | AI Integration (external team) | 🔲 REMAINING |
 
 ---
 
-## Sprint 1: Core Academic Operations 🔴 CRITICAL
+## Sprint 1: Core Academic Operations 🔴 CRITICAL — ✅ DONE
 
 > **Goal**: Build the foundational academic modules that ALL dashboards depend on.
 > **Prerequisite**: Existing Courses, Enrollments, and Auth modules must be stable.
@@ -513,7 +513,7 @@ The database uses a **centralized translation pattern** via these tables:
 
 ---
 
-## Sprint 2: Communication + Content 🟠 HIGH
+## Sprint 2: Communication + Content 🟠 HIGH — ✅ DONE
 
 > **Goal**: Build all communication features and course content management.
 > **Prerequisite**: Sprint 1 Notifications module must be complete (for notification integration).
@@ -711,7 +711,7 @@ The database uses a **centralized translation pattern** via these tables:
 
 ---
 
-## Sprint 3: Analytics + Administration 🟡 MEDIUM
+## Sprint 3: Analytics + Administration 🟡 MEDIUM — ✅ DONE
 
 > **Goal**: Build analytics, user management enhancements, and utility features.
 > **Prerequisite**: Sprint 1 data must exist (assignments, grades, attendance) for meaningful analytics.
@@ -865,10 +865,110 @@ The database uses a **centralized translation pattern** via these tables:
 
 ---
 
-## Sprint 4: System & IT Administration 🟡 MEDIUM
+## ⚠️ Integration Gaps Identified in Sprints 1-3
+
+> **Action Required Before Sprint 4:** The following cross-module integrations were planned but not yet wired. Each gap has a recommended owner. These should be resolved as a dedicated integration sprint or folded into Sprint 4 kickoff.
+
+### Priority 1 — Must Fix
+
+| # | Gap | Source Module | Target Module | Recommended Fix | Owner |
+|---|-----|--------------|---------------|-----------------|-------|
+| 1 | **Notifications not triggered** — NotificationsService is built but no module calls it | Assignments, Quizzes, Labs, Grades, Discussions, Announcements | Notifications | Inject NotificationsService into each module's service and call `createNotification()` on key events (create, grade, publish) | Dev C |
+| 2 | **Quiz scores not in gradebook** — QuizGradingService doesn't create Grade records | Quizzes | Grades | After quiz auto-grading or manual grading, call `GradesService.createOrUpdate()` to sync score | Dev B |
+| 3 | **Lab scores not in gradebook** — Lab grading doesn't create Grade records | Labs | Grades | After lab grading, call `GradesService.createOrUpdate()` | Dev C |
+
+### Priority 2 — Should Fix
+
+| # | Gap | Source Module | Target Module | Recommended Fix | Owner |
+|---|-----|--------------|---------------|-----------------|-------|
+| 4 | **Schedule missing deadlines** — Calendar doesn't show assignment/quiz/lab due dates | Assignments, Quizzes, Labs | Schedule | Add `GET /api/schedule/deadlines` that queries due dates from Assignments, Quizzes, Labs | Dev C |
+| 5 | **Discussions/Announcements silent** — Creating a discussion thread or publishing an announcement doesn't notify enrolled students | Discussions, Announcements | Notifications | Call NotificationsService on `reply`, `publish` events | Dev B |
+
+### Priority 3 — Important for Completeness
+
+| # | Gap | Source Module | Target Module | Recommended Fix | Owner |
+|---|-----|--------------|---------------|-----------------|-------|
+| 6 | **Analytics has no data pipeline** — AnalyticsService doesn't import or aggregate from academic modules | Assignments, Grades, Attendance, Quizzes, Labs | Analytics | Import services from Sprint 1 modules; implement `aggregateCourseAnalytics()` method | Dev A |
+| 7 | **Reports has no data sources** — ReportsService can't generate meaningful reports | Analytics, Grades, Attendance | Reports | Import AnalyticsService and academic services; implement data-driven report generation | Dev A |
+| 8 | **Tasks not auto-generated** — Students must manually create tasks for every deadline | Assignments, Quizzes, Labs | Tasks | Implement event-driven auto-creation: when assignment/quiz/lab is created, auto-generate tasks for enrolled students | Dev C |
+| 9 | **Search scope too narrow** — SearchService only searches its own index, doesn't index content from other modules | Assignments, Quizzes, Labs, Discussions, Announcements | Search | Extend SearchService to query across all content types, or implement search index population on content creation | Dev C |
+
+### Integration Wiring Summary
+
+```
+Assignments ──notify──► NotificationsService (on create, submit, grade)
+             ──grade──► GradesService (already done via gradeSubmission)
+             ──task───► TasksService (auto-create task on publish)
+             ──index──► SearchService (index on create/update)
+             ──sched──► ScheduleService (expose deadlines)
+
+Quizzes ────notify──► NotificationsService (on publish, due, grade)
+            ──grade──► GradesService (on auto-grade or manual grade)
+            ──task───► TasksService (auto-create task on publish)
+            ──index──► SearchService (index on create/update)
+            ──sched──► ScheduleService (expose deadlines)
+
+Labs ───────notify──► NotificationsService (on create, submit, grade)
+            ──grade──► GradesService (on grade submission)
+            ──task───► TasksService (auto-create task on publish)
+            ──index──► SearchService (index on create/update)
+
+Discussions ─notify──► NotificationsService (on reply, endorse)
+             ──index──► SearchService (index threads)
+
+Announcements ─notify──► NotificationsService (on publish)
+               ──index──► SearchService (index on publish)
+
+Grades ─────notify──► NotificationsService (on finalize/publish)
+
+Attendance ──analytics─► AnalyticsService (attendance trends)
+
+ALL academic modules ──► AnalyticsService (aggregation pipeline)
+ALL academic modules ──► ReportsService (data sources for reports)
+```
+
+---
+
+## Sprint 4: System & IT Administration 🟡 MEDIUM — 🔲 REMAINING
 
 > **Goal**: Build system administration and advanced features for IT Admin dashboard.
 > **Prerequisite**: Sprint 1-2 complete.
+
+### 🔗 New Connections Identified for Sprint 4
+
+Sprint 4 modules must integrate with completed modules from Sprints 1-3:
+
+| New Connection | From Module | To Module | API / Integration |
+|----------------|------------|-----------|-------------------|
+| Security logs from Auth events | Auth (existing) | Security & Audit | Write SecurityLog on login, logout, password change, failed attempts |
+| Audit trail for academic actions | Assignments, Grades, Quizzes | Security & Audit | Write AuditLog on grade changes, assignment updates, quiz modifications |
+| System settings for AI attendance | System Settings | Attendance | Store `AI_ATTENDANCE_SERVICE_URL` in system_settings table |
+| System settings for YouTube API | System Settings | YouTube (existing) | Store YouTube API credentials in system_settings |
+| Monitoring for WebSocket health | Monitoring | Messaging (Chat) | Monitor WebSocket connection count, message throughput |
+| Backup coverage for new tables | Backup | All Sprint 1-3 tables | Include assignments, grades, quizzes, attendance, labs, notifications, discussions, announcements, community, schedule, analytics, reports, tasks, search tables |
+| Study Groups → Course enrollment check | Study Groups | Enrollments (existing) | Verify students are enrolled in the same course before joining a study group |
+| Study Groups → Notifications | Study Groups | Notifications | Notify group members on new posts, invitations |
+| Office Hours → Schedule integration | Office Hours | Schedule | Create calendar events for office hour slots; show in instructor/student schedule |
+| Office Hours → Notifications | Office Hours | Notifications | Notify student when appointment is confirmed/cancelled |
+| Peer Review → Assignments | Peer Review | Assignments | Link peer reviews to specific assignment submissions |
+| Peer Review → Notifications | Peer Review | Notifications | Notify reviewers when assigned; notify students when review submitted |
+| Peer Review → Grades | Peer Review | Grades | Aggregate peer review scores into grade components |
+
+### 📋 Missing APIs for Sprint 4
+
+These additional endpoints were identified as needed based on frontend dashboard requirements:
+
+| Method | Endpoint | Description | Roles | Needed By |
+|--------|----------|-------------|-------|-----------|
+| GET | `/api/security/threats` | Active threat detection summary | IT_ADMIN | IT Admin SecurityPage |
+| GET | `/api/security/logs/stats` | Security event statistics | ADMIN, IT_ADMIN | IT Admin Dashboard |
+| GET | `/api/audit/logs/entity/:type/:id` | Audit history for specific entity | ADMIN, IT_ADMIN | Admin audit view |
+| POST | `/api/backups/integrity-check` | Verify backup integrity | IT_ADMIN | IT Admin DatabasePage |
+| GET | `/api/study-groups/my` | Current user's study groups | ALL | Student Dashboard |
+| POST | `/api/study-groups/:id/invite` | Invite user to group | OWNER | Study Group detail |
+| GET | `/api/office-hours/my-slots` | Instructor's own slots | INSTRUCTOR | Instructor schedule |
+| GET | `/api/office-hours/available` | Available slots for booking | STUDENT | Student office hours |
+| GET | `/api/peer-reviews/assignment/:assignmentId/summary` | Review summary for assignment | INSTRUCTOR | Instructor grading view |
 
 ### Dev A: Security & Audit Module + System Settings Module
 
@@ -1002,10 +1102,45 @@ The database uses a **centralized translation pattern** via these tables:
 
 ---
 
-## Sprint 5: Advanced Features (Continued) 🟢 LOWER
+## Sprint 5: Advanced Features (Continued) 🟢 LOWER — 🔲 REMAINING
 
 > **Goal**: Complete remaining advanced features.
 > **Prerequisite**: Sprints 1-4 complete.
+
+### 🔗 New Connections Identified for Sprint 5
+
+| New Connection | From Module | To Module | API / Integration |
+|----------------|------------|-----------|-------------------|
+| Live Sessions → Schedule | Live Sessions | Schedule | Create calendar events for live sessions |
+| Live Sessions → Notifications | Live Sessions | Notifications | Notify enrolled students when live session starts/scheduled |
+| Live Sessions → Course Materials | Live Sessions | Course Materials | Store session recordings as course materials (YouTube upload) |
+| Live Sessions → Attendance | Live Sessions | Attendance | Auto-mark attendance for live session participants |
+| Localization → All translatable modules | Localization | Assignments, Quizzes, Announcements, Materials, Labs, Notifications, Calendar Events | TranslationService must be injectable into all Sprint 1-3 modules |
+| Support Tickets → Notifications | Support & Feedback | Notifications | Notify staff on new ticket; notify user on response |
+| Support Tickets → User Management | Support & Feedback | Auth | Link tickets to user accounts; show ticket history in admin user view |
+| Certificates → Grades | Certificates | Grades | Verify course completion (all assignments graded, minimum GPA) |
+| Certificates → Enrollments | Certificates | Enrollments | Verify enrollment status is 'completed' |
+| Certificates → Notifications | Certificates | Notifications | Notify student when certificate is generated |
+| Voice Transcription → Course Materials | Voice & Transcription | Course Materials | Store transcriptions as supplementary materials |
+| Voice Transcription → AI Module | Voice & Transcription | AI (Sprint 6) | Feed transcriptions to AI for summarization |
+
+### 📋 Missing APIs for Sprint 5
+
+| Method | Endpoint | Description | Roles | Needed By |
+|--------|----------|-------------|-------|-----------|
+| POST | `/api/live-sessions/:id/start` | Start a live session | INSTRUCTOR | Instructor live session |
+| POST | `/api/live-sessions/:id/end` | End a live session | INSTRUCTOR | Instructor live session |
+| GET | `/api/live-sessions/:id/participants` | List participants | INSTRUCTOR, TA | Live session monitoring |
+| POST | `/api/live-sessions/:id/recording` | Save recording as material | INSTRUCTOR | Post-session |
+| GET | `/api/translations/:entityType/:entityId` | Get translations for entity | ALL | All localized views |
+| POST | `/api/translations` | Add translation | INSTRUCTOR, ADMIN | Content management |
+| GET | `/api/localization/languages` | List supported languages | ALL | Settings page |
+| GET | `/api/support/tickets/my` | User's own tickets | ALL | Student support page |
+| GET | `/api/support/tickets/stats` | Ticket statistics | ADMIN, IT_ADMIN | IT Admin FeedbackSupportPage |
+| POST | `/api/certificates/verify/:code` | Verify certificate authenticity | PUBLIC | Certificate verification |
+| GET | `/api/certificates/my` | Student's certificates | STUDENT | Student profile |
+| POST | `/api/voice/transcribe` | Upload audio for transcription | ALL | Voice input feature |
+| POST | `/api/voice/ocr` | Upload image for text extraction | ALL | Image-to-text feature |
 
 ### Dev A: Live Sessions + Localization
 
@@ -1039,10 +1174,49 @@ The database uses a **centralized translation pattern** via these tables:
 
 ---
 
-## Sprint 6: Last Priority Modules 🔵 LAST
+## Sprint 6: Last Priority Modules 🔵 LAST — 🔲 REMAINING
 
 > **Goal**: Build gamification, payments, and prepare AI integration interfaces.
 > **Note**: AI module is built by a separate team. Backend devs only create the integration layer.
+
+### 🔗 New Connections Identified for Sprint 6
+
+| New Connection | From Module | To Module | API / Integration |
+|----------------|------------|-----------|-------------------|
+| Gamification → Assignments | Gamification | Assignments | Award XP on assignment submission and high-scoring grades |
+| Gamification → Quizzes | Gamification | Quizzes | Award XP on quiz completion; bonus XP for perfect scores |
+| Gamification → Attendance | Gamification | Attendance | Award XP for attendance; streak tracking for consecutive attendance |
+| Gamification → Community | Gamification | Community | Award XP for helpful posts, best answers, active participation |
+| Gamification → Labs | Gamification | Labs | Award XP on lab completion |
+| Gamification → Notifications | Gamification | Notifications | Notify on badge earned, level up, leaderboard position change |
+| Gamification → Analytics | Gamification | Analytics | Feed gamification metrics into analytics dashboards |
+| Payments → Enrollments | Payments | Enrollments | Block enrollment if payment pending; release on payment completion |
+| Payments → Notifications | Payments | Notifications | Notify on payment due, successful payment, refund |
+| Payments → Certificates | Payments | Certificates | Fee verification before certificate generation (if applicable) |
+| AI → Course Materials | AI | Course Materials | Read material content for summarization, flashcard generation |
+| AI → Quizzes | AI | Quizzes | Generate quiz questions from course materials |
+| AI → Assignments | AI | Assignments | AI-assisted grading for essay-type submissions |
+| AI → Grades | AI | Grades | Write AI-generated grades with confidence scores |
+| AI → Notifications | AI | Notifications | Notify when AI task completes (summary ready, flashcards generated) |
+| AI → Search | AI | Search | Index AI-generated content for searchability |
+
+### 📋 Missing APIs for Sprint 6
+
+| Method | Endpoint | Description | Roles | Needed By |
+|--------|----------|-------------|-------|-----------|
+| POST | `/api/gamification/award-xp` | Internal endpoint to award XP (called by other modules) | SYSTEM | Cross-module integration |
+| GET | `/api/gamification/progress/:userId` | Detailed progress toward next level | ALL | Student gamification page |
+| GET | `/api/gamification/achievements/available` | Achievements not yet earned | ALL | Student achievement page |
+| POST | `/api/payments/webhook` | Payment gateway webhook handler | PUBLIC | Payment processing |
+| GET | `/api/payments/pending` | Pending payments for user | STUDENT | Student payment page |
+| GET | `/api/payments/revenue/trend` | Revenue trend over time | ADMIN | Admin revenue dashboard |
+| POST | `/api/ai/summarize` | Summarize course material | STUDENT, INSTRUCTOR | AI features tab |
+| POST | `/api/ai/flashcards/generate` | Generate flashcards from material | STUDENT | AI features tab |
+| POST | `/api/ai/quiz/generate` | Generate quiz from material | INSTRUCTOR | AI quiz generation |
+| POST | `/api/ai/grade` | AI-assisted grading | INSTRUCTOR, TA | Grading page |
+| POST | `/api/ai/chatbot/conversations` | Start AI chatbot conversation | ALL | AI assistant tab |
+| POST | `/api/ai/chatbot/conversations/:id/messages` | Send message to AI chatbot | ALL | AI assistant tab |
+| GET | `/api/ai/usage/stats` | AI usage statistics | ADMIN, IT_ADMIN | IT Admin dashboard |
 
 ### Dev A: Gamification Module
 
