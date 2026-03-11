@@ -21,6 +21,9 @@
 13. [Complete API Endpoint Reference](#13-complete-api-endpoint-reference)
 14. [Data Relationships & Linking](#14-data-relationships--linking)
 15. [Frontend Implementation Notes](#15-frontend-implementation-notes)
+16. [Sprint Status & Integration Gaps](#16-sprint-status--integration-gaps)
+17. [Planned APIs — Sprint 4-6 Modules](#17-planned-apis--sprint-4-6-modules)
+18. [Cross-Module Data Flow Diagram](#18-cross-module-data-flow-diagram)
 
 ---
 
@@ -2223,16 +2226,388 @@ const response = await axios.post(url, formData, {
 
 ### 15.7 Known Backend Gaps (Frontend Workarounds)
 
-| Gap | Impact on Frontend | Workaround |
-|-----|-------------------|------------|
-| No auto-notifications | Students won't know about new assignments/grades | Poll relevant endpoints or show "last updated" timestamps |
-| Email verification bypassed | No email confirmation flow needed | Skip verification UI entirely |
-| No student progress tracking | Can't show completion percentage | Calculate client-side from grades + submissions |
-| No video watch analytics | Can't track who watched lectures | Could implement client-side tracking if needed |
-| No course completion workflow | No "complete course" button | Not needed until graduation features are built |
-| Calendar not auto-populated | Course schedules don't appear in personal calendar | Frontend could merge schedule + calendar data |
-| Notifications not real-time | No WebSocket for notifications | Use polling (30s interval) |
+| Gap | Impact on Frontend | Workaround | Sprint Fix |
+|-----|-------------------|------------|------------|
+| No auto-notifications | Students won't know about new assignments/grades | Poll relevant endpoints or show "last updated" timestamps | Integration task (pre-Sprint 4) |
+| Email verification bypassed | No email confirmation flow needed | Skip verification UI entirely | N/A |
+| No student progress tracking | Can't show completion percentage | Calculate client-side from grades + submissions | Sprint 3 Analytics enhancement |
+| No video watch analytics | Can't track who watched lectures | Could implement client-side tracking if needed | Sprint 3 Analytics enhancement |
+| No course completion workflow | No "complete course" button | Not needed until graduation features are built | Sprint 5 Certificates |
+| Calendar not auto-populated | Course schedules + deadlines don't appear in personal calendar | Frontend merges schedule + calendar data; or wait for Schedule ↔ Assignments/Quizzes/Labs integration | Integration task (pre-Sprint 4) |
+| Notifications not real-time | No WebSocket for notifications | Use polling (30s interval) | Future: WebSocket notification gateway |
+| Quiz scores not in gradebook | Quiz grades only visible in Quizzes tab, not Grades | Show quiz scores from `/api/quizzes/my-attempts` separately | Integration task (pre-Sprint 4) |
+| Lab scores not in gradebook | Lab grades only visible in Labs tab, not Grades | Show lab scores from `/api/labs/:id/submissions/my` separately | Integration task (pre-Sprint 4) |
+| Search limited scope | Global search only finds courses, users, materials | Add client-side filtering or wait for Search module expansion | Integration task (pre-Sprint 4) |
+| Tasks not auto-generated | Students must manually create tasks for deadlines | Frontend could auto-create tasks from deadline data | Integration task (pre-Sprint 4) |
+| No system settings UI | IT Admin cannot configure system parameters | Hardcode defaults until Sprint 4 System Settings module | Sprint 4 |
+| No security/audit logs | IT Admin dashboard has empty Security and Audit pages | Show placeholder "Coming Soon" | Sprint 4 |
+| No backup management | IT Admin cannot manage backups | Show placeholder "Coming Soon" | Sprint 4 |
+| No gamification | Student gamification page has no data | Show placeholder "Coming Soon" | Sprint 6 |
+| No AI features | AI tabs on Student and TA dashboards have no backend | Show placeholder "Coming Soon" | Sprint 6 |
+| No payment system | Student payment history page has no data | Show placeholder "Coming Soon" | Sprint 6 |
 
 ---
 
-*Document generated from EduVerse Backend v0.0.1 codebase analysis. All endpoints verified against source code.*
+## 16. Sprint Status & Integration Gaps
+
+### 16.1 Sprint Completion Status
+
+| Sprint | Modules | Status | Frontend Impact |
+|--------|---------|--------|-----------------|
+| Sprint 1 | Assignments, Grades, Quizzes, Attendance, Labs, Notifications | ✅ DONE | Core academic tabs functional on Student, Instructor, TA dashboards |
+| Sprint 2 | Messaging, Discussions, Announcements, Community, Schedule, Course Materials | ✅ DONE | Communication, content, and scheduling tabs functional on all dashboards |
+| Sprint 3 | Analytics, Reports, User Management (Enhanced), Roles & Permissions, Tasks & Reminders, Search | ✅ DONE | Dashboard overview stats, report generation, task management, search |
+| Sprint 4 | Security & Audit, System Settings, Monitoring, Backup, Study Groups, Office Hours, Peer Review | 🔲 PLANNED | IT Admin dashboard (security, monitoring, backup), advanced student features |
+| Sprint 5 | Live Sessions, Localization, Support & Feedback, Certificates, Voice & Transcription | 🔲 PLANNED | Multi-language support, live classes, certificates, support tickets |
+| Sprint 6 | Gamification, Payments, AI Integration | 🔲 PLANNED | Student gamification, payment history, AI-powered features |
+
+### 16.2 Critical Integration Gaps (Affects All Dashboards)
+
+> ⚠️ These gaps exist in the completed sprints and affect frontend functionality. Use the workarounds listed until the integrations are completed.
+
+| # | Gap | Affected Dashboard Components | Workaround |
+|---|-----|------------------------------|------------|
+| 1 | **Notifications are isolated** — no module triggers them | All notification-dependent components (bell icon, notification center) | Poll `/api/notifications` but expect empty results until wiring is done |
+| 2 | **Quiz/Lab grades not in gradebook** — scores stay in their own modules | GradesTranscript, GpaChart, GradeAnalysis | Fetch quiz scores from `/api/quizzes/my-attempts` and lab scores from `/api/labs/:id/submissions/my` separately and merge client-side |
+| 3 | **Schedule missing deadlines** — assignment/quiz/lab due dates not in calendar | ClassSchedule, DailySchedule, WeeklySchedule, AcademicCalendar | Fetch deadlines from `/api/assignments`, `/api/quizzes`, `/api/labs` and overlay on calendar client-side |
+| 4 | **Analytics limited data** — dashboard stats may not reflect real academic data | ModernDashboard (all roles), AnalyticsPage | Use analytics endpoints but expect partial data; supplement with direct API calls to specific modules |
+| 5 | **Tasks not auto-generated** — students must manually create tasks | SmartTodoReminder | Auto-create tasks client-side from assignment/quiz/lab deadlines |
+| 6 | **Search limited scope** — only searches courses, users, materials | GlobalSearch | Implement client-side search across cached data for assignments, quizzes, discussions |
+
+---
+
+## 17. Planned APIs — Sprint 4-6 Modules
+
+> **Note**: These endpoints are planned but **NOT YET IMPLEMENTED**. Frontend should show "Coming Soon" placeholders for these features until the corresponding sprint is complete.
+
+### 17.1 Sprint 4 — System & IT Administration
+
+#### Security & Audit (`/api/security`, `/api/audit`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/security/logs` | JWT | ADMIN, IT_ADMIN | Security event logs (filter by type, severity, date) |
+| GET | `/api/security/logs/stats` | JWT | ADMIN, IT_ADMIN | Security dashboard statistics |
+| GET | `/api/security/threats` | JWT | IT_ADMIN | Active threat detection summary |
+| GET | `/api/security/sessions` | JWT | ADMIN, IT_ADMIN | Active user sessions |
+| DELETE | `/api/security/sessions/:id` | JWT | ADMIN, IT_ADMIN | Revoke user session |
+| POST | `/api/security/block-ip` | JWT | IT_ADMIN | Block IP address |
+| GET | `/api/security/blocked-ips` | JWT | IT_ADMIN | List blocked IPs |
+| DELETE | `/api/security/blocked-ips/:id` | JWT | IT_ADMIN | Unblock IP |
+| GET | `/api/security/login-attempts` | JWT | ADMIN, IT_ADMIN | Failed login attempts |
+| GET | `/api/security/dashboard` | JWT | ADMIN, IT_ADMIN | Security dashboard stats |
+| GET | `/api/audit/logs` | JWT | ADMIN, IT_ADMIN | Audit trail |
+| GET | `/api/audit/logs/entity/:type/:id` | JWT | ADMIN, IT_ADMIN | Audit history for specific entity |
+| GET | `/api/activity/logs` | JWT | ADMIN, IT_ADMIN | User activity logs |
+
+#### System Settings (`/api/settings`, `/api/integrations`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/settings` | JWT | ADMIN, IT_ADMIN | All system settings |
+| PUT | `/api/settings` | JWT | ADMIN, IT_ADMIN | Update settings |
+| GET | `/api/settings/branding` | JWT | ALL | Branding configuration (logo, colors, site name) |
+| PUT | `/api/settings/branding` | JWT | ADMIN, IT_ADMIN | Update branding |
+| GET | `/api/integrations` | JWT | ADMIN, IT_ADMIN | API integrations list |
+| POST | `/api/integrations` | JWT | IT_ADMIN | Add integration |
+| PUT | `/api/integrations/:id` | JWT | IT_ADMIN | Update integration |
+| DELETE | `/api/integrations/:id` | JWT | IT_ADMIN | Remove integration |
+| GET | `/api/settings/rate-limits` | JWT | IT_ADMIN | Rate limit config |
+| PUT | `/api/settings/rate-limits` | JWT | IT_ADMIN | Update rate limits |
+
+#### Monitoring (`/api/monitoring`, `/api/errors`, `/api/ssl`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/monitoring/servers` | JWT | IT_ADMIN | Server status |
+| GET | `/api/monitoring/health` | JWT | IT_ADMIN | System health metrics |
+| GET | `/api/monitoring/metrics` | JWT | IT_ADMIN | Performance metrics (CPU, RAM, disk) |
+| GET | `/api/monitoring/alerts` | JWT | IT_ADMIN | System alerts |
+| POST | `/api/monitoring/alerts` | JWT | IT_ADMIN | Create alert rule |
+| PUT | `/api/monitoring/alerts/:id` | JWT | IT_ADMIN | Update alert rule |
+| DELETE | `/api/monitoring/alerts/:id` | JWT | IT_ADMIN | Delete alert rule |
+| GET | `/api/errors` | JWT | IT_ADMIN | Error logs (paginated, filterable) |
+| GET | `/api/errors/:id` | JWT | IT_ADMIN | Error details with stack trace |
+| PUT | `/api/errors/:id` | JWT | IT_ADMIN | Update error status (resolved, ignored) |
+| GET | `/api/ssl/certificates` | JWT | IT_ADMIN | SSL certificate status |
+| POST | `/api/ssl/certificates` | JWT | IT_ADMIN | Add SSL certificate |
+
+#### Backup (`/api/backups`, `/api/database`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/backups` | JWT | ADMIN, IT_ADMIN | List backups |
+| POST | `/api/backups` | JWT | ADMIN, IT_ADMIN | Create manual backup |
+| POST | `/api/backups/:id/restore` | JWT | IT_ADMIN | Restore from backup |
+| DELETE | `/api/backups/:id` | JWT | IT_ADMIN | Delete backup |
+| GET | `/api/backups/schedule` | JWT | ADMIN, IT_ADMIN | Get backup schedule |
+| PUT | `/api/backups/schedule` | JWT | IT_ADMIN | Set backup schedule |
+| GET | `/api/backups/:id/download` | JWT | IT_ADMIN | Download backup |
+| POST | `/api/backups/integrity-check` | JWT | IT_ADMIN | Verify backup integrity |
+| GET | `/api/database/status` | JWT | IT_ADMIN | Database status |
+| GET | `/api/database/tables` | JWT | IT_ADMIN | List tables with sizes |
+| POST | `/api/database/optimize` | JWT | IT_ADMIN | Optimize database |
+
+#### Study Groups (`/api/study-groups`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/study-groups` | JWT | ALL | List study groups (filter by course) |
+| POST | `/api/study-groups` | JWT | ALL | Create study group |
+| GET | `/api/study-groups/my` | JWT | ALL | Current user's study groups |
+| GET | `/api/study-groups/:id` | JWT | ALL | Get group details with members |
+| PUT | `/api/study-groups/:id` | JWT | OWNER | Update group |
+| DELETE | `/api/study-groups/:id` | JWT | OWNER, ADMIN | Delete group |
+| POST | `/api/study-groups/:id/join` | JWT | ALL | Join group |
+| DELETE | `/api/study-groups/:id/leave` | JWT | ALL | Leave group |
+| POST | `/api/study-groups/:id/invite` | JWT | OWNER | Invite user to group |
+| GET | `/api/study-groups/:id/members` | JWT | ALL | List members |
+
+#### Office Hours (`/api/office-hours`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/office-hours/slots` | JWT | ALL | List office hour slots |
+| POST | `/api/office-hours/slots` | JWT | INSTRUCTOR | Create office hour slot |
+| PUT | `/api/office-hours/slots/:id` | JWT | INSTRUCTOR | Update slot |
+| DELETE | `/api/office-hours/slots/:id` | JWT | INSTRUCTOR | Delete slot |
+| GET | `/api/office-hours/my-slots` | JWT | INSTRUCTOR | Instructor's own slots |
+| GET | `/api/office-hours/available` | JWT | STUDENT | Available slots for booking |
+| GET | `/api/office-hours/appointments` | JWT | INSTRUCTOR | List appointments |
+| POST | `/api/office-hours/appointments` | JWT | STUDENT | Book appointment |
+| PATCH | `/api/office-hours/appointments/:id` | JWT | STUDENT, INSTRUCTOR | Update appointment |
+| DELETE | `/api/office-hours/appointments/:id` | JWT | STUDENT, INSTRUCTOR | Cancel appointment |
+| GET | `/api/office-hours/my-appointments` | JWT | STUDENT | Student's appointments |
+
+#### Peer Review (`/api/peer-reviews`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/peer-reviews` | JWT | ALL | List peer reviews |
+| POST | `/api/peer-reviews/assign` | JWT | INSTRUCTOR | Assign peer reviews |
+| GET | `/api/peer-reviews/:id` | JWT | ALL | Get review details |
+| POST | `/api/peer-reviews/:id/submit` | JWT | STUDENT | Submit review |
+| GET | `/api/peer-reviews/pending` | JWT | STUDENT | Pending reviews for current user |
+| GET | `/api/peer-reviews/received` | JWT | STUDENT | Reviews received |
+| GET | `/api/peer-reviews/assignment/:assignmentId/summary` | JWT | INSTRUCTOR | Review summary for assignment |
+
+### 17.2 Sprint 5 — Advanced Features
+
+#### Live Sessions (`/api/live-sessions`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/live-sessions` | JWT | ALL | List live sessions (by course) |
+| POST | `/api/live-sessions` | JWT | INSTRUCTOR | Create live session |
+| GET | `/api/live-sessions/:id` | JWT | ALL | Get session details |
+| PUT | `/api/live-sessions/:id` | JWT | INSTRUCTOR | Update session |
+| DELETE | `/api/live-sessions/:id` | JWT | INSTRUCTOR | Delete session |
+| POST | `/api/live-sessions/:id/start` | JWT | INSTRUCTOR | Start live session |
+| POST | `/api/live-sessions/:id/end` | JWT | INSTRUCTOR | End live session |
+| POST | `/api/live-sessions/:id/join` | JWT | ALL | Join live session |
+| POST | `/api/live-sessions/:id/leave` | JWT | ALL | Leave live session |
+| GET | `/api/live-sessions/:id/participants` | JWT | INSTRUCTOR, TA | List participants |
+| POST | `/api/live-sessions/:id/recording` | JWT | INSTRUCTOR | Save recording as course material |
+
+#### Localization (`/api/translations`, `/api/localization`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/translations/:entityType/:entityId` | JWT | ALL | Get translations for entity |
+| POST | `/api/translations` | JWT | INSTRUCTOR, ADMIN | Add translation |
+| PUT | `/api/translations/:id` | JWT | INSTRUCTOR, ADMIN | Update translation |
+| DELETE | `/api/translations/:id` | JWT | ADMIN | Delete translation |
+| GET | `/api/localization/strings` | JWT | ALL | Get UI strings for language |
+| POST | `/api/localization/strings` | JWT | ADMIN | Add/update UI string |
+| GET | `/api/localization/languages` | JWT | ALL | List supported languages |
+
+#### Support & Feedback (`/api/support`, `/api/feedback`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/support/tickets` | JWT | ADMIN, IT_ADMIN | List all support tickets |
+| GET | `/api/support/tickets/my` | JWT | ALL | User's own tickets |
+| POST | `/api/support/tickets` | JWT | ALL | Create support ticket |
+| GET | `/api/support/tickets/:id` | JWT | ALL | Get ticket details |
+| PATCH | `/api/support/tickets/:id` | JWT | ADMIN, IT_ADMIN | Update ticket status |
+| POST | `/api/support/tickets/:id/respond` | JWT | ADMIN, IT_ADMIN | Respond to ticket |
+| GET | `/api/support/tickets/stats` | JWT | ADMIN, IT_ADMIN | Ticket statistics |
+| POST | `/api/feedback` | JWT | ALL | Submit feedback |
+| GET | `/api/feedback` | JWT | ADMIN | List all feedback |
+
+#### Certificates (`/api/certificates`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/certificates` | JWT | ADMIN | List all certificates |
+| GET | `/api/certificates/my` | JWT | STUDENT | Student's certificates |
+| POST | `/api/certificates/generate` | JWT | ADMIN | Generate certificate for student |
+| GET | `/api/certificates/:id` | JWT | ALL | Get certificate details |
+| GET | `/api/certificates/:id/download` | JWT | ALL | Download certificate PDF |
+| POST | `/api/certificates/verify/:code` | Public | — | Verify certificate authenticity |
+
+#### Voice & Transcription (`/api/voice`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| POST | `/api/voice/transcribe` | JWT | ALL | Upload audio for transcription |
+| GET | `/api/voice/transcriptions` | JWT | ALL | List user's transcriptions |
+| GET | `/api/voice/transcriptions/:id` | JWT | ALL | Get transcription result |
+| POST | `/api/voice/ocr` | JWT | ALL | Upload image for text extraction |
+| GET | `/api/voice/ocr/:id` | JWT | ALL | Get OCR result |
+
+### 17.3 Sprint 6 — Last Priority
+
+#### Gamification (`/api/gamification`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/gamification/profile` | JWT | ALL | User gamification profile (XP, level, streaks) |
+| GET | `/api/gamification/profile/:userId` | JWT | ALL | Specific user's profile |
+| GET | `/api/gamification/achievements` | JWT | ALL | List all achievements |
+| GET | `/api/gamification/achievements/available` | JWT | ALL | Achievements not yet earned |
+| GET | `/api/gamification/badges` | JWT | ALL | List all badges |
+| GET | `/api/gamification/badges/my` | JWT | STUDENT | Student's earned badges |
+| GET | `/api/gamification/leaderboard` | JWT | ALL | Get leaderboard |
+| GET | `/api/gamification/streaks` | JWT | ALL | Daily login/activity streaks |
+| GET | `/api/gamification/rewards` | JWT | ALL | Available rewards |
+| POST | `/api/gamification/rewards/:id/redeem` | JWT | STUDENT | Redeem reward |
+| GET | `/api/gamification/xp-history` | JWT | ALL | XP transaction history |
+| GET | `/api/gamification/progress/:userId` | JWT | ALL | Detailed progress toward next level |
+
+#### Payments (`/api/payments`, `/api/subscriptions`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| GET | `/api/payments/my` | JWT | STUDENT | Student's payment history |
+| GET | `/api/payments/my/balance` | JWT | STUDENT | Outstanding balance |
+| POST | `/api/payments/pay` | JWT | STUDENT | Make a payment |
+| GET | `/api/payments/pending` | JWT | STUDENT | Pending payments |
+| GET | `/api/payments/invoices` | JWT | STUDENT | List invoices |
+| GET | `/api/payments/invoices/:id/download` | JWT | STUDENT | Download invoice PDF |
+| GET | `/api/payments` | JWT | ADMIN | List all payments (paginated) |
+| GET | `/api/payments/:id` | JWT | ADMIN | Get payment details |
+| POST | `/api/payments/refund/:id` | JWT | ADMIN | Process refund |
+| GET | `/api/payments/revenue` | JWT | ADMIN | Revenue dashboard data |
+| GET | `/api/payments/revenue/by-department` | JWT | ADMIN | Revenue by department |
+| GET | `/api/payments/revenue/trend` | JWT | ADMIN | Revenue trend over time |
+| GET | `/api/payments/transactions` | JWT | ADMIN | Transaction list with filters |
+| POST | `/api/payments/webhook` | Public | — | Payment gateway webhook handler |
+| GET | `/api/subscriptions/plans` | JWT | ALL | List subscription plans |
+| POST | `/api/subscriptions/subscribe` | JWT | STUDENT | Subscribe to a plan |
+| DELETE | `/api/subscriptions/cancel` | JWT | STUDENT | Cancel subscription |
+| GET | `/api/subscriptions/my` | JWT | STUDENT | Get current subscription |
+
+#### AI Features (`/api/ai`)
+
+> **Note:** The AI module is implemented by a separate team. The backend team (Dev C, Sprint 6) will create the NestJS module structure, entity definitions, controller stubs, DTOs, and service interfaces. The external AI team will then implement the actual service logic connecting to AI providers (OpenAI/Gemini). Frontend should show "Coming Soon" placeholders until both the stub endpoints and AI service implementations are ready. Coordinate with the AI team on API contract finalization before Sprint 6 begins.
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| POST | `/api/ai/summarize` | JWT | STUDENT, INSTRUCTOR | Summarize course material |
+| POST | `/api/ai/flashcards/generate` | JWT | STUDENT | Generate flashcards from material |
+| GET | `/api/ai/flashcards` | JWT | STUDENT | List generated flashcards |
+| POST | `/api/ai/quiz/generate` | JWT | INSTRUCTOR | Generate quiz from material |
+| POST | `/api/ai/grade` | JWT | INSTRUCTOR, TA | AI-assisted grading |
+| GET | `/api/ai/recommendations` | JWT | STUDENT | Study recommendations |
+| POST | `/api/ai/study-plan` | JWT | STUDENT | Generate study plan |
+| POST | `/api/ai/chatbot/conversations` | JWT | ALL | Start AI chatbot conversation |
+| POST | `/api/ai/chatbot/conversations/:id/messages` | JWT | ALL | Send message to AI chatbot |
+| GET | `/api/ai/chatbot/conversations` | JWT | ALL | List chatbot conversations |
+| GET | `/api/ai/chatbot/conversations/:id` | JWT | ALL | Get conversation with messages |
+| GET | `/api/ai/usage/stats` | JWT | ADMIN, IT_ADMIN | AI usage statistics |
+
+---
+
+## 18. Cross-Module Data Flow Diagram
+
+### 18.1 How Modules Connect (Current State)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                        FRONTEND LAYER                            │
+├──────────┬──────────┬──────────┬──────────┬──────────────────────┤
+│ Student  │Instructor│  Admin   │ IT Admin │       TA             │
+│Dashboard │Dashboard │Dashboard │Dashboard │    Dashboard         │
+└────┬─────┴────┬─────┴────┬─────┴────┬─────┴──────┬──────────────┘
+     │          │          │          │             │
+     ▼          ▼          ▼          ▼             ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                     AUTH (JWT + Roles)                            │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐ │
+│  │ Assignments  │  │ Quizzes  │  │  Labs    │  │  Grades      │ │
+│  │ (10 APIs)    │  │(19 APIs) │  │(13 APIs) │  │ (11 APIs)    │ │
+│  └──────┬──────┘  └────┬─────┘  └────┬─────┘  └──────────────┘ │
+│         │              │             │          ▲ ▲              │
+│         │    ❌ No integration yet   │          │ │              │
+│         └──────────────┴─────────────┘          │ │              │
+│                                                  │ │              │
+│  ┌──────────────┐  ┌──────────────┐             │ │              │
+│  │ Attendance   │  │ Notifications│ ◄── ❌ NOT  │ │              │
+│  │ (21 APIs)    │  │ (9 APIs)     │   CONNECTED │ │              │
+│  └──────────────┘  └──────────────┘             │ │              │
+│                                                  │ │              │
+│  ┌──────────┐ ┌────────────┐ ┌──────────────┐  │ │              │
+│  │Messaging │ │Discussions │ │Announcements │  │ │              │
+│  │(12 APIs) │ │(10 APIs)   │ │(9 APIs)      │  │ │              │
+│  │WebSocket │ └────────────┘ └──────────────┘  │ │              │
+│  └──────────┘                                   │ │              │
+│                                                  │ │              │
+│  ┌──────────┐ ┌───────────┐ ┌──────────────┐   │ │              │
+│  │Analytics │ │ Reports   │ │   Search     │   │ │              │
+│  │(11 APIs) │ │ (6 APIs)  │ │  (6 APIs)    │   │ │              │
+│  │❌ No data│ │❌ No data │ │❌ Limited    │   │ │              │
+│  └──────────┘ └───────────┘ └──────────────┘   │ │              │
+│                                                  │ │              │
+│  ┌──────────┐ ┌───────────┐ ┌──────────────┐   │ │              │
+│  │Community │ │ Schedule  │ │Course Matls  │   │ │              │
+│  │(25 APIs) │ │(14 APIs)  │ │(18 APIs)     │   │ │              │
+│  │✅ Ready  │ │❌ No dlines│ │✅ YouTube   │   │ │              │
+│  └──────────┘ └───────────┘ └──────────────┘   │ │              │
+│                                                  │ │              │
+│  ┌──────────┐ ┌───────────┐                     │ │              │
+│  │  Tasks   │ │  Campus   │                     │ │              │
+│  │(10 APIs) │ │(21 APIs)  │                     │ │              │
+│  │❌ Manual │ │✅ Ready   │                     │ │              │
+│  └──────────┘ └───────────┘                     │ │              │
+│                                                  │ │              │
+├──────────────────────────────────────────────────┴─┴──────────────┤
+│                     DATABASE (MySQL - 137 tables)                 │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### 18.2 Target State (After All Integrations)
+
+```
+Assignments ──notify──► Notifications (create, submit, grade)
+             ──grade──► Grades (via gradeSubmission — already connected)
+             ──task───► Tasks (auto-create on publish)
+             ──index──► Search (index on create/update)
+             ──sched──► Schedule (expose deadlines)
+
+Quizzes ────notify──► Notifications (publish, due, grade)
+            ──grade──► Grades (on auto-grade or manual grade)
+            ──task───► Tasks (auto-create on publish)
+            ──index──► Search (index on create/update)
+
+Labs ───────notify──► Notifications (create, submit, grade)
+            ──grade──► Grades (on grade submission)
+            ──task───► Tasks (auto-create on publish)
+
+Discussions ─notify──► Notifications (on reply, endorse)
+             ──index──► Search (index threads)
+
+Announcements ─notify──► Notifications (on publish)
+               ──index──► Search (index on publish)
+
+Grades ─────notify──► Notifications (on finalize/publish)
+
+ALL academic ──► Analytics (aggregation pipeline)
+ALL academic ──► Reports (data sources)
+```
+
+---
+
+*Document updated with Sprint 1-6 analysis. Sprints 1-3 endpoints verified against source code. Sprint 4-6 endpoints are planned and subject to change during implementation.*
