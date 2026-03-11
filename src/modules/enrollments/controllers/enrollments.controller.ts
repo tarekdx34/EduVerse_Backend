@@ -9,6 +9,9 @@ import {
   UseGuards,
   Request,
   BadRequestException,
+  HttpCode,
+  HttpStatus,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -24,6 +27,8 @@ import { EnrollCourseDto } from '../dto/enroll-course.dto';
 import { EnrollmentResponseDto } from '../dto/enrollment-response.dto';
 import { AvailableCoursesFilterDto, AvailableCoursesDto } from '../dto/available-courses.dto';
 import { DropCourseDto } from '../dto/drop-course.dto';
+import { AssignInstructorDto, InstructorAssignmentResponseDto } from '../dto/assign-instructor.dto';
+import { AssignTADto, TAAssignmentResponseDto } from '../dto/assign-ta.dto';
 import { Roles } from '../../auth/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
@@ -389,5 +394,207 @@ Manually updates the status of an enrollment.
   ): Promise<EnrollmentResponseDto> {
     // Implementation for admin to update status
     return this.enrollmentsService.getEnrollmentById(enrollmentId);
+  }
+
+  // ─── Admin: Instructor Assignment Endpoints ───────────────────────────────
+
+  /**
+   * POST /api/enrollments/sections/:sectionId/instructors
+   * Assign an instructor to a course section (admin only)
+   */
+  @Post('sections/:sectionId/instructors')
+  @Roles(RoleName.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Assign instructor to section',
+    description: `
+## Assign Instructor to Course Section
+
+Assigns a user with the Instructor role to a specific course section.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN only
+
+### Instructor Roles
+- \`primary\` – Main instructor (default)
+- \`co_instructor\` – Secondary instructor
+- \`guest\` – Guest lecturer
+    `,
+  })
+  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiBody({ type: AssignInstructorDto })
+  @ApiResponse({ status: 201, description: 'Instructor assigned successfully', type: InstructorAssignmentResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid request body' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
+  @ApiResponse({ status: 404, description: 'Section or user not found' })
+  @ApiResponse({ status: 409, description: 'Instructor already assigned to this section' })
+  async assignInstructor(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+    @Body() dto: AssignInstructorDto,
+  ): Promise<InstructorAssignmentResponseDto> {
+    return this.enrollmentsService.assignInstructor(sectionId, dto);
+  }
+
+  /**
+   * DELETE /api/enrollments/sections/:sectionId/instructors/:assignmentId
+   * Remove an instructor from a course section (admin only)
+   */
+  @Delete('sections/:sectionId/instructors/:assignmentId')
+  @Roles(RoleName.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Remove instructor from section',
+    description: `
+## Remove Instructor Assignment
+
+Removes an instructor assignment from a course section.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN only
+    `,
+  })
+  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiParam({ name: 'assignmentId', description: 'Instructor assignment ID', type: Number })
+  @ApiResponse({ status: 204, description: 'Instructor removed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
+  @ApiResponse({ status: 404, description: 'Section or assignment not found' })
+  async removeInstructor(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ): Promise<void> {
+    return this.enrollmentsService.removeInstructor(sectionId, assignmentId);
+  }
+
+  /**
+   * GET /api/enrollments/sections/:sectionId/instructors
+   * List all instructors for a section (admin/instructor)
+   */
+  @Get('sections/:sectionId/instructors')
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @ApiOperation({
+    summary: 'Get instructors for a section',
+    description: `
+## List Section Instructors
+
+Returns all instructors assigned to a course section.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN, INSTRUCTOR
+    `,
+  })
+  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiResponse({ status: 200, description: 'List of instructor assignments', type: [InstructorAssignmentResponseDto] })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin or Instructor required' })
+  @ApiResponse({ status: 404, description: 'Section not found' })
+  async getSectionInstructors(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+  ): Promise<InstructorAssignmentResponseDto[]> {
+    return this.enrollmentsService.getSectionInstructors(sectionId);
+  }
+
+  // ─── Admin: TA Assignment Endpoints ──────────────────────────────────────
+
+  /**
+   * POST /api/enrollments/sections/:sectionId/tas
+   * Assign a Teaching Assistant to a course section (admin only)
+   */
+  @Post('sections/:sectionId/tas')
+  @Roles(RoleName.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Assign Teaching Assistant to section',
+    description: `
+## Assign TA to Course Section
+
+Assigns a user with the Teaching Assistant role to a specific course section.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN only
+
+### Optional Fields
+- \`responsibilities\` – Free-text description of TA duties (e.g., "Grading labs, office hours Mon/Wed")
+    `,
+  })
+  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiBody({ type: AssignTADto })
+  @ApiResponse({ status: 201, description: 'TA assigned successfully', type: TAAssignmentResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid request body' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
+  @ApiResponse({ status: 404, description: 'Section or user not found' })
+  @ApiResponse({ status: 409, description: 'TA already assigned to this section' })
+  async assignTA(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+    @Body() dto: AssignTADto,
+  ): Promise<TAAssignmentResponseDto> {
+    return this.enrollmentsService.assignTA(sectionId, dto);
+  }
+
+  /**
+   * DELETE /api/enrollments/sections/:sectionId/tas/:assignmentId
+   * Remove a Teaching Assistant from a course section (admin only)
+   */
+  @Delete('sections/:sectionId/tas/:assignmentId')
+  @Roles(RoleName.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Remove Teaching Assistant from section',
+    description: `
+## Remove TA Assignment
+
+Removes a Teaching Assistant assignment from a course section.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN only
+    `,
+  })
+  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiParam({ name: 'assignmentId', description: 'TA assignment ID', type: Number })
+  @ApiResponse({ status: 204, description: 'TA removed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
+  @ApiResponse({ status: 404, description: 'Section or assignment not found' })
+  async removeTA(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ): Promise<void> {
+    return this.enrollmentsService.removeTA(sectionId, assignmentId);
+  }
+
+  /**
+   * GET /api/enrollments/sections/:sectionId/tas
+   * List all TAs for a section (admin/instructor)
+   */
+  @Get('sections/:sectionId/tas')
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @ApiOperation({
+    summary: 'Get Teaching Assistants for a section',
+    description: `
+## List Section Teaching Assistants
+
+Returns all Teaching Assistants assigned to a course section.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: ADMIN, INSTRUCTOR
+    `,
+  })
+  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiResponse({ status: 200, description: 'List of TA assignments', type: [TAAssignmentResponseDto] })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin or Instructor required' })
+  @ApiResponse({ status: 404, description: 'Section not found' })
+  async getSectionTAs(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+  ): Promise<TAAssignmentResponseDto[]> {
+    return this.enrollmentsService.getSectionTAs(sectionId);
   }
 }

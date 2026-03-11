@@ -65,3 +65,39 @@ export class EnrollmentAccessDeniedException extends ForbiddenException {
     super('You do not have permission to access this enrollment');
   }
 }
+
+export class SectionNotFoundException extends NotFoundException {
+  constructor(sectionId?: number) {
+    super(sectionId ? `Section with id ${sectionId} not found` : 'Section not found');
+  }
+}
+
+export class UserNotFoundException extends NotFoundException {
+  constructor(userId?: number) {
+    super(userId ? `User with id ${userId} not found` : 'User not found');
+  }
+}
+
+export class InstructorAlreadyAssignedException extends ConflictException {
+  constructor() {
+    super('This user is already assigned as an instructor for this section');
+  }
+}
+
+export class InstructorAssignmentNotFoundException extends NotFoundException {
+  constructor() {
+    super('Instructor assignment not found');
+  }
+}
+
+export class TAAlreadyAssignedException extends ConflictException {
+  constructor() {
+    super('This user is already assigned as a Teaching Assistant for this section');
+  }
+}
+
+export class TAAssignmentNotFoundException extends NotFoundException {
+  constructor() {
+    super('Teaching Assistant assignment not found');
+  }
+}
