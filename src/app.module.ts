@@ -19,6 +19,10 @@ import { AnnouncementsModule } from './modules/announcements/announcements.modul
 import { CommunityModule } from './modules/community/community.module';
 import { ScheduleModule } from './modules/schedule/schedule.module';
 import { CourseMaterialsModule } from './modules/course-materials/course-materials.module';
+import { TasksModule } from './modules/tasks/tasks.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { SearchModule } from './modules/search/search.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -73,6 +77,10 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     CommunityModule,
     ScheduleModule,
     CourseMaterialsModule,
+    TasksModule,
+    ReportsModule,
+    SearchModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
