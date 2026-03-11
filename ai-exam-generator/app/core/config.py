@@ -1,0 +1,2 @@
+MODEL_NAME = "gemma3:4b"
+CHUNK_SIZE = 2500
