@@ -54,7 +54,7 @@ export class CourseInstructor {
   @CreateDateColumn({
     name: 'assigned_at',
   })
-  createdAt: Date;
+  assignedAt: Date;
 
   @ManyToOne(() => CourseSection, {
     onDelete: 'CASCADE',
