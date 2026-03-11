@@ -2,7 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull, LessThan } from 'typeorm';
 import { CourseEnrollment } from '../entities/course-enrollment.entity';
-import { CourseInstructor } from '../entities/course-instructor.entity';
+import { CourseInstructor, InstructorRole } from '../entities/course-instructor.entity';
 import { CourseTA } from '../entities/course-ta.entity';
 import { Course } from '../../courses/entities/course.entity';
 import { CourseSection } from '../../courses/entities/course-section.entity';
@@ -23,10 +23,18 @@ import {
   RetakeRequiresAdminApprovalException,
   CannotDropPastEnrollmentException,
   EnrollmentAccessDeniedException,
+  SectionNotFoundException,
+  UserNotFoundException,
+  InstructorAlreadyAssignedException,
+  InstructorAssignmentNotFoundException,
+  TAAlreadyAssignedException,
+  TAAssignmentNotFoundException,
 } from '../exceptions';
 import { EnrollCourseDto } from '../dto/enroll-course.dto';
 import { EnrollmentResponseDto } from '../dto/enrollment-response.dto';
 import { AvailableCoursesFilterDto, AvailableCoursesDto } from '../dto/available-courses.dto';
+import { AssignInstructorDto, InstructorAssignmentResponseDto } from '../dto/assign-instructor.dto';
+import { AssignTADto, TAAssignmentResponseDto } from '../dto/assign-ta.dto';
 
 interface GradeInfo {
   letterGrade: string;
@@ -623,5 +631,155 @@ export class EnrollmentsService {
     const totalMs = semesterEnd.getTime() - semesterStart.getTime();
     const deadlineMs = totalMs * this.DROP_DEADLINE_PERCENTAGE;
     return new Date(semesterStart.getTime() + deadlineMs);
+  }
+
+  // ─── Instructor Assignment ────────────────────────────────────────────────
+
+  private buildInstructorResponse(
+    assignment: CourseInstructor & { instructor: User },
+  ): InstructorAssignmentResponseDto {
+    return {
+      id: Number(assignment.id),
+      sectionId: Number(assignment.sectionId),
+      userId: Number(assignment.userId),
+      role: assignment.role,
+      assignedAt: assignment.assignedAt,
+      firstName: assignment.instructor?.firstName ?? '',
+      lastName: assignment.instructor?.lastName ?? '',
+      email: assignment.instructor?.email ?? '',
+    };
+  }
+
+  async assignInstructor(
+    sectionId: number,
+    dto: AssignInstructorDto,
+  ): Promise<InstructorAssignmentResponseDto> {
+    const { userId, role = InstructorRole.PRIMARY } = dto;
+
+    const [section, user] = await Promise.all([
+      this.sectionRepository.findOne({ where: { id: sectionId } }),
+      this.userRepository.findOne({ where: { userId } }),
+    ]);
+
+    if (!section) throw new SectionNotFoundException(sectionId);
+    if (!user) throw new UserNotFoundException(userId);
+
+    const existing = await this.instructorRepository.findOne({
+      where: { sectionId, userId },
+    });
+    if (existing) throw new InstructorAlreadyAssignedException();
+
+    const assignment = this.instructorRepository.create({ sectionId, userId, role });
+    const saved = await this.instructorRepository.save(assignment);
+
+    this.logger.log(`Instructor ${userId} assigned to section ${sectionId} as ${role}`);
+
+    const full = await this.instructorRepository.findOne({
+      where: { id: saved.id },
+      relations: ['instructor'],
+    });
+    return this.buildInstructorResponse(full as CourseInstructor & { instructor: User });
+  }
+
+  async removeInstructor(sectionId: number, assignmentId: number): Promise<void> {
+    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+    if (!section) throw new SectionNotFoundException(sectionId);
+
+    const assignment = await this.instructorRepository.findOne({
+      where: { id: assignmentId, sectionId },
+    });
+    if (!assignment) throw new InstructorAssignmentNotFoundException();
+
+    await this.instructorRepository.remove(assignment);
+    this.logger.log(`Instructor assignment ${assignmentId} removed from section ${sectionId}`);
+  }
+
+  async getSectionInstructors(sectionId: number): Promise<InstructorAssignmentResponseDto[]> {
+    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+    if (!section) throw new SectionNotFoundException(sectionId);
+
+    const assignments = await this.instructorRepository.find({
+      where: { sectionId },
+      relations: ['instructor'],
+      order: { assignedAt: 'ASC' },
+    });
+
+    return assignments.map((a) =>
+      this.buildInstructorResponse(a as CourseInstructor & { instructor: User }),
+    );
+  }
+
+  // ─── TA Assignment ────────────────────────────────────────────────────────
+
+  private buildTAResponse(
+    assignment: CourseTA & { ta: User },
+  ): TAAssignmentResponseDto {
+    return {
+      id: Number(assignment.id),
+      sectionId: Number(assignment.sectionId),
+      userId: Number(assignment.userId),
+      responsibilities: assignment.responsibilities,
+      assignedAt: assignment.assignedAt,
+      firstName: assignment.ta?.firstName ?? '',
+      lastName: assignment.ta?.lastName ?? '',
+      email: assignment.ta?.email ?? '',
+    };
+  }
+
+  async assignTA(
+    sectionId: number,
+    dto: AssignTADto,
+  ): Promise<TAAssignmentResponseDto> {
+    const { userId, responsibilities } = dto;
+
+    const [section, user] = await Promise.all([
+      this.sectionRepository.findOne({ where: { id: sectionId } }),
+      this.userRepository.findOne({ where: { userId } }),
+    ]);
+
+    if (!section) throw new SectionNotFoundException(sectionId);
+    if (!user) throw new UserNotFoundException(userId);
+
+    const existing = await this.taRepository.findOne({
+      where: { sectionId, userId },
+    });
+    if (existing) throw new TAAlreadyAssignedException();
+
+    const assignment = this.taRepository.create({ sectionId, userId, responsibilities });
+    const saved = await this.taRepository.save(assignment);
+
+    this.logger.log(`TA ${userId} assigned to section ${sectionId}`);
+
+    const full = await this.taRepository.findOne({
+      where: { id: saved.id },
+      relations: ['ta'],
+    });
+    return this.buildTAResponse(full as CourseTA & { ta: User });
+  }
+
+  async removeTA(sectionId: number, assignmentId: number): Promise<void> {
+    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+    if (!section) throw new SectionNotFoundException(sectionId);
+
+    const assignment = await this.taRepository.findOne({
+      where: { id: assignmentId, sectionId },
+    });
+    if (!assignment) throw new TAAssignmentNotFoundException();
+
+    await this.taRepository.remove(assignment);
+    this.logger.log(`TA assignment ${assignmentId} removed from section ${sectionId}`);
+  }
+
+  async getSectionTAs(sectionId: number): Promise<TAAssignmentResponseDto[]> {
+    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+    if (!section) throw new SectionNotFoundException(sectionId);
+
+    const assignments = await this.taRepository.find({
+      where: { sectionId },
+      relations: ['ta'],
+      order: { assignedAt: 'ASC' },
+    });
+
+    return assignments.map((a) => this.buildTAResponse(a as CourseTA & { ta: User }));
   }
 }
