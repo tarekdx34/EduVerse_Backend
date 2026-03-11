@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "EduVerse API - Complete Test Collection",
-    "description": "Comprehensive API test collection for all EduVerse endpoints.\n\nTest Accounts:\n- Admin: admin.tarek@example.com / SecureP@ss123\n- Instructor: instructor.tarek@example.com / SecureP@ss123\n- Student: student.tarek@example.com / NewSecureP@ss123!\n- TA: ta.tarek@example.com / SecureP@ss123\n- IT Admin: it_admin.tarek@example.com / SecureP@ss123\n\nRun the \"Authentication\" folder first to populate tokens.",
+    "description": "Comprehensive API test collection for all EduVerse endpoints.\n\nTest Accounts (ALL use password: SecureP@ss123):\n- Admin: admin.tarek@example.com\n- Instructor: instructor.tarek@example.com\n- Student: student.tarek@example.com\n- TA: ta.tarek@example.com\n- IT Admin: it_admin.tarek@example.com\n\nRun the \"Authentication\" folder first to populate tokens.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -172,7 +172,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"student.tarek@example.com\",\n  \"password\": \"NewSecureP@ss123!\",\n  \"rememberMe\": true\n}"
+              "raw": "{\n  \"email\": \"student.tarek@example.com\",\n  \"password\": \"SecureP@ss123\",\n  \"rememberMe\": true\n}"
             }
           },
           "response": [],
@@ -593,7 +593,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"NewSecureP@ss123!\",\n  \"newPassword\": \"NewSecureP@ss123!\"\n}"
+              "raw": "{\n  \"currentPassword\": \"SecureP@ss123\",\n  \"newPassword\": \"SecureP@ss123\"\n}"
             }
           },
           "response": [],
