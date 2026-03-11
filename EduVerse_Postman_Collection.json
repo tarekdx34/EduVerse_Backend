@@ -6518,7 +6518,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Week 1 Lecture Slides\",\n  \"description\": \"Introduction to the course\",\n  \"materialType\": \"slide\",\n  \"externalUrl\": \"https://example.com/slides/week1.pdf\",\n  \"isPublished\": true\n}"
+              "raw": "{\n  \"title\": \"Week 1 Lecture Slides\",\n  \"description\": \"Introduction to the course\",\n  \"materialType\": \"slide\",\n  \"externalUrl\": \"https://example.com/slides/week1.pdf\",\n  \"weekNumber\": 1,\n  \"isPublished\": true\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/courses/1/materials",
@@ -6589,6 +6589,113 @@
                   "    pm.expect(jsonData).to.have.property('materialId');",
                   "    pm.expect(jsonData).to.have.property('title');",
                   "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upload Video Material (Instructor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "video",
+                  "type": "file",
+                  "src": "",
+                  "description": "Video file to upload (mp4, avi, mov, webm, mkv)"
+                },
+                {
+                  "key": "title",
+                  "value": "Week 1 Video Lecture: Introduction",
+                  "type": "text",
+                  "description": "Video title (required, max 255 chars)"
+                },
+                {
+                  "key": "description",
+                  "value": "This video covers the introduction to the course and basic concepts.",
+                  "type": "text",
+                  "description": "Video description (optional)"
+                },
+                {
+                  "key": "tags",
+                  "value": "lecture,week1,introduction",
+                  "type": "text",
+                  "description": "Comma-separated tags (optional)"
+                },
+                {
+                  "key": "weekNumber",
+                  "value": "1",
+                  "type": "text",
+                  "description": "Week number to assign (1-52, optional)"
+                },
+                {
+                  "key": "orderIndex",
+                  "value": "0",
+                  "type": "text",
+                  "description": "Sort order within the week (default: 0)"
+                },
+                {
+                  "key": "isPublished",
+                  "value": "false",
+                  "type": "text",
+                  "description": "Publish immediately (default: false/draft)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/materials/video",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "video"
+              ]
+            },
+            "description": "Upload a video file to YouTube and create a course material record.\n\n**Supported formats:** mp4, avi, mov, webm, mkv, flv, wmv\n\n**Flow:**\n1. Video is uploaded to YouTube (unlisted)\n2. YouTube returns video ID\n3. Material record created with embed URL and YouTube video ID\n\n**Response includes:**\n- `materialId`: Database ID\n- `externalUrl`: YouTube embed URL\n- `youtubeVideoId`: Original YouTube video ID\n- `youtubeUrl`: Full YouTube watch URL\n- `embedUrl`: Embed URL for iframe\n\n**Note:** Requires YouTube API credentials configured in environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 or 400 (YouTube API required)', function () {",
+                  "    pm.expect([201, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test('Response has video material', function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData).to.have.property('materialId');",
+                  "        pm.expect(jsonData.materialType).to.equal('video');",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response has YouTube data', function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData).to.have.property('youtubeVideoId');",
+                  "        pm.expect(jsonData).to.have.property('externalUrl');",
+                  "        pm.expect(jsonData.externalUrl).to.include('youtube.com/embed');",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response has new fields', function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData).to.have.property('weekNumber');",
+                  "        pm.expect(jsonData).to.have.property('orderIndex');",
+                  "    });",
+                  "}"
                 ],
                 "type": "text/javascript"
               }
@@ -6720,7 +6827,176 @@
                 "download"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has download info', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('downloadUrl');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Track Material View",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/view",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "{{material_id}}",
+                "view"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('View was tracked', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.equal('View tracked successfully');",
+                  "    pm.expect(jsonData).to.have.property('viewCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk Create Materials (Instructor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materials\": [\n    {\n      \"title\": \"Week 3 Lecture: Advanced Topics\",\n      \"description\": \"Deep dive into advanced concepts\",\n      \"materialType\": \"lecture\",\n      \"weekNumber\": 3,\n      \"isPublished\": true\n    },\n    {\n      \"title\": \"Week 3 Reading Materials\",\n      \"description\": \"Supplementary reading for week 3\",\n      \"materialType\": \"reading\",\n      \"weekNumber\": 3,\n      \"isPublished\": true\n    },\n    {\n      \"title\": \"Week 3 Lab Exercises\",\n      \"description\": \"Hands-on practice exercises\",\n      \"materialType\": \"document\",\n      \"weekNumber\": 3,\n      \"isPublished\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/materials/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "bulk"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Bulk create was successful', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.count).to.equal(3);",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    pm.expect(jsonData.data.length).to.equal(3);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Materials (with weekNumber filter)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/materials?weekNumber=1&sortBy=orderIndex&sortOrder=ASC",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials"
+              ],
+              "query": [
+                {
+                  "key": "weekNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "orderIndex"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "ASC"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has filtered materials', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get YouTube Embed URL",
@@ -6827,6 +7103,49 @@
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('data');",
                   "    pm.expect(jsonData).to.have.property('byWeek');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Structure Item by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "structure",
+                "{{structure_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has structure details', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('organizationId');",
+                  "    pm.expect(jsonData).to.have.property('title');",
                   "});"
                 ],
                 "type": "text/javascript"

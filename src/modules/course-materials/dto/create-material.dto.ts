@@ -67,6 +67,15 @@ export class CreateMaterialDto {
   orderIndex?: number;
 
   @ApiPropertyOptional({
+    description: 'Week number for organizing materials by course week',
+    example: 1,
+    minimum: 1,
+  })
+  @IsNumber()
+  @IsOptional()
+  weekNumber?: number;
+
+  @ApiPropertyOptional({
     description: 'Whether the material is published and visible to students',
     example: true,
   })

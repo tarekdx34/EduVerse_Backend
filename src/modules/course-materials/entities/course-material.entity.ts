@@ -17,6 +17,7 @@ import { MaterialType } from '../enums';
 @Index(['courseId'])
 @Index(['uploadedBy'])
 @Index(['materialType'])
+@Index(['weekNumber'])
 export class CourseMaterial {
   @PrimaryGeneratedColumn({
     name: 'material_id',
@@ -79,11 +80,40 @@ export class CourseMaterial {
   externalUrl: string | null;
 
   @Column({
+    name: 'youtube_video_id',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
+  youtubeVideoId: string | null;
+
+  @Column({
     name: 'order_index',
     type: 'int',
     default: 0,
   })
   orderIndex: number;
+
+  @Column({
+    name: 'week_number',
+    type: 'int',
+    nullable: true,
+  })
+  weekNumber: number | null;
+
+  @Column({
+    name: 'view_count',
+    type: 'int',
+    default: 0,
+  })
+  viewCount: number;
+
+  @Column({
+    name: 'download_count',
+    type: 'int',
+    default: 0,
+  })
+  downloadCount: number;
 
   @Column({
     name: 'uploaded_by',
@@ -99,7 +129,7 @@ export class CourseMaterial {
   @Column({
     name: 'is_published',
     type: 'tinyint',
-    default: 1,
+    default: 0,
   })
   isPublished: boolean;
 

@@ -6,3 +6,4 @@ export * from './update-structure.dto';
 export * from './query-materials.dto';
 export * from './reorder-structure.dto';
 export * from './toggle-visibility.dto';
+export * from './bulk-create-material.dto';
