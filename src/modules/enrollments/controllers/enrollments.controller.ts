@@ -37,6 +37,21 @@ export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
   /**
+   * GET /api/enrollments/periods
+   * Get enrollment periods (derived from semesters with registration dates)
+   */
+  @Get('periods')
+  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA, RoleName.STUDENT)
+  @ApiOperation({
+    summary: 'Get enrollment periods',
+    description: 'Returns semesters with registration date ranges as enrollment periods.',
+  })
+  @ApiResponse({ status: 200, description: 'List of enrollment periods' })
+  async getEnrollmentPeriods(): Promise<any[]> {
+    return this.enrollmentsService.getEnrollmentPeriods();
+  }
+
+  /**
    * GET /api/enrollments/my-courses
    * Get all courses enrolled by the authenticated student
    */
