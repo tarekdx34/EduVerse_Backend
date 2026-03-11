@@ -2255,8 +2255,8 @@ const response = await axios.post(url, formData, {
 | Sprint | Modules | Status | Frontend Impact |
 |--------|---------|--------|-----------------|
 | Sprint 1 | Assignments, Grades, Quizzes, Attendance, Labs, Notifications | ✅ DONE | Core academic tabs functional on Student, Instructor, TA dashboards |
-| Sprint 2 | Messaging, Discussions, Announcements, Community, Schedule, Course Materials | ✅ DONE | Communication and content tabs functional on all dashboards |
-| Sprint 3 | Analytics, Reports, Tasks, Search | ✅ DONE | Dashboard overview stats, report generation, task management |
+| Sprint 2 | Messaging, Discussions, Announcements, Community, Schedule, Course Materials | ✅ DONE | Communication, content, and scheduling tabs functional on all dashboards |
+| Sprint 3 | Analytics, Reports, User Management (Enhanced), Roles & Permissions, Tasks & Reminders, Search | ✅ DONE | Dashboard overview stats, report generation, task management, search |
 | Sprint 4 | Security & Audit, System Settings, Monitoring, Backup, Study Groups, Office Hours, Peer Review | 🔲 PLANNED | IT Admin dashboard (security, monitoring, backup), advanced student features |
 | Sprint 5 | Live Sessions, Localization, Support & Feedback, Certificates, Voice & Transcription | 🔲 PLANNED | Multi-language support, live classes, certificates, support tickets |
 | Sprint 6 | Gamification, Payments, AI Integration | 🔲 PLANNED | Student gamification, payment history, AI-powered features |
@@ -2500,7 +2500,7 @@ const response = await axios.post(url, formData, {
 
 #### AI Features (`/api/ai`)
 
-> **Note:** The AI module is implemented by a separate team. These endpoints define the integration interface that the backend team will stub out.
+> **Note:** The AI module is implemented by a separate team. The backend team (Dev C, Sprint 6) will create the NestJS module structure, entity definitions, controller stubs, DTOs, and service interfaces. The external AI team will then implement the actual service logic connecting to AI providers (OpenAI/Gemini). Frontend should show "Coming Soon" placeholders until both the stub endpoints and AI service implementations are ready. Coordinate with the AI team on API contract finalization before Sprint 6 begins.
 
 | Method | Path | Auth | Roles | Description |
 |--------|------|------|-------|-------------|
