@@ -867,7 +867,7 @@ The database uses a **centralized translation pattern** via these tables:
 
 ## ⚠️ Integration Gaps Identified in Sprints 1-3
 
-> **Action Required Before Sprint 4:** The following cross-module integrations were planned but not yet wired. Each gap has a recommended owner. These should be resolved as a dedicated integration sprint or folded into Sprint 4 kickoff.
+> **Action Required Before Sprint 4:** The following cross-module integrations were planned but not yet wired. Each gap has a recommended owner. These should be resolved as a dedicated integration sprint or folded into Sprint 4 kickoff. Track each gap as a separate issue/ticket in the project board with the label `integration-gap` to ensure accountability.
 
 ### Priority 1 — Must Fix
 
