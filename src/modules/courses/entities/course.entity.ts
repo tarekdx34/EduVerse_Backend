@@ -79,6 +79,20 @@ export class Course {
   syllabusUrl: string | null;
 
   @Column({
+    type: 'bigint',
+    nullable: true,
+    name: 'instructor_id',
+  })
+  instructorId: number | null;
+
+  @Column({
+    type: 'json',
+    nullable: true,
+    name: 'ta_ids',
+  })
+  taIds: number[] | null;
+
+  @Column({
     type: 'enum',
     enum: CourseStatus,
     default: CourseStatus.ACTIVE,
