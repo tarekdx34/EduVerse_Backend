@@ -591,7 +591,7 @@ export class UserManagementService {
       }
 
       // Check for duplicate email
-      const existingUser = await this.userRepository.findOne({ where: { email } });
+      const existingUser = await this.userRepository.findOne({ where: { email }, withDeleted: true });
       if (existingUser) {
         result.failed++;
         result.errors.push({ row: rowNum, email, reason: 'Email already exists' });

@@ -13,8 +13,8 @@ export default registerAs('database', () => {
     port: parseInt(dbPort, 10),
     username: process.env.DB_USERNAME || 'root',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_DATABASE || 'eduverse_db', // Changed from DB_NAME to DB_DATABASE
-    synchronize: false, // Disabled - will not modify existing database
+    database: process.env.DB_DATABASE || 'eduverse_db',
+    synchronize: false,
     logging: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
   };
 });
