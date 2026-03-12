@@ -49,6 +49,16 @@ export class CreateCourseDto {
   @IsOptional()
   @IsString()
   syllabusUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Instructor ID', example: 1 })
+  @IsOptional()
+  @IsNumber()
+  instructorId?: number;
+
+  @ApiPropertyOptional({ description: 'TA IDs', type: [Number], example: [1, 2] })
+  @IsOptional()
+  @IsArray()
+  taIds?: number[];
 }
 
 export class UpdateCourseDto {
@@ -83,6 +93,16 @@ export class UpdateCourseDto {
   @IsOptional()
   @IsEnum(CourseStatus)
   status?: CourseStatus;
+
+  @ApiPropertyOptional({ description: 'Instructor ID', example: 1 })
+  @IsOptional()
+  @IsNumber()
+  instructorId?: number;
+
+  @ApiPropertyOptional({ description: 'TA IDs', type: [Number], example: [1, 2] })
+  @IsOptional()
+  @IsArray()
+  taIds?: number[];
 }
 
 export class CourseDto {
