@@ -88,15 +88,17 @@ export class CalendarEvent {
 
   @Column({
     name: 'start_time',
-    type: 'timestamp',
+    type: 'datetime',
+    nullable: true,
   })
-  startTime: Date;
+  startTime: Date | null;
 
   @Column({
     name: 'end_time',
-    type: 'timestamp',
+    type: 'datetime',
+    nullable: true,
   })
-  endTime: Date;
+  endTime: Date | null;
 
   @Column({
     name: 'schedule_id',
