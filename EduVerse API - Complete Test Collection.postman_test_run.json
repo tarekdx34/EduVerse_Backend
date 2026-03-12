@@ -1,0 +1,5465 @@
+{
+	"id": "cf3e4a76-e56b-4806-99f3-7a5ca98a64b7",
+	"name": "EduVerse API - Complete Test Collection",
+	"timestamp": "2026-03-11T17:20:12.762Z",
+	"collection_id": "52850424-bc16aeab-689e-4744-890d-44fe8ca94795",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 144,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-03-11T17:19:54.247Z",
+	"totalFail": 34,
+	"results": [
+		{
+			"id": "1e582044-1221-4ddb-823f-312c3eb6f470",
+			"name": "Get Current User (me)",
+			"url": "http://localhost:8081/api/auth/me",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Has email": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has email": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Has email": true
+				}
+			]
+		},
+		{
+			"id": "fd804d0b-dd9d-4a2c-8a7d-60700109132c",
+			"name": "Refresh Token",
+			"url": "http://localhost:8081/api/auth/refresh-token",
+			"time": 3,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "c783c205-63d8-4ee6-a6b7-b17025e04ff5",
+			"name": "Get My Profile",
+			"url": "http://localhost:8081/api/users/profile",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "5ef44aa7-d719-4b5c-9ce2-90fc3fadb6e1",
+			"name": "Update My Profile",
+			"url": "http://localhost:8081/api/users/profile",
+			"time": 30,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				30
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "506cb769-8563-489f-afb0-3e93f9d956a5",
+			"name": "Get My Preferences",
+			"url": "http://localhost:8081/api/users/preferences",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "3714efea-5a34-45b4-b364-69ab089f909d",
+			"name": "Update My Preferences",
+			"url": "http://localhost:8081/api/users/preferences",
+			"time": 20,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ee604b6e-d1fe-48d1-962a-ed907257e92e",
+			"name": "Change Password",
+			"url": "http://localhost:8081/api/users/password",
+			"time": 137,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				137
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ed5b9f2f-02aa-49db-97ac-adfa77237185",
+			"name": "List All Users",
+			"url": "http://localhost:8081/api/admin/users",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "784bec9d-df23-4784-a22d-c35e01d58840",
+			"name": "Search Users",
+			"url": "http://localhost:8081/api/admin/users/search?query=tarek",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "8559c96e-adf2-4688-b1ff-c43f46fedeeb",
+			"name": "User Statistics",
+			"url": "http://localhost:8081/api/admin/users/statistics",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ad82d0fd-be01-43cb-847a-ac9bdb34e9f5",
+			"name": "Export Users",
+			"url": "http://localhost:8081/api/admin/users/export",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "557fb8b3-364e-44f3-a846-584bd49a82bb",
+			"name": "Get User by ID (57)",
+			"url": "http://localhost:8081/api/admin/users/57",
+			"time": 22,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				22
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "90582225-d374-4e0a-9d18-0992d5f182fe",
+			"name": "Update User (57)",
+			"url": "http://localhost:8081/api/admin/users/57",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "fb1b2e48-8f22-4f6c-8814-73896a0cf74d",
+			"name": "Get User Permissions (57)",
+			"url": "http://localhost:8081/api/admin/users/57/permissions",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "3775df5c-71b6-4113-ba26-222be13e33a1",
+			"name": "List Roles",
+			"url": "http://localhost:8081/api/admin/roles",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "849c10f4-91a0-4df5-b3aa-1a3543428457",
+			"name": "Roles with Users",
+			"url": "http://localhost:8081/api/admin/roles/with-users",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ff37215b-952c-48f5-b564-54ff4e4079d6",
+			"name": "Get Role (ID=1)",
+			"url": "http://localhost:8081/api/admin/roles/1",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "51e9c750-4191-4c42-8100-8d62009a9907",
+			"name": "List Permissions",
+			"url": "http://localhost:8081/api/admin/permissions",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "7ad94f58-3842-4e7f-86e2-54baceb81be8",
+			"name": "Permissions Matrix",
+			"url": "http://localhost:8081/api/admin/permissions/matrix",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "0d1a81ef-6265-44f4-86a8-003973b61151",
+			"name": "List Campuses",
+			"url": "http://localhost:8081/api/campuses",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "4c71a16f-7a7b-4de9-85a1-94533cae2c85",
+			"name": "Get Campus (1)",
+			"url": "http://localhost:8081/api/campuses/1",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "c51cbf98-3371-4a9f-b93b-a92f8292a65c",
+			"name": "Create Campus",
+			"url": "http://localhost:8081/api/campuses",
+			"time": 10,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "cf2bd4d1-9a75-4f0e-b01f-b96c92f201ce",
+			"name": "Update Campus (1)",
+			"url": "http://localhost:8081/api/campuses/1",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "4a95e472-7714-4cda-9272-77d307bd874a",
+			"name": "List Departments (Campus 1)",
+			"url": "http://localhost:8081/api/campuses/1/departments",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "d583d892-d7cc-4896-825d-e25e6ef4033b",
+			"name": "Get Department (1)",
+			"url": "http://localhost:8081/api/departments/1",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "c3f876d7-e50a-4ac5-8345-45815589d4ac",
+			"name": "Create Department",
+			"url": "http://localhost:8081/api/departments",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "54d28d1b-984f-4cbb-ada5-8637c1f8550c",
+			"name": "Update Department (1)",
+			"url": "http://localhost:8081/api/departments/1",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "e8737d0b-19d3-4745-a8ad-c2c1ba8ceefb",
+			"name": "List Programs (Dept 1)",
+			"url": "http://localhost:8081/api/departments/1/programs",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "912dd37c-4984-47bb-9233-5d74d30fb3ef",
+			"name": "Get Program (1)",
+			"url": "http://localhost:8081/api/programs/1",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ca17e7f0-1745-4e75-8c83-8f1df05294f2",
+			"name": "Create Program",
+			"url": "http://localhost:8081/api/programs",
+			"time": 11,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "e03f5b99-a63a-4047-bd23-9385a9570b2c",
+			"name": "Update Program (1)",
+			"url": "http://localhost:8081/api/programs/1",
+			"time": 10,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "ab167b57-5156-4ae2-80d9-0375527ac1a1",
+			"name": "List Semesters",
+			"url": "http://localhost:8081/api/semesters",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "95a33373-f8aa-4a20-bdb0-cc3aaaa8ff66",
+			"name": "Get Current Semester",
+			"url": "http://localhost:8081/api/semesters/current",
+			"time": 10,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "22d996b7-80e0-460f-9093-cbdbab779050",
+			"name": "Get Semester (2)",
+			"url": "http://localhost:8081/api/semesters/2",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "8c063d6b-a9f3-4a89-b409-9d54016cf1d9",
+			"name": "List All Courses",
+			"url": "http://localhost:8081/api/courses",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "96498924-225e-4246-bf1e-022bcb5fe955",
+			"name": "Get Course (1) - CS101",
+			"url": "http://localhost:8081/api/courses/1",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "6b6b330b-96c9-4481-b4c7-c26d8a4945ec",
+			"name": "Courses by Department (1)",
+			"url": "http://localhost:8081/api/courses/department/1",
+			"time": 5,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "701ef525-c50d-4b79-857d-92bdfe945615",
+			"name": "Course Prerequisites (1)",
+			"url": "http://localhost:8081/api/courses/1/prerequisites",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "018b4f6c-59ad-4de0-bd8c-096eda07454f",
+			"name": "Create Course",
+			"url": "http://localhost:8081/api/courses",
+			"time": 3,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "8de46acf-2204-46ea-9246-d92ddfe65161",
+			"name": "Sections by Course (1)",
+			"url": "http://localhost:8081/api/sections/course/1",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "e54a7fd1-5720-4758-90a4-e17f967905ff",
+			"name": "Get Section (1)",
+			"url": "http://localhost:8081/api/sections/1",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "10db2e64-63e9-4437-84d6-896a015b585d",
+			"name": "Create Section",
+			"url": "http://localhost:8081/api/sections",
+			"time": 24,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				24
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "5e386ecf-0b41-40a8-a497-3566febf6743",
+			"name": "Schedule by Section (1)",
+			"url": "http://localhost:8081/api/schedules/section/1",
+			"time": 6,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "2347f72f-7374-4400-96dd-c998187f7b86",
+			"name": "Get Schedule (1)",
+			"url": "http://localhost:8081/api/schedules/1",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "fd679c62-4bef-491d-a0ee-db78c1b9c618",
+			"name": "My Courses (Student)",
+			"url": "http://localhost:8081/api/enrollments/my-courses",
+			"time": 107,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				107
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "1b01731d-448c-463c-9b05-e58d6a426bdf",
+			"name": "Available Courses",
+			"url": "http://localhost:8081/api/enrollments/available",
+			"time": 75,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				75
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "b48d94f3-7d1d-4d60-8fda-1ffde7402f54",
+			"name": "Get Enrollment (235)",
+			"url": "http://localhost:8081/api/enrollments/235",
+			"time": 20,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "8230b3c3-6083-4e58-8f74-b011b6a43b64",
+			"name": "Course Enrollment List (1)",
+			"url": "http://localhost:8081/api/enrollments/course/1/list",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "9243662a-6cc1-4858-9042-2dfdeb1febe1",
+			"name": "Section Students (1)",
+			"url": "http://localhost:8081/api/enrollments/section/1/students",
+			"time": 98,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				98
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "b21d9655-017a-45c6-9cbd-aed638a63609",
+			"name": "Section Waitlist (1)",
+			"url": "http://localhost:8081/api/enrollments/section/1/waitlist",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "330d398a-508a-4fab-8382-24f4a5a11331",
+			"name": "List Materials (Course 1)",
+			"url": "http://localhost:8081/api/courses/1/materials",
+			"time": 29,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				29
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ad106b92-e680-42a2-b7e0-a99594550d5c",
+			"name": "List Materials with Filters",
+			"url": "http://localhost:8081/api/courses/1/materials?materialType=lecture&page=1&limit=10",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "26ff8495-b3aa-4fe2-b5b1-7a5cf48b915a",
+			"name": "List Materials by Week",
+			"url": "http://localhost:8081/api/courses/1/materials?weekNumber=1",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "4855a4c5-7b02-4dd9-985f-64f48508ef49",
+			"name": "Search Materials",
+			"url": "http://localhost:8081/api/courses/1/materials?search=Introduction",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "12759880-64db-435a-9670-42ab04ed1286",
+			"name": "Create Material",
+			"url": "http://localhost:8081/api/courses/1/materials",
+			"time": 15,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "316d4365-083e-4607-9c06-e90e503bedf1",
+			"name": "Bulk Create Materials",
+			"url": "http://localhost:8081/api/courses/1/materials/bulk",
+			"time": 21,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "13b8e7d2-0bbc-4c68-8552-c5560d5292fb",
+			"name": "Get Material (15)",
+			"url": "http://localhost:8081/api/courses/1/materials/15",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "d3a1616e-1ad9-496d-976d-b100a07841ef",
+			"name": "Get Material as Student",
+			"url": "http://localhost:8081/api/courses/1/materials/15",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "d839cf51-6f31-42fe-83f1-f87057ffd3c1",
+			"name": "Update Material",
+			"url": "http://localhost:8081/api/courses/1/materials/25",
+			"time": 33,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				33
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "9740275b-b2a5-4487-9647-677e14c156c7",
+			"name": "Toggle Visibility (publish)",
+			"url": "http://localhost:8081/api/courses/1/materials/15/visibility",
+			"time": 20,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "f5b57a5d-2a03-43b8-ad64-01c94fdbac49",
+			"name": "Track Material View",
+			"url": "http://localhost:8081/api/courses/1/materials/15/view",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "3bd709fa-240f-4beb-a9ee-97e8220f0449",
+			"name": "Get YouTube Embed URL",
+			"url": "http://localhost:8081/api/courses/1/materials/23/embed",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Has embedUrl": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has embedUrl": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Has embedUrl": true
+				}
+			]
+		},
+		{
+			"id": "6115cfd1-0db5-4d6a-9c74-7efe63870a0b",
+			"name": "Download Material (file)",
+			"url": "http://localhost:8081/api/courses/2/materials/4/download",
+			"time": 24,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				24
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "d205cdb4-853a-4f44-8349-b3f51f430c5a",
+			"name": "Delete Material (created)",
+			"url": "http://localhost:8081/api/courses/1/materials/25",
+			"time": 37,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				37
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "5ccea781-4367-4c6f-a84d-7b206b99caaf",
+			"name": "Get Course Structure (1)",
+			"url": "http://localhost:8081/api/courses/1/structure",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "10abd400-0469-499d-aeac-6c31b4a880b9",
+			"name": "Get Structure Item (7)",
+			"url": "http://localhost:8081/api/courses/1/structure/7",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "a2bb6d90-6784-423e-b4ad-14af3c8a857e",
+			"name": "Create Structure Item",
+			"url": "http://localhost:8081/api/courses/1/structure",
+			"time": 30,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				30
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "90bbf97b-7048-4871-84fd-23866aac136b",
+			"name": "Update Structure Item",
+			"url": "http://localhost:8081/api/courses/1/structure/13",
+			"time": 34,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				34
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "076c977b-a214-4b3e-9e44-fceb4863ebd0",
+			"name": "Reorder Structure",
+			"url": "http://localhost:8081/api/courses/1/structure/reorder",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "1bb0587e-9d9f-4025-a0a1-0e63336f6f37",
+			"name": "Delete Structure Item",
+			"url": "http://localhost:8081/api/courses/1/structure/13",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "91f1e254-b429-4249-abbe-b4abfaf1d50c",
+			"name": "Get YouTube Auth URL",
+			"url": "http://localhost:8081/youtube/auth",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Has authUrl": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has authUrl": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Has authUrl": true
+				}
+			]
+		},
+		{
+			"id": "41639c5b-4bd6-4291-aee9-9ac071b9a63c",
+			"name": "Search YouTube Videos",
+			"url": "http://localhost:8081/youtube/search?query=NestJS+tutorial&maxResults=5",
+			"time": 23,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				23
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "2b4388b4-3214-4de1-a039-8cdde1edf82d",
+			"name": "Get Video Details",
+			"url": "http://localhost:8081/youtube/videos/dQw4w9WgXcQ",
+			"time": 5,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "45253010-fb3b-40ec-b17b-edce1effebd5",
+			"name": "Get Channel Videos",
+			"url": "http://localhost:8081/youtube/channel/UC_x5XG1OV2P6uZZ5FSM9Ttw/videos?maxResults=5",
+			"time": 4,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "d4c0976e-5a19-473d-bb24-54ecb0c75248",
+			"name": "List Announcements",
+			"url": "http://localhost:8081/api/announcements",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "0d2d0d10-17cc-4c46-81c4-e634643575e9",
+			"name": "Create Announcement",
+			"url": "http://localhost:8081/api/announcements",
+			"time": 34,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				34
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "6eea0f71-3b1c-47f6-9d9a-ce77ca646440",
+			"name": "Get Announcement (1)",
+			"url": "http://localhost:8081/api/announcements/1",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "e0ed1f51-bcd2-4460-a8e1-2ab8419a9786",
+			"name": "Update Announcement (1)",
+			"url": "http://localhost:8081/api/announcements/1",
+			"time": 26,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				26
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "d103a9cf-4940-4110-b30a-25938b379d02",
+			"name": "Publish Announcement (1)",
+			"url": "http://localhost:8081/api/announcements/1/publish",
+			"time": 26,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				26
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "185b4816-a231-4365-871f-d20dc2cd78fb",
+			"name": "Pin Announcement (1)",
+			"url": "http://localhost:8081/api/announcements/1/pin",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "c8c393fe-140c-4d8a-b4bf-c1d683402c36",
+			"name": "Announcement Analytics (1)",
+			"url": "http://localhost:8081/api/announcements/1/analytics",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "3526234c-c78a-4228-bc0f-1a80f92a78d9",
+			"name": "List Assignments",
+			"url": "http://localhost:8081/api/assignments",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "b7a2edfb-d887-42aa-ae8d-3f597c1a2c5c",
+			"name": "Get Assignment (1)",
+			"url": "http://localhost:8081/api/assignments/1",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "c0f600fe-6c4b-456c-ab5f-08fa43e18ce8",
+			"name": "Create Assignment",
+			"url": "http://localhost:8081/api/assignments",
+			"time": 10,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "3bbf7a86-b62d-4420-8a01-c3ef91529cb4",
+			"name": "Update Assignment (1)",
+			"url": "http://localhost:8081/api/assignments/1",
+			"time": 27,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				27
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "fb461d40-b1ab-41d3-ac36-7080b7478877",
+			"name": "My Submission (Assignment 1)",
+			"url": "http://localhost:8081/api/assignments/1/submissions/my",
+			"time": 9,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 200 or 404": true
+			},
+			"testPassFailCounts": {
+				"Status 200 or 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200 or 404": true
+				}
+			]
+		},
+		{
+			"id": "5c80c993-7325-45dc-a6a7-dd682c526a28",
+			"name": "All Submissions (Assignment 1)",
+			"url": "http://localhost:8081/api/assignments/1/submissions",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "420bb04b-854b-4841-873c-000c9a8a68d8",
+			"name": "List Discussions",
+			"url": "http://localhost:8081/api/discussions",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "d064f0fb-4ee4-400a-891c-85174c985493",
+			"name": "Create Discussion",
+			"url": "http://localhost:8081/api/discussions",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "4b105d16-526b-44de-9505-316fafaed669",
+			"name": "Get Discussion (3)",
+			"url": "http://localhost:8081/api/discussions/3",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "5062e5c1-8f72-41e7-9e8c-194c09a6f4c8",
+			"name": "Update Discussion (3)",
+			"url": "http://localhost:8081/api/discussions/3",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "24c50674-8920-4b4d-a7bd-0569c55a80be",
+			"name": "Reply to Discussion (3)",
+			"url": "http://localhost:8081/api/discussions/3/reply",
+			"time": 8,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "2aa58854-657f-477b-9996-87f68d82fc80",
+			"name": "Pin Discussion (3)",
+			"url": "http://localhost:8081/api/discussions/3/pin",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "c0689308-3792-4b23-8e9e-a52d1d71292f",
+			"name": "Lock Discussion (3)",
+			"url": "http://localhost:8081/api/discussions/3/lock",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ea34a04f-0e3d-455d-b84f-dfc791ced37a",
+			"name": "List Communities",
+			"url": "http://localhost:8081/api/community/communities",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "f2fb0023-9a61-48ff-92ab-ce74bcdd6dbc",
+			"name": "Get Global Community",
+			"url": "http://localhost:8081/api/community/global",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "f77128d4-773e-4e38-b2fe-261ca29839bd",
+			"name": "Get Community (1)",
+			"url": "http://localhost:8081/api/community/communities/1",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ed203f66-ba08-4e18-9a38-2e55117d88c0",
+			"name": "Community Posts (1)",
+			"url": "http://localhost:8081/api/community/communities/1/posts",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "2466cee0-871e-4641-9313-be7ebfafd4d4",
+			"name": "Create Community Post",
+			"url": "http://localhost:8081/api/community/communities/1/posts",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "3c9ffd80-e901-4bc9-b60b-47de74159a0d",
+			"name": "Post to Global Community",
+			"url": "http://localhost:8081/api/community/global/posts",
+			"time": 8,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "c7687ee9-84bb-48ed-b5bb-6484a961b3e3",
+			"name": "My Department Communities",
+			"url": "http://localhost:8081/api/community/my-departments",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "e218f5e3-48de-43eb-b529-1efa5aaf93d9",
+			"name": "List All Posts",
+			"url": "http://localhost:8081/api/community/posts",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "100e493c-7de0-4ced-b817-1b8cd4841437",
+			"name": "Get Post (3)",
+			"url": "http://localhost:8081/api/community/posts/3",
+			"time": 32,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				32
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "e77d722e-128c-4c3d-b3c4-45b90df39cd0",
+			"name": "Comment on Post (3)",
+			"url": "http://localhost:8081/api/community/posts/3/comment",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "ee356178-5eda-41d8-8074-aff4983570c9",
+			"name": "React to Post (3)",
+			"url": "http://localhost:8081/api/community/posts/3/react",
+			"time": 26,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status OK": true
+			},
+			"testPassFailCounts": {
+				"Status OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				26
+			],
+			"allTests": [
+				{
+					"Status OK": true
+				}
+			]
+		},
+		{
+			"id": "4dbc8abe-2192-403d-baaf-33054be3b3fb",
+			"name": "List Community Tags",
+			"url": "http://localhost:8081/api/community/tags",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ffc4bc33-b410-4410-8bfd-981473b441cc",
+			"name": "Create Community Tag",
+			"url": "http://localhost:8081/api/community/tags",
+			"time": 16,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "297d8bf6-45ec-4aa5-bffb-83c20b2b0376",
+			"name": "Search Files",
+			"url": "http://localhost:8081/api/files/search?query=syllabus",
+			"time": 8,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "bae2a97d-9627-4204-b00f-f9a02956e7c2",
+			"name": "Recent Files",
+			"url": "http://localhost:8081/api/files/recent",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "3c7816d5-0ba8-4c68-8553-66cf3157208f",
+			"name": "Shared Files",
+			"url": "http://localhost:8081/api/files/shared",
+			"time": 70,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				70
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ac8e1b1f-448c-4961-82dc-f063f1f1ef40",
+			"name": "Get File (1)",
+			"url": "http://localhost:8081/api/files/1",
+			"time": 26,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				26
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "856a3e8f-ef7f-4804-b54f-9042b7a94320",
+			"name": "Get File Download URL",
+			"url": "http://localhost:8081/api/files/1/download",
+			"time": 19,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "8909282e-ebc0-419a-acda-b827b8c94881",
+			"name": "Get File Permissions",
+			"url": "http://localhost:8081/api/files/1/permissions",
+			"time": 17,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "4a97deb8-4dfe-4d27-b2a5-ff681ccba54f",
+			"name": "Get File Versions",
+			"url": "http://localhost:8081/api/files/1/versions",
+			"time": 17,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "e7a77af8-6efb-4828-b7f0-a9ef5457cb05",
+			"name": "Update File Metadata",
+			"url": "http://localhost:8081/api/files/1",
+			"time": 20,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "dc64a6bb-3695-4f17-9ca4-0dd4d96aeaa8",
+			"name": "Get Folder (1)",
+			"url": "http://localhost:8081/api/files/folders/1",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "cd6fad2a-8254-4a87-b381-505b24c1fc54",
+			"name": "Get Folder Children",
+			"url": "http://localhost:8081/api/files/folders/1/children",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "41d3cdf9-77ed-402f-89f3-64bb884bd53b",
+			"name": "Get Folder Tree",
+			"url": "http://localhost:8081/api/files/folders/1/tree",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "db13ad67-519a-47bc-a5ef-be4f6f55d4fc",
+			"name": "Create Folder",
+			"url": "http://localhost:8081/api/files/folders",
+			"time": 19,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "a4b36e20-e5ce-4c25-8110-1ecf3648dbc4",
+			"name": "Update Folder",
+			"url": "http://localhost:8081/api/files/folders/15",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "b92feee4-7598-483a-aeb4-8e5e9f4e8d88",
+			"name": "Delete Folder",
+			"url": "http://localhost:8081/api/files/folders/15",
+			"time": 20,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "b521c62a-7b66-44eb-9a8d-0fed07b9a98c",
+			"name": "List Quizzes",
+			"url": "http://localhost:8081/quizzes",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "f4f625b8-376e-419d-967b-483308d6e7d1",
+			"name": "Get Quiz (1)",
+			"url": "http://localhost:8081/quizzes/1",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "83d0a26c-d4f8-43f5-ba67-dc4c56f186a2",
+			"name": "Get Difficulty Levels",
+			"url": "http://localhost:8081/quizzes/difficulty-levels",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "c8e7f77b-c24e-496f-949f-15343106b19b",
+			"name": "My Quiz Attempts",
+			"url": "http://localhost:8081/quizzes/my-attempts",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "18e563ae-34f4-442b-bdfc-c7c3db926edb",
+			"name": "All Attempts",
+			"url": "http://localhost:8081/quizzes/attempts",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "fcb3658d-50a0-46c8-8d74-f33df5cc8e99",
+			"name": "Quiz Statistics (1)",
+			"url": "http://localhost:8081/quizzes/1/statistics",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "b113da67-cd9e-42a6-abe1-8b80ff3c78d1",
+			"name": "Quiz Progress (Course 1)",
+			"url": "http://localhost:8081/quizzes/progress/course/1",
+			"time": 30,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				30
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "956a4dee-513a-4a40-b805-7d305c26274e",
+			"name": "Create Quiz",
+			"url": "http://localhost:8081/quizzes",
+			"time": 10,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "19a5490a-2f93-41a8-af3c-21489a4bd39b",
+			"name": "Update Quiz (1)",
+			"url": "http://localhost:8081/quizzes/1",
+			"time": 48,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				48
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "8393708e-36e2-4ab5-969f-be35b1d0293f",
+			"name": "List Labs",
+			"url": "http://localhost:8081/api/labs",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "bdb5f565-3dad-48cf-87bc-a7b3957df2cc",
+			"name": "Get Lab (3)",
+			"url": "http://localhost:8081/api/labs/3",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "86e952f3-7e20-4fd4-8773-a995012dc197",
+			"name": "Create Lab",
+			"url": "http://localhost:8081/api/labs",
+			"time": 22,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				22
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "f2dadf20-0574-474a-89ff-b6e93689a6e9",
+			"name": "Update Lab (3)",
+			"url": "http://localhost:8081/api/labs/3",
+			"time": 22,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				22
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "c74d2f64-d371-4ecd-85e4-66e1a6571781",
+			"name": "Lab Instructions (3)",
+			"url": "http://localhost:8081/api/labs/3/instructions",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "00fe8181-31b4-412d-bd79-0a3fe58953c6",
+			"name": "Lab Submissions (3)",
+			"url": "http://localhost:8081/api/labs/3/submissions",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "b0ad31ea-8104-4e94-b46d-48c5e3cfd5fe",
+			"name": "My Lab Submission",
+			"url": "http://localhost:8081/api/labs/3/submissions/my",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status OK": true
+			},
+			"testPassFailCounts": {
+				"Status OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status OK": true
+				}
+			]
+		},
+		{
+			"id": "f7c157d4-3893-47aa-ae0a-b47f8d22de61",
+			"name": "Lab Attendance (3)",
+			"url": "http://localhost:8081/api/labs/3/attendance",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "7b5685d8-bdea-41b1-9423-1e3ca5b9d0d3",
+			"name": "List Grades",
+			"url": "http://localhost:8081/api/grades",
+			"time": 20,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "37e24c99-c93a-421f-a806-099db04aa66b",
+			"name": "My Grades (Student)",
+			"url": "http://localhost:8081/api/grades/my",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "293cee58-09a5-4da0-afb6-53545e9dd41a",
+			"name": "Student Transcript (57)",
+			"url": "http://localhost:8081/api/grades/transcript/57",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "e05dcba0-1159-439c-b6ee-95c84526df24",
+			"name": "Student GPA (57)",
+			"url": "http://localhost:8081/api/grades/gpa/57",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "7769f403-6494-40ac-8a7c-ea4889c22bb2",
+			"name": "Grade Distribution (Course 1)",
+			"url": "http://localhost:8081/api/grades/distribution/1",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "179b0439-b314-43a8-b2d3-9376d7ff9880",
+			"name": "List Rubrics",
+			"url": "http://localhost:8081/api/rubrics",
+			"time": 8,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "578bde4d-c2b9-4ee4-987e-08e55ce7892e",
+			"name": "Create Rubric",
+			"url": "http://localhost:8081/api/rubrics",
+			"time": 7,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "ac2567ba-341f-4ba6-83f5-dd6dbf5459d5",
+			"name": "List Attendance Sessions",
+			"url": "http://localhost:8081/attendance/sessions",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "ca9aee41-bfab-443e-8620-698b3947d926",
+			"name": "Create Attendance Session",
+			"url": "http://localhost:8081/attendance/sessions",
+			"time": 87,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				87
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "584b2405-25e5-492f-b056-a6f4dc4008b7",
+			"name": "My Attendance (Student)",
+			"url": "http://localhost:8081/attendance/my",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "cd577480-2728-4a88-a313-0ba8d750a4fb",
+			"name": "Attendance by Course (1)",
+			"url": "http://localhost:8081/attendance/by-course/1",
+			"time": 70,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				70
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "3303bc89-ba8f-478b-91d3-101030243db2",
+			"name": "Attendance by Student (57)",
+			"url": "http://localhost:8081/attendance/by-student/57",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "5cf0a96c-2907-49c8-b15d-8a59026be696",
+			"name": "List Notifications",
+			"url": "http://localhost:8081/api/notifications",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "601b2f78-34b0-4134-b7dc-1f9d4923bd05",
+			"name": "Unread Count",
+			"url": "http://localhost:8081/api/notifications/unread-count",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "61e2abb7-669d-4bee-9259-8f3423f79cc1",
+			"name": "Get Preferences",
+			"url": "http://localhost:8081/api/notifications/preferences",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "f02631c7-d03c-40a2-aebf-946c211c6795",
+			"name": "Update Preferences",
+			"url": "http://localhost:8081/api/notifications/preferences",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		},
+		{
+			"id": "9b6cc747-d663-4920-8ec0-0240bff6e972",
+			"name": "Mark All as Read",
+			"url": "http://localhost:8081/api/notifications/read-all",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				19
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "9d6c150b-7948-429b-b587-2a8b0871abad",
+			"name": "Send Notification (Admin)",
+			"url": "http://localhost:8081/api/notifications/send",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "492877ec-4032-45a7-980b-bd0d4367034d",
+			"name": "Search Users for Chat",
+			"url": "http://localhost:8081/api/messages/users/search?query=admin",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "03e1bb36-7346-456c-a3c4-fc128a82bfab",
+			"name": "List Conversations",
+			"url": "http://localhost:8081/api/messages/conversations",
+			"time": 47,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				47
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "041dddcf-03ba-4d18-bc88-e14aa7feda65",
+			"name": "Create Conversation",
+			"url": "http://localhost:8081/api/messages/conversations",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "eda72261-2427-40ae-bbc0-7be7c6bbb65e",
+			"name": "Unread Message Count",
+			"url": "http://localhost:8081/api/messages/unread-count",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "19c6a7ac-32f4-416f-bc8b-52de91109c6a",
+			"name": "Search Messages",
+			"url": "http://localhost:8081/api/messages/search?query=hello",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "6e48d5f1-912b-45d4-b9f3-d8b1cf4a25bc",
+			"name": "Online Users",
+			"url": "http://localhost:8081/api/messages/online-users",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "e390543f-0876-47aa-a51a-d7ce356c09d7",
+			"name": "My Daily Schedule",
+			"url": "http://localhost:8081/api/schedule/my/daily",
+			"time": 22,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				22
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "faecc66d-54d6-40de-9497-3f3c10773842",
+			"name": "My Weekly Schedule",
+			"url": "http://localhost:8081/api/schedule/my/weekly",
+			"time": 87,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				87
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "7e43d761-e933-4ec1-b5cd-7233a9edea47",
+			"name": "Schedule Range",
+			"url": "http://localhost:8081/api/schedule/range?startDate=2025-09-01&endDate=2025-12-31",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "b564c908-63bc-47b0-89a2-625ac955a1ee",
+			"name": "Section Schedule (1)",
+			"url": "http://localhost:8081/api/schedule/section/1",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "d0b65150-08b4-40e4-bcea-61b119042a4a",
+			"name": "Academic Schedule",
+			"url": "http://localhost:8081/api/schedule/academic",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "a3fc6a85-4b62-4992-add0-d896db44328b",
+			"name": "List Calendar Events",
+			"url": "http://localhost:8081/api/calendar/events",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "28c1bc83-6d9e-4f01-9935-6423dd6b14ec",
+			"name": "Create Calendar Event",
+			"url": "http://localhost:8081/api/calendar/events",
+			"time": 21,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201": true
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status 201": true
+				}
+			]
+		},
+		{
+			"id": "ad2518b7-7ccf-4da4-ac9c-3eb4db983efb",
+			"name": "Delete Calendar Event",
+			"url": "http://localhost:8081/api/calendar/events/6",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "2d7e6062-a09e-4d56-8743-d9c42733697c",
+			"name": "List Integrations",
+			"url": "http://localhost:8081/api/calendar/integrations",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "735d0af4-4999-45ee-99fd-49657c793fa2",
+			"name": "List Exam Schedules",
+			"url": "http://localhost:8081/api/exams/schedule",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "5ef2457d-831d-4818-91de-b096f1987950",
+			"name": "Check Exam Conflicts",
+			"url": "http://localhost:8081/api/exams/schedule/conflicts",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true
+				}
+			]
+		},
+		{
+			"id": "14a8196f-766c-4820-b61a-1975425c0d54",
+			"name": "Create Exam Schedule",
+			"url": "http://localhost:8081/api/exams/schedule",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 201": false
+			},
+			"testPassFailCounts": {
+				"Status 201": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 201": false
+				}
+			]
+		},
+		{
+			"id": "bd24a8dd-7a50-460b-bdc3-c4fd771797f4",
+			"name": "Delete Exam Schedule",
+			"url": "http://localhost:8081/api/exams/schedule/",
+			"time": 8,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": false
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 3318,
+	"collection": {
+		"requests": [
+			{
+				"id": "1e582044-1221-4ddb-823f-312c3eb6f470",
+				"method": "GET"
+			},
+			{
+				"id": "fd804d0b-dd9d-4a2c-8a7d-60700109132c",
+				"method": "POST"
+			},
+			{
+				"id": "c783c205-63d8-4ee6-a6b7-b17025e04ff5",
+				"method": "GET"
+			},
+			{
+				"id": "5ef44aa7-d719-4b5c-9ce2-90fc3fadb6e1",
+				"method": "PUT"
+			},
+			{
+				"id": "506cb769-8563-489f-afb0-3e93f9d956a5",
+				"method": "GET"
+			},
+			{
+				"id": "3714efea-5a34-45b4-b364-69ab089f909d",
+				"method": "PUT"
+			},
+			{
+				"id": "ee604b6e-d1fe-48d1-962a-ed907257e92e",
+				"method": "PATCH"
+			},
+			{
+				"id": "ed5b9f2f-02aa-49db-97ac-adfa77237185",
+				"method": "GET"
+			},
+			{
+				"id": "784bec9d-df23-4784-a22d-c35e01d58840",
+				"method": "GET"
+			},
+			{
+				"id": "8559c96e-adf2-4688-b1ff-c43f46fedeeb",
+				"method": "GET"
+			},
+			{
+				"id": "ad82d0fd-be01-43cb-847a-ac9bdb34e9f5",
+				"method": "GET"
+			},
+			{
+				"id": "557fb8b3-364e-44f3-a846-584bd49a82bb",
+				"method": "GET"
+			},
+			{
+				"id": "90582225-d374-4e0a-9d18-0992d5f182fe",
+				"method": "PUT"
+			},
+			{
+				"id": "fb1b2e48-8f22-4f6c-8814-73896a0cf74d",
+				"method": "GET"
+			},
+			{
+				"id": "3775df5c-71b6-4113-ba26-222be13e33a1",
+				"method": "GET"
+			},
+			{
+				"id": "849c10f4-91a0-4df5-b3aa-1a3543428457",
+				"method": "GET"
+			},
+			{
+				"id": "ff37215b-952c-48f5-b564-54ff4e4079d6",
+				"method": "GET"
+			},
+			{
+				"id": "51e9c750-4191-4c42-8100-8d62009a9907",
+				"method": "GET"
+			},
+			{
+				"id": "7ad94f58-3842-4e7f-86e2-54baceb81be8",
+				"method": "GET"
+			},
+			{
+				"id": "0d1a81ef-6265-44f4-86a8-003973b61151",
+				"method": "GET"
+			},
+			{
+				"id": "4c71a16f-7a7b-4de9-85a1-94533cae2c85",
+				"method": "GET"
+			},
+			{
+				"id": "c51cbf98-3371-4a9f-b93b-a92f8292a65c",
+				"method": "POST"
+			},
+			{
+				"id": "cf2bd4d1-9a75-4f0e-b01f-b96c92f201ce",
+				"method": "PUT"
+			},
+			{
+				"id": "4a95e472-7714-4cda-9272-77d307bd874a",
+				"method": "GET"
+			},
+			{
+				"id": "d583d892-d7cc-4896-825d-e25e6ef4033b",
+				"method": "GET"
+			},
+			{
+				"id": "c3f876d7-e50a-4ac5-8345-45815589d4ac",
+				"method": "POST"
+			},
+			{
+				"id": "54d28d1b-984f-4cbb-ada5-8637c1f8550c",
+				"method": "PUT"
+			},
+			{
+				"id": "e8737d0b-19d3-4745-a8ad-c2c1ba8ceefb",
+				"method": "GET"
+			},
+			{
+				"id": "912dd37c-4984-47bb-9233-5d74d30fb3ef",
+				"method": "GET"
+			},
+			{
+				"id": "ca17e7f0-1745-4e75-8c83-8f1df05294f2",
+				"method": "POST"
+			},
+			{
+				"id": "e03f5b99-a63a-4047-bd23-9385a9570b2c",
+				"method": "PUT"
+			},
+			{
+				"id": "ab167b57-5156-4ae2-80d9-0375527ac1a1",
+				"method": "GET"
+			},
+			{
+				"id": "95a33373-f8aa-4a20-bdb0-cc3aaaa8ff66",
+				"method": "GET"
+			},
+			{
+				"id": "22d996b7-80e0-460f-9093-cbdbab779050",
+				"method": "GET"
+			},
+			{
+				"id": "8c063d6b-a9f3-4a89-b409-9d54016cf1d9",
+				"method": "GET"
+			},
+			{
+				"id": "96498924-225e-4246-bf1e-022bcb5fe955",
+				"method": "GET"
+			},
+			{
+				"id": "6b6b330b-96c9-4481-b4c7-c26d8a4945ec",
+				"method": "GET"
+			},
+			{
+				"id": "701ef525-c50d-4b79-857d-92bdfe945615",
+				"method": "GET"
+			},
+			{
+				"id": "018b4f6c-59ad-4de0-bd8c-096eda07454f",
+				"method": "POST"
+			},
+			{
+				"id": "8de46acf-2204-46ea-9246-d92ddfe65161",
+				"method": "GET"
+			},
+			{
+				"id": "e54a7fd1-5720-4758-90a4-e17f967905ff",
+				"method": "GET"
+			},
+			{
+				"id": "10db2e64-63e9-4437-84d6-896a015b585d",
+				"method": "POST"
+			},
+			{
+				"id": "5e386ecf-0b41-40a8-a497-3566febf6743",
+				"method": "GET"
+			},
+			{
+				"id": "2347f72f-7374-4400-96dd-c998187f7b86",
+				"method": "GET"
+			},
+			{
+				"id": "fd679c62-4bef-491d-a0ee-db78c1b9c618",
+				"method": "GET"
+			},
+			{
+				"id": "1b01731d-448c-463c-9b05-e58d6a426bdf",
+				"method": "GET"
+			},
+			{
+				"id": "b48d94f3-7d1d-4d60-8fda-1ffde7402f54",
+				"method": "GET"
+			},
+			{
+				"id": "8230b3c3-6083-4e58-8f74-b011b6a43b64",
+				"method": "GET"
+			},
+			{
+				"id": "9243662a-6cc1-4858-9042-2dfdeb1febe1",
+				"method": "GET"
+			},
+			{
+				"id": "b21d9655-017a-45c6-9cbd-aed638a63609",
+				"method": "GET"
+			},
+			{
+				"id": "330d398a-508a-4fab-8382-24f4a5a11331",
+				"method": "GET"
+			},
+			{
+				"id": "ad106b92-e680-42a2-b7e0-a99594550d5c",
+				"method": "GET"
+			},
+			{
+				"id": "26ff8495-b3aa-4fe2-b5b1-7a5cf48b915a",
+				"method": "GET"
+			},
+			{
+				"id": "4855a4c5-7b02-4dd9-985f-64f48508ef49",
+				"method": "GET"
+			},
+			{
+				"id": "12759880-64db-435a-9670-42ab04ed1286",
+				"method": "POST"
+			},
+			{
+				"id": "316d4365-083e-4607-9c06-e90e503bedf1",
+				"method": "POST"
+			},
+			{
+				"id": "13b8e7d2-0bbc-4c68-8552-c5560d5292fb",
+				"method": "GET"
+			},
+			{
+				"id": "d3a1616e-1ad9-496d-976d-b100a07841ef",
+				"method": "GET"
+			},
+			{
+				"id": "d839cf51-6f31-42fe-83f1-f87057ffd3c1",
+				"method": "PUT"
+			},
+			{
+				"id": "9740275b-b2a5-4487-9647-677e14c156c7",
+				"method": "PATCH"
+			},
+			{
+				"id": "f5b57a5d-2a03-43b8-ad64-01c94fdbac49",
+				"method": "POST"
+			},
+			{
+				"id": "3bd709fa-240f-4beb-a9ee-97e8220f0449",
+				"method": "GET"
+			},
+			{
+				"id": "6115cfd1-0db5-4d6a-9c74-7efe63870a0b",
+				"method": "GET"
+			},
+			{
+				"id": "d205cdb4-853a-4f44-8349-b3f51f430c5a",
+				"method": "DELETE"
+			},
+			{
+				"id": "5ccea781-4367-4c6f-a84d-7b206b99caaf",
+				"method": "GET"
+			},
+			{
+				"id": "10abd400-0469-499d-aeac-6c31b4a880b9",
+				"method": "GET"
+			},
+			{
+				"id": "a2bb6d90-6784-423e-b4ad-14af3c8a857e",
+				"method": "POST"
+			},
+			{
+				"id": "90bbf97b-7048-4871-84fd-23866aac136b",
+				"method": "PUT"
+			},
+			{
+				"id": "076c977b-a214-4b3e-9e44-fceb4863ebd0",
+				"method": "PATCH"
+			},
+			{
+				"id": "1bb0587e-9d9f-4025-a0a1-0e63336f6f37",
+				"method": "DELETE"
+			},
+			{
+				"id": "91f1e254-b429-4249-abbe-b4abfaf1d50c",
+				"method": "GET"
+			},
+			{
+				"id": "41639c5b-4bd6-4291-aee9-9ac071b9a63c",
+				"method": "GET"
+			},
+			{
+				"id": "2b4388b4-3214-4de1-a039-8cdde1edf82d",
+				"method": "GET"
+			},
+			{
+				"id": "45253010-fb3b-40ec-b17b-edce1effebd5",
+				"method": "GET"
+			},
+			{
+				"id": "d4c0976e-5a19-473d-bb24-54ecb0c75248",
+				"method": "GET"
+			},
+			{
+				"id": "0d2d0d10-17cc-4c46-81c4-e634643575e9",
+				"method": "POST"
+			},
+			{
+				"id": "6eea0f71-3b1c-47f6-9d9a-ce77ca646440",
+				"method": "GET"
+			},
+			{
+				"id": "e0ed1f51-bcd2-4460-a8e1-2ab8419a9786",
+				"method": "PUT"
+			},
+			{
+				"id": "d103a9cf-4940-4110-b30a-25938b379d02",
+				"method": "PATCH"
+			},
+			{
+				"id": "185b4816-a231-4365-871f-d20dc2cd78fb",
+				"method": "PATCH"
+			},
+			{
+				"id": "c8c393fe-140c-4d8a-b4bf-c1d683402c36",
+				"method": "GET"
+			},
+			{
+				"id": "3526234c-c78a-4228-bc0f-1a80f92a78d9",
+				"method": "GET"
+			},
+			{
+				"id": "b7a2edfb-d887-42aa-ae8d-3f597c1a2c5c",
+				"method": "GET"
+			},
+			{
+				"id": "c0f600fe-6c4b-456c-ab5f-08fa43e18ce8",
+				"method": "POST"
+			},
+			{
+				"id": "3bbf7a86-b62d-4420-8a01-c3ef91529cb4",
+				"method": "PATCH"
+			},
+			{
+				"id": "fb461d40-b1ab-41d3-ac36-7080b7478877",
+				"method": "GET"
+			},
+			{
+				"id": "5c80c993-7325-45dc-a6a7-dd682c526a28",
+				"method": "GET"
+			},
+			{
+				"id": "420bb04b-854b-4841-873c-000c9a8a68d8",
+				"method": "GET"
+			},
+			{
+				"id": "d064f0fb-4ee4-400a-891c-85174c985493",
+				"method": "POST"
+			},
+			{
+				"id": "4b105d16-526b-44de-9505-316fafaed669",
+				"method": "GET"
+			},
+			{
+				"id": "5062e5c1-8f72-41e7-9e8c-194c09a6f4c8",
+				"method": "PUT"
+			},
+			{
+				"id": "24c50674-8920-4b4d-a7bd-0569c55a80be",
+				"method": "POST"
+			},
+			{
+				"id": "2aa58854-657f-477b-9996-87f68d82fc80",
+				"method": "PATCH"
+			},
+			{
+				"id": "c0689308-3792-4b23-8e9e-a52d1d71292f",
+				"method": "PATCH"
+			},
+			{
+				"id": "ea34a04f-0e3d-455d-b84f-dfc791ced37a",
+				"method": "GET"
+			},
+			{
+				"id": "f2fb0023-9a61-48ff-92ab-ce74bcdd6dbc",
+				"method": "GET"
+			},
+			{
+				"id": "f77128d4-773e-4e38-b2fe-261ca29839bd",
+				"method": "GET"
+			},
+			{
+				"id": "ed203f66-ba08-4e18-9a38-2e55117d88c0",
+				"method": "GET"
+			},
+			{
+				"id": "2466cee0-871e-4641-9313-be7ebfafd4d4",
+				"method": "POST"
+			},
+			{
+				"id": "3c9ffd80-e901-4bc9-b60b-47de74159a0d",
+				"method": "POST"
+			},
+			{
+				"id": "c7687ee9-84bb-48ed-b5bb-6484a961b3e3",
+				"method": "GET"
+			},
+			{
+				"id": "e218f5e3-48de-43eb-b529-1efa5aaf93d9",
+				"method": "GET"
+			},
+			{
+				"id": "100e493c-7de0-4ced-b817-1b8cd4841437",
+				"method": "GET"
+			},
+			{
+				"id": "e77d722e-128c-4c3d-b3c4-45b90df39cd0",
+				"method": "POST"
+			},
+			{
+				"id": "ee356178-5eda-41d8-8074-aff4983570c9",
+				"method": "POST"
+			},
+			{
+				"id": "4dbc8abe-2192-403d-baaf-33054be3b3fb",
+				"method": "GET"
+			},
+			{
+				"id": "ffc4bc33-b410-4410-8bfd-981473b441cc",
+				"method": "POST"
+			},
+			{
+				"id": "297d8bf6-45ec-4aa5-bffb-83c20b2b0376",
+				"method": "GET"
+			},
+			{
+				"id": "bae2a97d-9627-4204-b00f-f9a02956e7c2",
+				"method": "GET"
+			},
+			{
+				"id": "3c7816d5-0ba8-4c68-8553-66cf3157208f",
+				"method": "GET"
+			},
+			{
+				"id": "ac8e1b1f-448c-4961-82dc-f063f1f1ef40",
+				"method": "GET"
+			},
+			{
+				"id": "856a3e8f-ef7f-4804-b54f-9042b7a94320",
+				"method": "GET"
+			},
+			{
+				"id": "8909282e-ebc0-419a-acda-b827b8c94881",
+				"method": "GET"
+			},
+			{
+				"id": "4a97deb8-4dfe-4d27-b2a5-ff681ccba54f",
+				"method": "GET"
+			},
+			{
+				"id": "e7a77af8-6efb-4828-b7f0-a9ef5457cb05",
+				"method": "PUT"
+			},
+			{
+				"id": "dc64a6bb-3695-4f17-9ca4-0dd4d96aeaa8",
+				"method": "GET"
+			},
+			{
+				"id": "cd6fad2a-8254-4a87-b381-505b24c1fc54",
+				"method": "GET"
+			},
+			{
+				"id": "41d3cdf9-77ed-402f-89f3-64bb884bd53b",
+				"method": "GET"
+			},
+			{
+				"id": "db13ad67-519a-47bc-a5ef-be4f6f55d4fc",
+				"method": "POST"
+			},
+			{
+				"id": "a4b36e20-e5ce-4c25-8110-1ecf3648dbc4",
+				"method": "PUT"
+			},
+			{
+				"id": "b92feee4-7598-483a-aeb4-8e5e9f4e8d88",
+				"method": "DELETE"
+			},
+			{
+				"id": "b521c62a-7b66-44eb-9a8d-0fed07b9a98c",
+				"method": "GET"
+			},
+			{
+				"id": "f4f625b8-376e-419d-967b-483308d6e7d1",
+				"method": "GET"
+			},
+			{
+				"id": "83d0a26c-d4f8-43f5-ba67-dc4c56f186a2",
+				"method": "GET"
+			},
+			{
+				"id": "c8e7f77b-c24e-496f-949f-15343106b19b",
+				"method": "GET"
+			},
+			{
+				"id": "18e563ae-34f4-442b-bdfc-c7c3db926edb",
+				"method": "GET"
+			},
+			{
+				"id": "fcb3658d-50a0-46c8-8d74-f33df5cc8e99",
+				"method": "GET"
+			},
+			{
+				"id": "b113da67-cd9e-42a6-abe1-8b80ff3c78d1",
+				"method": "GET"
+			},
+			{
+				"id": "956a4dee-513a-4a40-b805-7d305c26274e",
+				"method": "POST"
+			},
+			{
+				"id": "19a5490a-2f93-41a8-af3c-21489a4bd39b",
+				"method": "PUT"
+			},
+			{
+				"id": "8393708e-36e2-4ab5-969f-be35b1d0293f",
+				"method": "GET"
+			},
+			{
+				"id": "bdb5f565-3dad-48cf-87bc-a7b3957df2cc",
+				"method": "GET"
+			},
+			{
+				"id": "86e952f3-7e20-4fd4-8773-a995012dc197",
+				"method": "POST"
+			},
+			{
+				"id": "f2dadf20-0574-474a-89ff-b6e93689a6e9",
+				"method": "PUT"
+			},
+			{
+				"id": "c74d2f64-d371-4ecd-85e4-66e1a6571781",
+				"method": "GET"
+			},
+			{
+				"id": "00fe8181-31b4-412d-bd79-0a3fe58953c6",
+				"method": "GET"
+			},
+			{
+				"id": "b0ad31ea-8104-4e94-b46d-48c5e3cfd5fe",
+				"method": "GET"
+			},
+			{
+				"id": "f7c157d4-3893-47aa-ae0a-b47f8d22de61",
+				"method": "GET"
+			},
+			{
+				"id": "7b5685d8-bdea-41b1-9423-1e3ca5b9d0d3",
+				"method": "GET"
+			},
+			{
+				"id": "37e24c99-c93a-421f-a806-099db04aa66b",
+				"method": "GET"
+			},
+			{
+				"id": "293cee58-09a5-4da0-afb6-53545e9dd41a",
+				"method": "GET"
+			},
+			{
+				"id": "e05dcba0-1159-439c-b6ee-95c84526df24",
+				"method": "GET"
+			},
+			{
+				"id": "7769f403-6494-40ac-8a7c-ea4889c22bb2",
+				"method": "GET"
+			},
+			{
+				"id": "179b0439-b314-43a8-b2d3-9376d7ff9880",
+				"method": "GET"
+			},
+			{
+				"id": "578bde4d-c2b9-4ee4-987e-08e55ce7892e",
+				"method": "POST"
+			},
+			{
+				"id": "ac2567ba-341f-4ba6-83f5-dd6dbf5459d5",
+				"method": "GET"
+			},
+			{
+				"id": "ca9aee41-bfab-443e-8620-698b3947d926",
+				"method": "POST"
+			},
+			{
+				"id": "584b2405-25e5-492f-b056-a6f4dc4008b7",
+				"method": "GET"
+			},
+			{
+				"id": "cd577480-2728-4a88-a313-0ba8d750a4fb",
+				"method": "GET"
+			},
+			{
+				"id": "3303bc89-ba8f-478b-91d3-101030243db2",
+				"method": "GET"
+			},
+			{
+				"id": "5cf0a96c-2907-49c8-b15d-8a59026be696",
+				"method": "GET"
+			},
+			{
+				"id": "601b2f78-34b0-4134-b7dc-1f9d4923bd05",
+				"method": "GET"
+			},
+			{
+				"id": "61e2abb7-669d-4bee-9259-8f3423f79cc1",
+				"method": "GET"
+			},
+			{
+				"id": "f02631c7-d03c-40a2-aebf-946c211c6795",
+				"method": "PUT"
+			},
+			{
+				"id": "9b6cc747-d663-4920-8ec0-0240bff6e972",
+				"method": "PATCH"
+			},
+			{
+				"id": "9d6c150b-7948-429b-b587-2a8b0871abad",
+				"method": "POST"
+			},
+			{
+				"id": "492877ec-4032-45a7-980b-bd0d4367034d",
+				"method": "GET"
+			},
+			{
+				"id": "03e1bb36-7346-456c-a3c4-fc128a82bfab",
+				"method": "GET"
+			},
+			{
+				"id": "041dddcf-03ba-4d18-bc88-e14aa7feda65",
+				"method": "POST"
+			},
+			{
+				"id": "eda72261-2427-40ae-bbc0-7be7c6bbb65e",
+				"method": "GET"
+			},
+			{
+				"id": "19c6a7ac-32f4-416f-bc8b-52de91109c6a",
+				"method": "GET"
+			},
+			{
+				"id": "6e48d5f1-912b-45d4-b9f3-d8b1cf4a25bc",
+				"method": "GET"
+			},
+			{
+				"id": "e390543f-0876-47aa-a51a-d7ce356c09d7",
+				"method": "GET"
+			},
+			{
+				"id": "faecc66d-54d6-40de-9497-3f3c10773842",
+				"method": "GET"
+			},
+			{
+				"id": "7e43d761-e933-4ec1-b5cd-7233a9edea47",
+				"method": "GET"
+			},
+			{
+				"id": "b564c908-63bc-47b0-89a2-625ac955a1ee",
+				"method": "GET"
+			},
+			{
+				"id": "d0b65150-08b4-40e4-bcea-61b119042a4a",
+				"method": "GET"
+			},
+			{
+				"id": "a3fc6a85-4b62-4992-add0-d896db44328b",
+				"method": "GET"
+			},
+			{
+				"id": "28c1bc83-6d9e-4f01-9935-6423dd6b14ec",
+				"method": "POST"
+			},
+			{
+				"id": "ad2518b7-7ccf-4da4-ac9c-3eb4db983efb",
+				"method": "DELETE"
+			},
+			{
+				"id": "2d7e6062-a09e-4d56-8743-d9c42733697c",
+				"method": "GET"
+			},
+			{
+				"id": "735d0af4-4999-45ee-99fd-49657c793fa2",
+				"method": "GET"
+			},
+			{
+				"id": "5ef2457d-831d-4818-91de-b096f1987950",
+				"method": "GET"
+			},
+			{
+				"id": "14a8196f-766c-4820-b61a-1975425c0d54",
+				"method": "POST"
+			},
+			{
+				"id": "bd24a8dd-7a50-460b-bdc3-c4fd771797f4",
+				"method": "DELETE"
+			}
+		]
+	}
+}
