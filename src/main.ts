@@ -1,10 +1,31 @@
+console.log('\n[STARTUP] Process started. Loading modules...');
+const globalStartTime = Date.now();
+
+// Immediate heartbeat to reassure the user during heavy module loading
+const globalHeartbeat = setInterval(() => {
+  const elapsed = Math.floor((Date.now() - globalStartTime) / 1000);
+  console.log(`[STARTUP] Still loading modules... (${elapsed}s elapsed)`);
+}, 10000);
+
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
+import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+const logger = new Logger('Bootstrap');
+
 async function bootstrap() {
+  clearInterval(globalHeartbeat); // Switch to Nest Logger heartbeat
+  
+  const bootstrapStartTime = Date.now();
+  const heartbeat = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - globalStartTime) / 1000);
+    logger.log(`Startup in progress... (${elapsed}s elapsed)`);
+  }, 10000);
+
+  logger.log('Starting Nest application...');
   const app = await NestFactory.create(AppModule);
+  logger.log(`Nest application initialized (+${Date.now() - bootstrapStartTime}ms)`);
 
   // Enable CORS
   app.enableCors({
@@ -127,7 +148,9 @@ The API implements role-based access control with the following roles:
     .addTag('🏗️ Course Structure', 'Course content organization by lectures, sections, labs, and weeks')
     .build();
 
+  const swaggerStartTime = Date.now();
   const document = SwaggerModule.createDocument(app, config);
+  logger.log(`Swagger documentation generated (+${Date.now() - swaggerStartTime}ms)`);
   SwaggerModule.setup('api-docs', app, document, {
     customSiteTitle: 'EduVerse API Documentation',
     customfavIcon: 'https://nestjs.com/img/logo-small.svg',
@@ -152,7 +175,9 @@ The API implements role-based access control with the following roles:
 
   await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(`📚 Swagger API Documentation: http://localhost:${port}/api-docs`);
+  clearInterval(heartbeat);
+  const totalTime = ((Date.now() - globalStartTime) / 1000).toFixed(2);
+  logger.log(`🚀 Application is running on: http://localhost:${port} (Total startup time: ${totalTime}s)`);
+  logger.log(`📚 Swagger API Documentation: http://localhost:${port}/api-docs`);
 }
 bootstrap();
