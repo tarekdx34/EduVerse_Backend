@@ -15,6 +15,6 @@ export default registerAs('database', () => {
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_DATABASE || 'eduverse_db', // Changed from DB_NAME to DB_DATABASE
     synchronize: false, // Disabled - will not modify existing database
-    logging: process.env.NODE_ENV === 'development',
+    logging: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
   };
 });
