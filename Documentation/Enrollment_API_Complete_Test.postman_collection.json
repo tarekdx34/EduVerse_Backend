@@ -1,0 +1,1136 @@
+{
+  "info": {
+    "_postman_id": "enrollment-complete-test",
+    "name": "Enrollment API - Complete Test Suite",
+    "description": "Complete test collection for all enrollment endpoints with student, instructor, and admin accounts",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup & Authentication",
+      "item": [
+        {
+          "name": "Student Login - tarekstudent@gmail.com",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('student_token', jsonData.accessToken);",
+                  "    pm.environment.set('student_id', jsonData.user.userId);",
+                  "    console.log('✅ Student Token Set: ' + pm.environment.get('student_token').substring(0, 20) + '...');",
+                  "    console.log('✅ Student ID: ' + pm.environment.get('student_id'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tarekstudent@gmail.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Login - tarekadmin@gmail.com",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('admin_token', jsonData.accessToken);",
+                  "    pm.environment.set('admin_id', jsonData.user.userId);",
+                  "    console.log('✅ Admin Token Set: ' + pm.environment.get('admin_token').substring(0, 20) + '...');",
+                  "    console.log('✅ Admin ID: ' + pm.environment.get('admin_id'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tarekadmin@gmail.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Instructor Login - tarekinstructor@gmail.com",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('instructor_token', jsonData.accessToken);",
+                  "    pm.environment.set('instructor_id', jsonData.user.userId);",
+                  "    console.log('✅ Instructor Token Set: ' + pm.environment.get('instructor_token').substring(0, 20) + '...');",
+                  "    console.log('✅ Instructor ID: ' + pm.environment.get('instructor_id'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tarekinstructor@gmail.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Test Data - Semesters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.environment.set('semester_id', jsonData[0].semesterId);",
+                  "        console.log('✅ Semester ID Set: ' + pm.environment.get('semester_id'));",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/semesters",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "semesters"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Test Data - Courses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.length > 0) {",
+                  "        pm.environment.set('course_id', jsonData.data[0].id);",
+                  "        console.log('✅ Course ID Set: ' + pm.environment.get('course_id'));",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/courses?page=1&limit=20",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Test Data - Sections",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.environment.set('section_id', jsonData[0].id);",
+                  "        console.log('✅ Section ID Set: ' + pm.environment.get('section_id'));",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/sections/course/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "sections",
+                "course",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Student Endpoints",
+      "item": [
+        {
+          "name": "1. Get Current User (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "pm.test('Response has userId', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('userId');",
+                  "    console.log('✅ Student User Info Retrieved');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Available Courses (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.length > 0 && jsonData[0].sections && jsonData[0].sections.length > 0) {",
+                  "    pm.environment.set('available_section_id', jsonData[0].sections[0].id);",
+                  "    console.log('✅ Available Courses Retrieved, Section ID: ' + pm.environment.get('available_section_id'));",
+                  "} else {",
+                  "    console.log('⚠️ No available sections found');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/available?page=1&limit=20",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "available"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Enroll in Course (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 201', function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('enrollment_id', jsonData.id);",
+                  "    pm.environment.set('enrollment_status', jsonData.status);",
+                  "    pm.test('Enrollment status is enrolled', function () {",
+                  "        pm.expect(jsonData.status).to.equal('enrolled');",
+                  "    });",
+                  "    console.log('✅ Enrolled Successfully - Enrollment ID: ' + jsonData.id + ', Status: ' + jsonData.status + ', UserId: ' + jsonData.userId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": {{available_section_id}}\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get My Courses (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "if (jsonData.length > 0) {",
+                  "    console.log('✅ Found ' + jsonData.length + ' enrolled courses');",
+                  "    jsonData.forEach(function(course) {",
+                  "        console.log('   - Course: ' + course.courseName + ', Status: ' + course.status);",
+                  "    });",
+                  "} else {",
+                  "    console.log('⚠️ No enrolled courses found');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/my-courses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "my-courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get Enrollment Details (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('UserId matches actual student ID', function () {",
+                  "    pm.expect(jsonData.userId).to.equal(parseInt(pm.environment.get('student_id')));",
+                  "});",
+                  "console.log('✅ Enrollment Details: ID=' + jsonData.id + ', UserId=' + jsonData.userId + ', Status=' + jsonData.status);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/{{enrollment_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollment_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Instructor Endpoints",
+      "item": [
+        {
+          "name": "1. Get Current User (Instructor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('User has instructor role', function () {",
+                  "    pm.expect(jsonData.roles).to.include('instructor');",
+                  "});",
+                  "console.log('✅ Instructor User Info Retrieved');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Section Students (Instructor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "if (jsonData.length > 0) {",
+                  "    console.log('✅ Found ' + jsonData.length + ' students in section');",
+                  "    jsonData.forEach(function(student) {",
+                  "        console.log('   - StudentId: ' + student.userId + ', Status: ' + student.status);",
+                  "    });",
+                  "} else {",
+                  "    console.log('⚠️ No students in this section');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/section/{{available_section_id}}/students",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "section",
+                "{{available_section_id}}",
+                "students"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Section Waitlist (Instructor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": [
+                "pm.test('Status code is 200', function () {",
+                "    pm.expect(pm.response.code).to.equal(200);",
+                "});",
+                "var jsonData = pm.response.json();",
+                "pm.test('Waitlist is empty array', function () {",
+                "    pm.expect(jsonData).to.be.an('array');",
+                "});",
+                "console.log('✅ Waitlist Retrieved (Count: ' + jsonData.length + ')');"
+              ]
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/section/{{available_section_id}}/waitlist",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "section",
+                "{{available_section_id}}",
+                "waitlist"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Endpoints",
+      "item": [
+        {
+          "name": "1. Get Current User (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('User has admin role', function () {",
+                  "    pm.expect(jsonData.roles).to.include('admin');",
+                  "});",
+                  "console.log('✅ Admin User Info Retrieved');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Update Enrollment Status (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Status changed to completed', function () {",
+                  "    pm.expect(jsonData.status).to.equal('completed');",
+                  "});",
+                  "console.log('✅ Enrollment Status Updated to: ' + jsonData.status);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/{{enrollment_id}}/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollment_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get All Semesters (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "if (jsonData.length > 0) {",
+                  "    console.log('✅ Found ' + jsonData.length + ' semesters');",
+                  "    jsonData.forEach(function(sem) {",
+                  "        console.log('   - ' + sem.name + ' (' + sem.code + ')');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/semesters",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "semesters"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Departments (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "if (jsonData.length > 0) {",
+                  "    console.log('✅ Found ' + jsonData.length + ' departments');",
+                  "    jsonData.forEach(function(dept) {",
+                  "        console.log('   - ' + dept.name + ' (' + dept.code + ')');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/campuses/1/departments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "campuses",
+                "1",
+                "departments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get Course Sections (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "if (jsonData.length > 0) {",
+                  "    console.log('✅ Found ' + jsonData.length + ' sections');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/sections/course/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "sections",
+                "course",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cleanup & Verification",
+      "item": [
+        {
+          "name": "Drop Course (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Status is dropped', function () {",
+                  "    pm.expect(jsonData.status).to.equal('dropped');",
+                  "});",
+                  "pm.test('DroppedAt timestamp exists', function () {",
+                  "    pm.expect(jsonData).to.have.property('droppedAt');",
+                  "});",
+                  "console.log('✅ Course Dropped - Status: ' + jsonData.status);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"student_request\",\n  \"notes\": \"Testing drop endpoint\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/{{enrollment_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollment_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Enrollment Dropped",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (Array.isArray(jsonData)) {",
+                  "    var droppedEnrollment = jsonData.find(function(e) { return e.id == pm.environment.get('enrollment_id'); });",
+                  "    if (droppedEnrollment) {",
+                  "        pm.test('Dropped enrollment not in active list', function () {",
+                  "            pm.expect(droppedEnrollment).to.be.undefined;",
+                  "        });",
+                  "    }",
+                  "}",
+                  "console.log('✅ Verified: Dropped enrollment no longer in active list');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/enrollments/my-courses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "enrollments",
+                "my-courses"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "student_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "instructor_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "student_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "instructor_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "section_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "course_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "semester_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "available_section_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollment_status",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
