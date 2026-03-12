@@ -1,0 +1,512 @@
+{
+  "info": {
+    "_postman_id": "enrollment-api-collection",
+    "name": "Eduverse Course Enrollment API",
+    "description": "Complete API collection for testing Course Enrollment Feature (Feature 2.2)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login (Get JWT Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('jwt_token', jsonData.accessToken || jsonData.token);",
+                  "  console.log('JWT Token saved: ' + jsonData.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@university.edu\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student - Course Discovery",
+      "item": [
+        {
+          "name": "Get Available Courses (Basic)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/available",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "available"]
+            }
+          }
+        },
+        {
+          "name": "Get Available Courses (with Filters)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/available?departmentId=1&semesterId=2&search=CS&level=SOPHOMORE&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "available"],
+              "query": [
+                {
+                  "key": "departmentId",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "semesterId",
+                  "value": "2",
+                  "disabled": false
+                },
+                {
+                  "key": "search",
+                  "value": "CS",
+                  "disabled": false
+                },
+                {
+                  "key": "level",
+                  "value": "SOPHOMORE",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Available Courses (Search)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/available?search=Data",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "available"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Data",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student - Enrollment Management",
+      "item": [
+        {
+          "name": "Register for Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register for Course (Different Section)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "register"]
+            }
+          }
+        },
+        {
+          "name": "Get My Enrolled Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/my-courses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "my-courses"]
+            }
+          }
+        },
+        {
+          "name": "Get My Courses (Specific Semester)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/my-courses?semester=2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "my-courses"],
+              "query": [
+                {
+                  "key": "semester",
+                  "value": "2",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Enrollment Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student - Drop Course",
+      "item": [
+        {
+          "name": "Drop Course (Simple)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Drop Course (With Reason)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"student_request\",\n  \"notes\": \"Personal reasons\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Instructor - Dashboard",
+      "item": [
+        {
+          "name": "Get Section Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/section/1/students",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "section", "1", "students"]
+            }
+          }
+        },
+        {
+          "name": "Get Section Waitlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/section/1/waitlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "section", "1", "waitlist"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Management",
+      "item": [
+        {
+          "name": "Get Course Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/course/1/list",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "course", "1", "list"]
+            }
+          }
+        },
+        {
+          "name": "Drop Course (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"admin_removal\",\n  \"notes\": \"Student account inactive\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Enrollment Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "1", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "ERROR - Duplicate Enrollment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "register"]
+            }
+          }
+        },
+        {
+          "name": "ERROR - Invalid Section ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": 99999\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "register"]
+            }
+          }
+        },
+        {
+          "name": "ERROR - Drop Non-Existent Enrollment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/99999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "99999"]
+            }
+          }
+        },
+        {
+          "name": "ERROR - Missing JWT Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/my-courses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "enrollments", "my-courses"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
