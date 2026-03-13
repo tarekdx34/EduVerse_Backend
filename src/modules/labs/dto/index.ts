@@ -3,6 +3,9 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { LabStatus } from '../enums';
 
+// Re-export upload DTOs
+export { UploadLabInstructionDto, UploadLabTaMaterialDto, UploadLabSubmissionDto } from './upload-lab-files.dto';
+
 export class CreateLabDto {
   @ApiProperty({ example: 1, description: 'Course ID' })
   @IsInt()

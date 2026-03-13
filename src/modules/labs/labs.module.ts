@@ -6,10 +6,12 @@ import { LabInstruction } from './entities/lab-instruction.entity';
 import { LabAttendance } from './entities/lab-attendance.entity';
 import { LabsService } from './services/labs.service';
 import { LabsController } from './controllers/labs.controller';
+import { GoogleDriveModule } from '../google-drive/google-drive.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Lab, LabSubmission, LabInstruction, LabAttendance]),
+    GoogleDriveModule,
   ],
   controllers: [LabsController],
   providers: [LabsService],
