@@ -54,11 +54,12 @@ export class GoogleDriveService {
 
   /**
    * Generate OAuth URL for authentication with both YouTube and Drive scopes
+   * Uses full 'drive' scope for folder visibility in Drive UI
    */
   getAuthUrl(): string {
     const scopes = [
       'https://www.googleapis.com/auth/youtube.upload',
-      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/drive', // Full access for folder visibility
     ];
 
     return this.oauth2Client.generateAuthUrl({

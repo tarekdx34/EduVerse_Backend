@@ -13,6 +13,8 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,7 +23,9 @@ import {
   ApiBody,
   ApiResponse,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/roles.decorator';
@@ -35,6 +39,9 @@ import {
   CreateInstructionDto,
   MarkLabAttendanceDto,
   LabQueryDto,
+  UploadLabInstructionDto,
+  UploadLabTaMaterialDto,
+  UploadLabSubmissionDto,
 } from '../dto';
 
 @ApiTags('Labs')
@@ -230,5 +237,167 @@ export class LabsController {
   @ApiResponse({ status: 200, description: 'Attendance records retrieved' })
   async getAttendance(@Param('id', ParseIntPipe) id: number) {
     return this.labsService.getAttendance(id);
+  }
+
+  // ============ GOOGLE DRIVE UPLOADS ============
+
+  @Post(':id/instructions/upload')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Upload lab instruction to Google Drive',
+    description: 'Upload a lab instruction file (PDF, DOCX, etc.) directly to Google Drive. Creates folder structure automatically.',
+  })
+  @ApiParam({ name: 'id', description: 'Lab ID', example: 1 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Instruction file (PDF, DOCX, etc.)',
+        },
+        title: {
+          type: 'string',
+          description: 'Instruction title',
+          example: 'Lab 1 - Getting Started Guide',
+        },
+        orderIndex: {
+          type: 'integer',
+          description: 'Order index for instruction steps',
+          example: 1,
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Instruction uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'No file provided' })
+  @ApiResponse({ status: 404, description: 'Lab not found' })
+  async uploadInstruction(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadLabInstructionDto,
+    @Req() req: any,
+  ) {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+    const userId = req.user.userId || req.user.id;
+    return this.labsService.uploadInstructionToDrive(
+      id,
+      file,
+      dto.title,
+      dto.orderIndex || 0,
+      userId,
+    );
+  }
+
+  @Post(':id/ta-materials/upload')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Upload TA material to Google Drive',
+    description: 'Upload TA-only material (answer keys, grading rubrics, etc.) to Google Drive.',
+  })
+  @ApiParam({ name: 'id', description: 'Lab ID', example: 1 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'TA material file',
+        },
+        title: {
+          type: 'string',
+          description: 'Material title',
+          example: 'Lab 1 Answer Key',
+        },
+        materialType: {
+          type: 'string',
+          description: 'Type of TA material',
+          example: 'answer_key',
+          enum: ['answer_key', 'grading_rubric', 'solution', 'notes'],
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'TA material uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'No file provided' })
+  @ApiResponse({ status: 404, description: 'Lab not found' })
+  async uploadTaMaterial(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadLabTaMaterialDto,
+    @Req() req: any,
+  ) {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+    const userId = req.user.userId || req.user.id;
+    return this.labsService.uploadTaMaterialToDrive(
+      id,
+      file,
+      dto.title,
+      dto.materialType,
+      userId,
+    );
+  }
+
+  @Post(':id/submissions/upload')
+  @Roles(RoleName.STUDENT)
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Upload lab submission to Google Drive',
+    description: 'Upload lab submission file directly to Google Drive. Creates student folder automatically. Auto-detects late submissions.',
+  })
+  @ApiParam({ name: 'id', description: 'Lab ID', example: 1 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Submission file',
+        },
+        submissionText: {
+          type: 'string',
+          description: 'Optional submission notes/comments',
+          example: 'Completed all tasks as instructed.',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Submission uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'No file provided' })
+  @ApiResponse({ status: 404, description: 'Lab not found' })
+  async uploadSubmission(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadLabSubmissionDto,
+    @Req() req: any,
+  ) {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+    const userId = req.user.userId || req.user.id;
+    return this.labsService.uploadSubmissionToDrive(
+      id,
+      file,
+      dto.submissionText,
+      userId,
+    );
   }
 }
