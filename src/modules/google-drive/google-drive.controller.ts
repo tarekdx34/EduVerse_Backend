@@ -369,7 +369,7 @@ PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, MP4, ZIP, and more.
 
   @Post('admin/init')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Initialize EduVerse root folder',
     description: `
@@ -408,7 +408,7 @@ This must be called once before using other Drive features.
 
   @Post('admin/courses/:courseId/init')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Initialize folder structure for a course',
     description: `
@@ -444,7 +444,7 @@ Department → Academic Year → Semester → Course → (General, Lectures, Lab
 
   @Post('admin/labs/:labId/init')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Initialize folder structure for a lab',
     description: 'Creates Lab folder with instructions, ta_materials, and submissions subfolders.',
@@ -473,7 +473,7 @@ Department → Academic Year → Semester → Course → (General, Lectures, Lab
 
   @Post('admin/assignments/:assignmentId/init')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Initialize folder structure for an assignment',
     description: 'Creates Assignment folder with instructions and submissions subfolders.',
@@ -501,7 +501,7 @@ Department → Academic Year → Semester → Course → (General, Lectures, Lab
 
   @Get('admin/tree')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get full folder tree',
     description: 'Returns all Drive folders stored in the database.',
@@ -517,7 +517,7 @@ Department → Academic Year → Semester → Course → (General, Lectures, Lab
 
   @Get('admin/courses/:courseId/tree')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get folder tree for a course',
     description: 'Returns all Drive folders for a specific course.',
