@@ -9,6 +9,10 @@ import {
   UseGuards,
   Request,
   Patch,
+  UseInterceptors,
+  UploadedFile,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,7 +21,9 @@ import {
   ApiBearerAuth,
   ApiParam,
   ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles } from '../../auth/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
@@ -29,6 +35,8 @@ import {
   SubmitAssignmentDto,
   GradeSubmissionDto,
   AssignmentQueryDto,
+  UploadAssignmentInstructionDto,
+  UploadAssignmentSubmissionDto,
 } from '../dto';
 import { AssignmentStatus } from '../enums';
 
@@ -170,5 +178,117 @@ export class AssignmentsController {
   ) {
     const userId = req.user.userId || req.user.id;
     return this.assignmentsService.gradeSubmission(+id, +subId, dto, userId);
+  }
+
+  // ============ GOOGLE DRIVE UPLOADS ============
+
+  @Post(':id/instructions/upload')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Upload assignment instruction to Google Drive',
+    description: 'Upload an assignment instruction file (PDF, DOCX, etc.) directly to Google Drive. Creates folder structure automatically.',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Instruction file (PDF, DOCX, etc.)',
+        },
+        title: {
+          type: 'string',
+          description: 'Instruction title',
+          example: 'Assignment 1 - Database Design Guide',
+        },
+        orderIndex: {
+          type: 'integer',
+          description: 'Order index for sorting',
+          example: 1,
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Instruction uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'No file provided' })
+  @ApiResponse({ status: 404, description: 'Assignment not found' })
+  async uploadInstruction(
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadAssignmentInstructionDto,
+    @Request() req,
+  ) {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+    const userId = req.user.userId || req.user.id;
+    return this.assignmentsService.uploadInstructionToDrive(
+      +id,
+      file,
+      dto.title,
+      dto.orderIndex || 0,
+      userId,
+    );
+  }
+
+  @Post(':id/submissions/upload')
+  @Roles(RoleName.STUDENT)
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Upload assignment submission to Google Drive',
+    description: 'Upload assignment submission file directly to Google Drive. Creates student folder automatically. Auto-detects late submissions.',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Submission file',
+        },
+        submissionText: {
+          type: 'string',
+          description: 'Optional submission notes/comments',
+          example: 'Completed all tasks as instructed.',
+        },
+        submissionLink: {
+          type: 'string',
+          description: 'Optional link to external submission (e.g., GitHub)',
+          example: 'https://github.com/student/project',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Submission uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'No file provided' })
+  @ApiResponse({ status: 404, description: 'Assignment not found' })
+  async uploadSubmission(
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadAssignmentSubmissionDto,
+    @Request() req,
+  ) {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+    const userId = req.user.userId || req.user.id;
+    return this.assignmentsService.uploadSubmissionToDrive(
+      +id,
+      file,
+      dto.submissionText,
+      dto.submissionLink,
+      userId,
+    );
   }
 }

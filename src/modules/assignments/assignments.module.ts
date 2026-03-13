@@ -9,6 +9,7 @@ import { CourseEnrollment } from '../enrollments/entities/course-enrollment.enti
 import { User } from '../auth/entities/user.entity';
 import { CoursesModule } from '../courses/courses.module';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
+import { GoogleDriveModule } from '../google-drive/google-drive.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
     ]),
     forwardRef(() => CoursesModule),
     forwardRef(() => EnrollmentsModule),
+    GoogleDriveModule,
   ],
   controllers: [AssignmentsController],
   providers: [AssignmentsService],

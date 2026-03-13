@@ -17,6 +17,8 @@ import { SubmitAssignmentDto } from '../dto/submit-assignment.dto';
 import { GradeSubmissionDto } from '../dto/grade-submission.dto';
 import { Course } from '../../courses/entities/course.entity';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
+import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
+import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
 
 @Injectable()
 export class AssignmentsService {
@@ -31,6 +33,7 @@ export class AssignmentsService {
     private courseRepo: Repository<Course>,
     @InjectRepository(CourseEnrollment)
     private enrollmentRepo: Repository<CourseEnrollment>,
+    private driveFolderService: DriveFolderService,
   ) {}
 
   async create(dto: CreateAssignmentDto, userId: number): Promise<Assignment> {
@@ -301,6 +304,156 @@ export class AssignmentsService {
       score: dto.score,
       maxScore: Number(assignment.maxScore),
       feedback: dto.feedback,
+    };
+  }
+
+  // ============ GOOGLE DRIVE UPLOADS ============
+
+  /**
+   * Upload instruction file to Google Drive
+   */
+  async uploadInstructionToDrive(
+    assignmentId: number,
+    file: Express.Multer.File,
+    title: string | undefined,
+    orderIndex: number,
+    userId: number,
+  ) {
+    const assignment = await this.assignmentRepo.findOne({ where: { id: assignmentId } });
+    if (!assignment) {
+      throw new AssignmentNotFoundException();
+    }
+
+    // Ensure assignment folder structure exists
+    const folders = await this.driveFolderService.createAssignmentFolderStructure(assignmentId, userId);
+
+    // Generate file name
+    const ext = file.originalname.split('.').pop() || 'file';
+    const safeTitle = (title || `Assignment${assignment.title}_Instructions`).replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
+    const fileName = `${safeTitle}_v1.${ext}`;
+
+    // Upload to Drive
+    const driveFile = await this.driveFolderService.uploadFileToDrive(
+      file.buffer,
+      fileName,
+      file.mimetype,
+      folders.instructions.driveFolderId,
+      DriveFileEntityType.ASSIGNMENT_INSTRUCTION,
+      assignmentId,
+      userId,
+    );
+
+    this.logger.log(`Uploaded assignment instruction to Drive: ${fileName} -> ${driveFile.driveId}`);
+
+    return {
+      assignmentId,
+      driveFile: {
+        driveFileId: driveFile.driveFileId,
+        driveId: driveFile.driveId,
+        fileName: driveFile.fileName,
+        webViewLink: driveFile.webViewLink,
+        webContentLink: driveFile.webContentLink,
+      },
+    };
+  }
+
+  /**
+   * Upload student submission to Google Drive
+   */
+  async uploadSubmissionToDrive(
+    assignmentId: number,
+    file: Express.Multer.File,
+    submissionText: string | undefined,
+    submissionLink: string | undefined,
+    userId: number,
+  ) {
+    const assignment = await this.assignmentRepo.findOne({ where: { id: assignmentId } });
+    if (!assignment) {
+      throw new AssignmentNotFoundException();
+    }
+
+    if (assignment.status !== AssignmentStatus.PUBLISHED) {
+      throw new AssignmentNotPublishedException();
+    }
+
+    const now = new Date();
+
+    if (assignment.availableFrom && now < new Date(assignment.availableFrom)) {
+      throw new AssignmentNotAvailableYetException();
+    }
+
+    let isLate = 0;
+    if (assignment.dueDate && now > new Date(assignment.dueDate)) {
+      if (!assignment.lateSubmissionAllowed) {
+        throw new SubmissionDeadlinePassedException();
+      }
+      isLate = 1;
+    }
+
+    // Check student is enrolled in the course
+    const enrollment = await this.enrollmentRepo
+      .createQueryBuilder('enrollment')
+      .innerJoin('course_sections', 'section', 'section.section_id = enrollment.section_id')
+      .where('enrollment.user_id = :userId', { userId })
+      .andWhere('section.course_id = :courseId', { courseId: assignment.courseId })
+      .andWhere('enrollment.enrollment_status = :status', { status: 'enrolled' })
+      .getOne();
+
+    if (!enrollment) {
+      throw new BadRequestException('Student is not enrolled in this course');
+    }
+
+    // Create student submission folder
+    const studentFolder = await this.driveFolderService.createAssignmentStudentSubmissionFolder(assignmentId, userId, userId);
+
+    // Generate file name
+    const ext = file.originalname.split('.').pop() || 'file';
+    const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const fileName = `Assignment_${assignmentId}_Submission_${timestamp}.${ext}`;
+
+    // Upload to Drive
+    const driveFile = await this.driveFolderService.uploadFileToDrive(
+      file.buffer,
+      fileName,
+      file.mimetype,
+      studentFolder.driveFolderId,
+      DriveFileEntityType.ASSIGNMENT_SUBMISSION,
+      null,
+      userId,
+    );
+
+    // Calculate attempt number
+    const existingCount = await this.submissionRepo.count({
+      where: { assignmentId, userId },
+    });
+
+    // Create submission record
+    const submission = this.submissionRepo.create({
+      assignmentId,
+      userId,
+      submissionText: submissionText ?? null,
+      submissionLink: submissionLink ?? null,
+      fileId: null, // Drive file stored separately
+      submissionStatus: SubmissionStatus.SUBMITTED,
+      isLate,
+      attemptNumber: existingCount + 1,
+      submittedAt: now,
+    });
+
+    const savedSubmission = await this.submissionRepo.save(submission);
+
+    this.logger.log(`Uploaded assignment submission to Drive: ${fileName} -> ${driveFile.driveId}`);
+
+    return {
+      submission: savedSubmission,
+      driveFile: {
+        driveFileId: driveFile.driveFileId,
+        driveId: driveFile.driveId,
+        fileName: driveFile.fileName,
+        webViewLink: driveFile.webViewLink,
+        webContentLink: driveFile.webContentLink,
+      },
+      isLate: isLate === 1,
     };
   }
 }
