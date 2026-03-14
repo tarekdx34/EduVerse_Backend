@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, In, DataSource } from 'typeorm';
 import { CourseMaterial } from '../entities';
@@ -32,37 +38,62 @@ export class MaterialsService {
   /**
    * Check if user is assigned to a course (as instructor or TA)
    */
-  private async isUserAssignedToCourse(userId: number, courseId: number, roles: string[]): Promise<boolean> {
+  private async isUserAssignedToCourse(
+    userId: number,
+    courseId: number,
+    roles: string[],
+  ): Promise<boolean> {
     const isInstructor = roles.includes('instructor');
     const isTA = roles.includes('teaching_assistant');
 
     if (isInstructor) {
       // Check if instructor is assigned to any section of this course
-      const result = await this.dataSource.query(`
+      const result = await this.dataSource.query(
+        `
         SELECT COUNT(*) as count FROM course_instructors ci
         INNER JOIN course_sections cs ON ci.section_id = cs.section_id
         WHERE ci.user_id = ? AND cs.course_id = ?
-      `, [userId, courseId]);
+      `,
+        [userId, courseId],
+      );
       return parseInt(result[0].count) > 0;
     }
 
     if (isTA) {
       // Check if TA is assigned to any section of this course
-      const result = await this.dataSource.query(`
+      const result = await this.dataSource.query(
+        `
         SELECT COUNT(*) as count FROM course_tas ct
         INNER JOIN course_sections cs ON ct.section_id = cs.section_id
         WHERE ct.user_id = ? AND cs.course_id = ?
-      `, [userId, courseId]);
+      `,
+        [userId, courseId],
+      );
       return parseInt(result[0].count) > 0;
     }
 
     return false;
   }
 
-  async findAll(courseId: number, query: QueryMaterialsDto, userId: number, roles: string[]) {
-    const { materialType, weekNumber, isPublished, search, sortBy = 'orderIndex', sortOrder = 'ASC', page = 1, limit = 10 } = query;
+  async findAll(
+    courseId: number,
+    query: QueryMaterialsDto,
+    userId: number,
+    roles: string[],
+  ) {
+    const {
+      materialType,
+      weekNumber,
+      isPublished,
+      search,
+      sortBy = 'orderIndex',
+      sortOrder = 'ASC',
+      page = 1,
+      limit = 10,
+    } = query;
 
-    const qb = this.materialRepo.createQueryBuilder('material')
+    const qb = this.materialRepo
+      .createQueryBuilder('material')
       .leftJoinAndSelect('material.course', 'course')
       .leftJoinAndSelect('material.file', 'file')
       .leftJoinAndSelect('material.uploader', 'uploader')
@@ -77,7 +108,9 @@ export class MaterialsService {
       // Students can only see published materials
       qb.andWhere('material.is_published = 1');
     } else if (isPublished !== undefined) {
-      qb.andWhere('material.is_published = :isPublished', { isPublished: isPublished ? 1 : 0 });
+      qb.andWhere('material.is_published = :isPublished', {
+        isPublished: isPublished ? 1 : 0,
+      });
     }
 
     if (materialType) {
@@ -89,9 +122,12 @@ export class MaterialsService {
     }
 
     if (search) {
-      qb.andWhere('(material.title LIKE :search OR material.description LIKE :search)', { 
-        search: `%${search}%` 
-      });
+      qb.andWhere(
+        '(material.title LIKE :search OR material.description LIKE :search)',
+        {
+          search: `%${search}%`,
+        },
+      );
     }
 
     qb.orderBy(`material.${sortBy}`, sortOrder)
@@ -133,14 +169,25 @@ export class MaterialsService {
     return material;
   }
 
-  async create(courseId: number, dto: CreateMaterialDto, userId: number, roles: string[]) {
+  async create(
+    courseId: number,
+    dto: CreateMaterialDto,
+    userId: number,
+    roles: string[],
+  ) {
     // Check if user is admin or assigned to this course
     const isAdmin = roles.includes('admin') || roles.includes('it_admin');
-    
+
     if (!isAdmin) {
-      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      const isAssigned = await this.isUserAssignedToCourse(
+        userId,
+        courseId,
+        roles,
+      );
       if (!isAssigned) {
-        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+        throw new ForbiddenException(
+          'You are not assigned to this course and cannot add materials',
+        );
       }
     }
 
@@ -158,7 +205,12 @@ export class MaterialsService {
     return this.materialRepo.save(material);
   }
 
-  async update(id: number, dto: UpdateMaterialDto, userId: number, roles: string[]) {
+  async update(
+    id: number,
+    dto: UpdateMaterialDto,
+    userId: number,
+    roles: string[],
+  ) {
     const material = await this.findById(id, userId, roles);
 
     // Check ownership/permission
@@ -173,12 +225,18 @@ export class MaterialsService {
     // Non-admins can only update their own materials
     if (!isAdmin) {
       if (material.uploadedBy !== userId) {
-        throw new ForbiddenException('You can only update materials you uploaded');
+        throw new ForbiddenException(
+          'You can only update materials you uploaded',
+        );
       }
     }
 
     // Update published timestamp if changing visibility
-    if (dto.isPublished !== undefined && dto.isPublished && !material.isPublished) {
+    if (
+      dto.isPublished !== undefined &&
+      dto.isPublished &&
+      !material.isPublished
+    ) {
       dto['publishedAt'] = new Date();
     }
 
@@ -194,13 +252,17 @@ export class MaterialsService {
     const isInstructor = roles.includes('instructor');
 
     if (!isAdmin && !isInstructor) {
-      throw new ForbiddenException('Only instructors and admins can delete materials');
+      throw new ForbiddenException(
+        'Only instructors and admins can delete materials',
+      );
     }
 
     // Non-admins can only delete their own materials
     if (!isAdmin) {
       if (material.uploadedBy !== userId) {
-        throw new ForbiddenException('You can only delete materials you uploaded');
+        throw new ForbiddenException(
+          'You can only delete materials you uploaded',
+        );
       }
     }
 
@@ -208,7 +270,12 @@ export class MaterialsService {
     return { message: 'Material deleted successfully' };
   }
 
-  async toggleVisibility(id: number, dto: ToggleVisibilityDto, userId: number, roles: string[]) {
+  async toggleVisibility(
+    id: number,
+    dto: ToggleVisibilityDto,
+    userId: number,
+    roles: string[],
+  ) {
     const material = await this.findById(id, userId, roles);
 
     // Check ownership/permission
@@ -217,32 +284,56 @@ export class MaterialsService {
     const isTA = roles.includes('teaching_assistant');
 
     if (!isAdmin && !isInstructor && !isTA) {
-      throw new ForbiddenException('You cannot change visibility of this material');
+      throw new ForbiddenException(
+        'You cannot change visibility of this material',
+      );
     }
 
     // Non-admins can only toggle visibility of their own materials
     if (!isAdmin) {
       if (material.uploadedBy !== userId) {
-        throw new ForbiddenException('You can only change visibility of materials you uploaded');
+        throw new ForbiddenException(
+          'You can only change visibility of materials you uploaded',
+        );
       }
     }
 
-    material.isPublished = dto.isPublished;
-    if (dto.isPublished && !material.publishedAt) {
-      material.publishedAt = new Date();
+    const nextPublishedAt = dto.isPublished
+      ? material.publishedAt || new Date()
+      : null;
+
+    await this.materialRepo.update(
+      { materialId: id },
+      {
+        isPublished: dto.isPublished,
+        publishedAt: nextPublishedAt,
+      },
+    );
+
+    const updated = await this.materialRepo.findOne({
+      where: { materialId: id },
+      relations: ['course', 'file', 'uploader'],
+    });
+
+    if (!updated) {
+      throw new NotFoundException(`Material with ID ${id} not found`);
     }
 
-    return this.materialRepo.save(material);
+    return updated;
   }
 
   async download(id: number, userId: number, roles: string[]) {
     const material = await this.findById(id, userId, roles);
 
     if (!material.fileId) {
-      throw new BadRequestException('This material does not have a downloadable file');
+      throw new BadRequestException(
+        'This material does not have a downloadable file',
+      );
     }
 
-    const file = await this.fileRepo.findOne({ where: { fileId: material.fileId } });
+    const file = await this.fileRepo.findOne({
+      where: { fileId: material.fileId },
+    });
     if (!file) {
       throw new NotFoundException('Associated file not found');
     }
@@ -262,11 +353,11 @@ export class MaterialsService {
    */
   async trackView(id: number, userId: number, roles: string[]) {
     const material = await this.findById(id, userId, roles);
-    
+
     // Increment view count
     await this.materialRepo.increment({ materialId: id }, 'viewCount', 1);
-    
-    return { 
+
+    return {
       message: 'View tracked successfully',
       materialId: id,
       viewCount: material.viewCount + 1,
@@ -277,27 +368,33 @@ export class MaterialsService {
    * Bulk create materials
    */
   async bulkCreate(
-    courseId: number, 
-    materials: CreateMaterialDto[], 
-    userId: number, 
-    roles: string[]
+    courseId: number,
+    materials: CreateMaterialDto[],
+    userId: number,
+    roles: string[],
   ) {
     // Check if user is admin or assigned to this course
     const isAdmin = roles.includes('admin') || roles.includes('it_admin');
-    
+
     if (!isAdmin) {
-      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      const isAssigned = await this.isUserAssignedToCourse(
+        userId,
+        courseId,
+        roles,
+      );
       if (!isAssigned) {
-        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+        throw new ForbiddenException(
+          'You are not assigned to this course and cannot add materials',
+        );
       }
     }
 
     const createdMaterials: CourseMaterial[] = [];
-    
+
     for (const dto of materials) {
       // Default isPublished to false (draft) if not specified - per spec
       const isPublished = dto.isPublished ?? false;
-      
+
       const material = this.materialRepo.create({
         ...dto,
         courseId,
@@ -305,7 +402,7 @@ export class MaterialsService {
         isPublished,
         publishedAt: isPublished ? new Date() : null,
       });
-      
+
       const saved = await this.materialRepo.save(material);
       createdMaterials.push(saved);
     }
@@ -325,12 +422,16 @@ export class MaterialsService {
     }
 
     if (!material.externalUrl) {
-      throw new BadRequestException('This video material does not have an embed URL');
+      throw new BadRequestException(
+        'This video material does not have an embed URL',
+      );
     }
 
     // Extract YouTube video ID if it's a YouTube URL
-    const youtubeMatch = material.externalUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/);
-    
+    const youtubeMatch = material.externalUrl.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/,
+    );
+
     if (youtubeMatch) {
       return {
         videoId: youtubeMatch[1],
@@ -363,11 +464,17 @@ export class MaterialsService {
 
     // Check if user is admin or assigned to this course
     const isAdmin = roles.includes('admin') || roles.includes('it_admin');
-    
+
     if (!isAdmin) {
-      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      const isAssigned = await this.isUserAssignedToCourse(
+        userId,
+        courseId,
+        roles,
+      );
       if (!isAssigned) {
-        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+        throw new ForbiddenException(
+          'You are not assigned to this course and cannot add materials',
+        );
       }
     }
 
@@ -437,11 +544,17 @@ export class MaterialsService {
 
     // Check if user is admin or assigned to this course
     const isAdmin = roles.includes('admin') || roles.includes('it_admin');
-    
+
     if (!isAdmin) {
-      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      const isAssigned = await this.isUserAssignedToCourse(
+        userId,
+        courseId,
+        roles,
+      );
       if (!isAssigned) {
-        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+        throw new ForbiddenException(
+          'You are not assigned to this course and cannot add materials',
+        );
       }
     }
 
@@ -465,8 +578,11 @@ export class MaterialsService {
     // Ensure course hierarchy exists and get folder ID
     let targetFolderId: number;
     try {
-      const hierarchy = await this.driveFolderService.ensureCourseHierarchy(courseId, userId);
-      
+      const hierarchy = await this.driveFolderService.ensureCourseHierarchy(
+        courseId,
+        userId,
+      );
+
       // Select target folder based on material type
       switch (folderType) {
         case DriveFolderType.COURSE_LECTURES:
@@ -478,14 +594,21 @@ export class MaterialsService {
           break;
       }
     } catch (error) {
-      this.logger.error(`Failed to ensure course hierarchy: ${error.message}`, error.stack);
-      throw new BadRequestException('Failed to prepare Google Drive folder structure');
+      this.logger.error(
+        `Failed to ensure course hierarchy: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        'Failed to prepare Google Drive folder structure',
+      );
     }
 
     // Generate file name with convention
     const ext = file.originalname.split('.').pop() || 'file';
     const safeTitle = title.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
-    const weekPart = weekNumber ? `Week${weekNumber.toString().padStart(2, '0')}_` : '';
+    const weekPart = weekNumber
+      ? `Week${weekNumber.toString().padStart(2, '0')}_`
+      : '';
     const fileName = `${weekPart}${safeTitle}_v1.${ext}`;
 
     // Upload to Google Drive
@@ -501,7 +624,10 @@ export class MaterialsService {
         userId,
       );
     } catch (error) {
-      this.logger.error(`Failed to upload to Google Drive: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to upload to Google Drive: ${error.message}`,
+        error.stack,
+      );
       throw new BadRequestException(
         `Failed to upload document to Google Drive: ${error.message || 'Unknown error'}`,
       );
@@ -533,7 +659,9 @@ export class MaterialsService {
       [savedMaterial.materialId, driveFile.driveFileId],
     );
 
-    this.logger.log(`Document uploaded to Drive for course ${courseId}: ${fileName} -> ${driveFile.driveId}`);
+    this.logger.log(
+      `Document uploaded to Drive for course ${courseId}: ${fileName} -> ${driveFile.driveId}`,
+    );
 
     return {
       ...savedMaterial,
