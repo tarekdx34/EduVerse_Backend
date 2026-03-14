@@ -27,6 +27,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
 import { YoutubeModule } from './modules/youtube/youtube.module';
+import { GoogleDriveModule } from './modules/google-drive/google-drive.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     CoursesModule,
     EnrollmentsModule,
     YoutubeModule,
+    GoogleDriveModule,
     FilesModule,
     AssignmentsModule,
     GradesModule,
