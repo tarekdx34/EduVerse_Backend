@@ -76,6 +76,18 @@
     {
       "key": "createdReportId",
       "value": ""
+    },
+    {
+      "key": "googleOAuthCode",
+      "value": ""
+    },
+    {
+      "key": "driveFolderId",
+      "value": ""
+    },
+    {
+      "key": "driveFileId",
+      "value": ""
     }
   ],
   "item": [
@@ -10328,6 +10340,435 @@
               }
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "🗂️ Google Drive",
+      "item": [
+        {
+          "name": "Get OAuth URL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "auth"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "OAuth Callback (Set Refresh Token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/callback?code={{googleOAuthCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "callback?code={{googleOAuthCode}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.test('Status 200 or 400', () => pm.expect([200,400]).to.include(pm.response.code));",
+                  "if (json.refreshToken) pm.collectionVariables.set('youtubeRefreshToken', json.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Folder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/folders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "folders"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"EduVerse_Test_Folder\",\n  \"parentId\": \"\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.test('Status 201 or 200', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "if (json.id) pm.collectionVariables.set('driveFolderId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Find Or Create Folder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/folders/find-or-create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "folders",
+                "find-or-create"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"EduVerse_Test_Folder\",\n  \"parentId\": \"\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.test('Status 200 or 201', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "if (json.id) pm.collectionVariables.set('driveFolderId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Folder Contents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/folders/{{driveFolderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "folders",
+                "{{driveFolderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload File to Drive",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/files/upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "files",
+                "upload"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "folderId",
+                  "value": "{{driveFolderId}}",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.test('Status 201 or 200', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "if (json.id) pm.collectionVariables.set('driveFileId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get File Metadata",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/files/{{driveFileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "files",
+                "{{driveFileId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download File",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/files/{{driveFileId}}/download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "files",
+                "{{driveFileId}}",
+                "download"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/files/{{driveFileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "files",
+                "{{driveFileId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Drive Quota",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/quota",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "quota"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Init Root Folder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/admin/init",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "init"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Init Course Structure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/admin/courses/1/init",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "courses",
+                "1",
+                "init"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Init Lab Structure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/admin/labs/3/init",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "labs",
+                "3",
+                "init"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Init Assignment Structure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/admin/assignments/1/init",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "assignments",
+                "1",
+                "init"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Folder Tree",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/admin/tree",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "tree"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Course Folder Tree",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/google-drive/admin/courses/1/tree",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "courses",
+                "1",
+                "tree"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
