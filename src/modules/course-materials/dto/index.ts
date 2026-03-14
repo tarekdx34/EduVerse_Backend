@@ -1,6 +1,7 @@
 export * from './create-material.dto';
 export * from './update-material.dto';
 export * from './upload-video-material.dto';
+export * from './upload-document-material.dto';
 export * from './create-structure.dto';
 export * from './update-structure.dto';
 export * from './query-materials.dto';

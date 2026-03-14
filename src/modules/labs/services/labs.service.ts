@@ -14,6 +14,8 @@ import {
   MarkLabAttendanceDto,
   LabQueryDto,
 } from '../dto';
+import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
+import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
 
 @Injectable()
 export class LabsService {
@@ -28,6 +30,7 @@ export class LabsService {
     private instructionRepository: Repository<LabInstruction>,
     @InjectRepository(LabAttendance)
     private attendanceRepository: Repository<LabAttendance>,
+    private driveFolderService: DriveFolderService,
   ) {}
 
   // ============ LABS CRUD ============
@@ -183,5 +186,176 @@ export class LabsService {
       where: { labId },
       order: { createdAt: 'ASC' },
     });
+  }
+
+  // ============ GOOGLE DRIVE UPLOADS ============
+
+  /**
+   * Upload instruction file to Google Drive
+   */
+  async uploadInstructionToDrive(
+    labId: number,
+    file: Express.Multer.File,
+    title: string | undefined,
+    orderIndex: number,
+    userId: number,
+  ) {
+    const lab = await this.findById(labId);
+
+    // Ensure lab folder structure exists
+    const folders = await this.driveFolderService.createLabFolderStructure(labId, userId);
+
+    // Generate file name
+    const ext = file.originalname.split('.').pop() || 'file';
+    const safeTitle = (title || `Lab${lab.labNumber || labId}_Instructions`).replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
+    const fileName = `${safeTitle}_v1.${ext}`;
+
+    // Upload to Drive
+    const driveFile = await this.driveFolderService.uploadFileToDrive(
+      file.buffer,
+      fileName,
+      file.mimetype,
+      folders.instructions.driveFolderId,
+      DriveFileEntityType.LAB_INSTRUCTION,
+      null,
+      userId,
+    );
+
+    // Create instruction record
+    const instruction = this.instructionRepository.create({
+      labId,
+      instructionText: title || fileName,
+      orderIndex,
+    });
+    const savedInstruction = await this.instructionRepository.save(instruction);
+
+    this.logger.log(`Uploaded lab instruction to Drive: ${fileName} -> ${driveFile.driveId}`);
+
+    return {
+      instruction: savedInstruction,
+      driveFile: {
+        driveId: driveFile.driveId,
+        fileName: driveFile.fileName,
+        webViewLink: driveFile.webViewLink,
+        webContentLink: driveFile.webContentLink,
+      },
+    };
+  }
+
+  /**
+   * Upload TA material to Google Drive
+   */
+  async uploadTaMaterialToDrive(
+    labId: number,
+    file: Express.Multer.File,
+    title: string | undefined,
+    materialType: string | undefined,
+    userId: number,
+  ) {
+    const lab = await this.findById(labId);
+
+    // Ensure lab folder structure exists
+    const folders = await this.driveFolderService.createLabFolderStructure(labId, userId);
+
+    // Generate file name
+    const ext = file.originalname.split('.').pop() || 'file';
+    const typePrefix = materialType ? `${materialType}_` : '';
+    const safeTitle = (title || `Lab${lab.labNumber || labId}_TA_Material`).replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
+    const fileName = `${typePrefix}${safeTitle}.${ext}`;
+
+    // Upload to Drive
+    const driveFile = await this.driveFolderService.uploadFileToDrive(
+      file.buffer,
+      fileName,
+      file.mimetype,
+      folders.taMaterials.driveFolderId,
+      DriveFileEntityType.LAB_TA_MATERIAL,
+      labId,
+      userId,
+    );
+
+    this.logger.log(`Uploaded lab TA material to Drive: ${fileName} -> ${driveFile.driveId}`);
+
+    return {
+      driveFile: {
+        driveFileId: driveFile.driveFileId,
+        driveId: driveFile.driveId,
+        fileName: driveFile.fileName,
+        webViewLink: driveFile.webViewLink,
+        webContentLink: driveFile.webContentLink,
+      },
+    };
+  }
+
+  /**
+   * Upload student submission to Google Drive
+   */
+  async uploadSubmissionToDrive(
+    labId: number,
+    file: Express.Multer.File,
+    submissionText: string | undefined,
+    userId: number,
+  ) {
+    const lab = await this.findById(labId);
+
+    // Create student submission folder
+    const studentFolder = await this.driveFolderService.createLabStudentSubmissionFolder(labId, userId, userId);
+
+    // Generate file name
+    const ext = file.originalname.split('.').pop() || 'file';
+    const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const fileName = `Lab${lab.labNumber || labId}_Submission_${timestamp}.${ext}`;
+
+    // Upload to Drive
+    const driveFile = await this.driveFolderService.uploadFileToDrive(
+      file.buffer,
+      fileName,
+      file.mimetype,
+      studentFolder.driveFolderId,
+      DriveFileEntityType.LAB_SUBMISSION,
+      null,
+      userId,
+    );
+
+    // Check if late submission
+    const isLate = lab.dueDate ? new Date() > new Date(lab.dueDate) : false;
+
+    // Create or update submission record
+    let submission = await this.submissionRepository.findOne({
+      where: { labId, userId },
+    });
+
+    if (submission) {
+      if (submissionText) {
+        submission.submissionText = submissionText;
+      }
+      submission.submittedAt = new Date();
+      submission.isLate = isLate;
+      submission.status = 'submitted';
+    } else {
+      submission = this.submissionRepository.create({
+        labId,
+        userId,
+        submissionText: submissionText,
+        submittedAt: new Date(),
+        isLate,
+        status: 'submitted',
+      });
+    }
+    const savedSubmission = await this.submissionRepository.save(submission);
+
+    this.logger.log(`Uploaded lab submission to Drive: ${fileName} -> ${driveFile.driveId}`);
+
+    return {
+      submission: savedSubmission,
+      driveFile: {
+        driveFileId: driveFile.driveFileId,
+        driveId: driveFile.driveId,
+        fileName: driveFile.fileName,
+        webViewLink: driveFile.webViewLink,
+        webContentLink: driveFile.webContentLink,
+      },
+      isLate,
+    };
   }
 }

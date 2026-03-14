@@ -50,6 +50,15 @@ export class CourseMaterial {
   file: File | null;
 
   @Column({
+    name: 'drive_file_id',
+    type: 'bigint',
+    unsigned: true,
+    nullable: true,
+    comment: 'FK to drive_files table for Google Drive integration',
+  })
+  driveFileId: number | null;
+
+  @Column({
     name: 'material_type',
     type: 'enum',
     enum: MaterialType,

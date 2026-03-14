@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "EduVerse API - Full Collection",
-    "description": "EduVerse API - Full Collection with 31 module folders, 190+ requests. Covers Auth, Users, Campus, Departments, Programs, Semesters, Courses, Sections, Schedules, Enrollments, Assignments, Grades, Rubrics, Files, Attendance, Quizzes, Labs, Notifications, Messaging, Discussions, Announcements, Community, Schedule, Exams, Calendar, Integrations, Materials, Structure, User Profile & Preferences, Admin User Management (Enhanced), and Admin Roles & Permissions (Enhanced).",
+    "description": "EduVerse API - Full Collection with 32 module folders, 200+ requests. Covers Auth, Users, Campus, Departments, Programs, Semesters, Courses, Sections, Schedules, Enrollments, Assignments, Grades, Rubrics, Files, Attendance, Quizzes, Labs, Notifications, Messaging, Discussions, Announcements, Community, Schedule, Exams, Calendar, Integrations, Materials, Structure, User Profile & Preferences, Admin User Management, Admin Roles & Permissions, and Google Drive Integration.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -7061,6 +7061,72 @@
               }
             }
           ]
+        },
+        {
+          "name": "Upload Document to Drive",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "document"
+              ],
+              "raw": "{{base_url}}/api/courses/1/materials/document"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              }
+            ],
+            "description": "Upload a document (PDF, PPT, etc.) to Google Drive as course material",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document",
+                  "src": "",
+                  "type": "file"
+                },
+                {
+                  "key": "title",
+                  "type": "text",
+                  "value": "Week 1 Lecture Notes"
+                },
+                {
+                  "key": "description",
+                  "type": "text",
+                  "value": "Introduction to the course"
+                },
+                {
+                  "key": "materialType",
+                  "type": "text",
+                  "value": "lecture"
+                },
+                {
+                  "key": "weekNumber",
+                  "type": "text",
+                  "value": "1"
+                },
+                {
+                  "key": "orderIndex",
+                  "type": "text",
+                  "value": "0"
+                },
+                {
+                  "key": "isPublished",
+                  "type": "text",
+                  "value": "false"
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -7720,6 +7786,335 @@
           }
         }
       ]
+    },
+    {
+      "item": [
+        {
+          "name": "Get OAuth Auth URL",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "auth"
+              ],
+              "raw": "{{base_url}}/google-drive/auth"
+            },
+            "method": "GET",
+            "description": "Get OAuth2 URL for YouTube + Drive authorization"
+          }
+        },
+        {
+          "name": "OAuth Callback",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "youtube",
+                "callback"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "AUTH_CODE_HERE"
+                }
+              ],
+              "raw": "{{base_url}}/youtube/callback?code=AUTH_CODE_HERE"
+            },
+            "method": "GET",
+            "description": "OAuth2 callback to exchange code for refresh token"
+          }
+        },
+        {
+          "name": "Get Storage Quota",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "quota"
+              ],
+              "raw": "{{base_url}}/google-drive/quota"
+            },
+            "method": "GET",
+            "description": "Get Google Drive storage quota"
+          }
+        },
+        {
+          "name": "Create Folder",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "folders"
+              ],
+              "raw": "{{base_url}}/google-drive/folders"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Create a new folder in Google Drive",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Folder\",\n  \"parentId\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Upload File",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "upload"
+              ],
+              "raw": "{{base_url}}/google-drive/upload"
+            },
+            "method": "POST",
+            "description": "Upload a file to Google Drive",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "src": "",
+                  "type": "file"
+                },
+                {
+                  "key": "folderId",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Folder Contents",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "folders",
+                "FOLDER_ID"
+              ],
+              "raw": "{{base_url}}/google-drive/folders/FOLDER_ID"
+            },
+            "method": "GET",
+            "description": "List contents of a Drive folder"
+          }
+        },
+        {
+          "name": "Download File",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "files",
+                "FILE_ID",
+                "download"
+              ],
+              "raw": "{{base_url}}/google-drive/files/FILE_ID/download"
+            },
+            "method": "GET",
+            "description": "Download a file from Google Drive"
+          }
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "files",
+                "FILE_ID"
+              ],
+              "raw": "{{base_url}}/google-drive/files/FILE_ID"
+            },
+            "method": "DELETE",
+            "description": "Delete a file from Google Drive"
+          }
+        },
+        {
+          "name": "[Admin] Initialize Root Folder",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "init"
+              ],
+              "raw": "{{base_url}}/google-drive/admin/init"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "description": "Initialize the EduVerse root folder in Google Drive (Admin only)"
+          }
+        },
+        {
+          "name": "[Admin] Initialize Course Structure",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "courses",
+                "1",
+                "init"
+              ],
+              "raw": "{{base_url}}/google-drive/admin/courses/1/init"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "description": "Create folder structure for a course (General, Lectures, Labs, etc.)"
+          }
+        },
+        {
+          "name": "[Admin] Initialize Lab Structure",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "labs",
+                "1",
+                "init"
+              ],
+              "raw": "{{base_url}}/google-drive/admin/labs/1/init"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "description": "Create folder structure for a lab (instructions, ta_materials, submissions)"
+          }
+        },
+        {
+          "name": "[Admin] Initialize Assignment Structure",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "assignments",
+                "1",
+                "init"
+              ],
+              "raw": "{{base_url}}/google-drive/admin/assignments/1/init"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "description": "Create folder structure for an assignment (instructions, submissions)"
+          }
+        },
+        {
+          "name": "[Admin] Get Full Folder Tree",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "tree"
+              ],
+              "raw": "{{base_url}}/google-drive/admin/tree"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "description": "Get the full folder tree from database"
+          }
+        },
+        {
+          "name": "[Admin] Get Course Folder Tree",
+          "request": {
+            "url": {
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "google-drive",
+                "admin",
+                "courses",
+                "1",
+                "tree"
+              ],
+              "raw": "{{base_url}}/google-drive/admin/courses/1/tree"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "description": "Get folder tree for a specific course"
+          }
+        }
+      ],
+      "name": "📁 Google Drive",
+      "description": "Google Drive Integration APIs for file storage and management"
     }
   ]
 }
