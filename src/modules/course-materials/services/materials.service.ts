@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, In, DataSource } from 'typeorm';
 import { CourseMaterial } from '../entities';
@@ -11,9 +11,14 @@ import {
 } from '../dto';
 import { MaterialType } from '../enums';
 import { YoutubeService } from '../../youtube/youtube.service';
+import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
+import { DriveFolderType } from '../../google-drive/entities/drive-folder.entity';
+import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
 
 @Injectable()
 export class MaterialsService {
+  private readonly logger = new Logger(MaterialsService.name);
+
   constructor(
     @InjectRepository(CourseMaterial)
     private readonly materialRepo: Repository<CourseMaterial>,
@@ -21,6 +26,7 @@ export class MaterialsService {
     private readonly fileRepo: Repository<File>,
     private readonly youtubeService: YoutubeService,
     private readonly dataSource: DataSource,
+    private readonly driveFolderService: DriveFolderService,
   ) {}
 
   /**
@@ -405,6 +411,136 @@ export class MaterialsService {
       ...savedMaterial,
       youtubeUrl: youtubeResult.videoUrl,
       embedUrl: `https://www.youtube.com/embed/${youtubeResult.videoId}`,
+    };
+  }
+
+  /**
+   * Upload document material to Google Drive
+   * Supports PDFs, PPTs, Word docs, and other document formats
+   */
+  async uploadDocumentMaterial(
+    courseId: number,
+    file: Express.Multer.File,
+    title: string,
+    description: string,
+    materialType: MaterialType,
+    userId: number,
+    roles: string[],
+    weekNumber?: number,
+    orderIndex?: number,
+    isPublished?: boolean,
+  ) {
+    // Validate file exists
+    if (!file || !file.buffer) {
+      throw new BadRequestException('Document file is required');
+    }
+
+    // Check if user is admin or assigned to this course
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+    
+    if (!isAdmin) {
+      const isAssigned = await this.isUserAssignedToCourse(userId, courseId, roles);
+      if (!isAssigned) {
+        throw new ForbiddenException('You are not assigned to this course and cannot add materials');
+      }
+    }
+
+    // Determine folder based on material type
+    let folderType: DriveFolderType;
+    switch (materialType) {
+      case MaterialType.LECTURE:
+        folderType = DriveFolderType.COURSE_LECTURES;
+        break;
+      case MaterialType.SLIDE:
+        folderType = DriveFolderType.COURSE_LECTURES; // Slides go in lectures
+        break;
+      case MaterialType.READING:
+      case MaterialType.DOCUMENT:
+      case MaterialType.LINK:
+      default:
+        folderType = DriveFolderType.COURSE_GENERAL;
+        break;
+    }
+
+    // Ensure course hierarchy exists and get folder ID
+    let targetFolderId: number;
+    try {
+      const hierarchy = await this.driveFolderService.ensureCourseHierarchy(courseId, userId);
+      
+      // Select target folder based on material type
+      switch (folderType) {
+        case DriveFolderType.COURSE_LECTURES:
+          targetFolderId = hierarchy.lectures.driveFolderId;
+          break;
+        case DriveFolderType.COURSE_GENERAL:
+        default:
+          targetFolderId = hierarchy.general.driveFolderId;
+          break;
+      }
+    } catch (error) {
+      this.logger.error(`Failed to ensure course hierarchy: ${error.message}`, error.stack);
+      throw new BadRequestException('Failed to prepare Google Drive folder structure');
+    }
+
+    // Generate file name with convention
+    const ext = file.originalname.split('.').pop() || 'file';
+    const safeTitle = title.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
+    const weekPart = weekNumber ? `Week${weekNumber.toString().padStart(2, '0')}_` : '';
+    const fileName = `${weekPart}${safeTitle}_v1.${ext}`;
+
+    // Upload to Google Drive
+    let driveFile;
+    try {
+      driveFile = await this.driveFolderService.uploadFileToDrive(
+        file.buffer,
+        fileName,
+        file.mimetype,
+        targetFolderId,
+        DriveFileEntityType.COURSE_MATERIAL,
+        null, // Will update with material ID after creation
+        userId,
+      );
+    } catch (error) {
+      this.logger.error(`Failed to upload to Google Drive: ${error.message}`, error.stack);
+      throw new BadRequestException(
+        `Failed to upload document to Google Drive: ${error.message || 'Unknown error'}`,
+      );
+    }
+
+    // Determine publish status (default: draft/false)
+    const shouldPublish = isPublished ?? false;
+
+    // Create material record with Drive data
+    const material = this.materialRepo.create({
+      courseId,
+      title,
+      description,
+      materialType,
+      externalUrl: driveFile.webViewLink, // Google Drive view link
+      driveFileId: driveFile.driveFileId,
+      uploadedBy: userId,
+      isPublished: shouldPublish,
+      publishedAt: shouldPublish ? new Date() : null,
+      weekNumber: weekNumber ?? null,
+      orderIndex: orderIndex ?? 0,
+    });
+
+    const savedMaterial = await this.materialRepo.save(material);
+
+    // Update drive file with material entity ID
+    await this.dataSource.query(
+      `UPDATE drive_files SET entity_id = ? WHERE drive_file_id = ?`,
+      [savedMaterial.materialId, driveFile.driveFileId],
+    );
+
+    this.logger.log(`Document uploaded to Drive for course ${courseId}: ${fileName} -> ${driveFile.driveId}`);
+
+    return {
+      ...savedMaterial,
+      driveId: driveFile.driveId,
+      driveViewUrl: driveFile.webViewLink,
+      driveDownloadUrl: driveFile.webContentLink,
+      fileName: driveFile.fileName,
     };
   }
 }

@@ -14,6 +14,9 @@ import { MaterialsService, CourseStructureService } from './services';
 // Import YouTube module for video upload functionality
 import { YoutubeModule } from '../youtube/youtube.module';
 
+// Import Google Drive module for document upload functionality
+import { GoogleDriveModule } from '../google-drive/google-drive.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -22,6 +25,7 @@ import { YoutubeModule } from '../youtube/youtube.module';
       File,
     ]),
     YoutubeModule,
+    GoogleDriveModule,
   ],
   controllers: [
     MaterialsController,

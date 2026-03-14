@@ -37,8 +37,10 @@ import {
   QueryMaterialsDto,
   ToggleVisibilityDto,
   UploadVideoMaterialDto,
+  UploadDocumentMaterialDto,
   BulkCreateMaterialDto,
 } from '../dto';
+import { MaterialType } from '../enums';
 
 @ApiTags('📚 Course Materials')
 @ApiBearerAuth('JWT-auth')
@@ -296,6 +298,143 @@ Returns material object with:
       dto.title,
       dto.description || '',
       dto.tags || [],
+      userId,
+      roles,
+      dto.weekNumber,
+      dto.orderIndex,
+      dto.isPublished,
+    );
+  }
+
+  @Post('document')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('document'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Upload document material to Google Drive',
+    description: `
+## Upload Document Material via Google Drive
+
+Uploads a document file (PDF, PPT, Word, etc.) to Google Drive and creates a course material record.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles**: INSTRUCTOR, TA, ADMIN, IT_ADMIN
+- **Authorization**: Must be assigned to the course (or be admin)
+
+### Supported Document Formats
+\`pdf\`, \`ppt\`, \`pptx\`, \`doc\`, \`docx\`, \`xls\`, \`xlsx\`, \`txt\`, \`md\`, \`zip\`
+
+### Upload Flow
+1. Backend validates user is authorized for this course
+2. Course folder hierarchy is created/verified in Google Drive
+3. Document is uploaded to the appropriate folder (Lectures or General)
+4. Material record created with Drive metadata
+
+### Form Data Fields
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| document | file | ✅ | Document file to upload |
+| title | string | ✅ | Document title (max 255 chars) |
+| description | string | ❌ | Document description |
+| materialType | enum | ❌ | Type: lecture, slide, reading, document (default: document) |
+| weekNumber | number | ❌ | Week to assign (1-52) |
+| orderIndex | number | ❌ | Sort order (default: 0) |
+| isPublished | boolean | ❌ | Publish immediately (default: false/draft) |
+
+### Folder Placement
+- \`lecture\` and \`slide\` types → Course/Lectures/ folder
+- \`reading\`, \`document\`, \`link\` → Course/General/ folder
+
+### Response
+Returns material object with:
+- \`driveId\`: Google Drive file ID
+- \`driveViewUrl\`: URL to view in Google Drive
+- \`driveDownloadUrl\`: Direct download URL
+    `,
+  })
+  @ApiParam({ name: 'courseId', description: 'Course ID', type: Number, example: 1 })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['document', 'title'],
+      properties: {
+        document: {
+          type: 'string',
+          format: 'binary',
+          description: 'Document file (pdf, ppt, pptx, doc, docx, xls, xlsx)',
+        },
+        title: {
+          type: 'string',
+          example: 'Week 1 Lecture Notes: Introduction to Data Structures',
+          maxLength: 255,
+        },
+        description: {
+          type: 'string',
+          example: 'Comprehensive lecture notes covering the basics.',
+        },
+        materialType: {
+          type: 'string',
+          enum: ['lecture', 'slide', 'reading', 'document', 'link'],
+          example: 'lecture',
+          default: 'document',
+        },
+        weekNumber: {
+          type: 'integer',
+          example: 1,
+          minimum: 1,
+          maximum: 52,
+        },
+        orderIndex: {
+          type: 'integer',
+          example: 0,
+          default: 0,
+        },
+        isPublished: {
+          type: 'boolean',
+          example: false,
+          default: false,
+        },
+      },
+    },
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Document uploaded to Google Drive and material created',
+    schema: {
+      example: {
+        materialId: 1,
+        courseId: 1,
+        title: 'Week 1 Lecture Notes',
+        materialType: 'lecture',
+        externalUrl: 'https://drive.google.com/file/d/abc123/view',
+        driveId: 'abc123',
+        driveViewUrl: 'https://drive.google.com/file/d/abc123/view',
+        driveDownloadUrl: 'https://drive.google.com/uc?id=abc123&export=download',
+        weekNumber: 1,
+        orderIndex: 0,
+        isPublished: false,
+        fileName: 'Week01_Week_1_Lecture_Notes_v1.pdf',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data or Drive upload failed' })
+  @ApiResponse({ status: 403, description: 'Forbidden - not assigned to course' })
+  async uploadDocument(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadDocumentMaterialDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.materialsService.uploadDocumentMaterial(
+      courseId,
+      file,
+      dto.title,
+      dto.description || '',
+      dto.materialType || MaterialType.DOCUMENT,
       userId,
       roles,
       dto.weekNumber,
