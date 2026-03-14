@@ -4,6 +4,8 @@ import {
   Post,
   Patch,
   Delete,
+  HttpCode,
+  HttpStatus,
   Body,
   Param,
   Query,
@@ -23,7 +25,12 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { TasksService } from '../services/tasks.service';
 import { RemindersService } from '../services/reminders.service';
-import { CreateTaskDto, UpdateTaskDto, TaskQueryDto, CreateReminderDto } from '../dto';
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  TaskQueryDto,
+  CreateReminderDto,
+} from '../dto';
 
 @ApiTags('📋 Tasks & Reminders')
 @ApiBearerAuth('JWT-auth')
@@ -54,7 +61,12 @@ export class TasksController {
   // Static routes BEFORE :id param routes
   @Get('upcoming')
   @ApiOperation({ summary: 'Get upcoming tasks' })
-  @ApiQuery({ name: 'days', required: false, type: Number, description: 'Number of days ahead (default 7)' })
+  @ApiQuery({
+    name: 'days',
+    required: false,
+    type: Number,
+    description: 'Number of days ahead (default 7)',
+  })
   @ApiResponse({ status: 200, description: 'List of upcoming tasks' })
   async findUpcoming(@Query('days') days: number, @Req() req: any) {
     const userId = req.user.userId || req.user.id;
@@ -116,7 +128,8 @@ export class TasksController {
   @Post(':id/complete')
   @ApiOperation({ summary: 'Mark task as complete' })
   @ApiParam({ name: 'id', description: 'Task ID' })
-  @ApiResponse({ status: 201, description: 'Task marked as complete' })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: 200, description: 'Task marked as complete' })
   @ApiResponse({ status: 404, description: 'Task not found' })
   async complete(
     @Param('id', ParseIntPipe) id: number,
@@ -124,7 +137,12 @@ export class TasksController {
     @Req() req: any,
   ) {
     const userId = req.user.userId || req.user.id;
-    return this.tasksService.complete(id, userId, body.notes, body.timeTakenMinutes);
+    return this.tasksService.complete(
+      id,
+      userId,
+      body.notes,
+      body.timeTakenMinutes,
+    );
   }
 
   @Delete(':id')

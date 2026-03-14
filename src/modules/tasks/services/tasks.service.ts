@@ -17,7 +17,14 @@ export class TasksService {
   ) {}
 
   async findAll(userId: number, query: TaskQueryDto) {
-    const { status, priority, taskType, page = 1, limit = 20, sortBy = TaskSortBy.CREATED_AT } = query;
+    const {
+      status,
+      priority,
+      taskType,
+      page = 1,
+      limit = 20,
+      sortBy = TaskSortBy.CREATED_AT,
+    } = query;
     const skip = (page - 1) * limit;
 
     const qb = this.taskRepo
@@ -34,11 +41,12 @@ export class TasksService {
       qb.andWhere('t.taskType = :taskType', { taskType });
     }
 
-    const sortColumn = sortBy === TaskSortBy.DUE_DATE
-      ? 't.dueDate'
-      : sortBy === TaskSortBy.PRIORITY
-        ? 't.priority'
-        : 't.createdAt';
+    const sortColumn =
+      sortBy === TaskSortBy.DUE_DATE
+        ? 't.dueDate'
+        : sortBy === TaskSortBy.PRIORITY
+          ? 't.priority'
+          : 't.createdAt';
 
     qb.orderBy(sortColumn, sortBy === TaskSortBy.DUE_DATE ? 'ASC' : 'DESC')
       .skip(skip)
@@ -78,7 +86,11 @@ export class TasksService {
     return saved;
   }
 
-  async update(taskId: number, dto: UpdateTaskDto, userId: number): Promise<StudentTask> {
+  async update(
+    taskId: number,
+    dto: UpdateTaskDto,
+    userId: number,
+  ): Promise<StudentTask> {
     const task = await this.findOne(taskId, userId);
 
     const { dueDate, ...rest } = dto;
@@ -100,6 +112,34 @@ export class TasksService {
     timeTakenMinutes?: number,
   ): Promise<TaskCompletion> {
     const task = await this.findOne(taskId, userId);
+
+    const existingCompletion = await this.completionRepo.findOne({
+      where: { taskId: task.taskId, userId },
+    });
+
+    if (existingCompletion) {
+      if (notes !== undefined) {
+        existingCompletion.notes = notes;
+      }
+      if (timeTakenMinutes !== undefined) {
+        existingCompletion.timeTakenMinutes = timeTakenMinutes;
+      }
+
+      if (
+        task.status !== TaskStatus.COMPLETED ||
+        task.completionPercentage !== 100
+      ) {
+        task.status = TaskStatus.COMPLETED;
+        task.completionPercentage = 100;
+        await this.taskRepo.save(task);
+      }
+
+      const savedExisting = await this.completionRepo.save(existingCompletion);
+      this.logger.log(
+        `Task already completed, updated completion: #${taskId} by user #${userId}`,
+      );
+      return savedExisting;
+    }
 
     task.status = TaskStatus.COMPLETED;
     task.completionPercentage = 100;
