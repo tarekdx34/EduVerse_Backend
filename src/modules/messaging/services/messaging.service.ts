@@ -67,18 +67,35 @@ export class MessagingService {
     // Get all participants with user info
     const participants = await this.participantRepository
       .createQueryBuilder('mp')
+      .leftJoinAndSelect('mp.user', 'u')
       .where('mp.messageId = :messageId', { messageId: conversationId })
-      .select(['mp.userId'])
+      .select([
+        'mp.userId',
+        'u.userId',
+        'u.firstName',
+        'u.lastName',
+        'u.email',
+      ])
       .getMany();
 
     // Get last message in conversation (not deleted for this user)
     const lastMessage = await this.messageRepository
       .createQueryBuilder('m')
       .leftJoin('message_participants', 'mp', 'mp.message_id = m.message_id AND mp.user_id = :userId', { userId })
+      .leftJoin('users', 'sender', 'sender.user_id = m.sender_id')
       .where('(m.message_id = :convId OR m.parent_message_id = :convId)', { convId: conversationId })
       .andWhere('(mp.deleted_at IS NULL OR mp.participant_id IS NULL)')
+      .select([
+        'm.message_id AS id',
+        'm.body AS body',
+        'm.sender_id AS senderId',
+        'm.sent_at AS sentAt',
+        'sender.first_name AS senderFirstName',
+        'sender.last_name AS senderLastName',
+        'sender.email AS senderEmail',
+      ])
       .orderBy('m.sent_at', 'DESC')
-      .getOne();
+      .getRawOne();
 
     // Count unread messages
     const unreadCount = await this.participantRepository
@@ -91,18 +108,46 @@ export class MessagingService {
       .andWhere('m.senderId != :userId', { userId })
       .getCount();
 
-    const lastBody = lastMessage?.body === DELETED_MARKER
+    const participantUsers = participants.map((p) => ({
+      userId: p.userId,
+      firstName: p.user?.firstName || null,
+      lastName: p.user?.lastName || null,
+      fullName: p.user ? `${p.user.firstName || ''} ${p.user.lastName || ''}`.trim() : null,
+      email: p.user?.email || null,
+    }));
+
+    const directPeer = rootMessage.messageType === 'direct'
+      ? participantUsers.find((p) => Number(p.userId) !== Number(userId)) || null
+      : null;
+
+    const rawLastBody = lastMessage?.body || rootMessage.body;
+    const lastBody = rawLastBody === DELETED_MARKER
       ? 'This message was deleted'
-      : (lastMessage?.body || rootMessage.body);
+      : rawLastBody;
+
+    const lastMessageInfo = {
+      id: Number(lastMessage?.id || rootMessage.id),
+      text: lastBody,
+      senderId: Number(lastMessage?.senderId || rootMessage.senderId),
+      senderName: lastMessage?.senderFirstName || lastMessage?.senderLastName
+        ? `${lastMessage?.senderFirstName || ''} ${lastMessage?.senderLastName || ''}`.trim()
+        : null,
+      senderEmail: lastMessage?.senderEmail || null,
+      sentAt: lastMessage?.sentAt || rootMessage.sentAt,
+      isDeleted: rawLastBody === DELETED_MARKER,
+    };
 
     return {
       conversationId,
       type: rootMessage.messageType,
       name: rootMessage.messageType === 'group' ? rootMessage.subject : null,
       participants: participants.map((p) => p.userId),
+      participantUsers,
+      directDisplayUser: directPeer,
       lastMessage: lastBody,
-      lastMessageAt: lastMessage?.sentAt || rootMessage.sentAt,
-      lastSenderId: lastMessage?.senderId || rootMessage.senderId,
+      lastMessageInfo,
+      lastMessageAt: lastMessageInfo.sentAt,
+      lastSenderId: lastMessageInfo.senderId,
       unreadCount,
     };
   }
