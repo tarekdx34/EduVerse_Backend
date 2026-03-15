@@ -189,6 +189,22 @@ Enrolls the authenticated student in a course section.
   }
 
   /**
+   * GET /api/enrollments/teaching
+   * Get all courses taught by the authenticated instructor
+   */
+  @Get('teaching')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  @ApiOperation({
+    summary: 'Get teaching courses',
+    description: 'Retrieves all course sections assigned to the authenticated instructor.',
+  })
+  @ApiResponse({ status: 200, description: 'List of teaching courses' })
+  async getTeachingCourses(@Request() req): Promise<any[]> {
+    const userId = req.user.userId || req.user.id;
+    return this.enrollmentsService.getTeachingCourses(userId);
+  }
+
+  /**
    * GET /api/enrollments/:id
    * Get enrollment details by ID
    */
