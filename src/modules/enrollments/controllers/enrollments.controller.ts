@@ -25,9 +25,15 @@ import {
 import { EnrollmentsService } from '../services';
 import { EnrollCourseDto } from '../dto/enroll-course.dto';
 import { EnrollmentResponseDto } from '../dto/enrollment-response.dto';
-import { AvailableCoursesFilterDto, AvailableCoursesDto } from '../dto/available-courses.dto';
+import {
+  AvailableCoursesFilterDto,
+  AvailableCoursesDto,
+} from '../dto/available-courses.dto';
 import { DropCourseDto } from '../dto/drop-course.dto';
-import { AssignInstructorDto, InstructorAssignmentResponseDto } from '../dto/assign-instructor.dto';
+import {
+  AssignInstructorDto,
+  InstructorAssignmentResponseDto,
+} from '../dto/assign-instructor.dto';
 import { AssignTADto, TAAssignmentResponseDto } from '../dto/assign-ta.dto';
 import { Roles } from '../../auth/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -46,10 +52,17 @@ export class EnrollmentsController {
    * Get enrollment periods (derived from semesters with registration dates)
    */
   @Get('periods')
-  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA, RoleName.STUDENT)
+  @Roles(
+    RoleName.IT_ADMIN,
+    RoleName.ADMIN,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.STUDENT,
+  )
   @ApiOperation({
     summary: 'Get enrollment periods',
-    description: 'Returns semesters with registration date ranges as enrollment periods.',
+    description:
+      'Returns semesters with registration date ranges as enrollment periods.',
   })
   @ApiResponse({ status: 200, description: 'List of enrollment periods' })
   async getEnrollmentPeriods(): Promise<any[]> {
@@ -83,15 +96,28 @@ Use \`semester\` query parameter to filter by specific semester.
 - Grades (if available)
     `,
   })
-  @ApiQuery({ name: 'semester', required: false, type: Number, description: 'Semester ID to filter' })
+  @ApiQuery({
+    name: 'semester',
+    required: false,
+    type: Number,
+    description: 'Semester ID to filter',
+  })
   @ApiResponse({ status: 200, description: 'List of enrolled courses' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Student role required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Student role required',
+  })
   async getMyEnrollments(
     @Request() req,
     @Query('semester') semester?: number,
   ): Promise<EnrollmentResponseDto[]> {
-    console.log('GET MY COURSES - req.user.userId:', req.user.userId, 'req.user.id:', req.user.id);
+    console.log(
+      'GET MY COURSES - req.user.userId:',
+      req.user.userId,
+      'req.user.id:',
+      req.user.id,
+    );
     const userId = req.user.userId || req.user.id;
     return this.enrollmentsService.getMyEnrollments(userId, semester);
   }
@@ -125,12 +151,18 @@ Available through query parameters (see AvailableCoursesFilterDto).
   })
   @ApiResponse({ status: 200, description: 'List of available courses' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Student role required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Student role required',
+  })
   async getAvailableCourses(
     @Request() req,
     @Query() filters: AvailableCoursesFilterDto,
   ): Promise<AvailableCoursesDto[]> {
-    return this.enrollmentsService.getAvailableCourses(req.user.userId, filters);
+    return this.enrollmentsService.getAvailableCourses(
+      req.user.userId,
+      filters,
+    );
   }
 
   /**
@@ -164,9 +196,15 @@ Enrolls the authenticated student in a course section.
   })
   @ApiBody({ type: EnrollCourseDto })
   @ApiResponse({ status: 201, description: 'Successfully enrolled' })
-  @ApiResponse({ status: 400, description: 'Prerequisites not met or schedule conflict' })
+  @ApiResponse({
+    status: 400,
+    description: 'Prerequisites not met or schedule conflict',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Student role required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Student role required',
+  })
   @ApiResponse({ status: 409, description: 'Already enrolled in this course' })
   async enrollCourse(
     @Request() req,
@@ -179,12 +217,14 @@ Enrolls the authenticated student in a course section.
     console.log('req.user.id:', req.user.id);
     console.log('req.user properties:', Object.keys(req.user));
     console.log('==================');
-    
+
     const userId = req.user.userId || req.user.id;
     if (!userId) {
-      throw new BadRequestException('User ID not found in authentication token');
+      throw new BadRequestException(
+        'User ID not found in authentication token',
+      );
     }
-    
+
     return this.enrollmentsService.enrollStudent(userId, enrollCourseDto);
   }
 
@@ -225,7 +265,9 @@ Retrieves details of a specific enrollment.
   @ApiResponse({ status: 200, description: 'Enrollment details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Enrollment not found' })
-  async getEnrollmentById(@Param('id') id: number): Promise<EnrollmentResponseDto> {
+  async getEnrollmentById(
+    @Param('id') id: number,
+  ): Promise<EnrollmentResponseDto> {
     return this.enrollmentsService.getEnrollmentById(id);
   }
 
@@ -294,7 +336,10 @@ Retrieves all enrollments across all sections of a course.
   @ApiParam({ name: 'courseId', description: 'Course ID', type: Number })
   @ApiResponse({ status: 200, description: 'List of enrollments' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Instructor or Admin required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Instructor or Admin required',
+  })
   async getCourseEnrollments(
     @Param('courseId') courseId: number,
   ): Promise<EnrollmentResponseDto[]> {
@@ -329,7 +374,10 @@ Retrieves all students enrolled in a specific section.
   @ApiParam({ name: 'sectionId', description: 'Section ID', type: Number })
   @ApiResponse({ status: 200, description: 'List of enrolled students' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Instructor or Admin required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Instructor or Admin required',
+  })
   @ApiResponse({ status: 404, description: 'Section not found' })
   async getSectionStudents(
     @Param('sectionId') sectionId: number,
@@ -361,7 +409,10 @@ Students are ordered by waitlist position.
   @ApiParam({ name: 'sectionId', description: 'Section ID', type: Number })
   @ApiResponse({ status: 200, description: 'Waitlist students' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Instructor or Admin required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Instructor or Admin required',
+  })
   @ApiResponse({ status: 404, description: 'Section not found' })
   async getSectionWaitlist(
     @Param('sectionId') sectionId: number,
@@ -438,14 +489,25 @@ Assigns a user with the Instructor role to a specific course section.
 - \`guest\` – Guest lecturer
     `,
   })
-  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
   @ApiBody({ type: AssignInstructorDto })
-  @ApiResponse({ status: 201, description: 'Instructor assigned successfully', type: InstructorAssignmentResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Instructor assigned successfully',
+    type: InstructorAssignmentResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Invalid request body' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
   @ApiResponse({ status: 404, description: 'Section or user not found' })
-  @ApiResponse({ status: 409, description: 'Instructor already assigned to this section' })
+  @ApiResponse({
+    status: 409,
+    description: 'Instructor already assigned to this section',
+  })
   async assignInstructor(
     @Param('sectionId', ParseIntPipe) sectionId: number,
     @Body() dto: AssignInstructorDto,
@@ -472,8 +534,16 @@ Removes an instructor assignment from a course section.
 - **Roles Required**: ADMIN only
     `,
   })
-  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
-  @ApiParam({ name: 'assignmentId', description: 'Instructor assignment ID', type: Number })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
+  @ApiParam({
+    name: 'assignmentId',
+    description: 'Instructor assignment ID',
+    type: Number,
+  })
   @ApiResponse({ status: 204, description: 'Instructor removed successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
@@ -503,15 +573,69 @@ Returns all instructors assigned to a course section.
 - **Roles Required**: ADMIN, INSTRUCTOR
     `,
   })
-  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
-  @ApiResponse({ status: 200, description: 'List of instructor assignments', type: [InstructorAssignmentResponseDto] })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of instructor assignments',
+    type: [InstructorAssignmentResponseDto],
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin or Instructor required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin or Instructor required',
+  })
   @ApiResponse({ status: 404, description: 'Section not found' })
   async getSectionInstructors(
     @Param('sectionId', ParseIntPipe) sectionId: number,
   ): Promise<InstructorAssignmentResponseDto[]> {
     return this.enrollmentsService.getSectionInstructors(sectionId);
+  }
+
+  /**
+   * GET /api/enrollments/section/:sectionId/instructor
+   * Get the primary instructor summary for a section
+   */
+  @Get('section/:sectionId/instructor')
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @ApiOperation({
+    summary: 'Get assigned instructor for a section',
+    description:
+      'Returns the assigned instructor summary for a course section, including user ID, full name, and email.',
+  })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Assigned instructor summary',
+    schema: {
+      type: 'object',
+      properties: {
+        instructorId: { type: 'number', example: 58 },
+        instructor: {
+          type: 'object',
+          properties: {
+            userId: { type: 'number', example: 58 },
+            fullName: { type: 'string', example: 'Tarek Instructor' },
+            email: { type: 'string', example: 'tarek@example.com' },
+          },
+        },
+      },
+    },
+  })
+  async getSectionInstructorSummary(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+  ): Promise<{
+    instructorId: number | null;
+    instructor: { userId: number; fullName: string; email: string } | null;
+  }> {
+    return this.enrollmentsService.getSectionInstructorSummary(sectionId);
   }
 
   // ─── Admin: TA Assignment Endpoints ──────────────────────────────────────
@@ -538,14 +662,25 @@ Assigns a user with the Teaching Assistant role to a specific course section.
 - \`responsibilities\` – Free-text description of TA duties (e.g., "Grading labs, office hours Mon/Wed")
     `,
   })
-  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
   @ApiBody({ type: AssignTADto })
-  @ApiResponse({ status: 201, description: 'TA assigned successfully', type: TAAssignmentResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'TA assigned successfully',
+    type: TAAssignmentResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Invalid request body' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
   @ApiResponse({ status: 404, description: 'Section or user not found' })
-  @ApiResponse({ status: 409, description: 'TA already assigned to this section' })
+  @ApiResponse({
+    status: 409,
+    description: 'TA already assigned to this section',
+  })
   async assignTA(
     @Param('sectionId', ParseIntPipe) sectionId: number,
     @Body() dto: AssignTADto,
@@ -572,8 +707,16 @@ Removes a Teaching Assistant assignment from a course section.
 - **Roles Required**: ADMIN only
     `,
   })
-  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
-  @ApiParam({ name: 'assignmentId', description: 'TA assignment ID', type: Number })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
+  @ApiParam({
+    name: 'assignmentId',
+    description: 'TA assignment ID',
+    type: Number,
+  })
   @ApiResponse({ status: 204, description: 'TA removed successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin required' })
@@ -603,14 +746,62 @@ Returns all Teaching Assistants assigned to a course section.
 - **Roles Required**: ADMIN, INSTRUCTOR
     `,
   })
-  @ApiParam({ name: 'sectionId', description: 'Course section ID', type: Number })
-  @ApiResponse({ status: 200, description: 'List of TA assignments', type: [TAAssignmentResponseDto] })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of TA assignments',
+    type: [TAAssignmentResponseDto],
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin or Instructor required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin or Instructor required',
+  })
   @ApiResponse({ status: 404, description: 'Section not found' })
   async getSectionTAs(
     @Param('sectionId', ParseIntPipe) sectionId: number,
   ): Promise<TAAssignmentResponseDto[]> {
     return this.enrollmentsService.getSectionTAs(sectionId);
+  }
+
+  /**
+   * GET /api/enrollments/section/:sectionId/tas
+   * Get simplified TA summaries for a section
+   */
+  @Get('section/:sectionId/tas')
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @ApiOperation({
+    summary: 'Get assigned TAs for a section',
+    description:
+      'Returns simplified Teaching Assistant summaries for a course section, including user ID, full name, and email.',
+  })
+  @ApiParam({
+    name: 'sectionId',
+    description: 'Course section ID',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Assigned TA summaries',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          userId: { type: 'number', example: 60 },
+          fullName: { type: 'string', example: 'Tarek TA' },
+          email: { type: 'string', example: 'ta@example.com' },
+        },
+      },
+    },
+  })
+  async getSectionTASummaries(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+  ): Promise<Array<{ userId: number; fullName: string; email: string }>> {
+    return this.enrollmentsService.getSectionTASummaries(sectionId);
   }
 }
