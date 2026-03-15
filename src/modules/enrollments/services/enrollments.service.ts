@@ -2,7 +2,10 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull, LessThan } from 'typeorm';
 import { CourseEnrollment } from '../entities/course-enrollment.entity';
-import { CourseInstructor, InstructorRole } from '../entities/course-instructor.entity';
+import {
+  CourseInstructor,
+  InstructorRole,
+} from '../entities/course-instructor.entity';
 import { CourseTA } from '../entities/course-ta.entity';
 import { Course } from '../../courses/entities/course.entity';
 import { CourseSection } from '../../courses/entities/course-section.entity';
@@ -32,8 +35,14 @@ import {
 } from '../exceptions';
 import { EnrollCourseDto } from '../dto/enroll-course.dto';
 import { EnrollmentResponseDto } from '../dto/enrollment-response.dto';
-import { AvailableCoursesFilterDto, AvailableCoursesDto } from '../dto/available-courses.dto';
-import { AssignInstructorDto, InstructorAssignmentResponseDto } from '../dto/assign-instructor.dto';
+import {
+  AvailableCoursesFilterDto,
+  AvailableCoursesDto,
+} from '../dto/available-courses.dto';
+import {
+  AssignInstructorDto,
+  InstructorAssignmentResponseDto,
+} from '../dto/assign-instructor.dto';
 import { AssignTADto, TAAssignmentResponseDto } from '../dto/assign-ta.dto';
 
 interface GradeInfo {
@@ -46,17 +55,17 @@ interface GradeInfo {
 export class EnrollmentsService {
   private readonly logger = new Logger(EnrollmentsService.name);
   private readonly gradeScale = {
-    'A': { value: 4.0, passing: true },
+    A: { value: 4.0, passing: true },
     'A-': { value: 3.7, passing: true },
     'B+': { value: 3.3, passing: true },
-    'B': { value: 3.0, passing: true },
+    B: { value: 3.0, passing: true },
     'B-': { value: 2.7, passing: true },
     'C+': { value: 2.3, passing: true },
-    'C': { value: 2.0, passing: true },
+    C: { value: 2.0, passing: true },
     'C-': { value: 1.7, passing: false },
     'D+': { value: 1.3, passing: false },
-    'D': { value: 1.0, passing: false },
-    'F': { value: 0.0, passing: false },
+    D: { value: 1.0, passing: false },
+    F: { value: 0.0, passing: false },
   };
   private readonly DROP_DEADLINE_PERCENTAGE = 0.5; // Can drop until 50% through semester
 
@@ -86,7 +95,7 @@ export class EnrollmentsService {
       order: { startDate: 'DESC' },
     });
 
-    return semesters.map(s => ({
+    return semesters.map((s) => ({
       id: s.id,
       semesterName: s.name,
       semesterCode: s.code,
@@ -98,7 +107,10 @@ export class EnrollmentsService {
     }));
   }
 
-  async enrollStudent(userId: number, enrollCourseDto: EnrollCourseDto): Promise<EnrollmentResponseDto> {
+  async enrollStudent(
+    userId: number,
+    enrollCourseDto: EnrollCourseDto,
+  ): Promise<EnrollmentResponseDto> {
     const { sectionId } = enrollCourseDto;
 
     const [user, section, course, semester] = await Promise.all([
@@ -111,10 +123,14 @@ export class EnrollmentsService {
     if (!user) throw new BadRequestException('User not found');
     if (!section) throw new BadRequestException('Section not found');
 
-    const course_ = await this.courseRepository.findOne({ where: { id: section.courseId } });
+    const course_ = await this.courseRepository.findOne({
+      where: { id: section.courseId },
+    });
     if (!course_) throw new BadRequestException('Course not found');
 
-    const semester_ = await this.semesterRepository.findOne({ where: { id: section.semesterId } });
+    const semester_ = await this.semesterRepository.findOne({
+      where: { id: section.semesterId },
+    });
     if (!semester_) throw new BadRequestException('Semester not found');
 
     // Check 1: Already enrolled
@@ -124,7 +140,10 @@ export class EnrollmentsService {
         sectionId,
       },
     });
-    if (existingEnrollment && existingEnrollment.status !== EnrollmentStatus.DROPPED) {
+    if (
+      existingEnrollment &&
+      existingEnrollment.status !== EnrollmentStatus.DROPPED
+    ) {
       throw new AlreadyEnrolledException();
     }
 
@@ -140,16 +159,24 @@ export class EnrollmentsService {
       .orderBy('enrollment.enrollmentDate', 'DESC')
       .getOne();
 
-    if (previousEnrollment && previousEnrollment.status === EnrollmentStatus.COMPLETED) {
+    if (
+      previousEnrollment &&
+      previousEnrollment.status === EnrollmentStatus.COMPLETED
+    ) {
       const previousGrade = previousEnrollment.grade;
       const gradeInfo = this.parseGrade(previousGrade);
 
       if (!gradeInfo.isPassing) {
         // Failed - can retake freely
-        this.logger.log(`Student ${userId} retaking course ${course_.id} - failed previously`);
+        this.logger.log(
+          `Student ${userId} retaking course ${course_.id} - failed previously`,
+        );
       } else {
         // Passed - needs admin approval to improve grade
-        if (gradeInfo.letterGrade === 'B' || (gradeInfo.letterGrade === 'B-' && true)) {
+        if (
+          gradeInfo.letterGrade === 'B' ||
+          (gradeInfo.letterGrade === 'B-' && true)
+        ) {
           throw new RetakeRequiresAdminApprovalException();
         }
       }
@@ -166,7 +193,7 @@ export class EnrollmentsService {
     if (section.currentEnrollment >= section.maxCapacity) {
       enrollmentStatus = EnrollmentStatus.ENROLLED;
       this.logger.log(
-        `Section ${sectionId} is full, but enrolling student ${userId} (waitlist handled separately)`
+        `Section ${sectionId} is full, but enrolling student ${userId} (waitlist handled separately)`,
       );
     }
 
@@ -185,20 +212,36 @@ export class EnrollmentsService {
       await this.sectionRepository.increment(
         { id: sectionId },
         'currentEnrollment',
-        1
+        1,
       );
 
       // Check if section is now full
-      const updatedSection = await this.sectionRepository.findOne({ where: { id: sectionId } });
-      if (updatedSection && updatedSection.currentEnrollment >= updatedSection.maxCapacity) {
-        await this.sectionRepository.update({ id: sectionId }, { status: SectionStatus.FULL });
+      const updatedSection = await this.sectionRepository.findOne({
+        where: { id: sectionId },
+      });
+      if (
+        updatedSection &&
+        updatedSection.currentEnrollment >= updatedSection.maxCapacity
+      ) {
+        await this.sectionRepository.update(
+          { id: sectionId },
+          { status: SectionStatus.FULL },
+        );
       }
     }
 
-    return this.buildEnrollmentResponse(savedEnrollment, course_, section, semester_);
+    return this.buildEnrollmentResponse(
+      savedEnrollment,
+      course_,
+      section,
+      semester_,
+    );
   }
 
-  async getMyEnrollments(userId: number, semester?: number): Promise<EnrollmentResponseDto[]> {
+  async getMyEnrollments(
+    userId: number,
+    semester?: number,
+  ): Promise<EnrollmentResponseDto[]> {
     // Simple query without relationships first
     const enrollments = await this.enrollmentRepository.find({
       where: {
@@ -212,14 +255,14 @@ export class EnrollmentsService {
     let filtered = enrollments;
     if (semester) {
       // Load sections for filtering
-      const sectionIds = enrollments.map(e => e.sectionId);
+      const sectionIds = enrollments.map((e) => e.sectionId);
       if (sectionIds.length === 0) return [];
-      
+
       const sections = await this.sectionRepository.find({
         where: { semesterId: semester, id: In(sectionIds) },
       });
-      const validSectionIds = new Set(sections.map(s => s.id));
-      filtered = enrollments.filter(e => validSectionIds.has(e.sectionId));
+      const validSectionIds = new Set(sections.map((s) => s.id));
+      filtered = enrollments.filter((e) => validSectionIds.has(e.sectionId));
     }
 
     // Load related data for each enrollment
@@ -231,16 +274,33 @@ export class EnrollmentsService {
         });
 
         if (!section || !section.course || !section.semester) {
-          throw new Error(`Missing related data for enrollment ${enrollment.id}`);
+          throw new Error(
+            `Missing related data for enrollment ${enrollment.id}`,
+          );
         }
 
-        return this.buildEnrollmentResponse(enrollment, section.course, section, section.semester);
-      })
+        return this.buildEnrollmentResponse(
+          enrollment,
+          section.course,
+          section,
+          section.semester,
+        );
+      }),
     );
   }
 
-  async getAvailableCourses(userId: number, filters: AvailableCoursesFilterDto): Promise<AvailableCoursesDto[]> {
-    const { departmentId, semesterId, search, level, page = 1, limit = 20 } = filters;
+  async getAvailableCourses(
+    userId: number,
+    filters: AvailableCoursesFilterDto,
+  ): Promise<AvailableCoursesDto[]> {
+    const {
+      departmentId,
+      semesterId,
+      search,
+      level,
+      page = 1,
+      limit = 20,
+    } = filters;
 
     let courseQuery = this.courseRepository
       .createQueryBuilder('course')
@@ -248,7 +308,10 @@ export class EnrollmentsService {
       .andWhere('course.status = :status', { status: 'ACTIVE' });
 
     if (departmentId) {
-      courseQuery = courseQuery.andWhere('course.departmentId = :departmentId', { departmentId });
+      courseQuery = courseQuery.andWhere(
+        'course.departmentId = :departmentId',
+        { departmentId },
+      );
     }
 
     if (level) {
@@ -258,7 +321,7 @@ export class EnrollmentsService {
     if (search) {
       courseQuery = courseQuery.andWhere(
         '(course.name LIKE :search OR course.code LIKE :search)',
-        { search: `%${search}%` }
+        { search: `%${search}%` },
       );
     }
 
@@ -296,7 +359,8 @@ export class EnrollmentsService {
         })
         .getOne();
 
-      const canEnroll = !userEnrollment && (await this.checkPrerequisites(userId, course.id));
+      const canEnroll =
+        !userEnrollment && (await this.checkPrerequisites(userId, course.id));
 
       results.push({
         id: course.id,
@@ -333,7 +397,11 @@ export class EnrollmentsService {
     return results;
   }
 
-  async dropCourse(enrollmentId: number, userId: number, isAdmin: boolean): Promise<EnrollmentResponseDto> {
+  async dropCourse(
+    enrollmentId: number,
+    userId: number,
+    isAdmin: boolean,
+  ): Promise<EnrollmentResponseDto> {
     const enrollment = await this.enrollmentRepository.findOne({
       where: { id: enrollmentId },
       relations: ['section', 'section.course', 'section.semester'],
@@ -353,7 +421,9 @@ export class EnrollmentsService {
 
     // Check drop deadline for students (not admin)
     if (!isAdmin && enrollment.status === EnrollmentStatus.ENROLLED) {
-      const canDrop = await this.isWithinDropDeadline(enrollment.section.semester);
+      const canDrop = await this.isWithinDropDeadline(
+        enrollment.section.semester,
+      );
       if (!canDrop) {
         throw new DropDeadlinePassedException();
       }
@@ -370,11 +440,22 @@ export class EnrollmentsService {
 
     // Decrease enrollment count if was enrolled (before dropping)
     if (previousStatus === EnrollmentStatus.ENROLLED) {
-      await this.sectionRepository.decrement({ id: enrollment.sectionId }, 'currentEnrollment', 1);
-      this.logger.log(`Student ${enrollment.userId} dropped from section ${enrollment.sectionId}`);
+      await this.sectionRepository.decrement(
+        { id: enrollment.sectionId },
+        'currentEnrollment',
+        1,
+      );
+      this.logger.log(
+        `Student ${enrollment.userId} dropped from section ${enrollment.sectionId}`,
+      );
     }
 
-    return this.buildEnrollmentResponse(updated, updated.section.course, updated.section, updated.section.semester);
+    return this.buildEnrollmentResponse(
+      updated,
+      updated.section.course,
+      updated.section,
+      updated.section.semester,
+    );
   }
 
   async getTeachingCourses(userId: number): Promise<EnrollmentResponseDto[]> {
@@ -397,7 +478,7 @@ export class EnrollmentsService {
   private async buildInstructorEnrollmentView(
     course: Course,
     section: CourseSection,
-    semester: Semester
+    semester: Semester,
   ): Promise<any> {
     return {
       sectionId: section.id,
@@ -426,7 +507,9 @@ export class EnrollmentsService {
     };
   }
 
-  async getSectionStudents(sectionId: number): Promise<EnrollmentResponseDto[]> {
+  async getSectionStudents(
+    sectionId: number,
+  ): Promise<EnrollmentResponseDto[]> {
     const enrollments = await this.enrollmentRepository.find({
       where: {
         sectionId,
@@ -437,7 +520,14 @@ export class EnrollmentsService {
     });
 
     return Promise.all(
-      enrollments.map((e) => this.buildEnrollmentResponse(e, e.section.course, e.section, e.section.semester))
+      enrollments.map((e) =>
+        this.buildEnrollmentResponse(
+          e,
+          e.section.course,
+          e.section,
+          e.section.semester,
+        ),
+      ),
     );
   }
 
@@ -447,7 +537,9 @@ export class EnrollmentsService {
     return [];
   }
 
-  async getEnrollmentById(enrollmentId: number): Promise<EnrollmentResponseDto> {
+  async getEnrollmentById(
+    enrollmentId: number,
+  ): Promise<EnrollmentResponseDto> {
     const enrollment = await this.enrollmentRepository.findOne({
       where: { id: enrollmentId },
       relations: ['section', 'section.course', 'section.semester'],
@@ -455,12 +547,20 @@ export class EnrollmentsService {
 
     if (!enrollment) throw new EnrollmentNotFoundException();
 
-    return this.buildEnrollmentResponse(enrollment, enrollment.section.course, enrollment.section, enrollment.section.semester);
+    return this.buildEnrollmentResponse(
+      enrollment,
+      enrollment.section.course,
+      enrollment.section,
+      enrollment.section.semester,
+    );
   }
 
   // Private helper methods
 
-  private async validatePrerequisites(userId: number, courseId: number): Promise<void> {
+  private async validatePrerequisites(
+    userId: number,
+    courseId: number,
+  ): Promise<void> {
     const prerequisites = await this.prerequisiteRepository.find({
       where: { courseId },
       relations: ['prerequisiteCourse'],
@@ -473,26 +573,33 @@ export class EnrollmentsService {
         .createQueryBuilder('enrollment')
         .leftJoinAndSelect('enrollment.section', 'section')
         .where('enrollment.userId = :userId', { userId })
-        .andWhere('section.courseId = :courseId', { courseId: prereq.prerequisiteCourseId })
-        .andWhere('enrollment.status = :status', { status: EnrollmentStatus.COMPLETED })
+        .andWhere('section.courseId = :courseId', {
+          courseId: prereq.prerequisiteCourseId,
+        })
+        .andWhere('enrollment.status = :status', {
+          status: EnrollmentStatus.COMPLETED,
+        })
         .getOne();
 
       if (!completed) {
         throw new PrerequisiteNotMetException(
-          `Prerequisite course ${prereq.prerequisiteCourse.code} not completed`
+          `Prerequisite course ${prereq.prerequisiteCourse.code} not completed`,
         );
       }
 
       // Check if grade meets B- threshold for best grade policy
       if (completed.grade && !this.isGradeAcceptable(completed.grade)) {
         throw new PrerequisiteNotMetException(
-          `Prerequisite course grade must be B- or higher`
+          `Prerequisite course grade must be B- or higher`,
         );
       }
     }
   }
 
-  private async checkPrerequisites(userId: number, courseId: number): Promise<boolean> {
+  private async checkPrerequisites(
+    userId: number,
+    courseId: number,
+  ): Promise<boolean> {
     try {
       await this.validatePrerequisites(userId, courseId);
       return true;
@@ -501,7 +608,10 @@ export class EnrollmentsService {
     }
   }
 
-  private async validateScheduleConflict(userId: number, newSectionId: number): Promise<void> {
+  private async validateScheduleConflict(
+    userId: number,
+    newSectionId: number,
+  ): Promise<void> {
     const newSection = await this.sectionRepository.findOne({
       where: { id: newSectionId },
       relations: ['schedules'],
@@ -533,7 +643,10 @@ export class EnrollmentsService {
     }
   }
 
-  private hasScheduleConflict(schedule1: CourseSchedule, schedule2: CourseSchedule): boolean {
+  private hasScheduleConflict(
+    schedule1: CourseSchedule,
+    schedule2: CourseSchedule,
+  ): boolean {
     if (schedule1.dayOfWeek !== schedule2.dayOfWeek) return false;
 
     const start1 = this.timeToMinutes(schedule1.startTime);
@@ -554,8 +667,10 @@ export class EnrollmentsService {
     const semesterStart = new Date(semester.startDate);
     const semesterEnd = new Date(semester.endDate);
 
-    const totalDays = (semesterEnd.getTime() - semesterStart.getTime()) / (1000 * 60 * 60 * 24);
-    const elapsedDays = (now.getTime() - semesterStart.getTime()) / (1000 * 60 * 60 * 24);
+    const totalDays =
+      (semesterEnd.getTime() - semesterStart.getTime()) / (1000 * 60 * 60 * 24);
+    const elapsedDays =
+      (now.getTime() - semesterStart.getTime()) / (1000 * 60 * 60 * 24);
     const percentageElapsed = elapsedDays / totalDays;
 
     return percentageElapsed < this.DROP_DEADLINE_PERCENTAGE;
@@ -584,13 +699,15 @@ export class EnrollmentsService {
     enrollment: CourseEnrollment,
     course: Course,
     section: CourseSection,
-    semester: Semester
+    semester: Semester,
   ): Promise<EnrollmentResponseDto> {
-    const canDrop = enrollment.status === EnrollmentStatus.ENROLLED
-      ? await this.isWithinDropDeadline(semester)
-      : false;
+    const canDrop =
+      enrollment.status === EnrollmentStatus.ENROLLED
+        ? await this.isWithinDropDeadline(semester)
+        : false;
 
-    const dropDeadline = semester && canDrop ? this.calculateDropDeadline(semester) : null;
+    const dropDeadline =
+      semester && canDrop ? this.calculateDropDeadline(semester) : null;
 
     // Get instructor - temporarily disabled
     const instructor: any = null;
@@ -612,8 +729,12 @@ export class EnrollmentsService {
           .createQueryBuilder('enrollment')
           .leftJoinAndSelect('enrollment.section', 'section')
           .where('enrollment.userId = :userId', { userId: enrollment.userId })
-          .andWhere('section.courseId = :courseId', { courseId: p.prerequisiteCourseId })
-          .andWhere('enrollment.status = :status', { status: EnrollmentStatus.COMPLETED })
+          .andWhere('section.courseId = :courseId', {
+            courseId: p.prerequisiteCourseId,
+          })
+          .andWhere('enrollment.status = :status', {
+            status: EnrollmentStatus.COMPLETED,
+          })
           .getOne();
 
         return {
@@ -626,7 +747,7 @@ export class EnrollmentsService {
           studentCompleted: !!studentCompletion,
           studentGrade: studentCompletion?.grade || null,
         };
-      })
+      }),
     );
 
     return {
@@ -718,20 +839,33 @@ export class EnrollmentsService {
     });
     if (existing) throw new InstructorAlreadyAssignedException();
 
-    const assignment = this.instructorRepository.create({ sectionId, userId, role });
+    const assignment = this.instructorRepository.create({
+      sectionId,
+      userId,
+      role,
+    });
     const saved = await this.instructorRepository.save(assignment);
 
-    this.logger.log(`Instructor ${userId} assigned to section ${sectionId} as ${role}`);
+    this.logger.log(
+      `Instructor ${userId} assigned to section ${sectionId} as ${role}`,
+    );
 
     const full = await this.instructorRepository.findOne({
       where: { id: saved.id },
       relations: ['instructor'],
     });
-    return this.buildInstructorResponse(full as CourseInstructor & { instructor: User });
+    return this.buildInstructorResponse(
+      full as CourseInstructor & { instructor: User },
+    );
   }
 
-  async removeInstructor(sectionId: number, assignmentId: number): Promise<void> {
-    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+  async removeInstructor(
+    sectionId: number,
+    assignmentId: number,
+  ): Promise<void> {
+    const section = await this.sectionRepository.findOne({
+      where: { id: sectionId },
+    });
     if (!section) throw new SectionNotFoundException(sectionId);
 
     const assignment = await this.instructorRepository.findOne({
@@ -740,11 +874,17 @@ export class EnrollmentsService {
     if (!assignment) throw new InstructorAssignmentNotFoundException();
 
     await this.instructorRepository.remove(assignment);
-    this.logger.log(`Instructor assignment ${assignmentId} removed from section ${sectionId}`);
+    this.logger.log(
+      `Instructor assignment ${assignmentId} removed from section ${sectionId}`,
+    );
   }
 
-  async getSectionInstructors(sectionId: number): Promise<InstructorAssignmentResponseDto[]> {
-    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+  async getSectionInstructors(
+    sectionId: number,
+  ): Promise<InstructorAssignmentResponseDto[]> {
+    const section = await this.sectionRepository.findOne({
+      where: { id: sectionId },
+    });
     if (!section) throw new SectionNotFoundException(sectionId);
 
     const assignments = await this.instructorRepository.find({
@@ -754,8 +894,45 @@ export class EnrollmentsService {
     });
 
     return assignments.map((a) =>
-      this.buildInstructorResponse(a as CourseInstructor & { instructor: User }),
+      this.buildInstructorResponse(
+        a as CourseInstructor & { instructor: User },
+      ),
     );
+  }
+
+  async getSectionInstructorSummary(sectionId: number): Promise<{
+    instructorId: number | null;
+    instructor: { userId: number; fullName: string; email: string } | null;
+  }> {
+    const section = await this.sectionRepository.findOne({
+      where: { id: sectionId },
+    });
+    if (!section) throw new SectionNotFoundException(sectionId);
+
+    const assignment = await this.instructorRepository.findOne({
+      where: { sectionId },
+      relations: ['instructor'],
+      order: { assignedAt: 'ASC' },
+    });
+
+    if (!assignment) {
+      return {
+        instructorId: null,
+        instructor: null,
+      };
+    }
+
+    const instructor = assignment.instructor as User | undefined;
+    return {
+      instructorId: Number(assignment.userId),
+      instructor: instructor
+        ? {
+            userId: Number(instructor.userId),
+            fullName: instructor.fullName,
+            email: instructor.email,
+          }
+        : null,
+    };
   }
 
   // ─── TA Assignment ────────────────────────────────────────────────────────
@@ -794,7 +971,11 @@ export class EnrollmentsService {
     });
     if (existing) throw new TAAlreadyAssignedException();
 
-    const assignment = this.taRepository.create({ sectionId, userId, responsibilities });
+    const assignment = this.taRepository.create({
+      sectionId,
+      userId,
+      responsibilities,
+    });
     const saved = await this.taRepository.save(assignment);
 
     this.logger.log(`TA ${userId} assigned to section ${sectionId}`);
@@ -807,7 +988,9 @@ export class EnrollmentsService {
   }
 
   async removeTA(sectionId: number, assignmentId: number): Promise<void> {
-    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+    const section = await this.sectionRepository.findOne({
+      where: { id: sectionId },
+    });
     if (!section) throw new SectionNotFoundException(sectionId);
 
     const assignment = await this.taRepository.findOne({
@@ -816,11 +999,15 @@ export class EnrollmentsService {
     if (!assignment) throw new TAAssignmentNotFoundException();
 
     await this.taRepository.remove(assignment);
-    this.logger.log(`TA assignment ${assignmentId} removed from section ${sectionId}`);
+    this.logger.log(
+      `TA assignment ${assignmentId} removed from section ${sectionId}`,
+    );
   }
 
   async getSectionTAs(sectionId: number): Promise<TAAssignmentResponseDto[]> {
-    const section = await this.sectionRepository.findOne({ where: { id: sectionId } });
+    const section = await this.sectionRepository.findOne({
+      where: { id: sectionId },
+    });
     if (!section) throw new SectionNotFoundException(sectionId);
 
     const assignments = await this.taRepository.find({
@@ -829,6 +1016,32 @@ export class EnrollmentsService {
       order: { assignedAt: 'ASC' },
     });
 
-    return assignments.map((a) => this.buildTAResponse(a as CourseTA & { ta: User }));
+    return assignments.map((a) =>
+      this.buildTAResponse(a as CourseTA & { ta: User }),
+    );
+  }
+
+  async getSectionTASummaries(
+    sectionId: number,
+  ): Promise<Array<{ userId: number; fullName: string; email: string }>> {
+    const section = await this.sectionRepository.findOne({
+      where: { id: sectionId },
+    });
+    if (!section) throw new SectionNotFoundException(sectionId);
+
+    const assignments = await this.taRepository.find({
+      where: { sectionId },
+      relations: ['ta'],
+      order: { assignedAt: 'ASC' },
+    });
+
+    return assignments.map((assignment) => {
+      const ta = assignment.ta as User | undefined;
+      return {
+        userId: Number(assignment.userId),
+        fullName: ta?.fullName || '',
+        email: ta?.email || '',
+      };
+    });
   }
 }
