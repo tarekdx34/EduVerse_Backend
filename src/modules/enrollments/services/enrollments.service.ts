@@ -377,6 +377,55 @@ export class EnrollmentsService {
     return this.buildEnrollmentResponse(updated, updated.section.course, updated.section, updated.section.semester);
   }
 
+  async getTeachingCourses(userId: number): Promise<EnrollmentResponseDto[]> {
+    const assignments = await this.instructorRepository.find({
+      where: { userId },
+      relations: ['section', 'section.course', 'section.semester'],
+    });
+
+    if (assignments.length === 0) return [];
+
+    return Promise.all(
+      assignments.map(async (a) => {
+        // We reuse the buildEnrollmentResponse logic but for the instructor
+        // We can pass a dummy student ID or modify it to handle instructor view
+        return this.buildInstructorEnrollmentView(a.section.course, a.section, a.section.semester);
+      }),
+    );
+  }
+
+  private async buildInstructorEnrollmentView(
+    course: Course,
+    section: CourseSection,
+    semester: Semester
+  ): Promise<any> {
+    return {
+      sectionId: section.id,
+      courseId: course.id,
+      course: {
+        id: course.id,
+        name: course.name,
+        code: course.code,
+        description: course.description,
+        credits: course.credits,
+        level: course.level,
+      },
+      section: {
+        id: section.id,
+        sectionNumber: section.sectionNumber,
+        maxCapacity: section.maxCapacity,
+        currentEnrollment: section.currentEnrollment,
+        location: section.location,
+      },
+      semester: {
+        id: semester.id,
+        name: semester.name,
+        startDate: semester.startDate,
+        endDate: semester.endDate,
+      }
+    };
+  }
+
   async getSectionStudents(sectionId: number): Promise<EnrollmentResponseDto[]> {
     const enrollments = await this.enrollmentRepository.find({
       where: {
