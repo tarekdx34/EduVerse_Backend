@@ -32,7 +32,10 @@ export class AuditController {
 
   @Get('logs')
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Get audit logs (paginated, filterable)' })
+  @ApiOperation({
+    summary: 'Get audit logs (paginated, filterable)',
+    description: 'Retrieves comprehensive audit trails for writes/deletes occurring system-wide. Access rules: ADMIN, IT_ADMIN. Uses table: `audit_logs`.',
+  })
   @ApiResponse({ status: 200, description: 'Audit logs returned' })
   async getAuditLogs(@Query() query: AuditLogQueryDto) {
     return this.auditService.getAuditLogs(query);
@@ -40,7 +43,10 @@ export class AuditController {
 
   @Post('logs/export')
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Export audit logs' })
+  @ApiOperation({
+    summary: 'Export audit logs',
+    description: 'Export audit functionality dumping logs to CSV or JSON formats. Access rules: IT_ADMIN. Uses table: `audit_logs`.',
+  })
   @ApiResponse({ status: 200, description: 'Export data returned' })
   async exportAuditLogs(@Body() dto: ExportLogsDto) {
     return this.auditService.exportAuditLogs(dto);
@@ -48,7 +54,10 @@ export class AuditController {
 
   @Get('logs/entity/:type/:id')
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Get audit history for a specific entity' })
+  @ApiOperation({
+    summary: 'Get audit history for a specific entity',
+    description: 'Retrieves historical changes tied to a specific entity map based on its type/id. Access rules: ADMIN, IT_ADMIN. Uses table: `audit_logs`.',
+  })
   @ApiParam({ name: 'type', description: 'Entity type (e.g. user, course)' })
   @ApiParam({ name: 'id', description: 'Entity ID', type: Number })
   @ApiResponse({ status: 200, description: 'Entity audit history returned' })

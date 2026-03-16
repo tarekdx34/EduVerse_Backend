@@ -33,7 +33,10 @@ export class IntegrationsController {
 
   @Get()
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Get all API integrations' })
+  @ApiOperation({
+    summary: 'Get all API integrations',
+    description: 'Retrieves complete list of established interconnected APIs integrations configs mapping provider keys. Access rules: ADMIN, IT_ADMIN. Uses table: `api_integrations`.',
+  })
   @ApiResponse({ status: 200, description: 'Integrations returned' })
   async getAll() {
     return this.integrationsService.getAll();
@@ -41,7 +44,10 @@ export class IntegrationsController {
 
   @Post()
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Create a new API integration' })
+  @ApiOperation({
+    summary: 'Create a new API integration',
+    description: 'Registers brand new secret external API connections encrypted in storage structure for integrations like SSO/LMS. Access rules: IT_ADMIN. Uses table: `api_integrations`.',
+  })
   @ApiResponse({ status: 201, description: 'Integration created' })
   async create(@Body() dto: CreateIntegrationDto, @Request() req) {
     const userId = req.user.userId || req.user.id;
@@ -50,7 +56,10 @@ export class IntegrationsController {
 
   @Get(':id')
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Get a specific integration' })
+  @ApiOperation({
+    summary: 'Get a specific integration',
+    description: 'Queries integration specific detail payload configs. Access rules: ADMIN, IT_ADMIN. Uses table: `api_integrations`.',
+  })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Integration returned' })
   async getById(@Param('id', ParseIntPipe) id: number) {
@@ -59,7 +68,10 @@ export class IntegrationsController {
 
   @Put(':id')
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Update an integration' })
+  @ApiOperation({
+    summary: 'Update an integration',
+    description: 'Changes values stored to connected integrations structures mappings. Access rules: IT_ADMIN. Uses table: `api_integrations`.',
+  })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Integration updated' })
   async update(
@@ -73,7 +85,10 @@ export class IntegrationsController {
 
   @Delete(':id')
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Delete an integration' })
+  @ApiOperation({
+    summary: 'Delete an integration',
+    description: 'Destroy existing integration parameters rendering connected systems unusable instantly. Access rules: IT_ADMIN. Uses table: `api_integrations`.',
+  })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Integration deleted' })
   async delete(@Param('id', ParseIntPipe) id: number) {
@@ -82,7 +97,10 @@ export class IntegrationsController {
 
   @Post(':id/test')
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Test integration connection' })
+  @ApiOperation({
+    summary: 'Test integration connection',
+    description: 'Force dispatching probe payload confirming health status of external platform. Access rules: IT_ADMIN. Uses table: `api_integrations`.',
+  })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Test result returned' })
   async testConnection(@Param('id', ParseIntPipe) id: number) {
@@ -91,7 +109,10 @@ export class IntegrationsController {
 
   @Post(':id/sync')
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Trigger integration sync' })
+  @ApiOperation({
+    summary: 'Trigger integration sync',
+    description: 'Starts external pull data mechanisms manually fetching data streams into storage contexts. Access rules: IT_ADMIN. Uses table: `api_integrations`.',
+  })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Sync triggered' })
   async triggerSync(@Param('id', ParseIntPipe) id: number) {

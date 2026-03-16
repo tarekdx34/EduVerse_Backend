@@ -36,7 +36,10 @@ export class SettingsController {
   // ── Static routes FIRST ────────────────────────────────────
 
   @Get('branding')
-  @ApiOperation({ summary: 'Get branding settings (public)' })
+  @ApiOperation({
+    summary: 'Get branding settings (public)',
+    description: 'Retrieves publicly accessible branding configuration like logos, UI colors, and custom CSS. No auth required. Uses table: `branding_settings`.',
+  })
   @ApiResponse({ status: 200, description: 'Branding settings returned' })
   @ApiQuery({ name: 'campusId', required: false, type: Number })
   async getBranding(@Query('campusId') campusId?: number) {
@@ -45,7 +48,10 @@ export class SettingsController {
 
   @Put('branding/:campusId')
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Update branding settings' })
+  @ApiOperation({
+    summary: 'Update branding settings',
+    description: 'Updates UI configurations like primary and secondary UI colors. Access rules: ADMIN, IT_ADMIN. Uses table: `branding_settings`.',
+  })
   @ApiParam({ name: 'campusId', type: Number })
   @ApiResponse({ status: 200, description: 'Branding updated' })
   async updateBranding(
@@ -59,7 +65,10 @@ export class SettingsController {
 
   @Get('rate-limits')
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Get rate limit configurations' })
+  @ApiOperation({
+    summary: 'Get rate limit configurations',
+    description: 'Fetches configured thresholds mapping maximum requests dynamically loaded to endpoint routers. Access rules: IT_ADMIN. Uses table: `api_rate_limits`.',
+  })
   @ApiResponse({ status: 200, description: 'Rate limits returned' })
   async getRateLimits() {
     return this.settingsService.getRateLimits();
@@ -67,7 +76,10 @@ export class SettingsController {
 
   @Put('rate-limits/:id')
   @Roles(RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Update a rate limit configuration' })
+  @ApiOperation({
+    summary: 'Update a rate limit configuration',
+    description: 'Updates limits applied to specified API route matching endpoints. Access rules: IT_ADMIN. Uses table: `api_rate_limits`.',
+  })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Rate limit updated' })
   async updateRateLimit(
@@ -81,7 +93,10 @@ export class SettingsController {
 
   @Get()
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Get all system settings' })
+  @ApiOperation({
+    summary: 'Get all system settings',
+    description: 'Retrieves active universal application configurations across cache structures. Access rules: ADMIN, IT_ADMIN. Uses table: `system_settings`.',
+  })
   @ApiResponse({ status: 200, description: 'All settings returned' })
   async getAllSettings() {
     return this.settingsService.getAllSettings();
@@ -89,7 +104,10 @@ export class SettingsController {
 
   @Put()
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Update multiple system settings' })
+  @ApiOperation({
+    summary: 'Update multiple system settings',
+    description: 'Batch updates generic property map array of system settings. Access rules: ADMIN, IT_ADMIN. Uses table: `system_settings`.',
+  })
   @ApiResponse({ status: 200, description: 'Settings updated' })
   async updateSettings(@Body() dto: UpdateSettingsDto, @Request() req) {
     const userId = req.user.userId || req.user.id;
@@ -100,7 +118,10 @@ export class SettingsController {
 
   @Get(':key')
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Get a specific setting by key' })
+  @ApiOperation({
+    summary: 'Get a specific setting by key',
+    description: 'Fast retrieval query locating single string cache index key setting. Access rules: ADMIN, IT_ADMIN. Uses table: `system_settings`.',
+  })
   @ApiParam({ name: 'key', description: 'Setting key' })
   @ApiResponse({ status: 200, description: 'Setting returned' })
   async getSetting(@Param('key') key: string) {
@@ -109,7 +130,10 @@ export class SettingsController {
 
   @Put(':key')
   @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({ summary: 'Update a specific setting by key' })
+  @ApiOperation({
+    summary: 'Update a specific setting by key',
+    description: 'Upserts singular setting instance modifying existing string configurations. Access rules: ADMIN, IT_ADMIN. Uses table: `system_settings`.',
+  })
   @ApiParam({ name: 'key', description: 'Setting key' })
   @ApiResponse({ status: 200, description: 'Setting updated' })
   async updateSetting(
