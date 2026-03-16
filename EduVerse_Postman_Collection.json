@@ -79,6 +79,10 @@
       "key": "structure_id",
       "type": "string",
       "value": "1"
+    },
+    {
+      "key": "createdAlertId",
+      "value": ""
     }
   ],
   "item": [
@@ -100,9 +104,9 @@
               "raw": "{\"email\":\"student.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":false}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -127,9 +131,9 @@
               "raw": "{\"email\":\"instructor.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":false}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -154,9 +158,9 @@
               "raw": "{\"email\":\"admin.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":false}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -181,9 +185,9 @@
               "raw": "{\"email\":\"ta.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":false}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -208,9 +212,9 @@
               "raw": "{\"email\":\"it_admin.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":false}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -231,9 +235,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/auth/me",
+              "raw": "{{baseUrl}}/api/auth/me",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -254,9 +258,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/auth/me",
+              "raw": "{{baseUrl}}/api/auth/me",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -277,9 +281,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/auth/logout",
+              "raw": "{{baseUrl}}/api/auth/logout",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -305,9 +309,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users",
+              "raw": "{{baseUrl}}/api/admin/users",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -328,9 +332,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users/57",
+              "raw": "{{baseUrl}}/api/admin/users/57",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -360,9 +364,9 @@
               "raw": "{\"firstName\":\"StudentUpdated\",\"lastName\":\"Tarek\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/admin/users/57",
+              "raw": "{{baseUrl}}/api/admin/users/57",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -384,9 +388,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users?page=1&size=10",
+              "raw": "{{baseUrl}}/api/admin/users?page=1&size=10",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -426,9 +430,9 @@
               "raw": "{\"status\":\"active\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/admin/users/57/status",
+              "raw": "{{baseUrl}}/api/admin/users/57/status",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -451,9 +455,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users/57/permissions",
+              "raw": "{{baseUrl}}/api/admin/users/57/permissions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -476,9 +480,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/roles",
+              "raw": "{{baseUrl}}/api/admin/roles",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -499,9 +503,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/permissions",
+              "raw": "{{baseUrl}}/api/admin/permissions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -527,9 +531,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/campuses",
+              "raw": "{{baseUrl}}/api/campuses",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -549,9 +553,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/campuses/1",
+              "raw": "{{baseUrl}}/api/campuses/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -580,9 +584,9 @@
               "raw": "{\"name\":\"Test Campus\",\"code\":\"TC01\",\"address\":\"123 Test St\",\"city\":\"Cairo\",\"country\":\"Egypt\",\"phone\":\"+20 123 456 7890\",\"email\":\"campus@test.com\",\"timezone\":\"Africa/Cairo\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/campuses",
+              "raw": "{{baseUrl}}/api/campuses",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -610,9 +614,9 @@
               "raw": "{\"name\":\"Updated Campus Name\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/campuses/1",
+              "raw": "{{baseUrl}}/api/campuses/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -638,9 +642,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/campuses/1/departments",
+              "raw": "{{baseUrl}}/api/campuses/1/departments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -662,9 +666,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/departments/1",
+              "raw": "{{baseUrl}}/api/departments/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -693,9 +697,9 @@
               "raw": "{\"campusId\":1,\"name\":\"Test Department\",\"code\":\"TD01\",\"description\":\"A test department\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/departments",
+              "raw": "{{baseUrl}}/api/departments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -723,9 +727,9 @@
               "raw": "{\"name\":\"Updated Department\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/departments/1",
+              "raw": "{{baseUrl}}/api/departments/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -751,9 +755,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/departments/1/programs",
+              "raw": "{{baseUrl}}/api/departments/1/programs",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -775,9 +779,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/programs/1",
+              "raw": "{{baseUrl}}/api/programs/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -806,9 +810,9 @@
               "raw": "{\"departmentId\":1,\"name\":\"Test Program\",\"code\":\"TP01\",\"degreeType\":\"bachelor\",\"durationYears\":4,\"description\":\"A test program\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/programs",
+              "raw": "{{baseUrl}}/api/programs",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -836,9 +840,9 @@
               "raw": "{\"name\":\"Updated Program\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/programs/1",
+              "raw": "{{baseUrl}}/api/programs/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -864,9 +868,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/semesters",
+              "raw": "{{baseUrl}}/api/semesters",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -886,9 +890,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/semesters/current",
+              "raw": "{{baseUrl}}/api/semesters/current",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -909,9 +913,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/semesters/1",
+              "raw": "{{baseUrl}}/api/semesters/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -940,9 +944,9 @@
               "raw": "{\"name\":\"Fall 2026\",\"code\":\"F2026\",\"startDate\":\"2026-09-01\",\"endDate\":\"2026-12-31\",\"registrationStart\":\"2026-08-01\",\"registrationEnd\":\"2026-08-25\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/semesters",
+              "raw": "{{baseUrl}}/api/semesters",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -970,9 +974,9 @@
               "raw": "{\"name\":\"Fall 2026 Updated\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/semesters/1",
+              "raw": "{{baseUrl}}/api/semesters/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -998,9 +1002,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses",
+              "raw": "{{baseUrl}}/api/courses",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1020,9 +1024,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1",
+              "raw": "{{baseUrl}}/api/courses/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1043,9 +1047,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/department/1",
+              "raw": "{{baseUrl}}/api/courses/department/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1075,9 +1079,9 @@
               "raw": "{\"departmentId\":1,\"name\":\"Test Course\",\"code\":\"TC101\",\"description\":\"A test course for postman\",\"credits\":3,\"level\":\"beginner\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses",
+              "raw": "{{baseUrl}}/api/courses",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1105,9 +1109,9 @@
               "raw": "{\"name\":\"Updated Course Name\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1",
+              "raw": "{{baseUrl}}/api/courses/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1128,9 +1132,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/2/prerequisites",
+              "raw": "{{baseUrl}}/api/courses/2/prerequisites",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1160,9 +1164,9 @@
               "raw": "{\"prerequisiteCourseId\":1,\"isMandatory\":true}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/3/prerequisites",
+              "raw": "{{baseUrl}}/api/courses/3/prerequisites",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1189,9 +1193,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/sections/course/1",
+              "raw": "{{baseUrl}}/api/sections/course/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1213,9 +1217,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/sections/11",
+              "raw": "{{baseUrl}}/api/sections/11",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1244,9 +1248,9 @@
               "raw": "{\"courseId\":1,\"semesterId\":1,\"maxCapacity\":30,\"location\":\"Room A101\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/sections",
+              "raw": "{{baseUrl}}/api/sections",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1274,9 +1278,9 @@
               "raw": "{\"maxCapacity\":35,\"location\":\"Room B202\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/sections/11",
+              "raw": "{{baseUrl}}/api/sections/11",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1305,9 +1309,9 @@
               "raw": "{\"action\":\"increment\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/sections/11/enrollment",
+              "raw": "{{baseUrl}}/api/sections/11/enrollment",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1334,9 +1338,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/schedules/section/11",
+              "raw": "{{baseUrl}}/api/schedules/section/11",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1358,9 +1362,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/schedules/1",
+              "raw": "{{baseUrl}}/api/schedules/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1389,9 +1393,9 @@
               "raw": "{\"dayOfWeek\":\"monday\",\"startTime\":\"09:00\",\"endTime\":\"10:30\",\"room\":\"A101\",\"building\":\"Main Building\",\"scheduleType\":\"lecture\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/schedules/section/11",
+              "raw": "{{baseUrl}}/api/schedules/section/11",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1418,9 +1422,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/enrollments/my-courses",
+              "raw": "{{baseUrl}}/api/enrollments/my-courses",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1441,9 +1445,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/enrollments/available",
+              "raw": "{{baseUrl}}/api/enrollments/available",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1472,9 +1476,9 @@
               "raw": "{\"sectionId\":11}"
             },
             "url": {
-              "raw": "{{base_url}}/api/enrollments/register",
+              "raw": "{{baseUrl}}/api/enrollments/register",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1495,9 +1499,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/enrollments/course/1/list",
+              "raw": "{{baseUrl}}/api/enrollments/course/1/list",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1520,9 +1524,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/enrollments/section/11/students",
+              "raw": "{{baseUrl}}/api/enrollments/section/11/students",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1545,9 +1549,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/enrollments/section/11/waitlist",
+              "raw": "{{baseUrl}}/api/enrollments/section/11/waitlist",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1570,9 +1574,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/enrollments/course/1/list",
+              "raw": "{{baseUrl}}/api/enrollments/course/1/list",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1600,9 +1604,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/assignments",
+              "raw": "{{baseUrl}}/api/assignments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1622,9 +1626,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/assignments?courseId=1",
+              "raw": "{{baseUrl}}/api/assignments?courseId=1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1650,9 +1654,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/assignments/3",
+              "raw": "{{baseUrl}}/api/assignments/3",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1681,9 +1685,9 @@
               "raw": "{\"courseId\":1,\"title\":\"Postman Test Assignment\",\"description\":\"An assignment created from Postman\",\"instructions\":\"Complete the tasks listed below\",\"submissionType\":\"file\",\"maxScore\":100,\"weight\":15,\"dueDate\":\"2026-06-15T23:59:59Z\",\"availableFrom\":\"2026-06-01T00:00:00Z\",\"lateSubmissionAllowed\":true,\"latePenaltyPercent\":10,\"maxFileSizeMb\":10,\"allowedFileTypes\":\"[\\\"pdf\\\",\\\"docx\\\",\\\"zip\\\"]\",\"status\":\"published\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/assignments",
+              "raw": "{{baseUrl}}/api/assignments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1711,9 +1715,9 @@
               "raw": "{\"title\":\"Updated Assignment Title\",\"maxScore\":150}"
             },
             "url": {
-              "raw": "{{base_url}}/api/assignments/3",
+              "raw": "{{baseUrl}}/api/assignments/3",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1742,9 +1746,9 @@
               "raw": "{\"status\":\"published\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/assignments/3/status",
+              "raw": "{{baseUrl}}/api/assignments/3/status",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1774,9 +1778,9 @@
               "raw": "{\"submissionText\":\"This is my submission for the assignment.\",\"submissionLink\":\"https://github.com/student/project\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/assignments/3/submit",
+              "raw": "{{baseUrl}}/api/assignments/3/submit",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1798,9 +1802,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/assignments/3/submissions/my",
+              "raw": "{{baseUrl}}/api/assignments/3/submissions/my",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1823,9 +1827,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/assignments/3/submissions",
+              "raw": "{{baseUrl}}/api/assignments/3/submissions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1855,9 +1859,9 @@
               "raw": "{\"score\":85,\"feedback\":\"Well done! Consider improving the conclusion.\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/assignments/3/submissions/1/grade",
+              "raw": "{{baseUrl}}/api/assignments/3/submissions/1/grade",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1889,9 +1893,9 @@
               "raw": "{\"courseId\":1,\"title\":\"Should Fail\"}"
             },
             "url": {
-              "raw": "{{base_url}}/api/assignments",
+              "raw": "{{baseUrl}}/api/assignments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1916,9 +1920,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/grades",
+              "raw": "{{baseUrl}}/api/grades",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1938,9 +1942,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/grades?courseId=1",
+              "raw": "{{baseUrl}}/api/grades?courseId=1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1966,9 +1970,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/grades/my",
+              "raw": "{{baseUrl}}/api/grades/my",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -1989,9 +1993,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/grades/transcript/57",
+              "raw": "{{baseUrl}}/api/grades/transcript/57",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2013,9 +2017,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/grades/gpa/57",
+              "raw": "{{baseUrl}}/api/grades/gpa/57",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2037,9 +2041,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/grades/distribution/1",
+              "raw": "{{baseUrl}}/api/grades/distribution/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2061,9 +2065,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/grades",
+              "raw": "{{baseUrl}}/api/grades",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2088,9 +2092,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/rubrics?courseId=1",
+              "raw": "{{baseUrl}}/api/rubrics?courseId=1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2124,9 +2128,9 @@
               "raw": "{\"courseId\":1,\"rubricName\":\"Essay Grading Rubric\",\"description\":\"Rubric for evaluating research essays\",\"criteria\":\"[{\\\"name\\\":\\\"Content\\\",\\\"maxPoints\\\":40,\\\"description\\\":\\\"Quality of content\\\"},{\\\"name\\\":\\\"Grammar\\\",\\\"maxPoints\\\":30,\\\"description\\\":\\\"Writing quality\\\"},{\\\"name\\\":\\\"Format\\\",\\\"maxPoints\\\":30,\\\"description\\\":\\\"Proper formatting\\\"}]\",\"totalPoints\":100}"
             },
             "url": {
-              "raw": "{{base_url}}/api/rubrics",
+              "raw": "{{baseUrl}}/api/rubrics",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2151,9 +2155,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/files/search?name=test",
+              "raw": "{{baseUrl}}/api/files/search?name=test",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2180,9 +2184,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/files/recent",
+              "raw": "{{baseUrl}}/api/files/recent",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2203,9 +2207,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/files/shared",
+              "raw": "{{baseUrl}}/api/files/shared",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2234,9 +2238,9 @@
               "raw": "{\"folderName\":\"Lecture Notes\",\"courseId\":1}"
             },
             "url": {
-              "raw": "{{base_url}}/api/files/folders",
+              "raw": "{{baseUrl}}/api/files/folders",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2257,9 +2261,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/files/folders/1",
+              "raw": "{{baseUrl}}/api/files/folders/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2281,9 +2285,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/files/folders/1/children",
+              "raw": "{{baseUrl}}/api/files/folders/1/children",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2306,9 +2310,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/files/folders/1/tree",
+              "raw": "{{baseUrl}}/api/files/folders/1/tree",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -2344,9 +2348,9 @@
               "raw": "{\"sectionId\":11,\"sessionDate\":\"2026-03-02\",\"sessionType\":\"lecture\",\"startTime\":\"09:00:00\",\"endTime\":\"10:30:00\",\"location\":\"Room A101\",\"notes\":\"Week 1 intro lecture\"}"
             },
             "url": {
-              "raw": "{{base_url}}/attendance/sessions",
+              "raw": "{{baseUrl}}/attendance/sessions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2366,9 +2370,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/sessions",
+              "raw": "{{baseUrl}}/attendance/sessions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2388,9 +2392,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/sessions/1",
+              "raw": "{{baseUrl}}/attendance/sessions/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2419,9 +2423,9 @@
               "raw": "{\"location\":\"Room B202\",\"notes\":\"Moved to new room\"}"
             },
             "url": {
-              "raw": "{{base_url}}/attendance/sessions/1",
+              "raw": "{{baseUrl}}/attendance/sessions/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2450,9 +2454,9 @@
               "raw": "{\"sessionId\":1,\"userId\":57,\"attendanceStatus\":\"present\",\"notes\":\"On time\"}"
             },
             "url": {
-              "raw": "{{base_url}}/attendance/records",
+              "raw": "{{baseUrl}}/attendance/records",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2480,9 +2484,9 @@
               "raw": "{\"sessionId\":1,\"records\":[{\"userId\":57,\"attendanceStatus\":\"present\"},{\"userId\":58,\"attendanceStatus\":\"absent\",\"notes\":\"No show\"}]}"
             },
             "url": {
-              "raw": "{{base_url}}/attendance/records/batch",
+              "raw": "{{baseUrl}}/attendance/records/batch",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2503,9 +2507,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/sessions/1/records",
+              "raw": "{{baseUrl}}/attendance/sessions/1/records",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2535,9 +2539,9 @@
               "raw": "{\"attendanceStatus\":\"late\",\"notes\":\"Arrived 10 min late\"}"
             },
             "url": {
-              "raw": "{{base_url}}/attendance/records/1",
+              "raw": "{{baseUrl}}/attendance/records/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2558,9 +2562,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/my",
+              "raw": "{{baseUrl}}/attendance/my",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2580,9 +2584,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/by-student/57",
+              "raw": "{{baseUrl}}/attendance/by-student/57",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2603,9 +2607,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/by-course/1",
+              "raw": "{{baseUrl}}/attendance/by-course/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2626,9 +2630,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/summary/11",
+              "raw": "{{baseUrl}}/attendance/summary/11",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2649,9 +2653,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/trends/11",
+              "raw": "{{baseUrl}}/attendance/trends/11",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2672,9 +2676,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/report/11",
+              "raw": "{{baseUrl}}/attendance/report/11",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2695,9 +2699,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/attendance/sessions/1/close",
+              "raw": "{{baseUrl}}/attendance/sessions/1/close",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2727,9 +2731,9 @@
               "raw": "{\"sectionId\":11,\"sessionDate\":\"2026-03-02\"}"
             },
             "url": {
-              "raw": "{{base_url}}/attendance/sessions",
+              "raw": "{{baseUrl}}/attendance/sessions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "attendance",
@@ -2767,9 +2771,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/quizzes",
+              "raw": "{{baseUrl}}/quizzes",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes"
@@ -2788,9 +2792,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes",
+              "raw": "{{baseUrl}}/quizzes",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes"
@@ -2809,9 +2813,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/1",
+              "raw": "{{baseUrl}}/quizzes/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -2839,9 +2843,9 @@
               "raw": "{\"title\":\"Updated Quiz Title\",\"timeLimitMinutes\":45}"
             },
             "url": {
-              "raw": "{{base_url}}/quizzes/1",
+              "raw": "{{baseUrl}}/quizzes/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -2861,9 +2865,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/difficulty-levels",
+              "raw": "{{baseUrl}}/quizzes/difficulty-levels",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -2896,9 +2900,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/quizzes/1/questions",
+              "raw": "{{baseUrl}}/quizzes/1/questions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -2927,9 +2931,9 @@
               "raw": "{\"questionText\":\"Updated: What is the time complexity of binary search?\",\"points\":15}"
             },
             "url": {
-              "raw": "{{base_url}}/quizzes/1/questions/1",
+              "raw": "{{baseUrl}}/quizzes/1/questions/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -2964,9 +2968,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/quizzes/1/questions/reorder",
+              "raw": "{{baseUrl}}/quizzes/1/questions/reorder",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -2988,9 +2992,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/9/attempts/start",
+              "raw": "{{baseUrl}}/quizzes/9/attempts/start",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3012,9 +3016,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/attempts/5",
+              "raw": "{{baseUrl}}/quizzes/attempts/5",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3048,9 +3052,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/quizzes/attempts/5/submit",
+              "raw": "{{baseUrl}}/quizzes/attempts/5/submit",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3072,9 +3076,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/my-attempts",
+              "raw": "{{baseUrl}}/quizzes/my-attempts",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3094,9 +3098,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/attempts",
+              "raw": "{{baseUrl}}/quizzes/attempts",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3116,9 +3120,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/attempts/5/pending-grading",
+              "raw": "{{baseUrl}}/quizzes/attempts/5/pending-grading",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3153,9 +3157,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/quizzes/attempts/5/grade",
+              "raw": "{{baseUrl}}/quizzes/attempts/5/grade",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3177,9 +3181,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/1/statistics",
+              "raw": "{{baseUrl}}/quizzes/1/statistics",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3200,9 +3204,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/quizzes/progress/course/1",
+              "raw": "{{baseUrl}}/quizzes/progress/course/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes",
@@ -3232,9 +3236,9 @@
               "raw": "{\"courseId\":1,\"title\":\"Should Fail\"}"
             },
             "url": {
-              "raw": "{{base_url}}/quizzes",
+              "raw": "{{baseUrl}}/quizzes",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "quizzes"
@@ -3273,9 +3277,9 @@
                 "api",
                 "labs"
               ],
-              "raw": "{{base_url}}/api/labs",
+              "raw": "{{baseUrl}}/api/labs",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3288,9 +3292,9 @@
                 "api",
                 "labs"
               ],
-              "raw": "{{base_url}}/api/labs",
+              "raw": "{{baseUrl}}/api/labs",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Create a new lab. Roles: Instructor, TA, Admin",
@@ -3344,9 +3348,9 @@
                 "labs",
                 "1"
               ],
-              "raw": "{{base_url}}/api/labs/1",
+              "raw": "{{baseUrl}}/api/labs/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3360,9 +3364,9 @@
                 "labs",
                 "1"
               ],
-              "raw": "{{base_url}}/api/labs/1",
+              "raw": "{{baseUrl}}/api/labs/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Update lab. Roles: Instructor, TA, Admin",
@@ -3416,9 +3420,9 @@
                 "labs",
                 "1"
               ],
-              "raw": "{{base_url}}/api/labs/1",
+              "raw": "{{baseUrl}}/api/labs/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3451,9 +3455,9 @@
                 "1",
                 "instructions"
               ],
-              "raw": "{{base_url}}/api/labs/1/instructions",
+              "raw": "{{baseUrl}}/api/labs/1/instructions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3468,9 +3472,9 @@
                 "1",
                 "instructions"
               ],
-              "raw": "{{base_url}}/api/labs/1/instructions",
+              "raw": "{{baseUrl}}/api/labs/1/instructions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Add instruction to lab. Roles: Instructor, TA",
@@ -3507,9 +3511,9 @@
                 "1",
                 "submit"
               ],
-              "raw": "{{base_url}}/api/labs/1/submit",
+              "raw": "{{baseUrl}}/api/labs/1/submit",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Submit lab work. Role: Student only",
@@ -3565,9 +3569,9 @@
                 "submissions",
                 "my"
               ],
-              "raw": "{{base_url}}/api/labs/1/submissions/my",
+              "raw": "{{baseUrl}}/api/labs/1/submissions/my",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3600,9 +3604,9 @@
                 "1",
                 "submissions"
               ],
-              "raw": "{{base_url}}/api/labs/1/submissions",
+              "raw": "{{baseUrl}}/api/labs/1/submissions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3619,9 +3623,9 @@
                 "1",
                 "grade"
               ],
-              "raw": "{{base_url}}/api/labs/1/submissions/1/grade",
+              "raw": "{{baseUrl}}/api/labs/1/submissions/1/grade",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Grade a submission. Roles: Instructor, TA",
@@ -3658,9 +3662,9 @@
                 "1",
                 "attendance"
               ],
-              "raw": "{{base_url}}/api/labs/1/attendance",
+              "raw": "{{baseUrl}}/api/labs/1/attendance",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Mark student attendance. Roles: Instructor, TA",
@@ -3715,9 +3719,9 @@
                 "1",
                 "attendance"
               ],
-              "raw": "{{base_url}}/api/labs/1/attendance",
+              "raw": "{{baseUrl}}/api/labs/1/attendance",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3753,9 +3757,9 @@
                 "api",
                 "notifications"
               ],
-              "raw": "{{base_url}}/api/notifications",
+              "raw": "{{baseUrl}}/api/notifications",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3787,9 +3791,9 @@
                 "notifications",
                 "unread-count"
               ],
-              "raw": "{{base_url}}/api/notifications/unread-count",
+              "raw": "{{baseUrl}}/api/notifications/unread-count",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3803,9 +3807,9 @@
                 "notifications",
                 "send"
               ],
-              "raw": "{{base_url}}/api/notifications/send",
+              "raw": "{{baseUrl}}/api/notifications/send",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Send notification to users. Roles: Admin, IT Admin",
@@ -3860,9 +3864,9 @@
                 "1",
                 "read"
               ],
-              "raw": "{{base_url}}/api/notifications/1/read",
+              "raw": "{{baseUrl}}/api/notifications/1/read",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3894,9 +3898,9 @@
                 "notifications",
                 "read-all"
               ],
-              "raw": "{{base_url}}/api/notifications/read-all",
+              "raw": "{{baseUrl}}/api/notifications/read-all",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3928,9 +3932,9 @@
                 "notifications",
                 "1"
               ],
-              "raw": "{{base_url}}/api/notifications/1",
+              "raw": "{{baseUrl}}/api/notifications/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3962,9 +3966,9 @@
                 "notifications",
                 "clear-all"
               ],
-              "raw": "{{base_url}}/api/notifications/clear-all",
+              "raw": "{{baseUrl}}/api/notifications/clear-all",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -3996,9 +4000,9 @@
                 "notifications",
                 "preferences"
               ],
-              "raw": "{{base_url}}/api/notifications/preferences",
+              "raw": "{{baseUrl}}/api/notifications/preferences",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             }
           }
@@ -4012,9 +4016,9 @@
                 "notifications",
                 "preferences"
               ],
-              "raw": "{{base_url}}/api/notifications/preferences",
+              "raw": "{{baseUrl}}/api/notifications/preferences",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "description": "Update notification preferences",
@@ -4053,9 +4057,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations",
+              "raw": "{{baseUrl}}/api/messages/conversations",
               "path": [
                 "api",
                 "messages",
@@ -4086,9 +4090,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations",
+              "raw": "{{baseUrl}}/api/messages/conversations",
               "path": [
                 "api",
                 "messages",
@@ -4115,9 +4119,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations",
+              "raw": "{{baseUrl}}/api/messages/conversations",
               "query": [],
               "path": [
                 "api",
@@ -4140,9 +4144,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations/6?page=1&limit=50",
+              "raw": "{{baseUrl}}/api/messages/conversations/6?page=1&limit=50",
               "query": [
                 {
                   "key": "page",
@@ -4179,9 +4183,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations/6",
+              "raw": "{{baseUrl}}/api/messages/conversations/6",
               "path": [
                 "api",
                 "messages",
@@ -4213,9 +4217,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/conversations/6",
+              "raw": "{{baseUrl}}/api/messages/conversations/6",
               "path": [
                 "api",
                 "messages",
@@ -4243,9 +4247,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/6/read",
+              "raw": "{{baseUrl}}/api/messages/6/read",
               "path": [
                 "api",
                 "messages",
@@ -4269,9 +4273,9 @@
             "description": "Soft-deletes a message for the current user only. Use DELETE /api/messages/{messageId}",
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/8",
+              "raw": "{{baseUrl}}/api/messages/8",
               "path": [
                 "api",
                 "messages",
@@ -4294,9 +4298,9 @@
             "description": "Deletes a message for all participants. Only the sender can use this.",
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/9/everyone",
+              "raw": "{{baseUrl}}/api/messages/9/everyone",
               "path": [
                 "api",
                 "messages",
@@ -4319,9 +4323,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/unread-count",
+              "raw": "{{baseUrl}}/api/messages/unread-count",
               "query": [],
               "path": [
                 "api",
@@ -4344,9 +4348,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/search",
+              "raw": "{{baseUrl}}/api/messages/search",
               "query": [
                 {
                   "key": "page",
@@ -4382,9 +4386,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/messages/online-users",
+              "raw": "{{baseUrl}}/api/messages/online-users",
               "query": [],
               "path": [
                 "api",
@@ -4417,9 +4421,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions",
+              "raw": "{{baseUrl}}/api/discussions",
               "path": [
                 "api",
                 "discussions"
@@ -4445,9 +4449,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions",
+              "raw": "{{baseUrl}}/api/discussions",
               "query": [
                 {
                   "key": "page",
@@ -4482,9 +4486,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/6?page=1&limit=50",
+              "raw": "{{baseUrl}}/api/discussions/6?page=1&limit=50",
               "query": [
                 {
                   "key": "page",
@@ -4520,9 +4524,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/6",
+              "raw": "{{baseUrl}}/api/discussions/6",
               "path": [
                 "api",
                 "discussions",
@@ -4553,9 +4557,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/6/reply",
+              "raw": "{{baseUrl}}/api/discussions/6/reply",
               "path": [
                 "api",
                 "discussions",
@@ -4587,9 +4591,9 @@
             },
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/6/reply",
+              "raw": "{{baseUrl}}/api/discussions/6/reply",
               "path": [
                 "api",
                 "discussions",
@@ -4617,9 +4621,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/6/pin",
+              "raw": "{{baseUrl}}/api/discussions/6/pin",
               "path": [
                 "api",
                 "discussions",
@@ -4642,9 +4646,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/6/lock",
+              "raw": "{{baseUrl}}/api/discussions/6/lock",
               "path": [
                 "api",
                 "discussions",
@@ -4667,9 +4671,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/replies/11/mark-answer",
+              "raw": "{{baseUrl}}/api/discussions/replies/11/mark-answer",
               "path": [
                 "api",
                 "discussions",
@@ -4693,9 +4697,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/replies/11/endorse",
+              "raw": "{{baseUrl}}/api/discussions/replies/11/endorse",
               "path": [
                 "api",
                 "discussions",
@@ -4719,9 +4723,9 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
-              "raw": "{{base_url}}/api/discussions/7",
+              "raw": "{{baseUrl}}/api/discussions/7",
               "path": [
                 "api",
                 "discussions",
@@ -4770,9 +4774,9 @@
                 "api",
                 "announcements"
               ],
-              "raw": "{{base_url}}/api/announcements",
+              "raw": "{{baseUrl}}/api/announcements",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -4810,9 +4814,9 @@
                 "api",
                 "announcements"
               ],
-              "raw": "{{base_url}}/api/announcements",
+              "raw": "{{baseUrl}}/api/announcements",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -4853,9 +4857,9 @@
                 "api",
                 "announcements"
               ],
-              "raw": "{{base_url}}/api/announcements",
+              "raw": "{{baseUrl}}/api/announcements",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -4902,9 +4906,9 @@
                 "announcements",
                 "1"
               ],
-              "raw": "{{base_url}}/api/announcements/1",
+              "raw": "{{baseUrl}}/api/announcements/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -4938,9 +4942,9 @@
                 "announcements",
                 "{{announcement_id}}"
               ],
-              "raw": "{{base_url}}/api/announcements/{{announcement_id}}",
+              "raw": "{{baseUrl}}/api/announcements/{{announcement_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -4987,9 +4991,9 @@
                 "{{announcement_id}}",
                 "publish"
               ],
-              "raw": "{{base_url}}/api/announcements/{{announcement_id}}/publish",
+              "raw": "{{baseUrl}}/api/announcements/{{announcement_id}}/publish",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -5024,9 +5028,9 @@
                 "{{announcement_id}}",
                 "schedule"
               ],
-              "raw": "{{base_url}}/api/announcements/{{announcement_id}}/schedule",
+              "raw": "{{baseUrl}}/api/announcements/{{announcement_id}}/schedule",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -5073,9 +5077,9 @@
                 "1",
                 "analytics"
               ],
-              "raw": "{{base_url}}/api/announcements/1/analytics",
+              "raw": "{{baseUrl}}/api/announcements/1/analytics",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -5109,9 +5113,9 @@
                 "announcements",
                 "{{announcement_id}}"
               ],
-              "raw": "{{base_url}}/api/announcements/{{announcement_id}}",
+              "raw": "{{baseUrl}}/api/announcements/{{announcement_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ]
             },
             "header": [
@@ -5141,9 +5145,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/communities",
+              "raw": "{{baseUrl}}/api/community/communities",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5169,9 +5173,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/communities",
+              "raw": "{{baseUrl}}/api/community/communities",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5197,9 +5201,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/communities/1",
+              "raw": "{{baseUrl}}/api/community/communities/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5226,9 +5230,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/communities/2",
+              "raw": "{{baseUrl}}/api/community/communities/2",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5255,9 +5259,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/communities/1/posts",
+              "raw": "{{baseUrl}}/api/community/communities/1/posts",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5285,9 +5289,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/communities/1/posts",
+              "raw": "{{baseUrl}}/api/community/communities/1/posts",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5315,9 +5319,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/global",
+              "raw": "{{baseUrl}}/api/community/global",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5339,9 +5343,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/global?tag=study-tips",
+              "raw": "{{baseUrl}}/api/community/global?tag=study-tips",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5373,9 +5377,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/global/posts",
+              "raw": "{{baseUrl}}/api/community/global/posts",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5402,9 +5406,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/department/2",
+              "raw": "{{baseUrl}}/api/community/department/2",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5427,9 +5431,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/my-departments",
+              "raw": "{{baseUrl}}/api/community/my-departments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5451,9 +5455,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/tags",
+              "raw": "{{baseUrl}}/api/community/tags",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5479,9 +5483,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/tags",
+              "raw": "{{baseUrl}}/api/community/tags",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5507,9 +5511,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/posts/1",
+              "raw": "{{baseUrl}}/api/community/posts/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5536,9 +5540,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/posts/1/comments",
+              "raw": "{{baseUrl}}/api/community/posts/1/comments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5570,9 +5574,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/posts/1/reactions",
+              "raw": "{{baseUrl}}/api/community/posts/1/reactions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5600,9 +5604,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/community/posts/1",
+              "raw": "{{baseUrl}}/api/community/posts/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5633,9 +5637,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/schedule/my/daily",
+              "raw": "{{baseUrl}}/api/schedule/my/daily",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5678,9 +5682,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/schedule/my/weekly",
+              "raw": "{{baseUrl}}/api/schedule/my/weekly",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5722,9 +5726,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/schedule/section/1",
+              "raw": "{{baseUrl}}/api/schedule/section/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5763,9 +5767,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/schedule/academic",
+              "raw": "{{baseUrl}}/api/schedule/academic",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5810,9 +5814,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/exams/schedule",
+              "raw": "{{baseUrl}}/api/exams/schedule",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5859,9 +5863,9 @@
               "raw": "{\n  \"courseId\": 1,\n  \"semesterId\": 2,\n  \"examType\": \"midterm\",\n  \"examDate\": \"2026-04-15\",\n  \"startTime\": \"10:00:00\",\n  \"durationMinutes\": 120,\n  \"location\": \"Exam Hall A\",\n  \"instructions\": \"Bring student ID and calculator\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/exams/schedule",
+              "raw": "{{baseUrl}}/api/exams/schedule",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5900,9 +5904,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
+              "raw": "{{baseUrl}}/api/exams/schedule/{{exam_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5951,9 +5955,9 @@
               "raw": "{\n  \"location\": \"Exam Hall B\",\n  \"instructions\": \"Updated instructions: Bring student ID only\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
+              "raw": "{{baseUrl}}/api/exams/schedule/{{exam_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -5992,9 +5996,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/exams/schedule/conflicts",
+              "raw": "{{baseUrl}}/api/exams/schedule/conflicts",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6033,9 +6037,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/exams/schedule/{{exam_id}}",
+              "raw": "{{baseUrl}}/api/exams/schedule/{{exam_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6076,9 +6080,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/calendar/events",
+              "raw": "{{baseUrl}}/api/calendar/events",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6125,9 +6129,9 @@
               "raw": "{\n  \"title\": \"Office Hours\",\n  \"description\": \"Weekly office hours for students\",\n  \"eventType\": \"meeting\",\n  \"startTime\": \"2026-03-10T14:00:00.000Z\",\n  \"endTime\": \"2026-03-10T16:00:00.000Z\",\n  \"location\": \"Room 305\",\n  \"color\": \"#10B981\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/calendar/events",
+              "raw": "{{baseUrl}}/api/calendar/events",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6166,9 +6170,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
+              "raw": "{{baseUrl}}/api/calendar/events/{{calendar_event_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6216,9 +6220,9 @@
               "raw": "{\n  \"title\": \"Updated Office Hours\",\n  \"location\": \"Room 310\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
+              "raw": "{{baseUrl}}/api/calendar/events/{{calendar_event_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6257,9 +6261,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/calendar/events/{{calendar_event_id}}",
+              "raw": "{{baseUrl}}/api/calendar/events/{{calendar_event_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6300,9 +6304,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/calendar/integrations",
+              "raw": "{{baseUrl}}/api/calendar/integrations",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6348,9 +6352,9 @@
               "raw": "{\n  \"calendarType\": \"google\",\n  \"accessToken\": \"google_oauth_access_token\",\n  \"refreshToken\": \"google_oauth_refresh_token\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/calendar/integrations/connect",
+              "raw": "{{baseUrl}}/api/calendar/integrations/connect",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6390,9 +6394,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/calendar/integrations/{{integration_id}}/sync",
+              "raw": "{{baseUrl}}/api/calendar/integrations/{{integration_id}}/sync",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6428,9 +6432,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/calendar/integrations/{{integration_id}}",
+              "raw": "{{baseUrl}}/api/calendar/integrations/{{integration_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6471,9 +6475,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials",
+              "raw": "{{baseUrl}}/api/courses/1/materials",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6521,9 +6525,9 @@
               "raw": "{\n  \"title\": \"Week 1 Lecture Slides\",\n  \"description\": \"Introduction to the course\",\n  \"materialType\": \"slide\",\n  \"externalUrl\": \"https://example.com/slides/week1.pdf\",\n  \"weekNumber\": 1,\n  \"isPublished\": true\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials",
+              "raw": "{{baseUrl}}/api/courses/1/materials",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6563,9 +6567,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
+              "raw": "{{baseUrl}}/api/courses/1/materials/{{material_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6653,9 +6657,9 @@
               ]
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/video",
+              "raw": "{{baseUrl}}/api/courses/1/materials/video",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6721,9 +6725,9 @@
               "raw": "{\n  \"title\": \"Week 1 Lecture Slides (Updated)\",\n  \"description\": \"Updated introduction slides\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
+              "raw": "{{baseUrl}}/api/courses/1/materials/{{material_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6771,9 +6775,9 @@
               "raw": "{\n  \"isPublished\": false\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/visibility",
+              "raw": "{{baseUrl}}/api/courses/1/materials/{{material_id}}/visibility",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6814,9 +6818,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/download",
+              "raw": "{{baseUrl}}/api/courses/1/materials/{{material_id}}/download",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6857,9 +6861,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/view",
+              "raw": "{{baseUrl}}/api/courses/1/materials/{{material_id}}/view",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6909,9 +6913,9 @@
               "raw": "{\n  \"materials\": [\n    {\n      \"title\": \"Week 3 Lecture: Advanced Topics\",\n      \"description\": \"Deep dive into advanced concepts\",\n      \"materialType\": \"lecture\",\n      \"weekNumber\": 3,\n      \"isPublished\": true\n    },\n    {\n      \"title\": \"Week 3 Reading Materials\",\n      \"description\": \"Supplementary reading for week 3\",\n      \"materialType\": \"reading\",\n      \"weekNumber\": 3,\n      \"isPublished\": true\n    },\n    {\n      \"title\": \"Week 3 Lab Exercises\",\n      \"description\": \"Hands-on practice exercises\",\n      \"materialType\": \"document\",\n      \"weekNumber\": 3,\n      \"isPublished\": false\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/bulk",
+              "raw": "{{baseUrl}}/api/courses/1/materials/bulk",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -6953,9 +6957,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials?weekNumber=1&sortBy=orderIndex&sortOrder=ASC",
+              "raw": "{{baseUrl}}/api/courses/1/materials?weekNumber=1&sortBy=orderIndex&sortOrder=ASC",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7009,9 +7013,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}/embed",
+              "raw": "{{baseUrl}}/api/courses/1/materials/{{material_id}}/embed",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7035,9 +7039,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/materials/{{material_id}}",
+              "raw": "{{baseUrl}}/api/courses/1/materials/{{material_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7067,7 +7071,7 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7076,7 +7080,7 @@
                 "materials",
                 "document"
               ],
-              "raw": "{{base_url}}/api/courses/1/materials/document"
+              "raw": "{{baseUrl}}/api/courses/1/materials/document"
             },
             "method": "POST",
             "header": [
@@ -7145,9 +7149,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/structure",
+              "raw": "{{baseUrl}}/api/courses/1/structure",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7187,9 +7191,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
+              "raw": "{{baseUrl}}/api/courses/1/structure/{{structure_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7238,9 +7242,9 @@
               "raw": "{\n  \"title\": \"Week 2: Variables and Data Types\",\n  \"description\": \"Learn about Python variables and basic data types\",\n  \"organizationType\": \"lecture\",\n  \"weekNumber\": 2\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/structure",
+              "raw": "{{baseUrl}}/api/courses/1/structure",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7288,9 +7292,9 @@
               "raw": "{\n  \"title\": \"Week 2: Variables, Data Types, and Operators\",\n  \"description\": \"Updated description with operators\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
+              "raw": "{{baseUrl}}/api/courses/1/structure/{{structure_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7334,9 +7338,9 @@
               "raw": "{\n  \"orderIds\": [1, 2]\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/courses/1/structure/reorder",
+              "raw": "{{baseUrl}}/api/courses/1/structure/reorder",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7372,9 +7376,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses/1/structure/{{structure_id}}",
+              "raw": "{{baseUrl}}/api/courses/1/structure/{{structure_id}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7415,9 +7419,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/users/profile",
+              "raw": "{{baseUrl}}/api/users/profile",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7442,9 +7446,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/users/profile",
+              "raw": "{{baseUrl}}/api/users/profile",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7469,9 +7473,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/users/preferences",
+              "raw": "{{baseUrl}}/api/users/preferences",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7496,9 +7500,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/users/preferences",
+              "raw": "{{baseUrl}}/api/users/preferences",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7527,9 +7531,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/users/password",
+              "raw": "{{baseUrl}}/api/users/password",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7559,9 +7563,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users/bulk-import",
+              "raw": "{{baseUrl}}/api/admin/users/bulk-import",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7597,9 +7601,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users/bulk-status",
+              "raw": "{{baseUrl}}/api/admin/users/bulk-status",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7625,9 +7629,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users/statistics",
+              "raw": "{{baseUrl}}/api/admin/users/statistics",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7649,9 +7653,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users/export?format=json",
+              "raw": "{{baseUrl}}/api/admin/users/export?format=json",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7679,9 +7683,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/users/export?format=csv",
+              "raw": "{{baseUrl}}/api/admin/users/export?format=csv",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7714,9 +7718,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/roles/with-users",
+              "raw": "{{baseUrl}}/api/admin/roles/with-users",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7742,9 +7746,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/roles/1/permissions/bulk",
+              "raw": "{{baseUrl}}/api/admin/roles/1/permissions/bulk",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7772,9 +7776,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/admin/permissions/matrix",
+              "raw": "{{baseUrl}}/api/admin/permissions/matrix",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -7794,13 +7798,13 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "auth"
               ],
-              "raw": "{{base_url}}/google-drive/auth"
+              "raw": "{{baseUrl}}/google-drive/auth"
             },
             "method": "GET",
             "description": "Get OAuth2 URL for YouTube + Drive authorization"
@@ -7811,7 +7815,7 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "youtube",
@@ -7823,7 +7827,7 @@
                   "value": "AUTH_CODE_HERE"
                 }
               ],
-              "raw": "{{base_url}}/youtube/callback?code=AUTH_CODE_HERE"
+              "raw": "{{baseUrl}}/youtube/callback?code=AUTH_CODE_HERE"
             },
             "method": "GET",
             "description": "OAuth2 callback to exchange code for refresh token"
@@ -7834,13 +7838,13 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "quota"
               ],
-              "raw": "{{base_url}}/google-drive/quota"
+              "raw": "{{baseUrl}}/google-drive/quota"
             },
             "method": "GET",
             "description": "Get Google Drive storage quota"
@@ -7851,13 +7855,13 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "folders"
               ],
-              "raw": "{{base_url}}/google-drive/folders"
+              "raw": "{{baseUrl}}/google-drive/folders"
             },
             "method": "POST",
             "header": [
@@ -7878,13 +7882,13 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "upload"
               ],
-              "raw": "{{base_url}}/google-drive/upload"
+              "raw": "{{baseUrl}}/google-drive/upload"
             },
             "method": "POST",
             "description": "Upload a file to Google Drive",
@@ -7910,14 +7914,14 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "folders",
                 "FOLDER_ID"
               ],
-              "raw": "{{base_url}}/google-drive/folders/FOLDER_ID"
+              "raw": "{{baseUrl}}/google-drive/folders/FOLDER_ID"
             },
             "method": "GET",
             "description": "List contents of a Drive folder"
@@ -7928,7 +7932,7 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
@@ -7936,7 +7940,7 @@
                 "FILE_ID",
                 "download"
               ],
-              "raw": "{{base_url}}/google-drive/files/FILE_ID/download"
+              "raw": "{{baseUrl}}/google-drive/files/FILE_ID/download"
             },
             "method": "GET",
             "description": "Download a file from Google Drive"
@@ -7947,14 +7951,14 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "files",
                 "FILE_ID"
               ],
-              "raw": "{{base_url}}/google-drive/files/FILE_ID"
+              "raw": "{{baseUrl}}/google-drive/files/FILE_ID"
             },
             "method": "DELETE",
             "description": "Delete a file from Google Drive"
@@ -7965,14 +7969,14 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "admin",
                 "init"
               ],
-              "raw": "{{base_url}}/google-drive/admin/init"
+              "raw": "{{baseUrl}}/google-drive/admin/init"
             },
             "method": "POST",
             "header": [
@@ -7989,7 +7993,7 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
@@ -7998,7 +8002,7 @@
                 "1",
                 "init"
               ],
-              "raw": "{{base_url}}/google-drive/admin/courses/1/init"
+              "raw": "{{baseUrl}}/google-drive/admin/courses/1/init"
             },
             "method": "POST",
             "header": [
@@ -8015,7 +8019,7 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
@@ -8024,7 +8028,7 @@
                 "1",
                 "init"
               ],
-              "raw": "{{base_url}}/google-drive/admin/labs/1/init"
+              "raw": "{{baseUrl}}/google-drive/admin/labs/1/init"
             },
             "method": "POST",
             "header": [
@@ -8041,7 +8045,7 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
@@ -8050,7 +8054,7 @@
                 "1",
                 "init"
               ],
-              "raw": "{{base_url}}/google-drive/admin/assignments/1/init"
+              "raw": "{{baseUrl}}/google-drive/admin/assignments/1/init"
             },
             "method": "POST",
             "header": [
@@ -8067,14 +8071,14 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
                 "admin",
                 "tree"
               ],
-              "raw": "{{base_url}}/google-drive/admin/tree"
+              "raw": "{{baseUrl}}/google-drive/admin/tree"
             },
             "method": "GET",
             "header": [
@@ -8091,7 +8095,7 @@
           "request": {
             "url": {
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "google-drive",
@@ -8100,7 +8104,7 @@
                 "1",
                 "tree"
               ],
-              "raw": "{{base_url}}/google-drive/admin/courses/1/tree"
+              "raw": "{{baseUrl}}/google-drive/admin/courses/1/tree"
             },
             "method": "GET",
             "header": [
@@ -8131,14 +8135,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/dashboard",
+              "raw": "{{baseUrl}}/api/security/dashboard",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "security",
                 "dashboard"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8169,9 +8183,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/logs?page=1&limit=20",
+              "raw": "{{baseUrl}}/api/security/logs?page=1&limit=20",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8186,6 +8200,16 @@
                 {
                   "key": "limit",
                   "value": "20"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
                 }
               ]
             }
@@ -8217,15 +8241,25 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/logs/stats",
+              "raw": "{{baseUrl}}/api/security/logs/stats",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "security",
                 "logs",
                 "stats"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8261,9 +8295,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/logs/export",
+              "raw": "{{baseUrl}}/api/security/logs/export",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8280,6 +8314,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -8309,14 +8353,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/threats",
+              "raw": "{{baseUrl}}/api/security/threats",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "security",
                 "threats"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8347,14 +8401,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/sessions",
+              "raw": "{{baseUrl}}/api/security/sessions",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "security",
                 "sessions"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8385,15 +8449,25 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/sessions/1",
+              "raw": "{{baseUrl}}/api/security/sessions/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "security",
                 "sessions",
                 "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8424,9 +8498,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/sessions/user/10",
+              "raw": "{{baseUrl}}/api/security/sessions/user/10",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8434,6 +8508,16 @@
                 "sessions",
                 "user",
                 "10"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8464,9 +8548,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/login-attempts?page=1&limit=20",
+              "raw": "{{baseUrl}}/api/security/login-attempts?page=1&limit=20",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8481,6 +8565,16 @@
                 {
                   "key": "limit",
                   "value": "20"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
                 }
               ]
             }
@@ -8512,14 +8606,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/blocked-ips",
+              "raw": "{{baseUrl}}/api/security/blocked-ips",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "security",
                 "blocked-ips"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8555,9 +8659,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/block-ip",
+              "raw": "{{baseUrl}}/api/security/block-ip",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8573,6 +8677,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -8602,15 +8716,25 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/security/blocked-ips/1",
+              "raw": "{{baseUrl}}/api/security/blocked-ips/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "security",
                 "blocked-ips",
                 "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8641,9 +8765,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/audit/logs?page=1&limit=20",
+              "raw": "{{baseUrl}}/api/audit/logs?page=1&limit=20",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8658,6 +8782,16 @@
                 {
                   "key": "limit",
                   "value": "20"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
                 }
               ]
             }
@@ -8689,9 +8823,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/audit/logs/entity/user/10",
+              "raw": "{{baseUrl}}/api/audit/logs/entity/user/10",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8700,6 +8834,16 @@
                 "entity",
                 "user",
                 "10"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8735,9 +8879,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/audit/logs/export",
+              "raw": "{{baseUrl}}/api/audit/logs/export",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8754,6 +8898,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -8788,13 +8942,23 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/settings",
+              "raw": "{{baseUrl}}/api/settings",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "settings"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8830,9 +8994,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/settings",
+              "raw": "{{baseUrl}}/api/settings",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8847,6 +9011,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -8876,14 +9050,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/settings/platform_name",
+              "raw": "{{baseUrl}}/api/settings/platform_name",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "settings",
                 "platform_name"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -8919,9 +9103,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/settings/platform_name",
+              "raw": "{{baseUrl}}/api/settings/platform_name",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -8937,6 +9121,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -8960,14 +9154,24 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/settings/branding",
+              "raw": "{{baseUrl}}/api/settings/branding",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "settings",
                 "branding"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -9003,9 +9207,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/settings/branding/1",
+              "raw": "{{baseUrl}}/api/settings/branding/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -9022,6 +9226,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -9051,14 +9265,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/settings/rate-limits",
+              "raw": "{{baseUrl}}/api/settings/rate-limits",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "settings",
                 "rate-limits"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -9094,9 +9318,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/settings/rate-limits/1",
+              "raw": "{{baseUrl}}/api/settings/rate-limits/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -9113,6 +9337,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -9142,13 +9376,23 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/integrations",
+              "raw": "{{baseUrl}}/api/integrations",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "integrations"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -9184,9 +9428,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/integrations",
+              "raw": "{{baseUrl}}/api/integrations",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -9201,6 +9445,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -9230,14 +9484,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/integrations/1",
+              "raw": "{{baseUrl}}/api/integrations/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "integrations",
                 "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -9273,9 +9537,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/integrations/1",
+              "raw": "{{baseUrl}}/api/integrations/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -9291,6 +9555,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [],
@@ -9320,14 +9594,24 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/integrations/1",
+              "raw": "{{baseUrl}}/api/integrations/1",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "integrations",
                 "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -9358,15 +9642,25 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/integrations/1/test",
+              "raw": "{{baseUrl}}/api/integrations/1/test",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "integrations",
                 "1",
                 "test"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -9397,15 +9691,25 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/integrations/1/sync",
+              "raw": "{{baseUrl}}/api/integrations/1/sync",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "integrations",
                 "1",
                 "sync"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -9418,6 +9722,1318 @@
                   "pm.test(\"Status code is 201\", function () {",
                   "    pm.response.to.have.status(201);",
                   "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📊 Monitoring & Server Health",
+      "item": [
+        {
+          "name": "Get Server Records",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/monitoring/servers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "monitoring",
+                "servers"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has data\", () => pm.expect(pm.response.json()).to.have.property(\"data\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Server Health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/monitoring/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "monitoring",
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Has hostname\", () => pm.expect(json.data).to.have.property(\"hostname\"));",
+                  "pm.test(\"Has cpuUsage\", () => pm.expect(json.data).to.have.property(\"cpuUsage\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Server Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/monitoring/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "monitoring",
+                "metrics"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has current\", () => pm.expect(pm.response.json().data).to.have.property(\"current\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Server Health (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/monitoring/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "monitoring",
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - Admin access\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Server Health (Student - DENIED)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/monitoring/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "monitoring",
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - Student denied\", () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🐛 System Errors",
+      "item": [
+        {
+          "name": "Get All System Errors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/errors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "errors"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Has data array\", () => pm.expect(json).to.have.property(\"data\"));",
+                  "pm.test(\"Has meta\", () => pm.expect(json).to.have.property(\"meta\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get System Errors (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/errors?page=1&limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "errors?page=1&limit=5"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Pagination meta\", () => { var m = pm.response.json().meta; pm.expect(m).to.have.property(\"total\"); pm.expect(m).to.have.property(\"page\"); pm.expect(m).to.have.property(\"limit\"); pm.expect(m).to.have.property(\"totalPages\"); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Error Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/errors/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "errors",
+                "stats"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has stats\", () => pm.expect(pm.response.json().data).to.have.property(\"total\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get System Errors (Student - DENIED)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/errors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "errors"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - Student denied\", () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔐 SSL Certificates",
+      "item": [
+        {
+          "name": "Get All SSL Certificates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ssl",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ssl"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has data\", () => pm.expect(pm.response.json()).to.have.property(\"data\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Expiring Certificates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ssl/expiring",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ssl",
+                "expiring"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get SSL Certificate by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ssl/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ssl",
+                "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get SSL Certificates (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ssl",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ssl"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - Admin access\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get SSL Certificates (Student - DENIED)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ssl",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ssl"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - Student denied\", () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🚨 System Alerts",
+      "item": [
+        {
+          "name": "Get All Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has data\", () => pm.expect(pm.response.json()).to.have.property(\"data\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Alert Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"High CPU Alert\",\n  \"conditionType\": \"cpu_usage\",\n  \"threshold\": 90,\n  \"description\": \"Alert when CPU exceeds 90%\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Has alert data\", () => pm.expect(json).to.have.property(\"data\"));",
+                  "if (json.data && json.data.id) pm.collectionVariables.set(\"createdAlertId\", json.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Alert Rule",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts",
+                "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated CPU Alert\",\n  \"threshold\": 95\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 or 404\", () => pm.expect([200,404]).to.include(pm.response.code));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Alert Rule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts",
+                "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 or 404\", () => pm.expect([200,404]).to.include(pm.response.code));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Alert (Student - DENIED)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\",\n  \"conditionType\": \"cpu_usage\",\n  \"threshold\": 90\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - Student denied\", () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "💾 Backups",
+      "item": [
+        {
+          "name": "List Backups",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/backups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "backups"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has data\", () => pm.expect(pm.response.json()).to.have.property(\"data\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Backup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/backups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "backups"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Has backup data\", () => pm.expect(json).to.have.property(\"data\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Backups (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/backups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "backups"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - Admin access\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Backup (Student - DENIED)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/backups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "backups"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - Student denied\", () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🗄️ Database Operations",
+      "item": [
+        {
+          "name": "Get Database Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/database/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "database",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Has uptime\", () => pm.expect(json.data).to.have.property(\"uptime\"));",
+                  "pm.test(\"Has version\", () => pm.expect(json.data).to.have.property(\"version\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Database Tables",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/database/tables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "database",
+                "tables"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has tables data\", () => pm.expect(pm.response.json().data.length).to.be.above(0));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Optimize Database",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/database/optimize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "database",
+                "optimize"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{itAdminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Has results\", () => pm.expect(pm.response.json()).to.have.property(\"data\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Database Status (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/database/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "database",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - Admin access\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Database Tables (Student - DENIED)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/database/tables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "database",
+                "tables"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - Student denied\", () => pm.response.to.have.status(403));"
                 ],
                 "type": "text/javascript"
               }
