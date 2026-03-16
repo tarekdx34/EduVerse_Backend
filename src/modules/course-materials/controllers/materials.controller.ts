@@ -667,7 +667,10 @@ For video materials, returns the YouTube embed URL and iframe HTML.
 
   private extractRoles(user: any): string[] {
     if (Array.isArray(user.roles)) {
-      return user.roles.map((r: any) => (typeof r === 'string' ? r : r.name || r.roleName));
+      return user.roles.map((r: any) => {
+        const roleStr = typeof r === 'string' ? r : r.name || r.roleName;
+        return roleStr ? String(roleStr).toLowerCase() : '';
+      }).filter(Boolean);
     }
     return [];
   }
