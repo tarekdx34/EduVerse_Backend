@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 16, 2026 at 09:08 PM
+-- Generation Time: Mar 16, 2026 at 10:41 PM
 -- Server version: 8.4.7
 -- PHP Version: 8.3.28
 
@@ -385,14 +385,14 @@ CREATE TABLE IF NOT EXISTS `announcements` (
   KEY `idx_course` (`course_id`),
   KEY `idx_creator` (`created_by`),
   KEY `idx_published` (`is_published`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `announcements`
 --
 
 INSERT INTO `announcements` (`announcement_id`, `course_id`, `created_by`, `title`, `content`, `announcement_type`, `priority`, `target_audience`, `is_published`, `published_at`, `expires_at`, `attachment_file_id`, `view_count`, `created_at`, `updated_at`) VALUES
-(1, 1, 8, 'Updated: Welcome to CS101!', 'Updated announcement content.', 'course', 'medium', 'all', 1, '2026-03-16 20:53:51', NULL, NULL, 94, '2025-01-15 08:00:00', '2026-03-16 20:53:51'),
+(1, 1, 8, 'Updated: Welcome to CS101!', 'Updated announcement content.', 'course', 'medium', 'all', 1, '2026-03-16 22:35:15', NULL, NULL, 104, '2025-01-15 08:00:00', '2026-03-16 22:35:15'),
 (2, 1, 8, 'Assignment 1 Released', 'The first assignment is now available in the course materials section. Due date: February 1st.', 'course', 'high', 'students', 1, '2025-01-20 09:00:00', NULL, NULL, 38, '2025-01-20 09:00:00', '2025-01-20 09:00:00'),
 (3, NULL, 1, 'Campus WiFi Maintenance', 'Network maintenance scheduled for this weekend. Expect brief outages.', 'campus', 'medium', 'all', 1, '2025-02-10 06:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (4, 2, 3, 'Midterm Exam Schedule', 'The midterm exam will be held on March 15, 2025 from 2:00 PM to 4:00 PM.', 'course', 'high', 'students', 1, '2025-02-12 10:00:00', NULL, NULL, 0, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
@@ -407,7 +407,9 @@ INSERT INTO `announcements` (`announcement_id`, `course_id`, `created_by`, `titl
 (14, 1, 59, 'API Dog Test Announcement', 'This is a test announcement from API Dog.', 'course', 'medium', 'all', 0, NULL, NULL, NULL, 0, '2026-03-16 20:20:08', '2026-03-16 20:20:08'),
 (15, 1, 59, 'API Dog Test Announcement', 'This is a test announcement from API Dog.', 'course', 'medium', 'all', 0, NULL, NULL, NULL, 0, '2026-03-16 20:32:49', '2026-03-16 20:32:49'),
 (16, 1, 59, 'API Dog Test Announcement', 'This is a test announcement from API Dog.', 'course', 'medium', 'all', 0, NULL, NULL, NULL, 0, '2026-03-16 20:45:15', '2026-03-16 20:45:15'),
-(17, 1, 59, 'API Dog Test Announcement', 'This is a test announcement from API Dog.', 'course', 'medium', 'all', 0, NULL, NULL, NULL, 0, '2026-03-16 20:53:51', '2026-03-16 20:53:51');
+(17, 1, 59, 'API Dog Test Announcement', 'This is a test announcement from API Dog.', 'course', 'medium', 'all', 0, NULL, NULL, NULL, 0, '2026-03-16 20:53:51', '2026-03-16 20:53:51'),
+(18, 1, 59, 'API Dog Test Announcement', 'This is a test announcement from API Dog.', 'course', 'medium', 'all', 0, NULL, NULL, NULL, 0, '2026-03-16 22:31:27', '2026-03-16 22:31:27'),
+(19, 1, 59, 'API Dog Test Announcement', 'This is a test announcement from API Dog.', 'course', 'medium', 'all', 0, NULL, NULL, NULL, 0, '2026-03-16 22:35:14', '2026-03-16 22:35:14');
 
 -- --------------------------------------------------------
 
@@ -437,7 +439,7 @@ CREATE TABLE IF NOT EXISTS `api_integrations` (
   KEY `idx_type` (`integration_type`),
   KEY `api_integrations_ibfk_created_by` (`created_by`),
   KEY `api_integrations_ibfk_updated_by` (`updated_by`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `api_integrations`
@@ -448,7 +450,8 @@ INSERT INTO `api_integrations` (`integration_id`, `campus_id`, `integration_name
 (3, 1, 'AWS S3 Storage', 'storage', 'https://s3.amazonaws.com', NULL, NULL, NULL, 1, 'healthy', '2025-02-15 05:30:00', NULL, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (4, 1, 'OpenAI API', 'ai', 'https://api.openai.com/v1', NULL, NULL, NULL, 1, 'healthy', '2025-02-15 07:00:00', NULL, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (5, 2, 'Stripe Payment', 'payment', 'https://api.stripe.com/v1', NULL, NULL, NULL, 1, 'healthy', '2025-02-14 13:00:00', NULL, NULL, '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(6, 1, 'Canvas LMS', 'lms', 'https://canvas.example.com', 's3cr3t', 's3cr3t2', '{}', 1, 'healthy', NULL, 67, 67, '2026-03-16 20:59:23', '2026-03-16 20:59:23');
+(6, 1, 'Canvas LMS', 'lms', 'https://canvas.example.com', 's3cr3t', 's3cr3t2', '{}', 1, 'healthy', NULL, 67, 67, '2026-03-16 20:59:23', '2026-03-16 20:59:23'),
+(7, 1, 'Canvas LMS', 'lms', 'https://canvas.example.com', 's3cr3t', 's3cr3t2', '{}', 1, 'healthy', NULL, 61, 61, '2026-03-16 22:35:33', '2026-03-16 22:35:33');
 
 -- --------------------------------------------------------
 
@@ -518,7 +521,7 @@ CREATE TABLE IF NOT EXISTS `assignments` (
   KEY `created_by` (`created_by`),
   KEY `idx_course` (`course_id`),
   KEY `idx_due_date` (`due_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `assignments`
@@ -552,7 +555,9 @@ INSERT INTO `assignments` (`assignment_id`, `course_id`, `title`, `description`,
 (25, 1, 'API Dog Test Assignment', 'Test assignment from API Dog', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 59, '2026-03-16 20:20:08', '2026-03-16 20:20:08', NULL),
 (26, 1, 'API Dog Test Assignment', 'Test assignment from API Dog', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 59, '2026-03-16 20:32:50', '2026-03-16 20:32:50', NULL),
 (27, 1, 'API Dog Test Assignment', 'Test assignment from API Dog', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 59, '2026-03-16 20:45:15', '2026-03-16 20:45:15', NULL),
-(28, 1, 'API Dog Test Assignment', 'Test assignment from API Dog', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 59, '2026-03-16 20:53:51', '2026-03-16 20:53:51', NULL);
+(28, 1, 'API Dog Test Assignment', 'Test assignment from API Dog', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 59, '2026-03-16 20:53:51', '2026-03-16 20:53:51', NULL),
+(29, 1, 'API Dog Test Assignment', 'Test assignment from API Dog', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 59, '2026-03-16 22:31:28', '2026-03-16 22:31:28', NULL),
+(30, 1, 'API Dog Test Assignment', 'Test assignment from API Dog', NULL, 100.00, 0.00, NULL, NULL, 0, 0.00, 'file', 10, NULL, 'draft', 59, '2026-03-16 22:35:15', '2026-03-16 22:35:15', NULL);
 
 -- --------------------------------------------------------
 
@@ -644,7 +649,7 @@ CREATE TABLE IF NOT EXISTS `attendance_records` (
   KEY `idx_status` (`attendance_status`),
   KEY `idx_session_status` (`session_id`,`attendance_status`),
   KEY `idx_user_date` (`user_id`,`check_in_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=334 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=376 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `attendance_records`
@@ -957,7 +962,49 @@ INSERT INTO `attendance_records` (`record_id`, `session_id`, `user_id`, `attenda
 (330, 33, 27, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 20:53:58'),
 (331, 33, 28, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 20:53:58'),
 (332, 33, 29, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 20:53:58'),
-(333, 33, 57, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 20:53:58');
+(333, 33, 57, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 20:53:58'),
+(334, 34, 7, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(335, 34, 8, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(336, 34, 9, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(337, 34, 10, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(338, 34, 11, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(339, 34, 25, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(340, 34, 30, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(341, 34, 34, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(342, 34, 13, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(343, 34, 14, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(344, 34, 15, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(345, 34, 16, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(346, 34, 21, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(347, 34, 22, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(348, 34, 23, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(349, 34, 24, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(350, 34, 26, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(351, 34, 27, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(352, 34, 28, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(353, 34, 29, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(354, 34, 57, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:31:34'),
+(355, 35, 7, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(356, 35, 8, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(357, 35, 9, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(358, 35, 10, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(359, 35, 11, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(360, 35, 25, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(361, 35, 30, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(362, 35, 34, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(363, 35, 13, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(364, 35, 14, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(365, 35, 15, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(366, 35, 16, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(367, 35, 21, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(368, 35, 22, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(369, 35, 23, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(370, 35, 24, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(371, 35, 26, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(372, 35, 27, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(373, 35, 28, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(374, 35, 29, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21'),
+(375, 35, 57, 'absent', NULL, 'manual', NULL, NULL, '2026-03-16 22:35:21');
 
 -- --------------------------------------------------------
 
@@ -986,7 +1033,7 @@ CREATE TABLE IF NOT EXISTS `attendance_sessions` (
   KEY `idx_section` (`section_id`),
   KEY `idx_date` (`session_date`),
   KEY `idx_instructor` (`instructor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `attendance_sessions`
@@ -1024,7 +1071,9 @@ INSERT INTO `attendance_sessions` (`session_id`, `section_id`, `session_date`, `
 (30, 1, '2026-03-15', 'lecture', 59, '09:00:00', '10:30:00', NULL, 21, 0, 21, 'scheduled', NULL, '2026-03-16 20:20:14', '2026-03-16 20:20:14'),
 (31, 1, '2026-03-15', 'lecture', 59, '09:00:00', '10:30:00', NULL, 21, 0, 21, 'scheduled', NULL, '2026-03-16 20:32:56', '2026-03-16 20:32:56'),
 (32, 1, '2026-03-15', 'lecture', 59, '09:00:00', '10:30:00', NULL, 21, 0, 21, 'scheduled', NULL, '2026-03-16 20:45:22', '2026-03-16 20:45:22'),
-(33, 1, '2026-03-15', 'lecture', 59, '09:00:00', '10:30:00', NULL, 21, 0, 21, 'scheduled', NULL, '2026-03-16 20:53:58', '2026-03-16 20:53:58');
+(33, 1, '2026-03-15', 'lecture', 59, '09:00:00', '10:30:00', NULL, 21, 0, 21, 'scheduled', NULL, '2026-03-16 20:53:58', '2026-03-16 20:53:58'),
+(34, 1, '2026-03-15', 'lecture', 59, '09:00:00', '10:30:00', NULL, 21, 0, 21, 'scheduled', NULL, '2026-03-16 22:31:34', '2026-03-16 22:31:34'),
+(35, 1, '2026-03-15', 'lecture', 59, '09:00:00', '10:30:00', NULL, 21, 0, 21, 'scheduled', NULL, '2026-03-16 22:35:21', '2026-03-16 22:35:21');
 
 -- --------------------------------------------------------
 
@@ -1050,7 +1099,7 @@ CREATE TABLE IF NOT EXISTS `audit_logs` (
   KEY `idx_action` (`action_type`),
   KEY `idx_entity` (`entity_type`,`entity_id`),
   KEY `idx_date` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=374 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=532 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `audit_logs`
@@ -1430,7 +1479,195 @@ INSERT INTO `audit_logs` (`log_id`, `user_id`, `action_type`, `entity_type`, `en
 (370, 67, 'DELETE', 'integrations', 1, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE integrations via DELETE /api/integrations/1', '2026-03-16 20:59:23'),
 (371, 67, 'CREATE', 'integrations', 2, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE integrations via POST /api/integrations/2/test', '2026-03-16 21:00:03'),
 (372, 67, 'CREATE', 'integrations', 2, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE integrations via POST /api/integrations/2/sync', '2026-03-16 21:00:29'),
-(373, 67, 'DELETE', 'security', 57, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'DELETE security via DELETE /api/security/sessions/57', '2026-03-16 21:01:50');
+(373, 67, 'DELETE', 'security', 57, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'DELETE security via DELETE /api/security/sessions/57', '2026-03-16 21:01:50'),
+(374, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"it_admin.tarek@example.com\",\"password\":\"SecureP@ss123\"}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:02:13'),
+(375, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"it_admin.tarek@example.com\",\"password\":\"SecureP@ss123\"}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:03:43'),
+(376, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"it_admin.tarek@example.com\",\"password\":\"SecureP@ss123\"}', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:04:57'),
+(377, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"admin.tarek@example.com\",\"password\":\"SecureP@ss123\"}', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:04:57'),
+(378, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"student.tarek@example.com\",\"password\":\"SecureP@ss123\"}', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:04:57'),
+(379, 61, 'CREATE', 'alerts', NULL, NULL, '{\"name\":\"Test CPU Alert\",\"conditionType\":\"cpu_usage\",\"threshold\":90,\"description\":\"Test alert\"}', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'CREATE alerts via POST /api/alerts', '2026-03-16 22:04:58'),
+(380, 61, 'UPDATE', 'alerts', 1, NULL, '{\"name\":\"Updated CPU Alert\",\"threshold\":95}', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'UPDATE alerts via PATCH /api/alerts/1', '2026-03-16 22:04:58'),
+(381, 61, 'DELETE', 'alerts', 1, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'DELETE alerts via DELETE /api/alerts/1', '2026-03-16 22:04:58'),
+(382, 61, 'CREATE', 'backups', NULL, NULL, '{}', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'CREATE backups via POST /api/backups', '2026-03-16 22:05:00'),
+(383, 61, 'CREATE', 'database', NULL, NULL, '{}', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'CREATE database via POST /api/database/optimize', '2026-03-16 22:05:00'),
+(384, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"amir_admin@example.com\",\"password\":\"Pass@123\",\"rememberMe\":false}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:16:02'),
+(385, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"amir_itadmin@example.com\",\"password\":\"Pass@123\",\"rememberMe\":false}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:19:24'),
+(386, 67, 'CREATE', 'alerts', NULL, NULL, '{\"name\":\"High CPU Alert\",\"description\":\"Triggers when CPU usage exceeds threshold\",\"conditionType\":\"cpu_usage\",\"threshold\":90}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE alerts via POST /api/alerts', '2026-03-16 22:20:56'),
+(387, 67, 'UPDATE', 'alerts', 2, NULL, '{\"name\":\"High CPU Alert\",\"description\":\"Triggers when CPU usage exceeds threshold updated\",\"conditionType\":\"cpu_usage\",\"threshold\":90,\"isActive\":true}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'UPDATE alerts via PATCH /api/alerts/2', '2026-03-16 22:21:34'),
+(388, 67, 'UPDATE', 'alerts', 2, NULL, '{\"name\":\"High CPU Alert\",\"description\":\"Triggers when CPU usage exceeds threshold updated\",\"conditionType\":\"cpu_usage\",\"threshold\":90,\"isActive\":true}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'UPDATE alerts via PATCH /api/alerts/2', '2026-03-16 22:21:35'),
+(389, 67, 'CREATE', 'alerts', NULL, NULL, '{\"name\":\"High GPU Alert\",\"description\":\"Triggers when GPU usage exceeds threshold\",\"conditionType\":\"gpu_usage\",\"threshold\":94}', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE alerts via POST /api/alerts', '2026-03-16 22:22:05'),
+(390, 67, 'DELETE', 'alerts', 3, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'DELETE alerts via DELETE /api/alerts/3', '2026-03-16 22:22:13'),
+(391, 67, 'CREATE', 'backups', NULL, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE backups via POST /api/backups', '2026-03-16 22:22:56'),
+(392, 67, 'DELETE', 'backups', 2, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'DELETE backups via DELETE /api/backups/2', '2026-03-16 22:24:07'),
+(393, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"admin.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:31:18'),
+(394, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"instructor.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:31:18'),
+(395, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"student.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:31:18'),
+(396, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"ta.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:31:18'),
+(397, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"it_admin.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:31:18'),
+(398, NULL, 'CREATE', 'auth', NULL, NULL, '{\"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczNzAwMjc4LCJleHAiOjE3NzYyOTIyNzh9.FOVqfRuT5dn9C74lKmQV05etWLLV-YOF37q0PpopsJE\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/refresh-token', '2026-03-16 22:31:19'),
+(399, 57, 'UPDATE', 'users', NULL, NULL, '{\"firstName\":\"Student\",\"lastName\":\"Tarek\",\"phone\":\"+201234567890\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE users via PUT /api/users/profile', '2026-03-16 22:31:19'),
+(400, 57, 'UPDATE', 'users', NULL, NULL, '{\"theme\":\"dark\",\"language\":\"en\",\"emailNotifications\":true,\"pushNotifications\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE users via PUT /api/users/preferences', '2026-03-16 22:31:19'),
+(401, 57, 'UPDATE', 'users', NULL, NULL, '{\"currentPassword\":\"SecureP@ss123\",\"newPassword\":\"SecureP@ss123\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE users via PATCH /api/users/password', '2026-03-16 22:31:19'),
+(402, 59, 'UPDATE', 'admin', 57, NULL, '{\"firstName\":\"Student\",\"lastName\":\"Tarek\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE admin via PUT /api/admin/users/57', '2026-03-16 22:31:20'),
+(403, 59, 'UPDATE', 'campuses', 1, NULL, '{\"name\":\"Updated Campus Name\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE campuses via PUT /api/campuses/1', '2026-03-16 22:31:21'),
+(404, 59, 'UPDATE', 'departments', 1, NULL, '{\"name\":\"Updated Department\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE departments via PUT /api/departments/1', '2026-03-16 22:31:21'),
+(405, 59, 'UPDATE', 'programs', 1, NULL, '{\"name\":\"Updated Program\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE programs via PUT /api/programs/1', '2026-03-16 22:31:22'),
+(406, NULL, 'CREATE', 'sections', NULL, NULL, '{\"courseId\":1,\"semesterId\":2,\"sectionNumber\":\"197\",\"maxCapacity\":30,\"location\":\"Room TEST\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE sections via POST /api/sections', '2026-03-16 22:31:23'),
+(407, 59, 'CREATE', 'courses', 1, NULL, '{\"title\":\"API Dog Test Material\",\"materialType\":\"document\",\"description\":\"Created by API Dog test\",\"weekNumber\":1,\"isPublished\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/materials', '2026-03-16 22:31:24'),
+(408, 59, 'CREATE', 'courses', 1, NULL, '{\"materials\":[{\"title\":\"Bulk Test 1\",\"materialType\":\"lecture\",\"weekNumber\":10,\"isPublished\":true},{\"title\":\"Bulk Test 2\",\"materialType\":\"slide\",\"weekNumber\":10,\"isPublished\":true}]}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/materials/bulk', '2026-03-16 22:31:24'),
+(409, 59, 'UPDATE', 'courses', 59, NULL, '{\"title\":\"Updated API Dog Material\",\"description\":\"Updated by test\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PUT /api/courses/1/materials/59', '2026-03-16 22:31:24'),
+(410, 59, 'UPDATE', 'courses', 15, NULL, '{\"isPublished\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PATCH /api/courses/1/materials/15/visibility', '2026-03-16 22:31:25'),
+(411, 59, 'CREATE', 'courses', 15, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/materials/15/view', '2026-03-16 22:31:25'),
+(412, 59, 'DELETE', 'courses', 59, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE courses via DELETE /api/courses/1/materials/59', '2026-03-16 22:31:25'),
+(413, 59, 'CREATE', 'courses', 1, NULL, '{\"title\":\"Week 10: API Dog Test\",\"organizationType\":\"lecture\",\"weekNumber\":10,\"orderIndex\":99}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/structure', '2026-03-16 22:31:25'),
+(414, 59, 'UPDATE', 'courses', 24, NULL, '{\"title\":\"Week 10: Updated\",\"description\":\"Updated by API Dog\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PUT /api/courses/1/structure/24', '2026-03-16 22:31:25'),
+(415, 59, 'UPDATE', 'courses', 1, NULL, '{\"orderIds\":[7,8,9,10,11,12]}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PATCH /api/courses/1/structure/reorder', '2026-03-16 22:31:25'),
+(416, 59, 'DELETE', 'courses', 24, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE courses via DELETE /api/courses/1/structure/24', '2026-03-16 22:31:26'),
+(417, 59, 'CREATE', 'announcements', NULL, NULL, '{\"title\":\"API Dog Test Announcement\",\"content\":\"This is a test announcement from API Dog.\",\"courseId\":1,\"priority\":\"medium\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE announcements via POST /api/announcements', '2026-03-16 22:31:27'),
+(418, 59, 'UPDATE', 'announcements', 1, NULL, '{\"title\":\"Updated: Welcome to CS101!\",\"content\":\"Updated announcement content.\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE announcements via PUT /api/announcements/1', '2026-03-16 22:31:27'),
+(419, 59, 'UPDATE', 'announcements', 1, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE announcements via PATCH /api/announcements/1/publish', '2026-03-16 22:31:27'),
+(420, 59, 'UPDATE', 'announcements', 1, NULL, '{\"isPinned\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE announcements via PATCH /api/announcements/1/pin', '2026-03-16 22:31:27'),
+(421, 59, 'CREATE', 'assignments', NULL, NULL, '{\"courseId\":1,\"title\":\"API Dog Test Assignment\",\"description\":\"Test assignment from API Dog\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE assignments via POST /api/assignments', '2026-03-16 22:31:28'),
+(422, 59, 'UPDATE', 'assignments', 1, NULL, '{\"title\":\"Updated Assignment Title\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE assignments via PATCH /api/assignments/1', '2026-03-16 22:31:28'),
+(423, 59, 'CREATE', 'discussions', NULL, NULL, '{\"courseId\":1,\"title\":\"API Dog Test Discussion\",\"description\":\"Testing from API Dog.\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE discussions via POST /api/discussions', '2026-03-16 22:31:28'),
+(424, 59, 'UPDATE', 'discussions', 3, NULL, '{\"title\":\"Updated Discussion Title\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE discussions via PUT /api/discussions/3', '2026-03-16 22:31:28'),
+(425, 59, 'UPDATE', 'discussions', 3, NULL, '{\"isPinned\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE discussions via PATCH /api/discussions/3/pin', '2026-03-16 22:31:29'),
+(426, 59, 'UPDATE', 'discussions', 3, NULL, '{\"isLocked\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE discussions via PATCH /api/discussions/3/lock', '2026-03-16 22:31:29'),
+(427, 59, 'CREATE', 'community', NULL, NULL, '{\"title\":\"API Dog Test Post\",\"content\":\"Testing from API Dog.\",\"communityId\":1}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/communities/1/posts', '2026-03-16 22:31:29'),
+(428, 59, 'CREATE', 'community', NULL, NULL, '{\"title\":\"Global Post from API Dog\",\"content\":\"Test global post.\",\"communityId\":1}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/global/posts', '2026-03-16 22:31:29'),
+(429, 59, 'CREATE', 'community', 3, NULL, '{\"commentText\":\"API Dog test comment\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/posts/3/comment', '2026-03-16 22:31:30'),
+(430, 59, 'CREATE', 'community', 3, NULL, '{\"reactionType\":\"like\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/posts/3/react', '2026-03-16 22:31:30');
+INSERT INTO `audit_logs` (`log_id`, `user_id`, `action_type`, `entity_type`, `entity_id`, `old_values`, `new_values`, `ip_address`, `user_agent`, `description`, `created_at`) VALUES
+(431, 59, 'CREATE', 'files', NULL, NULL, '{\"folderName\":\"API Dog Test Folder\",\"parentFolderId\":1}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE files via POST /api/files/folders', '2026-03-16 22:31:31'),
+(432, 59, 'UPDATE', 'files', NULL, NULL, '{\"folderName\":\"Updated Test Folder\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE files via PUT /api/files/folders/26', '2026-03-16 22:31:31'),
+(433, 59, 'DELETE', 'files', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE files via DELETE /api/files/folders/26', '2026-03-16 22:31:31'),
+(434, 59, 'CREATE', 'labs', NULL, NULL, '{\"title\":\"API Dog Test Lab\",\"courseId\":1,\"description\":\"Test lab\",\"dueDate\":\"2026-06-15T23:59:00Z\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE labs via POST /api/labs', '2026-03-16 22:31:32'),
+(435, 59, 'UPDATE', 'labs', 3, NULL, '{\"title\":\"Updated Lab Title\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE labs via PUT /api/labs/3', '2026-03-16 22:31:33'),
+(436, 58, 'CREATE', 'rubrics', NULL, NULL, '{\"rubricName\":\"API Dog Test Rubric\",\"courseId\":1,\"totalPoints\":100}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE rubrics via POST /api/rubrics', '2026-03-16 22:31:34'),
+(437, 59, 'CREATE', 'attendance', NULL, NULL, '{\"sectionId\":1,\"sessionDate\":\"2026-03-15\",\"sessionType\":\"lecture\",\"startTime\":\"09:00:00\",\"endTime\":\"10:30:00\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE attendance via POST /attendance/sessions', '2026-03-16 22:31:34'),
+(438, 57, 'UPDATE', 'notifications', NULL, NULL, '{\"emailEnabled\":true,\"pushEnabled\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE notifications via PUT /api/notifications/preferences', '2026-03-16 22:31:35'),
+(439, 57, 'UPDATE', 'notifications', NULL, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE notifications via PATCH /api/notifications/read-all', '2026-03-16 22:31:35'),
+(440, 59, 'CREATE', 'notifications', NULL, NULL, '{\"userIds\":[57],\"notificationType\":\"system\",\"title\":\"Test from API Dog\",\"body\":\"This is a test notification.\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE notifications via POST /api/notifications/send', '2026-03-16 22:31:35'),
+(441, 57, 'CREATE', 'messages', NULL, NULL, '{\"participantIds\":[59],\"type\":\"direct\",\"text\":\"Hello from API Dog test!\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE messages via POST /api/messages/conversations', '2026-03-16 22:31:35'),
+(442, 59, 'CREATE', 'calendar', NULL, NULL, '{\"title\":\"API Dog Test Event\",\"description\":\"Test\",\"startTime\":\"2026-04-01T10:00:00Z\",\"endTime\":\"2026-04-01T11:00:00Z\",\"eventType\":\"meeting\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE calendar via POST /api/calendar/events', '2026-03-16 22:31:36'),
+(443, 59, 'DELETE', 'calendar', 17, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE calendar via DELETE /api/calendar/events/17', '2026-03-16 22:31:36'),
+(444, 57, 'CREATE', 'tasks', NULL, NULL, '{\"title\":\"Study for Final Exam\",\"description\":\"Review all chapters\",\"taskType\":\"study\",\"dueDate\":\"2026-03-18T18:14:01.673Z\",\"priority\":\"high\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE tasks via POST /api/tasks', '2026-03-16 22:31:37'),
+(445, 57, 'CREATE', 'tasks', 8, NULL, '{\"notes\":\"Finished studying all chapters\",\"timeTakenMinutes\":120}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE tasks via POST /api/tasks/8/complete', '2026-03-16 22:31:37'),
+(446, 57, 'CREATE', 'tasks', NULL, NULL, '{\"taskId\":9,\"reminderTime\":\"2026-03-17T18:14:01.673Z\",\"reminderType\":\"in_app\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE tasks via POST /api/tasks/reminders', '2026-03-16 22:31:38'),
+(447, 57, 'DELETE', 'search', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE search via DELETE /api/search/history', '2026-03-16 22:31:38'),
+(448, 59, 'CREATE', 'reports', NULL, NULL, '{\"templateId\":1,\"reportName\":\"Test Student Progress Report\",\"filters\":{\"courseId\":1,\"semesterId\":2},\"exportFormat\":\"pdf\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE reports via POST /api/reports/generate', '2026-03-16 22:31:40'),
+(449, NULL, 'CREATE', 'google-drive', NULL, NULL, '{\"name\":\"EduVerse_Test_Folder\",\"parentId\":\"\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/folders', '2026-03-16 22:31:41'),
+(450, NULL, 'CREATE', 'google-drive', NULL, NULL, '{\"name\":\"EduVerse_Test_Folder\",\"parentId\":\"\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/folders/find-or-create', '2026-03-16 22:31:42'),
+(451, 59, 'CREATE', 'google-drive', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/init', '2026-03-16 22:31:44'),
+(452, 59, 'CREATE', 'google-drive', 1, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/courses/1/init', '2026-03-16 22:31:44'),
+(453, 59, 'CREATE', 'google-drive', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/labs/3/init', '2026-03-16 22:31:44'),
+(454, 59, 'CREATE', 'google-drive', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/assignments/1/init', '2026-03-16 22:31:44'),
+(455, 67, 'CREATE', 'backups', NULL, NULL, NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'CREATE backups via POST /api/backups', '2026-03-16 22:34:12'),
+(456, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"admin.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:35:06'),
+(457, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"instructor.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:35:06'),
+(458, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"student.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:35:06'),
+(459, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"ta.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:35:07'),
+(460, NULL, 'CREATE', 'auth', NULL, NULL, '{\"email\":\"it_admin.tarek@example.com\",\"password\":\"SecureP@ss123\",\"rememberMe\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/login', '2026-03-16 22:35:07'),
+(461, NULL, 'CREATE', 'auth', NULL, NULL, '{\"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczNzAwNTA2LCJleHAiOjE3NzYyOTI1MDZ9.k2qcn6mXihX3XY4_DnP4wxIy8WkSCBDbt3h2f5TZr4c\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE auth via POST /api/auth/refresh-token', '2026-03-16 22:35:07'),
+(462, 57, 'UPDATE', 'users', NULL, NULL, '{\"firstName\":\"Student\",\"lastName\":\"Tarek\",\"phone\":\"+201234567890\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE users via PUT /api/users/profile', '2026-03-16 22:35:07'),
+(463, 57, 'UPDATE', 'users', NULL, NULL, '{\"theme\":\"dark\",\"language\":\"en\",\"emailNotifications\":true,\"pushNotifications\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE users via PUT /api/users/preferences', '2026-03-16 22:35:07'),
+(464, 57, 'UPDATE', 'users', NULL, NULL, '{\"currentPassword\":\"SecureP@ss123\",\"newPassword\":\"SecureP@ss123\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE users via PATCH /api/users/password', '2026-03-16 22:35:08'),
+(465, 59, 'UPDATE', 'admin', 57, NULL, '{\"firstName\":\"Student\",\"lastName\":\"Tarek\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE admin via PUT /api/admin/users/57', '2026-03-16 22:35:08'),
+(466, 59, 'UPDATE', 'campuses', 1, NULL, '{\"name\":\"Updated Campus Name\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE campuses via PUT /api/campuses/1', '2026-03-16 22:35:09'),
+(467, 59, 'UPDATE', 'departments', 1, NULL, '{\"name\":\"Updated Department\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE departments via PUT /api/departments/1', '2026-03-16 22:35:09'),
+(468, 59, 'UPDATE', 'programs', 1, NULL, '{\"name\":\"Updated Program\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE programs via PUT /api/programs/1', '2026-03-16 22:35:10'),
+(469, NULL, 'CREATE', 'sections', NULL, NULL, '{\"courseId\":1,\"semesterId\":2,\"sectionNumber\":\"806\",\"maxCapacity\":30,\"location\":\"Room TEST\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE sections via POST /api/sections', '2026-03-16 22:35:11'),
+(470, 59, 'CREATE', 'courses', 1, NULL, '{\"title\":\"API Dog Test Material\",\"materialType\":\"document\",\"description\":\"Created by API Dog test\",\"weekNumber\":1,\"isPublished\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/materials', '2026-03-16 22:35:12'),
+(471, 59, 'CREATE', 'courses', 1, NULL, '{\"materials\":[{\"title\":\"Bulk Test 1\",\"materialType\":\"lecture\",\"weekNumber\":10,\"isPublished\":true},{\"title\":\"Bulk Test 2\",\"materialType\":\"slide\",\"weekNumber\":10,\"isPublished\":true}]}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/materials/bulk', '2026-03-16 22:35:12'),
+(472, 59, 'UPDATE', 'courses', 62, NULL, '{\"title\":\"Updated API Dog Material\",\"description\":\"Updated by test\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PUT /api/courses/1/materials/62', '2026-03-16 22:35:12'),
+(473, 59, 'UPDATE', 'courses', 15, NULL, '{\"isPublished\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PATCH /api/courses/1/materials/15/visibility', '2026-03-16 22:35:13'),
+(474, 59, 'CREATE', 'courses', 15, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/materials/15/view', '2026-03-16 22:35:13'),
+(475, 59, 'DELETE', 'courses', 62, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE courses via DELETE /api/courses/1/materials/62', '2026-03-16 22:35:13'),
+(476, 59, 'CREATE', 'courses', 1, NULL, '{\"title\":\"Week 10: API Dog Test\",\"organizationType\":\"lecture\",\"weekNumber\":10,\"orderIndex\":99}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE courses via POST /api/courses/1/structure', '2026-03-16 22:35:13'),
+(477, 59, 'UPDATE', 'courses', 25, NULL, '{\"title\":\"Week 10: Updated\",\"description\":\"Updated by API Dog\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PUT /api/courses/1/structure/25', '2026-03-16 22:35:13'),
+(478, 59, 'UPDATE', 'courses', 1, NULL, '{\"orderIds\":[7,8,9,10,11,12]}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE courses via PATCH /api/courses/1/structure/reorder', '2026-03-16 22:35:13'),
+(479, 59, 'DELETE', 'courses', 25, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE courses via DELETE /api/courses/1/structure/25', '2026-03-16 22:35:14'),
+(480, 59, 'CREATE', 'announcements', NULL, NULL, '{\"title\":\"API Dog Test Announcement\",\"content\":\"This is a test announcement from API Dog.\",\"courseId\":1,\"priority\":\"medium\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE announcements via POST /api/announcements', '2026-03-16 22:35:14'),
+(481, 59, 'UPDATE', 'announcements', 1, NULL, '{\"title\":\"Updated: Welcome to CS101!\",\"content\":\"Updated announcement content.\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE announcements via PUT /api/announcements/1', '2026-03-16 22:35:15'),
+(482, 59, 'UPDATE', 'announcements', 1, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE announcements via PATCH /api/announcements/1/publish', '2026-03-16 22:35:15'),
+(483, 59, 'UPDATE', 'announcements', 1, NULL, '{\"isPinned\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE announcements via PATCH /api/announcements/1/pin', '2026-03-16 22:35:15'),
+(484, 59, 'CREATE', 'assignments', NULL, NULL, '{\"courseId\":1,\"title\":\"API Dog Test Assignment\",\"description\":\"Test assignment from API Dog\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE assignments via POST /api/assignments', '2026-03-16 22:35:15'),
+(485, 59, 'UPDATE', 'assignments', 1, NULL, '{\"title\":\"Updated Assignment Title\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE assignments via PATCH /api/assignments/1', '2026-03-16 22:35:15'),
+(486, 59, 'CREATE', 'discussions', NULL, NULL, '{\"courseId\":1,\"title\":\"API Dog Test Discussion\",\"description\":\"Testing from API Dog.\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE discussions via POST /api/discussions', '2026-03-16 22:35:16'),
+(487, 59, 'UPDATE', 'discussions', 3, NULL, '{\"title\":\"Updated Discussion Title\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE discussions via PUT /api/discussions/3', '2026-03-16 22:35:16'),
+(488, 59, 'CREATE', 'discussions', 3, NULL, '{\"messageText\":\"Test reply from API Dog.\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE discussions via POST /api/discussions/3/reply', '2026-03-16 22:35:16'),
+(489, 59, 'UPDATE', 'discussions', 3, NULL, '{\"isPinned\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE discussions via PATCH /api/discussions/3/pin', '2026-03-16 22:35:16'),
+(490, 59, 'UPDATE', 'discussions', 3, NULL, '{\"isLocked\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE discussions via PATCH /api/discussions/3/lock', '2026-03-16 22:35:16'),
+(491, 59, 'CREATE', 'community', NULL, NULL, '{\"title\":\"API Dog Test Post\",\"content\":\"Testing from API Dog.\",\"communityId\":1}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/communities/1/posts', '2026-03-16 22:35:17'),
+(492, 59, 'CREATE', 'community', NULL, NULL, '{\"title\":\"Global Post from API Dog\",\"content\":\"Test global post.\",\"communityId\":1}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/global/posts', '2026-03-16 22:35:17'),
+(493, 59, 'CREATE', 'community', 3, NULL, '{\"commentText\":\"API Dog test comment\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/posts/3/comment', '2026-03-16 22:35:17'),
+(494, 59, 'CREATE', 'community', 3, NULL, '{\"reactionType\":\"like\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE community via POST /api/community/posts/3/react', '2026-03-16 22:35:17'),
+(495, 59, 'CREATE', 'files', NULL, NULL, '{\"folderName\":\"API Dog Test Folder\",\"parentFolderId\":1}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE files via POST /api/files/folders', '2026-03-16 22:35:19'),
+(496, 59, 'UPDATE', 'files', NULL, NULL, '{\"folderName\":\"Updated Test Folder\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE files via PUT /api/files/folders/27', '2026-03-16 22:35:19'),
+(497, 59, 'DELETE', 'files', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE files via DELETE /api/files/folders/27', '2026-03-16 22:35:19'),
+(498, 59, 'CREATE', 'labs', NULL, NULL, '{\"title\":\"API Dog Test Lab\",\"courseId\":1,\"description\":\"Test lab\",\"dueDate\":\"2026-06-15T23:59:00Z\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE labs via POST /api/labs', '2026-03-16 22:35:20'),
+(499, 59, 'UPDATE', 'labs', 3, NULL, '{\"title\":\"Updated Lab Title\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE labs via PUT /api/labs/3', '2026-03-16 22:35:20'),
+(500, 58, 'CREATE', 'rubrics', NULL, NULL, '{\"rubricName\":\"API Dog Test Rubric\",\"courseId\":1,\"totalPoints\":100}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE rubrics via POST /api/rubrics', '2026-03-16 22:35:21'),
+(501, 59, 'CREATE', 'attendance', NULL, NULL, '{\"sectionId\":1,\"sessionDate\":\"2026-03-15\",\"sessionType\":\"lecture\",\"startTime\":\"09:00:00\",\"endTime\":\"10:30:00\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE attendance via POST /attendance/sessions', '2026-03-16 22:35:21'),
+(502, 57, 'UPDATE', 'notifications', NULL, NULL, '{\"emailEnabled\":true,\"pushEnabled\":true}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE notifications via PUT /api/notifications/preferences', '2026-03-16 22:35:22'),
+(503, 57, 'UPDATE', 'notifications', NULL, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE notifications via PATCH /api/notifications/read-all', '2026-03-16 22:35:22'),
+(504, 59, 'CREATE', 'notifications', NULL, NULL, '{\"userIds\":[57],\"notificationType\":\"system\",\"title\":\"Test from API Dog\",\"body\":\"This is a test notification.\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE notifications via POST /api/notifications/send', '2026-03-16 22:35:22'),
+(505, 57, 'CREATE', 'messages', NULL, NULL, '{\"participantIds\":[59],\"type\":\"direct\",\"text\":\"Hello from API Dog test!\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE messages via POST /api/messages/conversations', '2026-03-16 22:35:22'),
+(506, 59, 'CREATE', 'calendar', NULL, NULL, '{\"title\":\"API Dog Test Event\",\"description\":\"Test\",\"startTime\":\"2026-04-01T10:00:00Z\",\"endTime\":\"2026-04-01T11:00:00Z\",\"eventType\":\"meeting\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE calendar via POST /api/calendar/events', '2026-03-16 22:35:23'),
+(507, 59, 'DELETE', 'calendar', 18, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE calendar via DELETE /api/calendar/events/18', '2026-03-16 22:35:23'),
+(508, 57, 'CREATE', 'tasks', NULL, NULL, '{\"title\":\"Study for Final Exam\",\"description\":\"Review all chapters\",\"taskType\":\"study\",\"dueDate\":\"2026-03-18T18:14:01.673Z\",\"priority\":\"high\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE tasks via POST /api/tasks', '2026-03-16 22:35:24'),
+(509, 57, 'CREATE', 'tasks', 8, NULL, '{\"notes\":\"Finished studying all chapters\",\"timeTakenMinutes\":120}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE tasks via POST /api/tasks/8/complete', '2026-03-16 22:35:25'),
+(510, 57, 'CREATE', 'tasks', NULL, NULL, '{\"taskId\":9,\"reminderTime\":\"2026-03-17T18:14:01.673Z\",\"reminderType\":\"in_app\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE tasks via POST /api/tasks/reminders', '2026-03-16 22:35:25'),
+(511, 57, 'DELETE', 'search', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE search via DELETE /api/search/history', '2026-03-16 22:35:26'),
+(512, 59, 'CREATE', 'reports', NULL, NULL, '{\"templateId\":1,\"reportName\":\"Test Student Progress Report\",\"filters\":{\"courseId\":1,\"semesterId\":2},\"exportFormat\":\"pdf\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE reports via POST /api/reports/generate', '2026-03-16 22:35:27'),
+(513, NULL, 'CREATE', 'google-drive', NULL, NULL, '{\"name\":\"EduVerse_Test_Folder\",\"parentId\":\"\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/folders', '2026-03-16 22:35:28'),
+(514, NULL, 'CREATE', 'google-drive', NULL, NULL, '{\"name\":\"EduVerse_Test_Folder\",\"parentId\":\"\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/folders/find-or-create', '2026-03-16 22:35:28'),
+(515, 59, 'CREATE', 'google-drive', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/init', '2026-03-16 22:35:30'),
+(516, 59, 'CREATE', 'google-drive', 1, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/courses/1/init', '2026-03-16 22:35:30'),
+(517, 59, 'CREATE', 'google-drive', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/labs/3/init', '2026-03-16 22:35:30'),
+(518, 59, 'CREATE', 'google-drive', NULL, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE google-drive via POST /google-drive/admin/assignments/1/init', '2026-03-16 22:35:30'),
+(519, 61, 'CREATE', 'security', NULL, NULL, '{\"format\":\"json\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE security via POST /api/security/logs/export', '2026-03-16 22:35:30'),
+(520, 61, 'DELETE', 'security', 10, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE security via DELETE /api/security/sessions/user/10', '2026-03-16 22:35:31'),
+(521, 61, 'CREATE', 'security', NULL, NULL, '{\"ipAddress\":\"192.168.1.50\",\"reason\":\"Repeated failed logins\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE security via POST /api/security/block-ip', '2026-03-16 22:35:31'),
+(522, 61, 'DELETE', 'security', 1, NULL, NULL, '127.0.0.1', 'PostmanRuntime/7.52.0', 'DELETE security via DELETE /api/security/blocked-ips/1', '2026-03-16 22:35:31'),
+(523, 61, 'CREATE', 'audit', NULL, NULL, '{\"format\":\"csv\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE audit via POST /api/audit/logs/export', '2026-03-16 22:35:32'),
+(524, 61, 'UPDATE', 'settings', NULL, NULL, '{\"settings\":{\"platform_name\":\"EduVerse updated\"}}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE settings via PUT /api/settings', '2026-03-16 22:35:32'),
+(525, 61, 'UPDATE', 'settings', NULL, NULL, '{\"value\":\"EduVerse Pro\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE settings via PUT /api/settings/platform_name', '2026-03-16 22:35:32'),
+(526, 61, 'UPDATE', 'settings', NULL, NULL, '{\"primaryColor\":\"#ff0000\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE settings via PUT /api/settings/branding/1', '2026-03-16 22:35:32'),
+(527, 61, 'UPDATE', 'settings', 1, NULL, '{\"maxRequests\":1000,\"windowSeconds\":60}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'UPDATE settings via PUT /api/settings/rate-limits/1', '2026-03-16 22:35:32'),
+(528, 61, 'CREATE', 'integrations', NULL, NULL, '{\"integrationName\":\"Canvas LMS\",\"integrationType\":\"lms\",\"campusId\":1,\"apiEndpoint\":\"https://canvas.example.com\",\"apiKey\":\"s3cr3t\",\"apiSecret\":\"s3cr3t2\",\"configuration\":\"{}\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE integrations via POST /api/integrations', '2026-03-16 22:35:33'),
+(529, 61, 'CREATE', 'alerts', NULL, NULL, '{\"name\":\"High CPU Alert\",\"conditionType\":\"cpu_usage\",\"threshold\":90,\"description\":\"Alert when CPU exceeds 90%\"}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE alerts via POST /api/alerts', '2026-03-16 22:35:35'),
+(530, 61, 'CREATE', 'backups', NULL, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE backups via POST /api/backups', '2026-03-16 22:35:36'),
+(531, 61, 'CREATE', 'database', NULL, NULL, '{}', '127.0.0.1', 'PostmanRuntime/7.52.0', 'CREATE database via POST /api/database/optimize', '2026-03-16 22:35:37');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `backup_records`
+--
+
+DROP TABLE IF EXISTS `backup_records`;
+CREATE TABLE IF NOT EXISTS `backup_records` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_size_bytes` bigint UNSIGNED NOT NULL DEFAULT '0',
+  `type` enum('manual','scheduled') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'manual',
+  `status` enum('pending','in_progress','completed','failed') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `created_by` bigint UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `completed_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `backup_records_ibfk_created_by` (`created_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `backup_records`
+--
+
+INSERT INTO `backup_records` (`id`, `file_name`, `file_size_bytes`, `type`, `status`, `created_by`, `created_at`, `completed_at`) VALUES
+(1, 'backup_2026-03-16T22-04-58-526Z.sql', 687684, 'manual', 'completed', NULL, '2026-03-16 22:04:58', '2026-03-16 22:05:00'),
+(3, 'backup_2026-03-16T22-34-10-919Z.sql', 710693, 'manual', 'completed', NULL, '2026-03-16 22:34:10', '2026-03-16 22:34:13'),
+(4, 'backup_2026-03-16T22-35-35-446Z.sql', 732426, 'manual', 'completed', NULL, '2026-03-16 22:35:35', '2026-03-16 22:35:37');
 
 -- --------------------------------------------------------
 
@@ -1523,7 +1760,7 @@ CREATE TABLE IF NOT EXISTS `branding_settings` (
 --
 
 INSERT INTO `branding_settings` (`branding_id`, `campus_id`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `custom_css`, `email_header_html`, `email_footer_html`, `updated_by`, `updated_at`) VALUES
-(1, 1, '/assets/logos/main_campus_logo.png', '/assets/favicons/main_campus.ico', '#ff0000', '#6c757d', NULL, NULL, NULL, 66, '2026-03-16 20:57:27'),
+(1, 1, '/assets/logos/main_campus_logo.png', '/assets/favicons/main_campus.ico', '#ff0000', '#6c757d', NULL, NULL, NULL, 61, '2026-03-16 22:35:32'),
 (2, 2, '/assets/logos/downtown_campus_logo.png', '/assets/favicons/downtown_campus.ico', '#28a745', '#6c757d', NULL, NULL, NULL, NULL, '2025-11-20 13:43:00'),
 (3, 3, '/assets/logos/online_campus_logo.png', '/assets/favicons/online_campus.ico', '#17a2b8', '#6c757d', NULL, NULL, NULL, NULL, '2025-11-20 13:43:00');
 
@@ -1558,7 +1795,7 @@ CREATE TABLE IF NOT EXISTS `calendar_events` (
   KEY `idx_user` (`user_id`),
   KEY `idx_course` (`course_id`),
   KEY `idx_start` (`start_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `calendar_events`
@@ -1754,7 +1991,7 @@ CREATE TABLE IF NOT EXISTS `chat_messages` (
   KEY `endorsed_by` (`endorsed_by`),
   KEY `idx_thread` (`thread_id`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `chat_messages`
@@ -1773,7 +2010,8 @@ INSERT INTO `chat_messages` (`message_id`, `thread_id`, `user_id`, `message_text
 (17, 3, 59, 'Test reply from API Dog.', NULL, 0, 0, NULL, 0, '2026-03-14 15:40:43', '2026-03-14 15:40:43'),
 (18, 3, 59, 'Test reply from API Dog.', NULL, 0, 0, NULL, 0, '2026-03-16 20:19:03', '2026-03-16 20:19:03'),
 (19, 3, 59, 'Test reply from API Dog.', NULL, 0, 0, NULL, 0, '2026-03-16 20:32:50', '2026-03-16 20:32:50'),
-(20, 3, 59, 'Test reply from API Dog.', NULL, 0, 0, NULL, 0, '2026-03-16 20:53:52', '2026-03-16 20:53:52');
+(20, 3, 59, 'Test reply from API Dog.', NULL, 0, 0, NULL, 0, '2026-03-16 20:53:52', '2026-03-16 20:53:52'),
+(21, 3, 59, 'Test reply from API Dog.', NULL, 0, 0, NULL, 0, '2026-03-16 22:35:16', '2026-03-16 22:35:16');
 
 -- --------------------------------------------------------
 
@@ -1862,14 +2100,14 @@ CREATE TABLE IF NOT EXISTS `community_posts` (
   KEY `idx_course` (`course_id`),
   KEY `idx_user` (`user_id`),
   KEY `idx_community` (`community_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `community_posts`
 --
 
 INSERT INTO `community_posts` (`post_id`, `course_id`, `community_id`, `user_id`, `title`, `content`, `post_type`, `is_pinned`, `is_locked`, `view_count`, `upvote_count`, `reply_count`, `created_at`, `updated_at`) VALUES
-(3, NULL, 1, 12, 'Study Group for Midterm', 'Anyone interested in forming a study group for the upcoming midterm? We can meet on weekends.', 'discussion', 0, 0, 54, 10, 15, '2025-11-20 13:43:00', '2026-03-16 20:53:54'),
+(3, NULL, 1, 12, 'Study Group for Midterm', 'Anyone interested in forming a study group for the upcoming midterm? We can meet on weekends.', 'discussion', 0, 0, 56, 10, 17, '2025-11-20 13:43:00', '2026-03-16 22:35:17'),
 (7, NULL, 1, 58, 'Post 1 Trying to test the posts', 'Post 1 Content', 'announcement', 0, 0, 8, 4, 2, '2026-03-10 17:25:16', '2026-03-10 18:49:07'),
 (8, NULL, 1, 57, 'First Tagged Post', 'Testing tags system', 'discussion', 0, 0, 0, 0, 0, '2026-03-10 19:04:01', '2026-03-10 19:04:01'),
 (9, NULL, 2, 57, 'Math Study Group', 'Anyone want to study linear algebra?', 'discussion', 0, 0, 0, 0, 0, '2026-03-10 19:04:33', '2026-03-10 19:04:33'),
@@ -1892,7 +2130,11 @@ INSERT INTO `community_posts` (`post_id`, `course_id`, `community_id`, `user_id`
 (26, NULL, 1, 59, 'API Dog Test Post', 'Testing from API Dog.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 20:45:17', '2026-03-16 20:45:17'),
 (27, NULL, 1, 59, 'Global Post from API Dog', 'Test global post.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 20:45:17', '2026-03-16 20:45:17'),
 (28, NULL, 1, 59, 'API Dog Test Post', 'Testing from API Dog.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 20:53:53', '2026-03-16 20:53:53'),
-(29, NULL, 1, 59, 'Global Post from API Dog', 'Test global post.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 20:53:53', '2026-03-16 20:53:53');
+(29, NULL, 1, 59, 'Global Post from API Dog', 'Test global post.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 20:53:53', '2026-03-16 20:53:53'),
+(30, NULL, 1, 59, 'API Dog Test Post', 'Testing from API Dog.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 22:31:29', '2026-03-16 22:31:29'),
+(31, NULL, 1, 59, 'Global Post from API Dog', 'Test global post.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 22:31:29', '2026-03-16 22:31:29'),
+(32, NULL, 1, 59, 'API Dog Test Post', 'Testing from API Dog.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 22:35:17', '2026-03-16 22:35:17'),
+(33, NULL, 1, 59, 'Global Post from API Dog', 'Test global post.', 'discussion', 0, 0, 0, 0, 0, '2026-03-16 22:35:17', '2026-03-16 22:35:17');
 
 -- --------------------------------------------------------
 
@@ -1914,7 +2156,7 @@ CREATE TABLE IF NOT EXISTS `community_post_comments` (
   KEY `parent_comment_id` (`parent_comment_id`),
   KEY `idx_post` (`post_id`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `community_post_comments`
@@ -1932,7 +2174,9 @@ INSERT INTO `community_post_comments` (`comment_id`, `post_id`, `user_id`, `comm
 (16, 3, 59, 'API Dog test comment', NULL, 0, '2026-03-16 20:20:10', '2026-03-16 20:20:10'),
 (17, 3, 59, 'API Dog test comment', NULL, 0, '2026-03-16 20:32:52', '2026-03-16 20:32:52'),
 (18, 3, 59, 'API Dog test comment', NULL, 0, '2026-03-16 20:45:17', '2026-03-16 20:45:17'),
-(19, 3, 59, 'API Dog test comment', NULL, 0, '2026-03-16 20:53:54', '2026-03-16 20:53:54');
+(19, 3, 59, 'API Dog test comment', NULL, 0, '2026-03-16 20:53:54', '2026-03-16 20:53:54'),
+(20, 3, 59, 'API Dog test comment', NULL, 0, '2026-03-16 22:31:30', '2026-03-16 22:31:30'),
+(21, 3, 59, 'API Dog test comment', NULL, 0, '2026-03-16 22:35:17', '2026-03-16 22:35:17');
 
 -- --------------------------------------------------------
 
@@ -1951,7 +2195,7 @@ CREATE TABLE IF NOT EXISTS `community_post_reactions` (
   UNIQUE KEY `unique_post_user_reaction` (`post_id`,`user_id`,`reaction_type`),
   KEY `idx_post` (`post_id`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `community_post_reactions`
@@ -2171,14 +2415,14 @@ CREATE TABLE IF NOT EXISTS `course_chat_threads` (
   PRIMARY KEY (`thread_id`),
   KEY `idx_course` (`course_id`),
   KEY `idx_creator` (`created_by`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `course_chat_threads`
 --
 
 INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `title`, `description`, `status`, `is_pinned`, `is_locked`, `view_count`, `reply_count`, `created_at`, `updated_at`) VALUES
-(3, 2, 12, 'Updated Discussion Title', 'Share study resources and tips', 'open', 1, 1, 68, 20, '2025-11-20 13:43:00', '2026-03-16 20:53:52'),
+(3, 2, 12, 'Updated Discussion Title', 'Share study resources and tips', 'open', 1, 1, 70, 21, '2025-11-20 13:43:00', '2026-03-16 22:35:16'),
 (5, 1, 57, 'Help with Midterm Review - Chapter 5', 'Can anyone share their notes on Chapter 5? I missed the lecture and need help understanding the key concepts.', 'open', 0, 0, 2, 2, '2026-03-03 18:24:20', '2026-03-10 17:28:48'),
 (6, 1, 57, 'Tips for Final Project - Data Structures & Algorithms', 'Updated: Including both data structures and algorithm choices for the graph module.', 'open', 1, 0, 6, 5, '2026-03-03 18:26:52', '2026-03-10 17:28:47'),
 (8, 1, 57, 'Tips for Final Project - Data Structures', 'What data structures would you recommend for implementing the graph traversal module?', 'open', 0, 0, 0, 0, '2026-03-03 18:34:11', '2026-03-03 18:34:11'),
@@ -2193,7 +2437,9 @@ INSERT INTO `course_chat_threads` (`thread_id`, `course_id`, `created_by`, `titl
 (18, 1, 59, 'API Dog Test Discussion', 'Testing from API Dog.', 'open', 0, 0, 0, 0, '2026-03-16 20:20:09', '2026-03-16 20:20:09'),
 (19, 1, 59, 'API Dog Test Discussion', 'Testing from API Dog.', 'open', 0, 0, 0, 0, '2026-03-16 20:32:50', '2026-03-16 20:32:50'),
 (20, 1, 59, 'API Dog Test Discussion', 'Testing from API Dog.', 'open', 0, 0, 0, 0, '2026-03-16 20:45:16', '2026-03-16 20:45:16'),
-(21, 1, 59, 'API Dog Test Discussion', 'Testing from API Dog.', 'open', 0, 0, 0, 0, '2026-03-16 20:53:52', '2026-03-16 20:53:52');
+(21, 1, 59, 'API Dog Test Discussion', 'Testing from API Dog.', 'open', 0, 0, 0, 0, '2026-03-16 20:53:52', '2026-03-16 20:53:52'),
+(22, 1, 59, 'API Dog Test Discussion', 'Testing from API Dog.', 'open', 0, 0, 0, 0, '2026-03-16 22:31:28', '2026-03-16 22:31:28'),
+(23, 1, 59, 'API Dog Test Discussion', 'Testing from API Dog.', 'open', 0, 0, 0, 0, '2026-03-16 22:35:16', '2026-03-16 22:35:16');
 
 -- --------------------------------------------------------
 
@@ -2384,21 +2630,21 @@ CREATE TABLE IF NOT EXISTS `course_materials` (
   KEY `idx_type` (`material_type`),
   KEY `idx_materials_week_number` (`course_id`,`week_number`),
   KEY `idx_course_materials_youtube` (`youtube_video_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `course_materials`
 --
 
 INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `drive_file_id`, `material_type`, `title`, `description`, `external_url`, `youtube_video_id`, `order_index`, `week_number`, `uploaded_by`, `is_published`, `published_at`, `view_count`, `download_count`, `created_at`, `updated_at`) VALUES
-(4, 2, 4, NULL, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, NULL, 1, NULL, 3, 1, NULL, 0, 11, '2025-11-20 13:42:59', '2026-03-16 20:53:49'),
+(4, 2, 4, NULL, 'document', 'Course Syllabus', 'CS201 Spring 2025 Syllabus', NULL, NULL, 1, NULL, 3, 1, NULL, 0, 13, '2025-11-20 13:42:59', '2026-03-16 22:35:13'),
 (6, 2, NULL, NULL, 'lecture', 'Week 1: Updated Lecture Title', 'Updated description', NULL, NULL, 0, 5, 59, 0, '2026-03-10 20:03:39', 1, 0, '2026-03-10 20:03:38', '2026-03-10 20:05:29'),
 (7, 2, NULL, NULL, 'reading', 'Week 2: Advanced Topics', 'Testing weekNumber filter', NULL, NULL, 0, 2, 59, 1, '2026-03-10 20:04:00', 0, 0, '2026-03-10 20:03:59', '2026-03-10 20:03:59'),
 (8, 2, NULL, NULL, 'slide', 'Week 3: Final Review', 'Testing weekNumber filter', NULL, NULL, 0, 3, 59, 1, '2026-03-10 20:04:02', 0, 0, '2026-03-10 20:04:02', '2026-03-10 20:04:02'),
 (9, 2, NULL, NULL, 'slide', 'Bulk Material 1: Lecture Slides', 'Created via bulk upload', NULL, NULL, 0, 4, 59, 1, '2026-03-10 20:04:27', 0, 0, '2026-03-10 20:04:26', '2026-03-10 20:04:26'),
 (10, 2, NULL, NULL, 'reading', 'Bulk Material 2: Reading Assignment', 'Created via bulk upload', NULL, NULL, 0, 4, 59, 1, '2026-03-10 20:04:27', 0, 0, '2026-03-10 20:04:27', '2026-03-10 20:04:27'),
 (11, 2, NULL, NULL, 'document', 'Bulk Material 3: Lab Exercise', 'Created via bulk upload', NULL, NULL, 0, 4, 59, 0, NULL, 0, 0, '2026-03-10 20:04:27', '2026-03-10 20:04:27'),
-(15, 1, NULL, NULL, 'lecture', 'Week 1: Introduction to Programming', 'Overview of programming concepts and course structure', NULL, NULL, 1, 1, 2, 1, '2026-03-16 20:19:00', 36, 10, '2026-03-10 20:09:45', '2026-03-16 20:53:48'),
+(15, 1, NULL, NULL, 'lecture', 'Week 1: Introduction to Programming', 'Overview of programming concepts and course structure', NULL, NULL, 1, 1, 2, 1, '2026-03-16 20:19:00', 38, 10, '2026-03-10 20:09:45', '2026-03-16 22:35:13'),
 (16, 1, NULL, NULL, 'slide', 'Week 1: Presentation Slides', 'Accompanying slides for week 1 lecture', 'https://slides.example.com/week1', NULL, 2, 1, 2, 1, '2026-03-10 20:09:45', 18, 5, '2026-03-10 20:09:45', '2026-03-10 20:09:45'),
 (17, 1, NULL, NULL, 'video', 'Week 1: Video Tutorial', 'Hands-on coding demonstration', 'https://www.youtube.com/embed/dQw4w9WgXcQ', NULL, 3, 1, 2, 1, '2026-03-10 20:09:45', 45, 0, '2026-03-10 20:09:45', '2026-03-10 20:09:45'),
 (18, 1, NULL, NULL, 'reading', 'Week 2: Variables and Data Types', 'Chapter 2 from textbook', 'https://textbook.example.com/chapter2', NULL, 1, 2, 2, 1, '2026-03-10 20:09:45', 12, 3, '2026-03-10 20:09:45', '2026-03-10 20:09:45'),
@@ -2430,7 +2676,11 @@ INSERT INTO `course_materials` (`material_id`, `course_id`, `file_id`, `drive_fi
 (54, 1, NULL, NULL, 'lecture', 'Bulk Test 1', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 20:45:12', 0, 0, '2026-03-16 20:45:12', '2026-03-16 20:45:12'),
 (55, 1, NULL, NULL, 'slide', 'Bulk Test 2', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 20:45:12', 0, 0, '2026-03-16 20:45:12', '2026-03-16 20:45:12'),
 (57, 1, NULL, NULL, 'lecture', 'Bulk Test 1', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 20:53:48', 0, 0, '2026-03-16 20:53:48', '2026-03-16 20:53:48'),
-(58, 1, NULL, NULL, 'slide', 'Bulk Test 2', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 20:53:48', 0, 0, '2026-03-16 20:53:48', '2026-03-16 20:53:48');
+(58, 1, NULL, NULL, 'slide', 'Bulk Test 2', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 20:53:48', 0, 0, '2026-03-16 20:53:48', '2026-03-16 20:53:48'),
+(60, 1, NULL, NULL, 'lecture', 'Bulk Test 1', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 22:31:25', 0, 0, '2026-03-16 22:31:24', '2026-03-16 22:31:24'),
+(61, 1, NULL, NULL, 'slide', 'Bulk Test 2', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 22:31:25', 0, 0, '2026-03-16 22:31:24', '2026-03-16 22:31:24'),
+(63, 1, NULL, NULL, 'lecture', 'Bulk Test 1', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 22:35:13', 0, 0, '2026-03-16 22:35:12', '2026-03-16 22:35:12'),
+(64, 1, NULL, NULL, 'slide', 'Bulk Test 2', NULL, NULL, NULL, 0, 10, 59, 1, '2026-03-16 22:35:13', 0, 0, '2026-03-16 22:35:12', '2026-03-16 22:35:12');
 
 -- --------------------------------------------------------
 
@@ -2529,7 +2779,7 @@ CREATE TABLE IF NOT EXISTS `course_sections` (
   UNIQUE KEY `unique_section` (`course_id`,`semester_id`,`section_number`),
   KEY `idx_course` (`course_id`),
   KEY `idx_semester` (`semester_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `course_sections`
@@ -2565,7 +2815,9 @@ INSERT INTO `course_sections` (`section_id`, `course_id`, `semester_id`, `sectio
 (30, 1, 2, '888', 30, 0, 'Room TEST', 'open', '2026-03-16 20:34:09', '2026-03-16 20:34:09'),
 (31, 1, 2, '902', 30, 0, 'Room TEST', 'open', '2026-03-16 20:45:10', '2026-03-16 20:45:10'),
 (32, 1, 2, '113', 30, 0, 'Room TEST', 'open', '2026-03-16 20:53:46', '2026-03-16 20:53:46'),
-(33, 1, 1, '8', 30, 0, 'Room A101', 'open', '2026-03-16 20:56:28', '2026-03-16 20:56:28');
+(33, 1, 1, '8', 30, 0, 'Room A101', 'open', '2026-03-16 20:56:28', '2026-03-16 20:56:28'),
+(34, 1, 2, '197', 30, 0, 'Room TEST', 'open', '2026-03-16 22:31:23', '2026-03-16 22:31:23'),
+(35, 1, 2, '806', 30, 0, 'Room TEST', 'open', '2026-03-16 22:35:11', '2026-03-16 22:35:11');
 
 -- --------------------------------------------------------
 
@@ -2659,7 +2911,7 @@ CREATE TABLE IF NOT EXISTS `deadline_reminders` (
   KEY `idx_task` (`task_id`),
   KEY `idx_user` (`user_id`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `deadline_reminders`
@@ -2678,7 +2930,9 @@ INSERT INTO `deadline_reminders` (`reminder_id`, `task_id`, `user_id`, `reminder
 (15, 9, 57, '2026-03-17 18:14:02', 'in_app', 'pending', NULL, '2026-03-16 20:20:18'),
 (16, 9, 57, '2026-03-17 18:14:02', 'in_app', 'pending', NULL, '2026-03-16 20:33:00'),
 (17, 9, 57, '2026-03-17 18:14:02', 'in_app', 'pending', NULL, '2026-03-16 20:45:25'),
-(18, 9, 57, '2026-03-17 18:14:02', 'in_app', 'pending', NULL, '2026-03-16 20:54:01');
+(18, 9, 57, '2026-03-17 18:14:02', 'in_app', 'pending', NULL, '2026-03-16 20:54:01'),
+(19, 9, 57, '2026-03-17 18:14:02', 'in_app', 'pending', NULL, '2026-03-16 22:31:38'),
+(20, 9, 57, '2026-03-17 18:14:02', 'in_app', 'pending', NULL, '2026-03-16 22:35:25');
 
 -- --------------------------------------------------------
 
@@ -2708,7 +2962,7 @@ CREATE TABLE IF NOT EXISTS `departments` (
 --
 
 INSERT INTO `departments` (`department_id`, `campus_id`, `department_name`, `department_code`, `head_of_department_id`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Updated Department', 'CS', NULL, 'Department of Computer Science and Engineering', 'active', '2025-11-20 13:42:59', '2026-03-16 20:53:45'),
+(1, 1, 'Updated Department', 'CS', NULL, 'Department of Computer Science and Engineering', 'active', '2025-11-20 13:42:59', '2026-03-16 22:35:09'),
 (2, 1, 'Mathematics', 'MATH', NULL, 'Department of Mathematics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (3, 1, 'Physics', 'PHY', NULL, 'Department of Physics', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
 (4, 2, 'Business Administration', 'BUS', NULL, 'School of Business', 'active', '2025-11-20 13:42:59', '2025-11-20 13:42:59'),
@@ -2936,7 +3190,7 @@ CREATE TABLE IF NOT EXISTS `export_history` (
   KEY `file_id` (`file_id`),
   KEY `idx_report` (`report_id`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `export_history`
@@ -2958,7 +3212,9 @@ INSERT INTO `export_history` (`export_id`, `report_id`, `user_id`, `export_forma
 (13, 14, 59, 'pdf', NULL, '2026-03-16 20:20:20'),
 (14, 15, 59, 'pdf', NULL, '2026-03-16 20:33:02'),
 (15, 16, 59, 'pdf', NULL, '2026-03-16 20:45:27'),
-(16, 17, 59, 'pdf', NULL, '2026-03-16 20:54:03');
+(16, 17, 59, 'pdf', NULL, '2026-03-16 20:54:03'),
+(17, 18, 59, 'pdf', NULL, '2026-03-16 22:31:40'),
+(18, 19, 59, 'pdf', NULL, '2026-03-16 22:35:27');
 
 -- --------------------------------------------------------
 
@@ -3133,7 +3389,7 @@ CREATE TABLE IF NOT EXISTS `folders` (
   PRIMARY KEY (`folder_id`),
   KEY `idx_parent` (`parent_folder_id`),
   KEY `idx_creator` (`created_by`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `folders`
@@ -3204,7 +3460,7 @@ CREATE TABLE IF NOT EXISTS `generated_reports` (
   KEY `file_id` (`file_id`),
   KEY `idx_user` (`user_id`),
   KEY `idx_status` (`generation_status`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `generated_reports`
@@ -3226,7 +3482,9 @@ INSERT INTO `generated_reports` (`report_id`, `template_id`, `user_id`, `report_
 (14, 1, 59, 'Test Student Progress Report', 'student', '{\"courseId\":1,\"semesterId\":2}', NULL, 'completed', '2026-03-16 20:20:20', '2026-03-16 20:20:20'),
 (15, 1, 59, 'Test Student Progress Report', 'student', '{\"courseId\":1,\"semesterId\":2}', NULL, 'completed', '2026-03-16 20:33:02', '2026-03-16 20:33:01'),
 (16, 1, 59, 'Test Student Progress Report', 'student', '{\"courseId\":1,\"semesterId\":2}', NULL, 'completed', '2026-03-16 20:45:28', '2026-03-16 20:45:27'),
-(17, 1, 59, 'Test Student Progress Report', 'student', '{\"courseId\":1,\"semesterId\":2}', NULL, 'completed', '2026-03-16 20:54:04', '2026-03-16 20:54:03');
+(17, 1, 59, 'Test Student Progress Report', 'student', '{\"courseId\":1,\"semesterId\":2}', NULL, 'completed', '2026-03-16 20:54:04', '2026-03-16 20:54:03'),
+(18, 1, 59, 'Test Student Progress Report', 'student', '{\"courseId\":1,\"semesterId\":2}', NULL, 'completed', '2026-03-16 22:31:40', '2026-03-16 22:31:39'),
+(19, 1, 59, 'Test Student Progress Report', 'student', '{\"courseId\":1,\"semesterId\":2}', NULL, 'completed', '2026-03-16 22:35:27', '2026-03-16 22:35:27');
 
 -- --------------------------------------------------------
 
@@ -3406,7 +3664,7 @@ CREATE TABLE IF NOT EXISTS `labs` (
   KEY `created_by` (`created_by`),
   KEY `idx_course` (`course_id`),
   KEY `idx_due_date` (`due_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `labs`
@@ -3428,7 +3686,9 @@ INSERT INTO `labs` (`lab_id`, `course_id`, `title`, `description`, `lab_number`,
 (17, 1, 'API Dog Test Lab', 'Test lab', NULL, '2026-06-15 23:59:00', NULL, 100.00, 0.00, 'draft', 59, '2026-03-16 20:20:13', '2026-03-16 20:20:13'),
 (18, 1, 'API Dog Test Lab', 'Test lab', NULL, '2026-06-15 23:59:00', NULL, 100.00, 0.00, 'draft', 59, '2026-03-16 20:32:54', '2026-03-16 20:32:54'),
 (19, 1, 'API Dog Test Lab', 'Test lab', NULL, '2026-06-15 23:59:00', NULL, 100.00, 0.00, 'draft', 59, '2026-03-16 20:45:20', '2026-03-16 20:45:20'),
-(20, 1, 'API Dog Test Lab', 'Test lab', NULL, '2026-06-15 23:59:00', NULL, 100.00, 0.00, 'draft', 59, '2026-03-16 20:53:56', '2026-03-16 20:53:56');
+(20, 1, 'API Dog Test Lab', 'Test lab', NULL, '2026-06-15 23:59:00', NULL, 100.00, 0.00, 'draft', 59, '2026-03-16 20:53:56', '2026-03-16 20:53:56'),
+(21, 1, 'API Dog Test Lab', 'Test lab', NULL, '2026-06-15 23:59:00', NULL, 100.00, 0.00, 'draft', 59, '2026-03-16 22:31:32', '2026-03-16 22:31:32'),
+(22, 1, 'API Dog Test Lab', 'Test lab', NULL, '2026-06-15 23:59:00', NULL, 100.00, 0.00, 'draft', 59, '2026-03-16 22:35:20', '2026-03-16 22:35:20');
 
 -- --------------------------------------------------------
 
@@ -3658,7 +3918,7 @@ CREATE TABLE IF NOT EXISTS `lecture_sections_labs` (
   KEY `material_id` (`material_id`),
   KEY `idx_course` (`course_id`),
   KEY `idx_type` (`organization_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `lecture_sections_labs`
@@ -3667,12 +3927,12 @@ CREATE TABLE IF NOT EXISTS `lecture_sections_labs` (
 INSERT INTO `lecture_sections_labs` (`organization_id`, `course_id`, `material_id`, `organization_type`, `title`, `week_number`, `order_index`, `description`, `created_at`, `updated_at`) VALUES
 (5, 2, NULL, 'lecture', 'Week 1: Arrays Introduction', 1, 1, 'Introduction to arrays and lists', '2025-11-20 13:43:01', '2026-03-10 19:52:36'),
 (6, 2, NULL, 'lab', 'Week 2: Array Operations Lab', 2, 2, 'Hands-on practice with arrays', '2025-11-20 13:43:01', '2026-03-10 19:52:36'),
-(7, 1, NULL, 'lecture', 'Week 1 Lecture: Introduction', 1, 0, 'Course introduction and overview', '2026-03-10 20:09:45', '2026-03-16 20:53:49'),
-(8, 1, NULL, 'lab', 'Week 1 Lab: Setup', 1, 1, 'Development environment setup', '2026-03-10 20:09:46', '2026-03-16 20:53:49'),
-(9, 1, NULL, 'lecture', 'Week 2 Lecture: Variables', 2, 2, 'Variables and data types', '2026-03-10 20:09:46', '2026-03-16 20:53:49'),
-(10, 1, NULL, 'section', 'Week 2 Discussion: Best Practices', 2, 3, 'Discussion on coding standards', '2026-03-10 20:09:46', '2026-03-16 20:53:49'),
-(11, 1, NULL, 'lecture', 'Week 3 Lecture: Control Flow', 3, 4, 'If statements and loops', '2026-03-10 20:09:46', '2026-03-16 20:53:49'),
-(12, 1, NULL, 'tutorial', 'Week 3 Tutorial: Practice', 3, 5, 'Guided practice session', '2026-03-10 20:09:46', '2026-03-16 20:53:49'),
+(7, 1, NULL, 'lecture', 'Week 1 Lecture: Introduction', 1, 0, 'Course introduction and overview', '2026-03-10 20:09:45', '2026-03-16 22:35:13'),
+(8, 1, NULL, 'lab', 'Week 1 Lab: Setup', 1, 1, 'Development environment setup', '2026-03-10 20:09:46', '2026-03-16 22:35:13'),
+(9, 1, NULL, 'lecture', 'Week 2 Lecture: Variables', 2, 2, 'Variables and data types', '2026-03-10 20:09:46', '2026-03-16 22:35:13'),
+(10, 1, NULL, 'section', 'Week 2 Discussion: Best Practices', 2, 3, 'Discussion on coding standards', '2026-03-10 20:09:46', '2026-03-16 22:35:13'),
+(11, 1, NULL, 'lecture', 'Week 3 Lecture: Control Flow', 3, 4, 'If statements and loops', '2026-03-10 20:09:46', '2026-03-16 22:35:13'),
+(12, 1, NULL, 'tutorial', 'Week 3 Tutorial: Practice', 3, 5, 'Guided practice session', '2026-03-10 20:09:46', '2026-03-16 22:35:13'),
 (15, 1, NULL, 'lecture', 'Week 10: API Dog Test', 10, 99, NULL, '2026-03-14 15:17:43', '2026-03-14 15:17:43');
 
 -- --------------------------------------------------------
@@ -3888,7 +4148,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
   KEY `idx_sender_type` (`sender_id`,`message_type`),
   KEY `idx_sent_read` (`sent_at`,`read_status`),
   KEY `fk_messages_reply_to` (`reply_to_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `messages`
@@ -4001,7 +4261,9 @@ INSERT INTO `messages` (`message_id`, `sender_id`, `subject`, `body`, `message_t
 (104, 57, NULL, 'Hello from API Dog test!', 'direct', 78, NULL, 0, '2026-03-16 20:20:16', NULL),
 (105, 57, NULL, 'Hello from API Dog test!', 'direct', 78, NULL, 0, '2026-03-16 20:32:57', NULL),
 (106, 57, NULL, 'Hello from API Dog test!', 'direct', 78, NULL, 0, '2026-03-16 20:45:23', NULL),
-(107, 57, NULL, 'Hello from API Dog test!', 'direct', 78, NULL, 0, '2026-03-16 20:53:59', NULL);
+(107, 57, NULL, 'Hello from API Dog test!', 'direct', 78, NULL, 0, '2026-03-16 20:53:59', NULL),
+(108, 57, NULL, 'Hello from API Dog test!', 'direct', 78, NULL, 0, '2026-03-16 22:31:35', NULL),
+(109, 57, NULL, 'Hello from API Dog test!', 'direct', 78, NULL, 0, '2026-03-16 22:35:22', NULL);
 
 -- --------------------------------------------------------
 
@@ -4020,7 +4282,7 @@ CREATE TABLE IF NOT EXISTS `message_participants` (
   UNIQUE KEY `unique_message_user` (`message_id`,`user_id`),
   KEY `idx_message` (`message_id`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=222 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=226 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `message_participants`
@@ -4246,7 +4508,11 @@ INSERT INTO `message_participants` (`participant_id`, `message_id`, `user_id`, `
 (218, 106, 57, '2026-03-16 20:45:24', NULL),
 (219, 106, 59, NULL, NULL),
 (220, 107, 57, '2026-03-16 20:53:59', NULL),
-(221, 107, 59, NULL, NULL);
+(221, 107, 59, NULL, NULL),
+(222, 108, 57, '2026-03-16 22:31:36', NULL),
+(223, 108, 59, NULL, NULL),
+(224, 109, 57, '2026-03-16 22:35:23', NULL),
+(225, 109, 59, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -4304,7 +4570,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   KEY `idx_type` (`notification_type`),
   KEY `idx_user_read_type` (`user_id`,`is_read`,`notification_type`),
   KEY `idx_user_date` (`user_id`,`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `notifications`
@@ -4336,7 +4602,9 @@ INSERT INTO `notifications` (`notification_id`, `user_id`, `notification_type`, 
 (33, 57, 'system', 'Test from API Dog', 'This is a test notification.', NULL, NULL, NULL, 1, '2026-03-16 20:32:57', 'medium', NULL, '2026-03-16 20:20:15'),
 (34, 57, 'system', 'Test from API Dog', 'This is a test notification.', NULL, NULL, NULL, 1, '2026-03-16 20:45:23', 'medium', NULL, '2026-03-16 20:32:57'),
 (35, 57, 'system', 'Test from API Dog', 'This is a test notification.', NULL, NULL, NULL, 1, '2026-03-16 20:53:59', 'medium', NULL, '2026-03-16 20:45:23'),
-(36, 57, 'system', 'Test from API Dog', 'This is a test notification.', NULL, NULL, NULL, 0, NULL, 'medium', NULL, '2026-03-16 20:53:59');
+(36, 57, 'system', 'Test from API Dog', 'This is a test notification.', NULL, NULL, NULL, 1, '2026-03-16 22:31:35', 'medium', NULL, '2026-03-16 20:53:59'),
+(37, 57, 'system', 'Test from API Dog', 'This is a test notification.', NULL, NULL, NULL, 1, '2026-03-16 22:35:23', 'medium', NULL, '2026-03-16 22:31:35'),
+(38, 57, 'system', 'Test from API Dog', 'This is a test notification.', NULL, NULL, NULL, 0, NULL, 'medium', NULL, '2026-03-16 22:35:22');
 
 -- --------------------------------------------------------
 
@@ -4375,7 +4643,7 @@ INSERT INTO `notification_preferences` (`preference_id`, `user_id`, `email_enabl
 (4, 10, 1, 1, 0, 1, 0, 1, 1, 2, '22:00:00', '07:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (5, 11, 1, 1, 1, 1, 1, 1, 1, 5, '23:00:00', '09:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
 (6, 12, 1, 0, 0, 1, 1, 0, 0, 2, '22:00:00', '07:00:00', '2025-11-20 13:43:00', '2025-11-20 13:43:00'),
-(7, 57, 1, 1, 0, 1, 1, 1, 0, 3, NULL, NULL, '2026-03-03 00:10:14', '2026-03-16 20:53:58');
+(7, 57, 1, 1, 0, 1, 1, 1, 0, 3, NULL, NULL, '2026-03-03 00:10:14', '2026-03-16 22:35:22');
 
 -- --------------------------------------------------------
 
@@ -5081,7 +5349,7 @@ CREATE TABLE IF NOT EXISTS `rubrics` (
   PRIMARY KEY (`rubric_id`),
   KEY `created_by` (`created_by`),
   KEY `idx_course` (`course_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `rubrics`
@@ -5108,7 +5376,9 @@ INSERT INTO `rubrics` (`rubric_id`, `course_id`, `rubric_name`, `description`, `
 (18, 1, 'API Dog Test Rubric', NULL, NULL, 100.00, 58, '2026-03-16 20:20:14', '2026-03-16 20:20:14'),
 (19, 1, 'API Dog Test Rubric', NULL, NULL, 100.00, 58, '2026-03-16 20:32:56', '2026-03-16 20:32:56'),
 (20, 1, 'API Dog Test Rubric', NULL, NULL, 100.00, 58, '2026-03-16 20:45:22', '2026-03-16 20:45:22'),
-(21, 1, 'API Dog Test Rubric', NULL, NULL, 100.00, 58, '2026-03-16 20:53:57', '2026-03-16 20:53:57');
+(21, 1, 'API Dog Test Rubric', NULL, NULL, 100.00, 58, '2026-03-16 20:53:57', '2026-03-16 20:53:57'),
+(22, 1, 'API Dog Test Rubric', NULL, NULL, 100.00, 58, '2026-03-16 22:31:34', '2026-03-16 22:31:34'),
+(23, 1, 'API Dog Test Rubric', NULL, NULL, 100.00, 58, '2026-03-16 22:35:21', '2026-03-16 22:35:21');
 
 -- --------------------------------------------------------
 
@@ -5165,7 +5435,7 @@ CREATE TABLE IF NOT EXISTS `search_history` (
   KEY `idx_user` (`user_id`),
   KEY `idx_query` (`search_query`(255)),
   KEY `idx_date` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `search_history`
@@ -5342,7 +5612,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   KEY `idx_token` (`session_token`),
   KEY `idx_user` (`user_id`),
   KEY `idx_expires` (`expires_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=568 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=587 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `sessions`
@@ -5839,7 +6109,24 @@ INSERT INTO `sessions` (`session_id`, `user_id`, `session_token`, `ip_address`, 
 (564, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MzY5NDU4NCwiZXhwIjoxNzc0Mjk5Mzg0fQ.WMq7UmTdeoJ7YqxDbmeW--7L3jXI7aD1fV3HEfWEPm8', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-03-23 20:56:25', '2026-03-16 20:56:24', 0),
 (565, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzczNjk0NTg0LCJleHAiOjE3NzQyOTkzODR9.PsFttk2fTiupzsQ_GLxzG07AMJhmrjZ-ni_C6XE8B8A', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-03-23 20:56:25', '2026-03-16 20:56:24', 0),
 (566, 66, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY2LCJlbWFpbCI6ImFtaXJfYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzM2OTQ2MDUsImV4cCI6MTc3NDI5OTQwNX0.a9EIIh5bUGfNJTKBCDVEIDQ6Cyhs6Ef-3KlSRnS7pok', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-23 20:56:46', '2026-03-16 20:56:45', 0),
-(567, 67, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY3LCJlbWFpbCI6ImFtaXJfaXRhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjpbIml0X2FkbWluIl0sImlhdCI6MTc3MzY5NDY5MCwiZXhwIjoxNzc0Mjk5NDkwfQ.tkBoOmeDzmP9Pazdc-khsxY6kanFQ3r8GuusA83lsx8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-23 20:58:11', '2026-03-16 20:58:10', 0);
+(567, 67, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY3LCJlbWFpbCI6ImFtaXJfaXRhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjpbIml0X2FkbWluIl0sImlhdCI6MTc3MzY5NDY5MCwiZXhwIjoxNzc0Mjk5NDkwfQ.tkBoOmeDzmP9Pazdc-khsxY6kanFQ3r8GuusA83lsx8', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-23 20:58:11', '2026-03-16 20:58:10', 0),
+(568, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzczNjk4NTMzLCJleHAiOjE3NzQzMDMzMzN9.xSchigA2aCuwLBUMOkXkTCYMuJ5u5IFKDo6hYkCirTU', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-23 22:02:14', '2026-03-16 22:02:13', 0),
+(569, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzczNjk4NjIzLCJleHAiOjE3NzQzMDM0MjN9.Qi2drvGe7EBeZcQYEVTXikFqZmUy718Ks1ytQQz4dGQ', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-US) PowerShell/7.5.4', 'desktop', '2026-03-23 22:03:43', '2026-03-16 22:03:43', 0),
+(570, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzczNjk4Njk3LCJleHAiOjE3NzQzMDM0OTd9.1aeKXYuM-Xk1Cge3i2iZAbD2osmsM60cxSrryr-aJVc', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'desktop', '2026-03-23 22:04:58', '2026-03-16 22:04:57', 0),
+(571, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczNjk4Njk3LCJleHAiOjE3NzQzMDM0OTd9.Yu-qtbr44gBou5-haiIiy-p5UVzrAggoBhcMKuxu8w4', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'desktop', '2026-03-23 22:04:58', '2026-03-16 22:04:57', 0),
+(572, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzY5ODY5NywiZXhwIjoxNzc0MzAzNDk3fQ.dOkbaKiy5WPJhNOvNVNFBvX7B0ete83L4FX6ecslHgw', '127.0.0.1', 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.7705', 'desktop', '2026-03-23 22:04:58', '2026-03-16 22:04:57', 0),
+(573, 66, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY2LCJlbWFpbCI6ImFtaXJfYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NzM2OTkzNjIsImV4cCI6MTc3NDMwNDE2Mn0.Q6NGoG6lGoZaJjoiLPqYSaYBFbOQlZ3JFUlPRCLd6As', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-23 22:16:02', '2026-03-16 22:16:02', 0),
+(574, 67, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY3LCJlbWFpbCI6ImFtaXJfaXRhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjpbIml0X2FkbWluIl0sImlhdCI6MTc3MzY5OTU2NCwiZXhwIjoxNzc0MzA0MzY0fQ.BFsSW2K2EvXALeEe_UzKst_hKvm86pBaKP-zTnBIyt0', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'desktop', '2026-03-23 22:19:25', '2026-03-16 22:19:24', 0),
+(576, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzcwMDI3OCwiZXhwIjoxNzc2MjkyMjc4fQ.emeBZ5hsjq-O6IsJgVhmMsH3HEpSL0TERf1fFZyraCA', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:31:18', '2026-03-16 22:31:18', 1),
+(577, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzcwMDI3OCwiZXhwIjoxNzc2MjkyMjc4fQ.WE1fUb4-S4y1m35kdtxTEwrso7mz4t1Ex8gqnCOxJeQ', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:31:19', '2026-03-16 22:31:18', 1),
+(578, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MzcwMDI3OCwiZXhwIjoxNzc2MjkyMjc4fQ.uASERf8mcJBVdc9L1fzHrr8CGD-pGltM_VlmQajDgTI', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:31:19', '2026-03-16 22:31:18', 1),
+(579, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzczNzAwMjc4LCJleHAiOjE3NzYyOTIyNzh9.FPTMLPH913O0X6Jz29PCRzxAsfpHNZL5KxaH4kfOHD4', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:31:19', '2026-03-16 22:31:18', 1),
+(580, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczNzAwMjc5LCJleHAiOjE3NzYyOTIyNzl9.T3Fvg9ltz3EonMGV_Ay6sc7kAnwGyIVNJ6VyZXGshJg', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:31:19', '2026-03-16 22:31:19', 1),
+(582, 58, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJlbWFpbCI6Imluc3RydWN0b3IudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJpbnN0cnVjdG9yIl0sImlhdCI6MTc3MzcwMDUwNiwiZXhwIjoxNzc2MjkyNTA2fQ.XJ3-IMY1HvS4SG4JTNoc8fafnSQ41UOUQKPl90RM44o', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:35:07', '2026-03-16 22:35:06', 1),
+(583, 57, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU3LCJlbWFpbCI6InN0dWRlbnQudGFyZWtAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJzdHVkZW50Il0sImlhdCI6MTc3MzcwMDUwNiwiZXhwIjoxNzc2MjkyNTA2fQ.TUkNpOLliChupUkBrTWE1pMMTEHoOFVTHZepLbwrcm4', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:35:07', '2026-03-16 22:35:06', 1),
+(584, 60, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYwLCJlbWFpbCI6InRhLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsidGVhY2hpbmdfYXNzaXN0YW50Il0sImlhdCI6MTc3MzcwMDUwNywiZXhwIjoxNzc2MjkyNTA3fQ.Aik2opxV7d8RLAyeZn4taINGpDI8f3DAG0UHEXW6CZc', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:35:07', '2026-03-16 22:35:07', 1),
+(585, 61, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxLCJlbWFpbCI6Iml0X2FkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiaXRfYWRtaW4iXSwiaWF0IjoxNzczNzAwNTA3LCJleHAiOjE3NzYyOTI1MDd9.NOu2j3jZz4Sj9ta9WpUZIpJb5ihBWdrZ6F6RVE4fBA8', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:35:07', '2026-03-16 22:35:07', 1),
+(586, 59, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU5LCJlbWFpbCI6ImFkbWluLnRhcmVrQGV4YW1wbGUuY29tIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzczNzAwNTA3LCJleHAiOjE3NzYyOTI1MDd9.wFzXcwdxO4yB6veqK5bzWIVrz8IcYqDLKWpMaOQUicA', '127.0.0.1', 'PostmanRuntime/7.52.0', 'desktop', '2026-04-15 22:35:07', '2026-03-16 22:35:07', 1);
 
 -- --------------------------------------------------------
 
@@ -5946,7 +6233,7 @@ CREATE TABLE IF NOT EXISTS `student_tasks` (
   KEY `idx_user` (`user_id`),
   KEY `idx_status` (`status`),
   KEY `idx_due_date` (`due_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `student_tasks`
@@ -5969,7 +6256,9 @@ INSERT INTO `student_tasks` (`task_id`, `user_id`, `task_type`, `assignment_id`,
 (20, 57, 'study', NULL, NULL, NULL, 'Study for Final Exam', 'Review all chapters', '2026-03-18 18:14:02', 'high', 'pending', 0, '2026-03-16 20:20:17', '2026-03-16 20:20:17'),
 (21, 57, 'study', NULL, NULL, NULL, 'Study for Final Exam', 'Review all chapters', '2026-03-18 18:14:02', 'high', 'pending', 0, '2026-03-16 20:32:59', '2026-03-16 20:32:59'),
 (22, 57, 'study', NULL, NULL, NULL, 'Study for Final Exam', 'Review all chapters', '2026-03-18 18:14:02', 'high', 'pending', 0, '2026-03-16 20:45:25', '2026-03-16 20:45:25'),
-(23, 57, 'study', NULL, NULL, NULL, 'Study for Final Exam', 'Review all chapters', '2026-03-18 18:14:02', 'high', 'pending', 0, '2026-03-16 20:54:01', '2026-03-16 20:54:01');
+(23, 57, 'study', NULL, NULL, NULL, 'Study for Final Exam', 'Review all chapters', '2026-03-18 18:14:02', 'high', 'pending', 0, '2026-03-16 20:54:01', '2026-03-16 20:54:01'),
+(24, 57, 'study', NULL, NULL, NULL, 'Study for Final Exam', 'Review all chapters', '2026-03-18 18:14:02', 'high', 'pending', 0, '2026-03-16 22:31:37', '2026-03-16 22:31:37'),
+(25, 57, 'study', NULL, NULL, NULL, 'Study for Final Exam', 'Review all chapters', '2026-03-18 18:14:02', 'high', 'pending', 0, '2026-03-16 22:35:24', '2026-03-16 22:35:24');
 
 -- --------------------------------------------------------
 
@@ -6099,6 +6388,34 @@ INSERT INTO `support_tickets` (`ticket_id`, `user_id`, `feedback_id`, `ticket_nu
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `system_alerts`
+--
+
+DROP TABLE IF EXISTS `system_alerts`;
+CREATE TABLE IF NOT EXISTS `system_alerts` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `condition_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `threshold` float NOT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` bigint UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `system_alerts_ibfk_updated_by` (`updated_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `system_alerts`
+--
+
+INSERT INTO `system_alerts` (`id`, `name`, `description`, `condition_type`, `threshold`, `is_active`, `created_at`, `updated_by`) VALUES
+(2, 'High CPU Alert', 'Triggers when CPU usage exceeds threshold updated', 'cpu_usage', 90, 1, '2026-03-16 22:20:56', NULL),
+(4, 'High CPU Alert', 'Alert when CPU exceeds 90%', 'cpu_usage', 90, 1, '2026-03-16 22:35:34', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `system_errors`
 --
 
@@ -6156,7 +6473,7 @@ CREATE TABLE IF NOT EXISTS `system_settings` (
 --
 
 INSERT INTO `system_settings` (`setting_id`, `setting_key`, `setting_value`, `setting_type`, `category`, `description`, `is_public`, `updated_by`, `created_at`, `updated_at`) VALUES
-(1, 'platform_name', 'EduVerse Pro', 'string', 'general', 'Platform display name', 1, 66, '2026-03-16 19:39:07', '2026-03-16 20:59:22'),
+(1, 'platform_name', 'EduVerse Pro', 'string', 'general', 'Platform display name', 1, 61, '2026-03-16 19:39:07', '2026-03-16 22:35:32'),
 (2, 'max_file_upload_size', '52428800', 'number', 'files', 'Maximum file upload size in bytes (50MB)', 0, NULL, '2026-03-16 19:39:07', '2025-11-20 13:43:00'),
 (3, 'session_timeout_minutes', '120', 'number', 'security', 'Session timeout duration', 0, NULL, '2026-03-16 19:39:07', '2025-11-20 13:43:00'),
 (4, 'enable_ai_features', 'true', 'boolean', 'features', 'Enable AI-powered features', 0, NULL, '2026-03-16 19:39:07', '2025-11-20 13:43:00'),
@@ -6363,17 +6680,17 @@ INSERT INTO `users` (`user_id`, `email`, `password_hash`, `first_name`, `last_na
 (52, 'admin.fatima@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Fatima', 'Khalil', '+20-100-111-0002', NULL, NULL, NULL, 1, 'active', 1, '2025-02-14 12:30:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
 (53, 'admin.karim@eduverse.edu.eg', '$2y$10$N9qo8uLOickgx2ZMRZoMye', 'Karim', 'Mohamed', '+20-100-111-0003', NULL, NULL, NULL, 2, 'active', 1, '2025-02-13 09:15:00', '2024-09-01 05:00:00', '2024-09-01 05:00:00', NULL),
 (56, 'admintarek@example.com', '$2b$10$Q2Np7QKr5aDtpwBYgf4Zi.5SaZ1GtMs8Y.C7xgP4d5FyVmwMUoJae', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-02 13:17:35', '2026-03-01 16:32:28', '2026-03-02 13:17:35', NULL),
-(57, 'student.tarek@example.com', '$2b$10$7FHDSL2UHGXaXxfzzJyjYeknAkQCIAu/h1VheBWmGPpSBlTLDj4g6', 'Student', 'Tarek', '+201234567890', NULL, 'Test bio from Sprint 3 testing', '{\"github\":\"https://github.com/test\"}', NULL, 'active', 1, '2026-03-16 20:56:24', '2026-03-02 13:17:13', '2026-03-16 20:56:24', NULL),
-(58, 'instructor.tarek@example.com', '$2b$10$RU6fgXm2NqYTHxolk6QWHOq2/dQ9FPu/vYL5QCMHYLgiALcvaOdJi', 'Tarek', 'Instructor', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 20:56:24', '2026-03-02 13:17:14', '2026-03-16 20:56:24', NULL),
-(59, 'admin.tarek@example.com', '$2b$10$P3HIhwwNVVYRTY8dM9bUU.E1jfyQAI4qOv8MId8cozPNVI2OSBJtK', 'Tarek', 'Admin', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 20:56:24', '2026-03-02 13:17:15', '2026-03-16 20:56:24', NULL),
-(60, 'ta.tarek@example.com', '$2b$10$ZNeL4pilwwieU42jvS.e2OfgCamtEX6UZF.8/wPp./gjN6GY7b/Z.', 'Tarek', 'TA', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 20:56:25', '2026-03-02 13:18:41', '2026-03-16 20:56:24', NULL),
-(61, 'it_admin.tarek@example.com', '$2b$10$EJkScTvamvd/ThfdVedTvuS9eY2484LRX7U5B31nbyC44DZBrRbwG', 'Tarek', 'ITAdmin', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 20:56:25', '2026-03-02 13:18:42', '2026-03-16 20:56:24', NULL),
+(57, 'student.tarek@example.com', '$2b$10$XfjHxWW90L1deDU60zcq2.QRvTqQxvh3S9iyt4N3236w4aSs0Wrw6', 'Student', 'Tarek', '+201234567890', NULL, 'Test bio from Sprint 3 testing', '{\"github\":\"https://github.com/test\"}', NULL, 'active', 1, '2026-03-16 22:35:07', '2026-03-02 13:17:13', '2026-03-16 22:35:08', NULL),
+(58, 'instructor.tarek@example.com', '$2b$10$RU6fgXm2NqYTHxolk6QWHOq2/dQ9FPu/vYL5QCMHYLgiALcvaOdJi', 'Tarek', 'Instructor', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 22:35:07', '2026-03-02 13:17:14', '2026-03-16 22:35:06', NULL),
+(59, 'admin.tarek@example.com', '$2b$10$P3HIhwwNVVYRTY8dM9bUU.E1jfyQAI4qOv8MId8cozPNVI2OSBJtK', 'Tarek', 'Admin', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 22:35:07', '2026-03-02 13:17:15', '2026-03-16 22:35:06', NULL),
+(60, 'ta.tarek@example.com', '$2b$10$ZNeL4pilwwieU42jvS.e2OfgCamtEX6UZF.8/wPp./gjN6GY7b/Z.', 'Tarek', 'TA', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 22:35:07', '2026-03-02 13:18:41', '2026-03-16 22:35:07', NULL),
+(61, 'it_admin.tarek@example.com', '$2b$10$EJkScTvamvd/ThfdVedTvuS9eY2484LRX7U5B31nbyC44DZBrRbwG', 'Tarek', 'ITAdmin', NULL, NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 22:35:07', '2026-03-02 13:18:42', '2026-03-16 22:35:07', NULL),
 (62, 'testdel999@example.com', '$2b$10$iSkjrSWfZz9mc.DDwM3tTuMmxbH5tiEc7EGtTVi5ZegO8ktZ2fxKi', 'Test', 'Del', NULL, NULL, NULL, NULL, NULL, 'active', 1, NULL, '2026-03-02 13:27:01', '2026-03-02 13:27:01', NULL),
 (63, 'amir_student@example.com', '$2b$10$YQOcjPCtrtejaaLkj13GyuGQIjIHEmfSJbtqMokOc8zH3F4Rl8c0O', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-10 20:13:57', '2026-03-10 19:38:25', '2026-03-10 20:13:56', NULL),
 (64, 'amir_instructor@example.com', '$2b$10$El1BXYYGaBSs/DGRo6/Tc.afHxnjGnFQ8.Nxd6582jTtkFVFGoiEG', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-10 22:00:16', '2026-03-10 19:38:32', '2026-03-10 22:00:15', NULL),
 (65, 'amir_ta@example.com', '$2b$10$A6Gkd7MsXv1CIA.tl3AO3ezgrn5fXK3lhR35SiJjIXtBfLxV65H6u', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-10 20:14:30', '2026-03-10 19:38:39', '2026-03-10 20:14:30', NULL),
-(66, 'amir_admin@example.com', '$2b$10$G8EUYQ5PCuWpyzA7O8/ve.H.HS/nKBrp7ytplTOTaM9OD68vsXaRq', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 20:56:46', '2026-03-10 19:38:45', '2026-03-16 20:56:45', NULL),
-(67, 'amir_itadmin@example.com', '$2b$10$PTpBY1XV1CKKsPf3QY9Jlu55Ha.CKTF.FOnJeYbOND.Nd3c9gzuQi', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 20:58:11', '2026-03-10 19:38:52', '2026-03-16 20:58:10', NULL);
+(66, 'amir_admin@example.com', '$2b$10$G8EUYQ5PCuWpyzA7O8/ve.H.HS/nKBrp7ytplTOTaM9OD68vsXaRq', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 22:16:02', '2026-03-10 19:38:45', '2026-03-16 22:16:02', NULL),
+(67, 'amir_itadmin@example.com', '$2b$10$PTpBY1XV1CKKsPf3QY9Jlu55Ha.CKTF.FOnJeYbOND.Nd3c9gzuQi', 'John', 'Doe', '+1234567890', NULL, NULL, NULL, NULL, 'active', 1, '2026-03-16 22:19:25', '2026-03-10 19:38:52', '2026-03-16 22:19:24', NULL);
 
 -- --------------------------------------------------------
 
@@ -6941,6 +7258,12 @@ ALTER TABLE `attendance_sessions`
 --
 ALTER TABLE `audit_logs`
   ADD CONSTRAINT `audit_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `backup_records`
+--
+ALTER TABLE `backup_records`
+  ADD CONSTRAINT `backup_records_ibfk_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `branding_settings`
@@ -7587,6 +7910,12 @@ ALTER TABLE `support_tickets`
   ADD CONSTRAINT `support_tickets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `support_tickets_ibfk_2` FOREIGN KEY (`feedback_id`) REFERENCES `user_feedback` (`feedback_id`) ON DELETE SET NULL,
   ADD CONSTRAINT `support_tickets_ibfk_3` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `system_alerts`
+--
+ALTER TABLE `system_alerts`
+  ADD CONSTRAINT `system_alerts_ibfk_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `system_errors`
