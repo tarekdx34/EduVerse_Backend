@@ -24,8 +24,8 @@ export class EmailService {
       tls: {
         rejectUnauthorized: false, // For development only
       },
-      logger: process.env.NODE_ENV === 'development', // Enable logging in dev
-      debug: process.env.NODE_ENV === 'development', // Enable debug in dev
+      logger: false, // Disabled to prevent terminal spam
+      debug: false, // Disabled to prevent terminal spam
     });
 
     // Verify connection configuration

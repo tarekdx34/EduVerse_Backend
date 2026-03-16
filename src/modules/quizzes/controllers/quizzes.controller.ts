@@ -47,7 +47,7 @@ import { Quiz, QuizQuestion, QuizAttempt, QuizDifficultyLevel } from '../entitie
 @ApiTags('📝 Quizzes')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('quizzes')
+@Controller('api/quizzes')
 @ApiHeader({
   name: 'Accept-Language',
   description: 'Language preference (en, ar)',
