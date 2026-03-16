@@ -25,6 +25,8 @@ import { SearchModule } from './modules/search/search.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SecurityModule } from './modules/security/security.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { MonitoringModule } from './modules/monitoring/monitoring.module';
+import { BackupModule } from './modules/backup/backup.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -87,6 +89,8 @@ import { GoogleDriveModule } from './modules/google-drive/google-drive.module';
     AnalyticsModule,
     SecurityModule,
     SettingsModule,
+    MonitoringModule,
+    BackupModule,
   ],
   controllers: [AppController],
   providers: [AppService],
