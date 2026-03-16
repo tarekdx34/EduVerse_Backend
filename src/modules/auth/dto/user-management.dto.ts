@@ -169,7 +169,7 @@ export class UpdateProfileDto {
   socialLinks?: Record<string, string>;
 }
 
-export class UpdatePreferencesDto {
+export class UpdateUserPreferencesDto {
   @IsOptional()
   @IsString()
   @MaxLength(10)
