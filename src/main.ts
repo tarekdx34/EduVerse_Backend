@@ -8,7 +8,11 @@ const globalHeartbeat = setInterval(() => {
 }, 10000);
 
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
+import {
+  ValidationPipe,
+  ClassSerializerInterceptor,
+  Logger,
+} from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
@@ -16,7 +20,7 @@ const logger = new Logger('Bootstrap');
 
 async function bootstrap() {
   clearInterval(globalHeartbeat); // Switch to Nest Logger heartbeat
-  
+
   const bootstrapStartTime = Date.now();
   const heartbeat = setInterval(() => {
     const elapsed = Math.floor((Date.now() - globalStartTime) / 1000);
@@ -24,16 +28,22 @@ async function bootstrap() {
   }, 10000);
 
   logger.log('Starting Nest application...');
-  const app = await NestFactory.create(AppModule);
-  logger.log(`Nest application initialized (+${Date.now() - bootstrapStartTime}ms)`);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'fatal'],
+  });
+  logger.log(
+    `Nest application initialized (+${Date.now() - bootstrapStartTime}ms)`,
+  );
 
   // Enable CORS
   app.enableCors({
     origin: (origin, callback) => {
       // Allow: no origin (file://, curl, Postman), localhost on any port, 127.0.0.1 on any port
       if (!origin) return callback(null, true);
-      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return callback(null, true);
-      const allowedOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [];
+      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
+        return callback(null, true);
+      const allowedOrigins =
+        process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) || [];
       if (allowedOrigins.includes(origin)) return callback(null, true);
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
@@ -58,7 +68,8 @@ async function bootstrap() {
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('EduVerse API')
-    .setDescription(`
+    .setDescription(
+      `
 ## EduVerse Backend API Documentation
 
 ### Overview
@@ -99,7 +110,8 @@ The API implements role-based access control with the following roles:
 | 404 | Not Found - Resource doesn't exist |
 | 409 | Conflict - Resource already exists |
 | 500 | Internal Server Error |
-    `)
+    `,
+    )
     .setVersion('1.0.0')
     .setContact('EduVerse Team', 'https://eduverse.com', 'support@eduverse.com')
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
@@ -109,20 +121,30 @@ The API implements role-based access control with the following roles:
         scheme: 'bearer',
         bearerFormat: 'JWT',
         name: 'JWT',
-        description: 'Enter your JWT access token obtained from /api/auth/login',
+        description:
+          'Enter your JWT access token obtained from /api/auth/login',
         in: 'header',
       },
       'JWT-auth',
     )
-    .addTag('🔐 Authentication', 'User authentication, registration, and session management')
-    .addTag('👥 User Management', 'Admin endpoints for managing users, roles, and permissions')
+    .addTag(
+      '🔐 Authentication',
+      'User authentication, registration, and session management',
+    )
+    .addTag(
+      '👥 User Management',
+      'Admin endpoints for managing users, roles, and permissions',
+    )
     .addTag('🏛️ Campus', 'Campus management endpoints')
     .addTag('🏢 Departments', 'Department management within campuses')
     .addTag('📚 Programs', 'Academic program management')
     .addTag('📅 Semesters', 'Semester and academic period management')
     .addTag('📖 Courses', 'Course catalog and management')
     .addTag('📝 Course Sections', 'Course section and schedule management')
-    .addTag('🕐 Course Schedules', 'Course schedule (day/time) management per section')
+    .addTag(
+      '🕐 Course Schedules',
+      'Course schedule (day/time) management per section',
+    )
     .addTag('✅ Enrollments', 'Student course enrollment and registration')
     .addTag('📝 Assignments', 'Assignment creation, submission, and grading')
     .addTag('📊 Grades', 'Grade management, GPA calculation, and transcripts')
@@ -132,25 +154,66 @@ The API implements role-based access control with the following roles:
     .addTag('🎬 YouTube', 'YouTube video integration and uploads')
     .addTag('📋 Attendance', 'Attendance session and record management')
     .addTag('📝 Quizzes', 'Quiz creation, questions, attempts, and grading')
-    .addTag('Labs', 'Lab assignments, submissions, instructions, and attendance')
-    .addTag('Notifications', 'User notifications, preferences, and admin broadcast')
-    .addTag('💬 Messaging', 'WhatsApp-like real-time messaging with conversations, read receipts, and file sharing')
-    .addTag('💭 Discussions', 'Course discussion forums with threads, replies, pinning, and answer marking')
-    .addTag('📢 Announcements', 'Course, department, and system-wide announcements with scheduling and targeting')
-    .addTag('🌐 Community Posts', 'Community forum posts with discussions, questions, and resource sharing')
+    .addTag(
+      'Labs',
+      'Lab assignments, submissions, instructions, and attendance',
+    )
+    .addTag(
+      'Notifications',
+      'User notifications, preferences, and admin broadcast',
+    )
+    .addTag(
+      '💬 Messaging',
+      'WhatsApp-like real-time messaging with conversations, read receipts, and file sharing',
+    )
+    .addTag(
+      '💭 Discussions',
+      'Course discussion forums with threads, replies, pinning, and answer marking',
+    )
+    .addTag(
+      '📢 Announcements',
+      'Course, department, and system-wide announcements with scheduling and targeting',
+    )
+    .addTag(
+      '🌐 Community Posts',
+      'Community forum posts with discussions, questions, and resource sharing',
+    )
     .addTag('💬 Community Comments', 'Comments and replies on community posts')
-    .addTag('📁 Forum Categories', 'Forum category management for organizing community discussions')
-    .addTag('📅 Schedule', 'Personal schedule views with daily/weekly aggregation of classes, exams, and events')
-    .addTag('📝 Exam Schedules', 'Exam scheduling management with conflict detection')
-    .addTag('📆 Calendar Events', 'Personal and course calendar events management')
-    .addTag('🔗 Calendar Integrations', 'External calendar sync (Google Calendar, Outlook, iCal)')
-    .addTag('📚 Course Materials', 'Course material upload, management, and YouTube video integration')
-    .addTag('🏗️ Course Structure', 'Course content organization by lectures, sections, labs, and weeks')
+    .addTag(
+      '📁 Forum Categories',
+      'Forum category management for organizing community discussions',
+    )
+    .addTag(
+      '📅 Schedule',
+      'Personal schedule views with daily/weekly aggregation of classes, exams, and events',
+    )
+    .addTag(
+      '📝 Exam Schedules',
+      'Exam scheduling management with conflict detection',
+    )
+    .addTag(
+      '📆 Calendar Events',
+      'Personal and course calendar events management',
+    )
+    .addTag(
+      '🔗 Calendar Integrations',
+      'External calendar sync (Google Calendar, Outlook, iCal)',
+    )
+    .addTag(
+      '📚 Course Materials',
+      'Course material upload, management, and YouTube video integration',
+    )
+    .addTag(
+      '🏗️ Course Structure',
+      'Course content organization by lectures, sections, labs, and weeks',
+    )
     .build();
 
   const swaggerStartTime = Date.now();
   const document = SwaggerModule.createDocument(app, config);
-  logger.log(`Swagger documentation generated (+${Date.now() - swaggerStartTime}ms)`);
+  logger.log(
+    `Swagger documentation generated (+${Date.now() - swaggerStartTime}ms)`,
+  );
   SwaggerModule.setup('api-docs', app, document, {
     customSiteTitle: 'EduVerse API Documentation',
     customfavIcon: 'https://nestjs.com/img/logo-small.svg',
@@ -177,7 +240,9 @@ The API implements role-based access control with the following roles:
 
   clearInterval(heartbeat);
   const totalTime = ((Date.now() - globalStartTime) / 1000).toFixed(2);
-  logger.log(`🚀 Application is running on: http://localhost:${port} (Total startup time: ${totalTime}s)`);
+  logger.log(
+    `🚀 Application is running on: http://localhost:${port} (Total startup time: ${totalTime}s)`,
+  );
   logger.log(`📚 Swagger API Documentation: http://localhost:${port}/api-docs`);
 }
 bootstrap();
