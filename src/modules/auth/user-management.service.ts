@@ -24,7 +24,7 @@ import {
   BulkImportResultDto,
   BulkStatusDto,
   UpdateProfileDto,
-  UpdatePreferencesDto,
+  UpdateUserPreferencesDto,
   ChangePasswordDto,
 } from './dto/user-management.dto';
 import {
@@ -820,7 +820,7 @@ export class UserManagementService {
     };
   }
 
-  async updatePreferences(userId: number, dto: UpdatePreferencesDto) {
+  async updatePreferences(userId: number, dto: UpdateUserPreferencesDto) {
     let prefs = await this.userPreferenceRepository.findOne({ where: { userId } });
     if (!prefs) {
       prefs = this.userPreferenceRepository.create({ userId });

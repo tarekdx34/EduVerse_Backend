@@ -10,7 +10,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UserManagementService } from './user-management.service';
-import { UpdateProfileDto, UpdatePreferencesDto, ChangePasswordDto } from './dto/user-management.dto';
+import { UpdateProfileDto, UpdateUserPreferencesDto, ChangePasswordDto } from './dto/user-management.dto';
 
 @ApiTags('User Profile')
 @ApiBearerAuth('JWT-auth')
@@ -43,7 +43,7 @@ export class UserProfileController {
   @Put('preferences')
   @ApiOperation({ summary: 'Update user preferences' })
   @ApiResponse({ status: 200, description: 'Updated preferences' })
-  async updatePreferences(@Request() req, @Body() dto: UpdatePreferencesDto) {
+  async updatePreferences(@Request() req, @Body() dto: UpdateUserPreferencesDto) {
     return this.userManagementService.updatePreferences(req.user.userId, dto);
   }
 
