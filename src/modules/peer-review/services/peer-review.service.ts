@@ -10,6 +10,8 @@ import { PeerReview } from '../entities/peer-review.entity';
 import { AssignReviewsDto } from '../dto/assign-reviews.dto';
 import { SubmitReviewDto } from '../dto/submit-review.dto';
 import { AssignmentSubmission } from '../../assignments/entities/assignment-submission.entity';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { NotificationType } from '../../notifications/enums';
 
 @Injectable()
 export class PeerReviewService {
@@ -20,6 +22,7 @@ export class PeerReviewService {
     private reviewRepo: Repository<PeerReview>,
     @InjectRepository(AssignmentSubmission)
     private submissionRepo: Repository<AssignmentSubmission>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async findAll() {
@@ -86,6 +89,16 @@ export class PeerReviewService {
             });
             const saved = await this.reviewRepo.save(review);
             created.push(saved);
+
+            // Notify reviewer
+            await this.notificationsService.createNotification({
+              userId: reviewerSubmission.userId,
+              notificationType: NotificationType.ASSIGNMENT,
+              title: 'New Peer Review Assigned',
+              body: `You have been assigned to review a submission for assignment #${dto.assignmentId}.`,
+              relatedEntityType: 'assignment',
+              relatedEntityId: dto.assignmentId,
+            }).catch((err) => this.logger.error('Failed to send notification', err));
           }
           assigned++;
         }
@@ -138,6 +151,17 @@ export class PeerReviewService {
     review.submittedAt = new Date();
 
     const saved = await this.reviewRepo.save(review);
+
+    // Notify reviewee that their review is ready
+    await this.notificationsService.createNotification({
+      userId: review.revieweeId,
+      notificationType: NotificationType.ASSIGNMENT,
+      title: 'Peer Review Received',
+      body: `One of your peers has submitted a review for your assignment.`,
+      relatedEntityType: 'review',
+      relatedEntityId: saved.reviewId,
+    }).catch((err) => this.logger.error('Failed to send notification', err));
+
     return { data: saved, message: `Peer review #${id} submitted successfully` };
   }
 
