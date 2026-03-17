@@ -11,6 +11,8 @@ import { StudyGroup } from '../entities/study-group.entity';
 import { StudyGroupMember } from '../entities/study-group-member.entity';
 import { CreateStudyGroupDto } from '../dto/create-study-group.dto';
 import { UpdateStudyGroupDto } from '../dto/update-study-group.dto';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { NotificationType } from '../../notifications/enums';
 
 @Injectable()
 export class StudyGroupsService {
@@ -21,6 +23,7 @@ export class StudyGroupsService {
     private groupRepo: Repository<StudyGroup>,
     @InjectRepository(StudyGroupMember)
     private memberRepo: Repository<StudyGroupMember>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async findAll(courseId?: number) {
@@ -137,6 +140,18 @@ export class StudyGroupsService {
     group.currentMembers += 1;
     await this.groupRepo.save(group);
 
+    // Notify the group creator
+    if (group.createdBy !== userId) {
+      this.notificationsService.createNotification({
+        userId: group.createdBy,
+        notificationType: NotificationType.SYSTEM,
+        title: 'New Study Group Member',
+        body: `A new member has joined your study group: ${group.groupName}.`,
+        relatedEntityType: 'study_group',
+        relatedEntityId: group.groupId,
+      }).catch((err) => this.logger.error('Failed to send notification', err));
+    }
+
     return { message: 'Joined study group successfully' };
   }
 
@@ -159,6 +174,18 @@ export class StudyGroupsService {
     await this.memberRepo.remove(member);
     group.currentMembers = Math.max(0, group.currentMembers - 1);
     await this.groupRepo.save(group);
+
+    // Notify the group creator
+    if (group.createdBy !== userId) {
+      this.notificationsService.createNotification({
+        userId: group.createdBy,
+        notificationType: NotificationType.SYSTEM,
+        title: 'Study Group Member Left',
+        body: `A member has left your study group: ${group.groupName}.`,
+        relatedEntityType: 'study_group',
+        relatedEntityId: group.groupId,
+      }).catch((err) => this.logger.error('Failed to send notification', err));
+    }
 
     return { message: 'Left study group successfully' };
   }
