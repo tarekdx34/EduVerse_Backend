@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-pdfplumber
-python-docx
-fpdf
-langchain-groq
-langchain-core
-python-multipart
