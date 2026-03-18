@@ -60,6 +60,13 @@ export class QuizzesController {
     private readonly gradingService: QuizGradingService,
   ) {}
 
+  private getRoleNames(user: any): string[] {
+    if (!Array.isArray(user?.roles)) return [];
+    return user.roles.map((role: any) =>
+      typeof role === 'string' ? role : role.roleName || role.name,
+    );
+  }
+
   // ============ QUIZ CRUD ============
 
   @Post()
@@ -102,7 +109,11 @@ Creates a new quiz for a course with configurable settings.
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   async createQuiz(@Body() dto: CreateQuizDto, @Req() req: any): Promise<Quiz> {
-    return this.quizzesService.createQuiz(dto, req.user.userId);
+    return this.quizzesService.createQuiz(
+      dto,
+      req.user.userId,
+      this.getRoleNames(req.user),
+    );
   }
 
   @Get()
@@ -330,12 +341,18 @@ All fields from CreateQuizDto can be updated:
   async updateQuiz(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateQuizDto,
+    @Req() req: any,
   ): Promise<Quiz> {
-    return this.quizzesService.updateQuiz(id, dto);
+    return this.quizzesService.updateQuiz(
+      id,
+      dto,
+      req.user.userId,
+      this.getRoleNames(req.user),
+    );
   }
 
   @Delete(':id')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({
     summary: 'Delete quiz (soft delete)',
     description: `
@@ -363,8 +380,15 @@ Soft deletes a quiz. The quiz data is preserved but hidden from users.
   @ApiParam({ name: 'id', description: 'Quiz ID', type: Number })
   @ApiResponse({ status: 200, description: 'Quiz deleted' })
   @ApiResponse({ status: 404, description: 'Quiz not found' })
-  async deleteQuiz(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
-    await this.quizzesService.deleteQuiz(id);
+  async deleteQuiz(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ): Promise<{ message: string }> {
+    await this.quizzesService.deleteQuiz(
+      id,
+      req.user.userId,
+      this.getRoleNames(req.user),
+    );
     return { message: 'Quiz deleted successfully' };
   }
 
@@ -419,8 +443,14 @@ Adds a new question to an existing quiz.
   async addQuestion(
     @Param('quizId', ParseIntPipe) quizId: number,
     @Body() dto: CreateQuestionDto,
+    @Req() req: any,
   ): Promise<QuizQuestion> {
-    return this.quizzesService.addQuestion(quizId, dto);
+    return this.quizzesService.addQuestion(
+      quizId,
+      dto,
+      req.user.userId,
+      this.getRoleNames(req.user),
+    );
   }
 
   @Put(':quizId/questions/reorder')
@@ -498,8 +528,15 @@ All CreateQuestionDto fields can be updated:
     @Param('quizId', ParseIntPipe) quizId: number,
     @Param('questionId', ParseIntPipe) questionId: number,
     @Body() dto: UpdateQuestionDto,
+    @Req() req: any,
   ): Promise<QuizQuestion> {
-    return this.quizzesService.updateQuestion(quizId, questionId, dto);
+    return this.quizzesService.updateQuestion(
+      quizId,
+      questionId,
+      dto,
+      req.user.userId,
+      this.getRoleNames(req.user),
+    );
   }
 
   @Delete(':quizId/questions/:questionId')
@@ -532,8 +569,14 @@ Removes a question from a quiz.
   async deleteQuestion(
     @Param('quizId', ParseIntPipe) quizId: number,
     @Param('questionId', ParseIntPipe) questionId: number,
+    @Req() req: any,
   ): Promise<{ message: string }> {
-    await this.quizzesService.deleteQuestion(quizId, questionId);
+    await this.quizzesService.deleteQuestion(
+      quizId,
+      questionId,
+      req.user.userId,
+      this.getRoleNames(req.user),
+    );
     return { message: 'Question deleted successfully' };
   }
 

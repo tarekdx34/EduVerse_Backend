@@ -129,7 +129,7 @@ Update an existing announcement.
   }
 
   @Delete(':id')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete announcement',
@@ -152,7 +152,7 @@ Delete an announcement permanently.
   }
 
   @Patch(':id/publish')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
     summary: 'Publish announcement',
     description: `
@@ -174,7 +174,7 @@ Publish a draft announcement immediately.
   }
 
   @Patch(':id/schedule')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
     summary: 'Schedule announcement',
     description: `
@@ -221,7 +221,7 @@ Pin or unpin an announcement. Pinned announcements appear at the top of the list
   }
 
   @Get(':id/analytics')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
     summary: 'Get announcement analytics',
     description: `

@@ -10,6 +10,8 @@ import { ActivityLog } from './entities/activity-log.entity';
 import { AnalyticsService } from './services/analytics.service';
 import { AnalyticsCronService } from './services/analytics-cron.service';
 import { AnalyticsController } from './controllers/analytics.controller';
+import { CourseTA } from '../enrollments/entities/course-ta.entity';
+import { CourseInstructor } from '../enrollments/entities/course-instructor.entity';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { AnalyticsController } from './controllers/analytics.controller';
       StudentProgress,
       WeakTopicsAnalysis,
       ActivityLog,
+      CourseTA,
+      CourseInstructor,
     ]),
     ScheduleModule.forRoot(),
   ],
