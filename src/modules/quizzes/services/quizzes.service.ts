@@ -27,6 +27,9 @@ import {
   AttemptAlreadySubmittedException,
 } from '../exceptions';
 import { Course } from '../../courses/entities/course.entity';
+import { RoleName } from '../../auth/entities/role.entity';
+import { CourseTA } from '../../enrollments/entities/course-ta.entity';
+import { CourseInstructor } from '../../enrollments/entities/course-instructor.entity';
 
 @Injectable()
 export class QuizzesService {
@@ -43,11 +46,17 @@ export class QuizzesService {
     private readonly difficultyRepo: Repository<QuizDifficultyLevel>,
     @InjectRepository(Course)
     private readonly courseRepo: Repository<Course>,
+    @InjectRepository(CourseTA)
+    private readonly courseTARepo: Repository<CourseTA>,
+    @InjectRepository(CourseInstructor)
+    private readonly courseInstructorRepo: Repository<CourseInstructor>,
   ) {}
 
   // ============ QUIZ CRUD ============
 
-  async createQuiz(dto: CreateQuizDto, createdBy: number): Promise<Quiz> {
+  async createQuiz(dto: CreateQuizDto, createdBy: number, roles: string[]): Promise<Quiz> {
+    await this.assertCourseManagementAccess(dto.courseId, createdBy, roles);
+
     const course = await this.courseRepo.findOne({ where: { id: dto.courseId } });
     if (!course) {
       throw new BadRequestException(`Course with ID ${dto.courseId} not found`);
@@ -127,8 +136,9 @@ export class QuizzesService {
     return quiz;
   }
 
-  async updateQuiz(id: number, dto: UpdateQuizDto): Promise<Quiz> {
+  async updateQuiz(id: number, dto: UpdateQuizDto, userId: number, roles: string[]): Promise<Quiz> {
     const quiz = await this.findQuizById(id);
+    await this.assertQuizManagementAccess(quiz, userId, roles);
 
     Object.assign(quiz, {
       ...dto,
@@ -140,15 +150,22 @@ export class QuizzesService {
     return this.findQuizById(id);
   }
 
-  async deleteQuiz(id: number): Promise<void> {
+  async deleteQuiz(id: number, userId: number, roles: string[]): Promise<void> {
     const quiz = await this.findQuizById(id);
+    await this.assertQuizManagementAccess(quiz, userId, roles);
     await this.quizRepo.softDelete(id);
   }
 
   // ============ QUESTION MANAGEMENT ============
 
-  async addQuestion(quizId: number, dto: CreateQuestionDto): Promise<QuizQuestion> {
+  async addQuestion(
+    quizId: number,
+    dto: CreateQuestionDto,
+    userId: number,
+    roles: string[],
+  ): Promise<QuizQuestion> {
     const quiz = await this.findQuizById(quizId);
+    await this.assertQuizManagementAccess(quiz, userId, roles);
 
     const maxOrder = await this.questionRepo
       .createQueryBuilder('q')
@@ -165,7 +182,16 @@ export class QuizzesService {
     return this.questionRepo.save(question);
   }
 
-  async updateQuestion(quizId: number, questionId: number, dto: UpdateQuestionDto): Promise<QuizQuestion> {
+  async updateQuestion(
+    quizId: number,
+    questionId: number,
+    dto: UpdateQuestionDto,
+    userId: number,
+    roles: string[],
+  ): Promise<QuizQuestion> {
+    const quiz = await this.findQuizById(quizId);
+    await this.assertQuizManagementAccess(quiz, userId, roles);
+
     const question = await this.questionRepo.findOne({
       where: { id: questionId, quizId },
     });
@@ -189,7 +215,15 @@ export class QuizzesService {
     return updated;
   }
 
-  async deleteQuestion(quizId: number, questionId: number): Promise<void> {
+  async deleteQuestion(
+    quizId: number,
+    questionId: number,
+    userId: number,
+    roles: string[],
+  ): Promise<void> {
+    const quiz = await this.findQuizById(quizId);
+    await this.assertQuizManagementAccess(quiz, userId, roles);
+
     const question = await this.questionRepo.findOne({
       where: { id: questionId, quizId },
     });
@@ -605,5 +639,50 @@ export class QuizzesService {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  private async assertCourseManagementAccess(
+    courseId: number,
+    userId: number,
+    roles: string[],
+  ): Promise<void> {
+    if (roles.some((role) => [RoleName.ADMIN, RoleName.IT_ADMIN].includes(role as RoleName))) {
+      return;
+    }
+
+    const [instructorAssignment, taAssignment] = await Promise.all([
+      this.courseInstructorRepo
+        .createQueryBuilder('assignment')
+        .innerJoin('assignment.section', 'section')
+        .where('assignment.userId = :userId', { userId })
+        .andWhere('section.courseId = :courseId', { courseId })
+        .getOne(),
+      this.courseTARepo
+        .createQueryBuilder('assignment')
+        .innerJoin('assignment.section', 'section')
+        .where('assignment.userId = :userId', { userId })
+        .andWhere('section.courseId = :courseId', { courseId })
+        .getOne(),
+    ]);
+
+    if (!instructorAssignment && !taAssignment) {
+      throw new ForbiddenException('You do not have access to manage quizzes for this course');
+    }
+  }
+
+  private async assertQuizManagementAccess(
+    quiz: Quiz,
+    userId: number,
+    roles: string[],
+  ): Promise<void> {
+    if (roles.some((role) => [RoleName.ADMIN, RoleName.IT_ADMIN].includes(role as RoleName))) {
+      return;
+    }
+
+    if (Number(quiz.createdBy) === userId) {
+      return;
+    }
+
+    await this.assertCourseManagementAccess(Number(quiz.courseId), userId, roles);
   }
 }

@@ -40,50 +40,80 @@ export class AnalyticsController {
   }
 
   @Get('performance')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({ summary: 'Get performance metrics' })
   @ApiResponse({ status: 200, description: 'Performance metrics returned' })
   @ApiQuery({ name: 'courseId', required: true, type: Number })
-  async getPerformanceMetrics(@Query() query: AnalyticsQueryDto) {
-    return this.analyticsService.getPerformanceMetrics(query.courseId!, query);
+  async getPerformanceMetrics(@Request() req, @Query() query: AnalyticsQueryDto) {
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r) => r.roleName || r) || [];
+    return this.analyticsService.getPerformanceMetrics(
+      query.courseId!,
+      query,
+      userId,
+      roles,
+    );
   }
 
   @Get('engagement')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({ summary: 'Get engagement data' })
   @ApiResponse({ status: 200, description: 'Engagement data returned' })
   @ApiQuery({ name: 'courseId', required: true, type: Number })
-  async getEngagement(@Query() query: AnalyticsQueryDto) {
-    return this.analyticsService.getEngagement(query.courseId!, query);
+  async getEngagement(@Request() req, @Query() query: AnalyticsQueryDto) {
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r) => r.roleName || r) || [];
+    return this.analyticsService.getEngagement(
+      query.courseId!,
+      query,
+      userId,
+      roles,
+    );
   }
 
   @Get('attendance-trends')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({ summary: 'Get attendance trends' })
   @ApiResponse({ status: 200, description: 'Attendance trends returned' })
   @ApiQuery({ name: 'courseId', required: true, type: Number })
-  async getAttendanceTrends(@Query() query: AnalyticsQueryDto) {
-    return this.analyticsService.getAttendanceTrends(query.courseId!, query);
+  async getAttendanceTrends(@Request() req, @Query() query: AnalyticsQueryDto) {
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r) => r.roleName || r) || [];
+    return this.analyticsService.getAttendanceTrends(
+      query.courseId!,
+      query,
+      userId,
+      roles,
+    );
   }
 
   @Get('at-risk-students')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({ summary: 'Get at-risk students' })
   @ApiResponse({ status: 200, description: 'At-risk students returned' })
   @ApiQuery({ name: 'courseId', required: false, type: Number })
-  async getAtRiskStudents(@Query('courseId') courseId?: number) {
+  async getAtRiskStudents(@Request() req, @Query('courseId') courseId?: number) {
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r) => r.roleName || r) || [];
     return this.analyticsService.getAtRiskStudents(
       courseId ? Number(courseId) : undefined,
+      userId,
+      roles,
     );
   }
 
   @Get('grade-distribution')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({ summary: 'Get grade distribution' })
   @ApiResponse({ status: 200, description: 'Grade distribution returned' })
   @ApiQuery({ name: 'courseId', required: true, type: Number })
-  async getGradeDistribution(@Query('courseId', ParseIntPipe) courseId: number) {
-    return this.analyticsService.getGradeDistribution(courseId);
+  async getGradeDistribution(
+    @Request() req,
+    @Query('courseId', ParseIntPipe) courseId: number,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r) => r.roleName || r) || [];
+    return this.analyticsService.getGradeDistribution(courseId, userId, roles);
   }
 
   @Get('enrollment-trends')
@@ -95,7 +125,7 @@ export class AnalyticsController {
   }
 
   @Get('course-comparison')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({ summary: 'Compare metrics across courses' })
   @ApiResponse({ status: 200, description: 'Course comparison returned' })
   @ApiQuery({
@@ -105,24 +135,30 @@ export class AnalyticsController {
     description: 'Comma-separated course IDs',
   })
   async getCourseComparison(
+    @Request() req,
     @Query(
       'courseIds',
       new ParseArrayPipe({ items: Number, separator: ',' }),
     )
     courseIds: number[],
   ) {
-    return this.analyticsService.getCourseComparison(courseIds);
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r) => r.roleName || r) || [];
+    return this.analyticsService.getCourseComparison(courseIds, userId, roles);
   }
 
   @Get('courses/:courseId')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({ summary: 'Get course analytics' })
   @ApiResponse({ status: 200, description: 'Course analytics returned' })
   @ApiParam({ name: 'courseId', description: 'Course ID', type: Number })
   async getCourseAnalytics(
+    @Request() req,
     @Param('courseId', ParseIntPipe) courseId: number,
   ) {
-    return this.analyticsService.getCourseAnalytics(courseId);
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((r) => r.roleName || r) || [];
+    return this.analyticsService.getCourseAnalytics(courseId, userId, roles);
   }
 
   @Get('students/:studentId')

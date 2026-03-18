@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CourseAnalytics } from '../entities/course-analytics.entity';
@@ -13,6 +18,8 @@ import { ActivityLog } from '../entities/activity-log.entity';
 import { AnalyticsQueryDto } from '../dto/analytics-query.dto';
 import { StudentAnalyticsQueryDto } from '../dto/student-analytics-query.dto';
 import { RoleName } from '../../auth/entities/role.entity';
+import { CourseTA } from '../../enrollments/entities/course-ta.entity';
+import { CourseInstructor } from '../../enrollments/entities/course-instructor.entity';
 
 @Injectable()
 export class AnalyticsService {
@@ -31,6 +38,10 @@ export class AnalyticsService {
     private weakTopicsRepo: Repository<WeakTopicsAnalysis>,
     @InjectRepository(ActivityLog)
     private activityLogRepo: Repository<ActivityLog>,
+    @InjectRepository(CourseTA)
+    private courseTARepo: Repository<CourseTA>,
+    @InjectRepository(CourseInstructor)
+    private courseInstructorRepo: Repository<CourseInstructor>,
   ) {}
 
   async getDashboard(userId: number, roles: string[]) {
@@ -40,6 +51,7 @@ export class AnalyticsService {
       [RoleName.ADMIN, RoleName.IT_ADMIN].includes(r as RoleName),
     );
     const isInstructor = roles.includes(RoleName.INSTRUCTOR);
+    const isTA = roles.includes(RoleName.TA);
 
     if (isAdmin) {
       // System-wide stats
@@ -86,6 +98,47 @@ export class AnalyticsService {
       return { data: { ...stats, courseBreakdown } };
     }
 
+    if (isTA) {
+      const accessibleCourseIds = await this.getAccessibleCourseIds(userId, roles);
+
+      if (accessibleCourseIds !== null && accessibleCourseIds.length === 0) {
+        return {
+          data: {
+            totalCourses: '0',
+            totalStudents: '0',
+            averageGrade: '0',
+            averageAttendance: '0',
+            averageCompletionRate: '0',
+            averageEngagement: '0',
+            courseBreakdown: [],
+          },
+        };
+      }
+
+      const stats = await this.courseAnalyticsRepo
+        .createQueryBuilder('ca')
+        .select('COUNT(DISTINCT ca.course_id)', 'totalCourses')
+        .addSelect('SUM(ca.total_students)', 'totalStudents')
+        .addSelect('AVG(ca.average_grade)', 'averageGrade')
+        .addSelect('AVG(ca.average_attendance)', 'averageAttendance')
+        .addSelect('AVG(ca.completion_rate)', 'averageCompletionRate')
+        .addSelect('AVG(ca.engagement_score)', 'averageEngagement')
+        .where('ca.course_id IN (:...courseIds)', {
+          courseIds: accessibleCourseIds,
+        })
+        .getRawOne();
+
+      const courseBreakdown = await this.courseAnalyticsRepo
+        .createQueryBuilder('ca')
+        .where('ca.course_id IN (:...courseIds)', {
+          courseIds: accessibleCourseIds,
+        })
+        .orderBy('ca.calculation_date', 'DESC')
+        .getMany();
+
+      return { data: { ...stats, courseBreakdown } };
+    }
+
     // Student view
     const progress = await this.studentProgressRepo
       .createQueryBuilder('sp')
@@ -104,8 +157,9 @@ export class AnalyticsService {
     return { data: { ...progress, courseProgress } };
   }
 
-  async getCourseAnalytics(courseId: number) {
+  async getCourseAnalytics(courseId: number, userId?: number, roles: string[] = []) {
     this.logger.log(`Getting analytics for course ${courseId}`);
+    await this.assertAnalyticsAccess(courseId, userId, roles);
 
     const analytics = await this.courseAnalyticsRepo.find({
       where: { courseId },
@@ -166,7 +220,13 @@ export class AnalyticsService {
     return { data: { progress, learningMetrics, performanceMetrics } };
   }
 
-  async getPerformanceMetrics(courseId: number, query: AnalyticsQueryDto) {
+  async getPerformanceMetrics(
+    courseId: number,
+    query: AnalyticsQueryDto,
+    userId?: number,
+    roles: string[] = [],
+  ) {
+    await this.assertAnalyticsAccess(courseId, userId, roles);
     const { startDate, endDate, page = 1, limit = 20 } = query;
 
     const qb = this.performanceMetricsRepo
@@ -199,7 +259,13 @@ export class AnalyticsService {
     };
   }
 
-  async getEngagement(courseId: number, query: AnalyticsQueryDto) {
+  async getEngagement(
+    courseId: number,
+    query: AnalyticsQueryDto,
+    userId?: number,
+    roles: string[] = [],
+  ) {
+    await this.assertAnalyticsAccess(courseId, userId, roles);
     const { startDate, endDate, page = 1, limit = 20 } = query;
 
     const qb = this.learningAnalyticsRepo
@@ -249,7 +315,13 @@ export class AnalyticsService {
     };
   }
 
-  async getAttendanceTrends(courseId: number, query: AnalyticsQueryDto) {
+  async getAttendanceTrends(
+    courseId: number,
+    query: AnalyticsQueryDto,
+    userId?: number,
+    roles: string[] = [],
+  ) {
+    await this.assertAnalyticsAccess(courseId, userId, roles);
     const { startDate, endDate, page = 1, limit = 20 } = query;
 
     const qb = this.courseAnalyticsRepo
@@ -287,10 +359,22 @@ export class AnalyticsService {
     };
   }
 
-  async getAtRiskStudents(courseId?: number) {
+  async getAtRiskStudents(
+    courseId?: number,
+    userId?: number,
+    roles: string[] = [],
+  ) {
     this.logger.log(
       `Getting at-risk students${courseId ? ` for course ${courseId}` : ''}`,
     );
+
+    const accessibleCourseIds = await this.getAccessibleCourseIds(userId, roles);
+    if (courseId) {
+      await this.assertAnalyticsAccess(courseId, userId, roles);
+    }
+
+    const hasScopedCourseList =
+      accessibleCourseIds !== null && accessibleCourseIds.length > 0;
 
     // Students with low grades from course analytics
     const lowGradeQb = this.courseAnalyticsRepo
@@ -304,6 +388,10 @@ export class AnalyticsService {
 
     if (courseId) {
       lowGradeQb.andWhere('ca.course_id = :courseId', { courseId });
+    } else if (hasScopedCourseList) {
+      lowGradeQb.andWhere('ca.course_id IN (:...courseIds)', {
+        courseIds: accessibleCourseIds,
+      });
     }
 
     const atRiskCourses = await lowGradeQb.getRawMany();
@@ -318,6 +406,10 @@ export class AnalyticsService {
 
     if (courseId) {
       progressQb.andWhere('sp.course_id = :courseId', { courseId });
+    } else if (hasScopedCourseList) {
+      progressQb.andWhere('sp.course_id IN (:...courseIds)', {
+        courseIds: accessibleCourseIds,
+      });
     }
 
     const atRiskStudents = await progressQb
@@ -342,8 +434,13 @@ export class AnalyticsService {
     };
   }
 
-  async getGradeDistribution(courseId: number) {
+  async getGradeDistribution(
+    courseId: number,
+    userId?: number,
+    roles: string[] = [],
+  ) {
     this.logger.log(`Getting grade distribution for course ${courseId}`);
+    await this.assertAnalyticsAccess(courseId, userId, roles);
 
     const distribution = await this.studentProgressRepo
       .createQueryBuilder('sp')
@@ -413,11 +510,19 @@ export class AnalyticsService {
     };
   }
 
-  async getCourseComparison(courseIds: number[]) {
+  async getCourseComparison(
+    courseIds: number[],
+    userId?: number,
+    roles: string[] = [],
+  ) {
     this.logger.log(`Comparing courses: ${courseIds.join(', ')}`);
 
     if (!courseIds || courseIds.length === 0) {
       return { data: [] };
+    }
+
+    for (const courseId of courseIds) {
+      await this.assertAnalyticsAccess(courseId, userId, roles);
     }
 
     const comparison = await this.courseAnalyticsRepo
@@ -466,5 +571,71 @@ export class AnalyticsService {
     }
 
     return { data, topicSummary };
+  }
+
+  private async getAccessibleCourseIds(
+    userId?: number,
+    roles: string[] = [],
+  ): Promise<number[] | null> {
+    if (!userId) return [];
+
+    const isAdmin = roles.some((r) =>
+      [RoleName.ADMIN, RoleName.IT_ADMIN].includes(r as RoleName),
+    );
+
+    if (isAdmin) {
+      return null;
+    }
+
+    const isInstructor = roles.includes(RoleName.INSTRUCTOR);
+    const isTA = roles.includes(RoleName.TA);
+
+    const courseIds = new Set<number>();
+
+    if (isInstructor) {
+      const instructorAssignments = await this.courseInstructorRepo.find({
+        where: { userId },
+        relations: ['section'],
+      });
+
+      instructorAssignments.forEach((assignment) => {
+        if (assignment.section?.courseId) {
+          courseIds.add(Number(assignment.section.courseId));
+        }
+      });
+    }
+
+    if (isTA) {
+      const taAssignments = await this.courseTARepo.find({
+        where: { userId },
+        relations: ['section'],
+      });
+
+      taAssignments.forEach((assignment) => {
+        if (assignment.section?.courseId) {
+          courseIds.add(Number(assignment.section.courseId));
+        }
+      });
+    }
+
+    return Array.from(courseIds);
+  }
+
+  private async assertAnalyticsAccess(
+    courseId: number,
+    userId?: number,
+    roles: string[] = [],
+  ) {
+    const accessibleCourseIds = await this.getAccessibleCourseIds(userId, roles);
+
+    if (accessibleCourseIds === null) {
+      return;
+    }
+
+    if (!accessibleCourseIds.includes(Number(courseId))) {
+      throw new ForbiddenException(
+        `You do not have analytics access to course ${courseId}`,
+      );
+    }
   }
 }
