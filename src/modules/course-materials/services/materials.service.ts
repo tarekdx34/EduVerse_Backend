@@ -247,13 +247,14 @@ export class MaterialsService {
   async delete(id: number, userId: number, roles: string[]) {
     const material = await this.findById(id, userId, roles);
 
-    // Only instructors and admins can delete
+    // Only assigned teaching staff and admins can delete
     const isAdmin = roles.includes('admin') || roles.includes('it_admin');
     const isInstructor = roles.includes('instructor');
+    const isTA = roles.includes('teaching_assistant');
 
-    if (!isAdmin && !isInstructor) {
+    if (!isAdmin && !isInstructor && !isTA) {
       throw new ForbiddenException(
-        'Only instructors and admins can delete materials',
+        'Only teaching staff and admins can delete materials',
       );
     }
 
