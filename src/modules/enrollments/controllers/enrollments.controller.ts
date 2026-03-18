@@ -353,7 +353,7 @@ Retrieves all enrollments across all sections of a course.
    * Get all enrolled students in a section (instructor/admin only)
    */
   @Get('section/:sectionId/students')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({
     summary: 'Get section students',
     description: `
@@ -380,9 +380,12 @@ Retrieves all students enrolled in a specific section.
   })
   @ApiResponse({ status: 404, description: 'Section not found' })
   async getSectionStudents(
+    @Request() req,
     @Param('sectionId') sectionId: number,
   ): Promise<EnrollmentResponseDto[]> {
-    return this.enrollmentsService.getSectionStudents(sectionId);
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.enrollmentsService.getSectionStudents(sectionId, userId, roles);
   }
 
   /**
@@ -560,7 +563,7 @@ Removes an instructor assignment from a course section.
    * List all instructors for a section (admin/instructor)
    */
   @Get('sections/:sectionId/instructors')
-  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({
     summary: 'Get instructors for a section',
     description: `
@@ -590,9 +593,16 @@ Returns all instructors assigned to a course section.
   })
   @ApiResponse({ status: 404, description: 'Section not found' })
   async getSectionInstructors(
+    @Request() req,
     @Param('sectionId', ParseIntPipe) sectionId: number,
   ): Promise<InstructorAssignmentResponseDto[]> {
-    return this.enrollmentsService.getSectionInstructors(sectionId);
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.enrollmentsService.getSectionInstructors(
+      sectionId,
+      userId,
+      roles,
+    );
   }
 
   /**
@@ -600,7 +610,7 @@ Returns all instructors assigned to a course section.
    * Get the primary instructor summary for a section
    */
   @Get('section/:sectionId/instructor')
-  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({
     summary: 'Get assigned instructor for a section',
     description:
@@ -630,12 +640,19 @@ Returns all instructors assigned to a course section.
     },
   })
   async getSectionInstructorSummary(
+    @Request() req,
     @Param('sectionId', ParseIntPipe) sectionId: number,
   ): Promise<{
     instructorId: number | null;
     instructor: { userId: number; fullName: string; email: string } | null;
   }> {
-    return this.enrollmentsService.getSectionInstructorSummary(sectionId);
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.enrollmentsService.getSectionInstructorSummary(
+      sectionId,
+      userId,
+      roles,
+    );
   }
 
   // ─── Admin: TA Assignment Endpoints ──────────────────────────────────────
@@ -733,7 +750,7 @@ Removes a Teaching Assistant assignment from a course section.
    * List all TAs for a section (admin/instructor)
    */
   @Get('sections/:sectionId/tas')
-  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({
     summary: 'Get Teaching Assistants for a section',
     description: `
@@ -763,9 +780,12 @@ Returns all Teaching Assistants assigned to a course section.
   })
   @ApiResponse({ status: 404, description: 'Section not found' })
   async getSectionTAs(
+    @Request() req,
     @Param('sectionId', ParseIntPipe) sectionId: number,
   ): Promise<TAAssignmentResponseDto[]> {
-    return this.enrollmentsService.getSectionTAs(sectionId);
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.enrollmentsService.getSectionTAs(sectionId, userId, roles);
   }
 
   /**
@@ -773,7 +793,7 @@ Returns all Teaching Assistants assigned to a course section.
    * Get simplified TA summaries for a section
    */
   @Get('section/:sectionId/tas')
-  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR)
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({
     summary: 'Get assigned TAs for a section',
     description:
@@ -800,8 +820,20 @@ Returns all Teaching Assistants assigned to a course section.
     },
   })
   async getSectionTASummaries(
+    @Request() req,
     @Param('sectionId', ParseIntPipe) sectionId: number,
   ): Promise<Array<{ userId: number; fullName: string; email: string }>> {
-    return this.enrollmentsService.getSectionTASummaries(sectionId);
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.enrollmentsService.getSectionTASummaries(
+      sectionId,
+      userId,
+      roles,
+    );
+  }
+
+  private extractRoles(user: any): string[] {
+    if (!user.roles) return [];
+    return user.roles.map((r: any) => r.roleName || r.name || r);
   }
 }

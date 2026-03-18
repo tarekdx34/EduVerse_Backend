@@ -124,6 +124,7 @@ export class LabsService {
     await this.findById(labId);
     return this.submissionRepository.find({
       where: { labId },
+      relations: ['user', 'file'],
       order: { submittedAt: 'DESC' },
     });
   }
@@ -132,6 +133,7 @@ export class LabsService {
     await this.findById(labId);
     return this.submissionRepository.find({
       where: { labId, userId },
+      relations: ['user', 'file'],
       order: { submittedAt: 'DESC' },
     });
   }
@@ -146,7 +148,10 @@ export class LabsService {
     submission.status = dto.status;
     const updated = await this.submissionRepository.save(submission);
     this.logger.log(`Submission ${submissionId} graded: ${dto.status}`);
-    return updated;
+    return this.submissionRepository.findOne({
+      where: { id: updated.id },
+      relations: ['user', 'file'],
+    }) as Promise<LabSubmission>;
   }
 
   // ============ ATTENDANCE ============

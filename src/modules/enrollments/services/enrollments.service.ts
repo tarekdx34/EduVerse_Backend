@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull, LessThan } from 'typeorm';
 import { CourseEnrollment } from '../entities/course-enrollment.entity';
@@ -11,6 +16,7 @@ import { Course } from '../../courses/entities/course.entity';
 import { CourseSection } from '../../courses/entities/course-section.entity';
 import { CourseSchedule } from '../../courses/entities/course-schedule.entity';
 import { CoursePrerequisite } from '../../courses/entities/course-prerequisite.entity';
+import { RoleName } from '../../auth/entities/role.entity';
 import { User } from '../../auth/entities/user.entity';
 import { Semester } from '../../campus/entities/semester.entity';
 import { SectionStatus } from '../../courses/enums';
@@ -459,19 +465,55 @@ export class EnrollmentsService {
   }
 
   async getTeachingCourses(userId: number): Promise<EnrollmentResponseDto[]> {
-    const assignments = await this.instructorRepository.find({
-      where: { userId },
-      relations: ['section', 'section.course', 'section.semester'],
-    });
+    const [instructorAssignments, taAssignments] = await Promise.all([
+      this.instructorRepository.find({
+        where: { userId },
+        relations: ['section', 'section.course', 'section.semester'],
+      }),
+      this.taRepository.find({
+        where: { userId },
+        relations: ['section', 'section.course', 'section.semester'],
+      }),
+    ]);
 
-    if (assignments.length === 0) return [];
+    const assignmentsBySection = new Map<
+      number,
+      { section: CourseSection; course: Course; semester: Semester }
+    >();
+
+    for (const assignment of instructorAssignments) {
+      if (
+        assignment.section?.id &&
+        assignment.section.course &&
+        assignment.section.semester
+      ) {
+        assignmentsBySection.set(assignment.section.id, {
+          section: assignment.section,
+          course: assignment.section.course,
+          semester: assignment.section.semester,
+        });
+      }
+    }
+
+    for (const assignment of taAssignments) {
+      if (
+        assignment.section?.id &&
+        assignment.section.course &&
+        assignment.section.semester &&
+        !assignmentsBySection.has(assignment.section.id)
+      ) {
+        assignmentsBySection.set(assignment.section.id, {
+          section: assignment.section,
+          course: assignment.section.course,
+          semester: assignment.section.semester,
+        });
+      }
+    }
 
     return Promise.all(
-      assignments.map(async (a) => {
-        // We reuse the buildEnrollmentResponse logic but for the instructor
-        // We can pass a dummy student ID or modify it to handle instructor view
-        return this.buildInstructorEnrollmentView(a.section.course, a.section, a.section.semester);
-      }),
+      Array.from(assignmentsBySection.values()).map(({ course, section, semester }) =>
+        this.buildInstructorEnrollmentView(course, section, semester),
+      ),
     );
   }
 
@@ -509,7 +551,11 @@ export class EnrollmentsService {
 
   async getSectionStudents(
     sectionId: number,
+    userId: number,
+    roles: string[],
   ): Promise<EnrollmentResponseDto[]> {
+    await this.assertStaffCanAccessSection(sectionId, userId, roles);
+
     const enrollments = await this.enrollmentRepository.find({
       where: {
         sectionId,
@@ -881,7 +927,11 @@ export class EnrollmentsService {
 
   async getSectionInstructors(
     sectionId: number,
+    userId: number,
+    roles: string[],
   ): Promise<InstructorAssignmentResponseDto[]> {
+    await this.assertStaffCanAccessSection(sectionId, userId, roles);
+
     const section = await this.sectionRepository.findOne({
       where: { id: sectionId },
     });
@@ -900,10 +950,16 @@ export class EnrollmentsService {
     );
   }
 
-  async getSectionInstructorSummary(sectionId: number): Promise<{
+  async getSectionInstructorSummary(
+    sectionId: number,
+    userId: number,
+    roles: string[],
+  ): Promise<{
     instructorId: number | null;
     instructor: { userId: number; fullName: string; email: string } | null;
   }> {
+    await this.assertStaffCanAccessSection(sectionId, userId, roles);
+
     const section = await this.sectionRepository.findOne({
       where: { id: sectionId },
     });
@@ -1004,7 +1060,13 @@ export class EnrollmentsService {
     );
   }
 
-  async getSectionTAs(sectionId: number): Promise<TAAssignmentResponseDto[]> {
+  async getSectionTAs(
+    sectionId: number,
+    userId: number,
+    roles: string[],
+  ): Promise<TAAssignmentResponseDto[]> {
+    await this.assertStaffCanAccessSection(sectionId, userId, roles);
+
     const section = await this.sectionRepository.findOne({
       where: { id: sectionId },
     });
@@ -1023,7 +1085,11 @@ export class EnrollmentsService {
 
   async getSectionTASummaries(
     sectionId: number,
+    userId: number,
+    roles: string[],
   ): Promise<Array<{ userId: number; fullName: string; email: string }>> {
+    await this.assertStaffCanAccessSection(sectionId, userId, roles);
+
     const section = await this.sectionRepository.findOne({
       where: { id: sectionId },
     });
@@ -1043,5 +1109,36 @@ export class EnrollmentsService {
         email: ta?.email || '',
       };
     });
+  }
+
+  private async assertStaffCanAccessSection(
+    sectionId: number,
+    userId: number,
+    roles: string[],
+  ): Promise<void> {
+    const isAdmin = roles.some((role) =>
+      [RoleName.ADMIN, RoleName.IT_ADMIN].includes(role as RoleName),
+    );
+    if (isAdmin) {
+      return;
+    }
+
+    const isInstructor = roles.includes(RoleName.INSTRUCTOR);
+    const isTA = roles.includes(RoleName.TA);
+
+    const [instructorAssignment, taAssignment] = await Promise.all([
+      isInstructor
+        ? this.instructorRepository.findOne({ where: { sectionId, userId } })
+        : Promise.resolve(null),
+      isTA ? this.taRepository.findOne({ where: { sectionId, userId } }) : Promise.resolve(null),
+    ]);
+
+    if (instructorAssignment || taAssignment) {
+      return;
+    }
+
+    throw new ForbiddenException(
+      'You do not have permission to access this section',
+    );
   }
 }
