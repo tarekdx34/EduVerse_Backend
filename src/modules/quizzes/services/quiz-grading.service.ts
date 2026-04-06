@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { QuizAttempt, QuizAnswer, QuizQuestion } from '../entities';
+import { QuizAttempt, QuizAnswer, QuizQuestion, Quiz } from '../entities';
 import { QuestionType, AttemptStatus } from '../enums';
 import { ManualGradeDto, AttemptResultDto } from '../dto';
 import { AttemptNotFoundException } from '../exceptions';
+import { GradesService } from '../../grades/services';
+import { GradeType } from '../../grades/enums';
 
 @Injectable()
 export class QuizGradingService {
@@ -15,12 +17,14 @@ export class QuizGradingService {
     private readonly answerRepo: Repository<QuizAnswer>,
     @InjectRepository(QuizQuestion)
     private readonly questionRepo: Repository<QuizQuestion>,
+    @Inject(forwardRef(() => GradesService))
+    private readonly gradesService: GradesService,
   ) {}
 
   /**
    * Apply manual grades to essay/short answer questions
    */
-  async applyManualGrades(attemptId: number, dto: ManualGradeDto): Promise<AttemptResultDto> {
+  async applyManualGrades(attemptId: number, dto: ManualGradeDto, graderId?: number): Promise<AttemptResultDto> {
     const attempt = await this.attemptRepo.findOne({
       where: { id: attemptId },
       relations: ['quiz', 'quiz.questions', 'answers', 'user'],
@@ -41,12 +45,24 @@ export class QuizGradingService {
     // Recalculate total score
     const answers = await this.answerRepo.find({ where: { attemptId } });
     const totalScore = answers.reduce((sum, a) => sum + Number(a.pointsEarned || 0), 0);
+    const maxScore = attempt.quiz.questions.reduce((sum, q) => sum + Number(q.points), 0);
 
     // Update attempt status to graded
     await this.attemptRepo.update(attemptId, {
       score: totalScore,
       status: AttemptStatus.GRADED,
     });
+
+    // Create/update grade record in central grades table
+    await this.gradesService.createGrade({
+      userId: attempt.userId,
+      courseId: attempt.quiz.courseId,
+      gradeType: GradeType.QUIZ,
+      quizId: attempt.quiz.id,
+      score: totalScore,
+      maxScore: maxScore,
+      isPublished: true,
+    }, graderId || attempt.quiz.createdBy);
 
     return this.buildAttemptResult(attemptId);
   }

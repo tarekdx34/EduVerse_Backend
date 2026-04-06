@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Assignment, AssignmentSubmission } from '../entities';
@@ -19,6 +19,8 @@ import { Course } from '../../courses/entities/course.entity';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
 import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
+import { GradesService } from '../../grades/services';
+import { GradeType } from '../../grades/enums';
 
 @Injectable()
 export class AssignmentsService {
@@ -34,6 +36,8 @@ export class AssignmentsService {
     @InjectRepository(CourseEnrollment)
     private enrollmentRepo: Repository<CourseEnrollment>,
     private driveFolderService: DriveFolderService,
+    @Inject(forwardRef(() => GradesService))
+    private gradesService: GradesService,
   ) {}
 
   async create(dto: CreateAssignmentDto, userId: number): Promise<Assignment> {
@@ -278,7 +282,7 @@ export class AssignmentsService {
     submissionId: number,
     dto: GradeSubmissionDto,
     graderId: number,
-  ): Promise<{ submissionId: number; score: number; maxScore: number; feedback?: string }> {
+  ): Promise<{ submissionId: number; score: number; maxScore: number; feedback?: string; gradeId?: number }> {
     const submission = await this.submissionRepo.findOne({
       where: { id: submissionId, assignmentId },
     });
@@ -291,19 +295,37 @@ export class AssignmentsService {
       throw new AssignmentNotFoundException();
     }
 
+    // Update submission with grading info
     submission.submissionStatus = SubmissionStatus.GRADED;
+    submission.score = dto.score;
+    submission.feedback = dto.feedback || null;
+    submission.gradedBy = graderId;
+    submission.gradedAt = new Date();
     await this.submissionRepo.save(submission);
 
     this.logger.log(
       `Submission ${submissionId} graded by user ${graderId}: ${dto.score}/${assignment.maxScore}`,
     );
 
-    // TODO: Create grade record in grades table when GradesModule is wired
+    // Create grade record in central grades table
+    const grade = await this.gradesService.createGrade({
+      userId: submission.userId,
+      courseId: assignment.courseId,
+      gradeType: GradeType.ASSIGNMENT,
+      assignmentId: assignmentId,
+      score: dto.score,
+      maxScore: Number(assignment.maxScore),
+      feedback: dto.feedback,
+      isPublished: true, // Assignment grades are immediately visible
+    }, graderId);
+    this.logger.log(`Grade record created: ${grade.id} for assignment ${assignmentId}, user ${submission.userId}`);
+
     return {
       submissionId: submission.id,
       score: dto.score,
       maxScore: Number(assignment.maxScore),
       feedback: dto.feedback,
+      gradeId: Number(grade.id),
     };
   }
 

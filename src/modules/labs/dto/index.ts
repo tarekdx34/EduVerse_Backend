@@ -69,6 +69,17 @@ export class GradeLabSubmissionDto {
   @ApiProperty({ example: 'graded', enum: ['submitted', 'graded', 'returned', 'resubmit'], description: 'Submission status' })
   @IsEnum(['submitted', 'graded', 'returned', 'resubmit'])
   status: string;
+
+  @ApiPropertyOptional({ example: 85, description: 'Score for the submission' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  score?: number;
+
+  @ApiPropertyOptional({ example: 'Good work! Consider optimizing your code for better performance.', description: 'Feedback for the student' })
+  @IsOptional()
+  @IsString()
+  feedback?: string;
 }
 
 export class CreateInstructionDto {
