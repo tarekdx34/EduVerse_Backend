@@ -5,16 +5,16 @@ import { AuthSeeder } from './seeders/auth.seeder';
 // Load environment variables
 dotenv.config();
 
-const dbPort = process.env.DB_PORT;
-
-if (!dbPort) {
-  throw new Error('DB_PORT environment variable is required');
+const dbPort = process.env.DB_PORT || '3306';
+const port = parseInt(dbPort, 10);
+if (Number.isNaN(port)) {
+  throw new Error('DB_PORT must be a valid number');
 }
 
 const AppDataSource = new DataSource({
   type: 'mysql',
   host: process.env.DB_HOST || 'localhost',
-  port: parseInt(dbPort, 10),
+  port,
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_DATABASE || 'eduverse_db', // Changed from DB_NAME to DB_DATABASE
