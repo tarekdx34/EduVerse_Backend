@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { Course } from '../../courses/entities/course.entity';
 import { User } from '../../auth/entities/user.entity';
-import { QuizType, ShowAnswersAfter } from '../enums';
+import { QuizType, QuizStatus, ShowAnswersAfter } from '../enums';
 import { QuizQuestion } from './quiz-question.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
 
@@ -39,6 +39,14 @@ export class Quiz {
     default: QuizType.GRADED,
   })
   quizType: QuizType;
+
+  @Column({
+    name: 'status',
+    type: 'enum',
+    enum: QuizStatus,
+    default: QuizStatus.DRAFT,
+  })
+  status: QuizStatus;
 
   @Column({ name: 'time_limit_minutes', type: 'int', nullable: true })
   timeLimitMinutes: number;

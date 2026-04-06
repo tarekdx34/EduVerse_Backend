@@ -43,6 +43,8 @@ import {
   UploadLabTaMaterialDto,
   UploadLabSubmissionDto,
 } from '../dto';
+import { LabStatus } from '../enums';
+import { Lab } from '../entities/lab.entity';
 
 @ApiTags('Labs')
 @ApiBearerAuth('JWT-auth')
@@ -118,6 +120,41 @@ export class LabsController {
     return this.labsService.remove(id);
   }
 
+  @Patch(':id/status')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiOperation({
+    summary: 'Change lab status',
+    description: `
+Change the status of a lab (publish, close, or archive).
+
+### Status Values
+- \`draft\`: Not visible to students
+- \`published\`: Visible to students, accepting submissions
+- \`closed\`: No longer accepting submissions
+- \`archived\`: Hidden from all views
+    `,
+  })
+  @ApiParam({ name: 'id', description: 'Lab ID', type: Number })
+  @ApiBody({
+    schema: {
+      properties: {
+        status: {
+          type: 'string',
+          enum: ['draft', 'published', 'closed', 'archived'],
+          example: 'published',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Lab status updated', type: Lab })
+  @ApiResponse({ status: 404, description: 'Lab not found' })
+  async changeStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: LabStatus,
+  ): Promise<Lab> {
+    return this.labsService.changeStatus(id, status);
+  }
+
   // ============ INSTRUCTIONS ============
 
   @Get(':id/instructions')
@@ -191,7 +228,7 @@ export class LabsController {
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
     summary: 'Grade lab submission',
-    description: 'Update the status of a lab submission (grade, return, request resubmit).',
+    description: 'Grade a lab submission with score, feedback, and status. Creates a grade record in the gradebook.',
   })
   @ApiParam({ name: 'id', description: 'Lab ID', example: 1 })
   @ApiParam({ name: 'subId', description: 'Submission ID', example: 1 })
@@ -202,8 +239,10 @@ export class LabsController {
     @Param('id', ParseIntPipe) id: number,
     @Param('subId', ParseIntPipe) subId: number,
     @Body() dto: GradeLabSubmissionDto,
+    @Req() req: any,
   ) {
-    return this.labsService.gradeSubmission(id, subId, dto);
+    const graderId = req.user.userId || req.user.id;
+    return this.labsService.gradeSubmission(id, subId, dto, graderId);
   }
 
   // ============ ATTENDANCE ============

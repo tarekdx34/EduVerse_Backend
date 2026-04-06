@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Lab } from '../entities/lab.entity';
@@ -16,6 +16,9 @@ import {
 } from '../dto';
 import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
 import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
+import { GradesService } from '../../grades/services';
+import { GradeType } from '../../grades/enums';
+import { LabStatus } from '../enums';
 
 @Injectable()
 export class LabsService {
@@ -31,6 +34,8 @@ export class LabsService {
     @InjectRepository(LabAttendance)
     private attendanceRepository: Repository<LabAttendance>,
     private driveFolderService: DriveFolderService,
+    @Inject(forwardRef(() => GradesService))
+    private gradesService: GradesService,
   ) {}
 
   // ============ LABS CRUD ============
@@ -79,6 +84,14 @@ export class LabsService {
     const lab = await this.findById(id);
     await this.labRepository.remove(lab);
     this.logger.log(`Lab deleted: ${id}`);
+  }
+
+  async changeStatus(id: number, status: LabStatus): Promise<Lab> {
+    const lab = await this.findById(id);
+    lab.status = status;
+    const updated = await this.labRepository.save(lab);
+    this.logger.log(`Lab status changed to ${status}: ${id}`);
+    return updated;
   }
 
   // ============ INSTRUCTIONS ============
@@ -138,19 +151,45 @@ export class LabsService {
     });
   }
 
-  async gradeSubmission(labId: number, submissionId: number, dto: GradeLabSubmissionDto): Promise<LabSubmission> {
-    await this.findById(labId);
+  async gradeSubmission(labId: number, submissionId: number, dto: GradeLabSubmissionDto, graderId: number): Promise<LabSubmission> {
+    const lab = await this.findById(labId);
     const submission = await this.submissionRepository.findOne({
       where: { id: submissionId, labId },
     });
     if (!submission) throw new NotFoundException(`Submission ${submissionId} not found for lab ${labId}`);
 
+    // Update submission with grading info
     submission.status = dto.status;
+    if (dto.score !== undefined) {
+      submission.score = dto.score;
+    }
+    if (dto.feedback !== undefined) {
+      submission.feedback = dto.feedback;
+    }
+    submission.gradedBy = graderId;
+    submission.gradedAt = new Date();
+    
     const updated = await this.submissionRepository.save(submission);
-    this.logger.log(`Submission ${submissionId} graded: ${dto.status}`);
+    this.logger.log(`Submission ${submissionId} graded: ${dto.status}, score: ${dto.score}`);
+
+    // Create or update grade record in central grades table
+    if (dto.score !== undefined && dto.status === 'graded') {
+      await this.gradesService.createGrade({
+        userId: submission.userId,
+        courseId: lab.courseId,
+        gradeType: GradeType.LAB,
+        labId: labId,
+        score: dto.score,
+        maxScore: Number(lab.maxScore),
+        feedback: dto.feedback,
+        isPublished: true, // Lab grades are immediately visible
+      }, graderId);
+      this.logger.log(`Grade record created for lab ${labId}, user ${submission.userId}`);
+    }
+
     return this.submissionRepository.findOne({
       where: { id: updated.id },
-      relations: ['user', 'file'],
+      relations: ['user', 'file', 'grader'],
     }) as Promise<LabSubmission>;
   }
 
