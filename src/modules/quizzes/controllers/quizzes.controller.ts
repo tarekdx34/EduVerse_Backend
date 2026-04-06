@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Delete,
+  Patch,
   Body,
   Param,
   Query,
@@ -43,6 +44,7 @@ import {
   ReorderQuestionsDto,
 } from '../dto';
 import { Quiz, QuizQuestion, QuizAttempt, QuizDifficultyLevel } from '../entities';
+import { QuizStatus } from '../enums';
 
 @ApiTags('📝 Quizzes')
 @ApiBearerAuth('JWT-auth')
@@ -390,6 +392,58 @@ Soft deletes a quiz. The quiz data is preserved but hidden from users.
       this.getRoleNames(req.user),
     );
     return { message: 'Quiz deleted successfully' };
+  }
+
+  @Patch(':id/status')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  @ApiOperation({
+    summary: 'Change quiz status',
+    description: `
+## Change Quiz Status
+
+Updates the status of a quiz (publish, close, or archive).
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: INSTRUCTOR, TA, ADMIN
+
+### Status Values
+- \`draft\`: Not visible to students
+- \`published\`: Available for students to take
+- \`closed\`: No longer accepting attempts
+- \`archived\`: Hidden from all views
+
+### Behavior
+- Students can only see published quizzes
+- Closed quizzes preserve existing attempts but prevent new ones
+- Archived quizzes are soft-hidden
+    `,
+  })
+  @ApiParam({ name: 'id', description: 'Quiz ID', type: Number })
+  @ApiBody({
+    schema: {
+      properties: {
+        status: {
+          type: 'string',
+          enum: ['draft', 'published', 'closed', 'archived'],
+          example: 'published',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Quiz status updated', type: Quiz })
+  @ApiResponse({ status: 404, description: 'Quiz not found' })
+  async changeStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: QuizStatus,
+    @Req() req: any,
+  ): Promise<Quiz> {
+    return this.quizzesService.changeStatus(
+      id,
+      status,
+      req.user.userId,
+      this.getRoleNames(req.user),
+    );
   }
 
   // ============ QUESTION MANAGEMENT ============
@@ -774,8 +828,10 @@ Apply manual grades to essay and short answer questions that require human evalu
   async applyManualGrades(
     @Param('attemptId', ParseIntPipe) attemptId: number,
     @Body() dto: ManualGradeDto,
+    @Req() req: any,
   ): Promise<AttemptResultDto> {
-    return this.gradingService.applyManualGrades(attemptId, dto);
+    const graderId = req.user.userId;
+    return this.gradingService.applyManualGrades(attemptId, dto, graderId);
   }
 
   @Get('attempts/:attemptId/pending-grading')

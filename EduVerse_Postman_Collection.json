@@ -2855,6 +2855,38 @@
           }
         },
         {
+          "name": "Change Quiz Status (Instructor)",
+          "request": {
+            "description": "Change quiz status: draft, published, closed, archived",
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{instructor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"published\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/quizzes/1/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "quizzes",
+                "1",
+                "status"
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Difficulty Levels",
           "request": {
             "method": "GET",
@@ -3421,6 +3453,45 @@
                 "1"
               ],
               "raw": "{{baseUrl}}/api/labs/1",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Lab Status",
+          "request": {
+            "description": "Change lab status: draft, published, closed, archived. Roles: Instructor, TA, Admin",
+            "auth": {
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{instructor_token}}"
+                }
+              ],
+              "type": "bearer"
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"published\"}"
+            },
+            "url": {
+              "path": [
+                "api",
+                "labs",
+                "1",
+                "status"
+              ],
+              "raw": "{{baseUrl}}/api/labs/1/status",
               "host": [
                 "{{baseUrl}}"
               ]

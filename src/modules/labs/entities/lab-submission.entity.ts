@@ -35,6 +35,18 @@ export class LabSubmission {
   @Column({ name: 'status', type: 'enum', enum: ['submitted', 'graded', 'returned', 'resubmit'], default: 'submitted' })
   status: string;
 
+  @Column({ name: 'score', type: 'decimal', precision: 5, scale: 2, nullable: true })
+  score: number | null;
+
+  @Column({ name: 'feedback', type: 'text', nullable: true })
+  feedback: string | null;
+
+  @Column({ name: 'graded_by', type: 'bigint', unsigned: true, nullable: true })
+  gradedBy: number | null;
+
+  @Column({ name: 'graded_at', type: 'timestamp', nullable: true })
+  gradedAt: Date | null;
+
   @ManyToOne(() => Lab, (lab) => lab.submissions)
   @JoinColumn({ name: 'lab_id' })
   lab: Lab;
@@ -46,4 +58,8 @@ export class LabSubmission {
   @ManyToOne(() => File, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'file_id' })
   file: File;
+
+  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'graded_by' })
+  grader: User | null;
 }
