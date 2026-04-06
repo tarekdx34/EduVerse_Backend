@@ -1,8 +1,8 @@
-import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Like, IsNull } from 'typeorm';
 import { Quiz, QuizQuestion, QuizAttempt, QuizAnswer, QuizDifficultyLevel } from '../entities';
-import { AttemptStatus, QuestionType } from '../enums';
+import { AttemptStatus, QuestionType, QuizStatus } from '../enums';
 import {
   CreateQuizDto,
   UpdateQuizDto,
@@ -30,6 +30,8 @@ import { Course } from '../../courses/entities/course.entity';
 import { RoleName } from '../../auth/entities/role.entity';
 import { CourseTA } from '../../enrollments/entities/course-ta.entity';
 import { CourseInstructor } from '../../enrollments/entities/course-instructor.entity';
+import { GradesService } from '../../grades/services';
+import { GradeType } from '../../grades/enums';
 
 @Injectable()
 export class QuizzesService {
@@ -50,6 +52,8 @@ export class QuizzesService {
     private readonly courseTARepo: Repository<CourseTA>,
     @InjectRepository(CourseInstructor)
     private readonly courseInstructorRepo: Repository<CourseInstructor>,
+    @Inject(forwardRef(() => GradesService))
+    private readonly gradesService: GradesService,
   ) {}
 
   // ============ QUIZ CRUD ============
@@ -154,6 +158,14 @@ export class QuizzesService {
     const quiz = await this.findQuizById(id);
     await this.assertQuizManagementAccess(quiz, userId, roles);
     await this.quizRepo.softDelete(id);
+  }
+
+  async changeStatus(id: number, status: QuizStatus, userId: number, roles: string[]): Promise<Quiz> {
+    const quiz = await this.findQuizById(id);
+    await this.assertQuizManagementAccess(quiz, userId, roles);
+    
+    quiz.status = status;
+    return this.quizRepo.save(quiz);
   }
 
   // ============ QUESTION MANAGEMENT ============
@@ -368,12 +380,27 @@ export class QuizzesService {
       (q) => q.questionType === QuestionType.SHORT_ANSWER || q.questionType === QuestionType.ESSAY,
     );
 
+    const finalStatus = needsManualGrading ? AttemptStatus.SUBMITTED : AttemptStatus.GRADED;
+
     await this.attemptRepo.update(attemptId, {
       submittedAt: new Date(),
       score: totalScore,
       timeTakenMinutes: timeTaken,
-      status: needsManualGrading ? AttemptStatus.SUBMITTED : AttemptStatus.GRADED,
+      status: finalStatus,
     });
+
+    // Create grade record in central grades table if fully graded (no manual grading needed)
+    if (!needsManualGrading) {
+      await this.gradesService.createGrade({
+        userId: userId,
+        courseId: attempt.quiz.courseId,
+        gradeType: GradeType.QUIZ,
+        quizId: attempt.quiz.id,
+        score: totalScore,
+        maxScore: maxScore,
+        isPublished: true,
+      }, attempt.quiz.createdBy);
+    }
 
     return this.getAttemptResult(attemptId, userId);
   }

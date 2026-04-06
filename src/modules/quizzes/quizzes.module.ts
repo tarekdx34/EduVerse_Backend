@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuizzesController } from './controllers/quizzes.controller';
 import { QuizzesService, QuizGradingService } from './services';
@@ -6,6 +6,7 @@ import { Quiz, QuizQuestion, QuizAttempt, QuizAnswer, QuizDifficultyLevel } from
 import { Course } from '../courses/entities/course.entity';
 import { CourseTA } from '../enrollments/entities/course-ta.entity';
 import { CourseInstructor } from '../enrollments/entities/course-instructor.entity';
+import { GradesModule } from '../grades/grades.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CourseInstructor } from '../enrollments/entities/course-instructor.enti
       CourseTA,
       CourseInstructor,
     ]),
+    forwardRef(() => GradesModule),
   ],
   controllers: [QuizzesController],
   providers: [QuizzesService, QuizGradingService],

@@ -88,6 +88,36 @@ export class AssignmentSubmission {
   })
   submittedAt: Date;
 
+  @Column({
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    name: 'score',
+  })
+  score: number | null;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+    name: 'feedback',
+  })
+  feedback: string | null;
+
+  @Column({
+    type: 'bigint',
+    nullable: true,
+    name: 'graded_by',
+  })
+  gradedBy: number | null;
+
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+    name: 'graded_at',
+  })
+  gradedAt: Date | null;
+
   @ManyToOne(() => Assignment, (assignment) => assignment.submissions, {
     onDelete: 'CASCADE',
   })
@@ -105,4 +135,11 @@ export class AssignmentSubmission {
   })
   @JoinColumn({ name: 'file_id' })
   file: File | null;
+
+  @ManyToOne(() => User, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'graded_by' })
+  grader: User | null;
 }
