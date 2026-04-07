@@ -1,0 +1,17 @@
+Automatic Control — Lecture Notes (Introductory)
+
+Automatic control is about making a system behave as we want without constant human intervention. We compare what we want (the reference or setpoint) with what we actually get (the output), and we adjust the inputs to the plant so the error between them becomes small and stays acceptable over time.
+
+Open-loop control means we command the system without measuring the result. A simple example is setting a timer on a heater and assuming the room will reach the desired temperature. It can work when disturbances are small and the model is accurate, but if something changes in the environment, the outcome may drift.
+
+Closed-loop control uses feedback. We measure the output, compare it to the reference, and the controller decides how to act. The main idea is that the system can react to disturbances and modeling errors because it constantly observes what is happening.
+
+A basic feedback loop contains a reference input, a summing point where the error is formed, a controller that computes the actuating signal, the plant or process being controlled, and a sensor that measures the output and feeds it back.
+
+Stability is a central concern. In intuitive terms, a stable system returns to an acceptable operating condition after a disturbance. An unstable system may show growing oscillations or diverging behavior, which is usually unacceptable in practice.
+
+We often distinguish between transient behavior and steady-state behavior. The transient part describes how the system moves from one condition to another after a change or a disturbance. The steady-state part describes what happens after those initial effects have settled, such as whether a small remaining error is acceptable for the application.
+
+Performance is described using ideas such as speed of response, overshoot, settling time, and steady-state error. Different applications prioritize different goals. For example, a passenger elevator may emphasize smoothness and comfort, while a manufacturing line may emphasize precision and repeatability.
+
+Finally, practical control design must account for sensor noise, actuator limits, delays, and safety. Controllers are tuned so that the closed-loop system is robust enough for real operating conditions while meeting the required performance specifications.

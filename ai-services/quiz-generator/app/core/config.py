@@ -1,7 +1,14 @@
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
-load_dotenv()
+# quiz-generator cwd when run via npm: ai-services/quiz-generator
+_here = Path(__file__).resolve().parent.parent.parent
+_backend_root = _here.parent.parent
+# Shared backend .env first, then optional quiz-local overrides
+load_dotenv(_backend_root / ".env")
+load_dotenv(_here / ".env", override=True)
 
 MY_API_KEY = os.getenv("MY_API_KEY")
 if not MY_API_KEY:
