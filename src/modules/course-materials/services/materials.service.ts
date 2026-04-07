@@ -523,6 +523,85 @@ export class MaterialsService {
   }
 
   /**
+   * Validate file type and size for document uploads
+   */
+  private validateDocumentFile(file: Express.Multer.File): void {
+    // Supported MIME types for documents
+    const SUPPORTED_DOCUMENT_TYPES = [
+      'application/pdf',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'text/markdown',
+      'application/zip',
+    ];
+
+    // Supported MIME types for images
+    const SUPPORTED_IMAGE_TYPES = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+    ];
+
+    const ALL_SUPPORTED_TYPES = [...SUPPORTED_DOCUMENT_TYPES, ...SUPPORTED_IMAGE_TYPES];
+
+    // Check MIME type
+    if (!ALL_SUPPORTED_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException(
+        `Unsupported file type: ${file.mimetype}. Supported types: PDF, Word (doc/docx), PowerPoint (ppt/pptx), Excel (xls/xlsx), Images (jpg/png/gif/webp), Text, Markdown, ZIP`,
+      );
+    }
+
+    // File size limits
+    const MAX_DOCUMENT_SIZE = 50 * 1024 * 1024; // 50MB
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+
+    const isImage = SUPPORTED_IMAGE_TYPES.includes(file.mimetype);
+    const maxSize = isImage ? MAX_IMAGE_SIZE : MAX_DOCUMENT_SIZE;
+    const maxSizeMB = isImage ? 10 : 50;
+
+    if (file.size > maxSize) {
+      throw new BadRequestException(
+        `File size exceeds maximum allowed size of ${maxSizeMB}MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
+      );
+    }
+
+    // Validate file extension matches MIME type (prevent spoofing)
+    const ext = file.originalname.split('.').pop()?.toLowerCase();
+    const mimeTypeExtensionMap: Record<string, string[]> = {
+      'application/pdf': ['pdf'],
+      'application/vnd.ms-powerpoint': ['ppt'],
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['pptx'],
+      'application/msword': ['doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['docx'],
+      'application/vnd.ms-excel': ['xls'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['xlsx'],
+      'text/plain': ['txt'],
+      'text/markdown': ['md'],
+      'application/zip': ['zip'],
+      'image/jpeg': ['jpg', 'jpeg'],
+      'image/png': ['png'],
+      'image/gif': ['gif'],
+      'image/webp': ['webp'],
+      'image/svg+xml': ['svg'],
+    };
+
+    const allowedExtensions = mimeTypeExtensionMap[file.mimetype] || [];
+    if (ext && !allowedExtensions.includes(ext)) {
+      throw new BadRequestException(
+        `File extension .${ext} does not match MIME type ${file.mimetype}`,
+      );
+    }
+  }
+
+  /**
    * Upload document material to Google Drive
    * Supports PDFs, PPTs, Word docs, and other document formats
    */
@@ -540,8 +619,11 @@ export class MaterialsService {
   ) {
     // Validate file exists
     if (!file || !file.buffer) {
-      throw new BadRequestException('Document file is required');
+      throw new BadRequestException('Document file is required. Please select a file to upload.');
     }
+
+    // Validate file type and size
+    this.validateDocumentFile(file);
 
     // Check if user is admin or assigned to this course
     const isAdmin = roles.includes('admin') || roles.includes('it_admin');
@@ -554,7 +636,7 @@ export class MaterialsService {
       );
       if (!isAssigned) {
         throw new ForbiddenException(
-          'You are not assigned to this course and cannot add materials',
+          `You are not assigned to course ID ${courseId} and cannot add materials. Only instructors, TAs, or admins assigned to this course can upload materials.`,
         );
       }
     }
@@ -596,11 +678,11 @@ export class MaterialsService {
       }
     } catch (error) {
       this.logger.error(
-        `Failed to ensure course hierarchy: ${error.message}`,
+        `Failed to ensure course hierarchy for course ${courseId}: ${error.message}`,
         error.stack,
       );
       throw new BadRequestException(
-        'Failed to prepare Google Drive folder structure',
+        `Failed to prepare Google Drive folder structure for course ${courseId}. Please ensure Google Drive integration is configured correctly. Error: ${error.message}`,
       );
     }
 
@@ -626,12 +708,24 @@ export class MaterialsService {
       );
     } catch (error) {
       this.logger.error(
-        `Failed to upload to Google Drive: ${error.message}`,
+        `Failed to upload file to Google Drive: ${error.message}`,
         error.stack,
       );
-      throw new BadRequestException(
-        `Failed to upload document to Google Drive: ${error.message || 'Unknown error'}`,
-      );
+      
+      // Provide more specific error messages based on the error type
+      let errorMessage = 'Failed to upload document to Google Drive.';
+      
+      if (error.message?.includes('auth') || error.message?.includes('token')) {
+        errorMessage += ' Authentication error - please check Google Drive credentials.';
+      } else if (error.message?.includes('quota') || error.message?.includes('storage')) {
+        errorMessage += ' Storage quota exceeded - please free up space in Google Drive.';
+      } else if (error.message?.includes('permission')) {
+        errorMessage += ' Permission denied - please check Google Drive folder permissions.';
+      } else {
+        errorMessage += ` Error: ${error.message || 'Unknown error'}`;
+      }
+      
+      throw new BadRequestException(errorMessage);
     }
 
     // Determine publish status (default: draft/false)

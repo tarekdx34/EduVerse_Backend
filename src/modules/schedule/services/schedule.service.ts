@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
-import { CalendarEvent, ExamSchedule } from '../entities';
+import { Repository, Between, Brackets } from 'typeorm';
+import { CalendarEvent, ExamSchedule, CampusEvent, CampusEventStatus } from '../entities';
 import { CourseSchedule } from '../../courses/entities/course-schedule.entity';
 import { QueryScheduleDto } from '../dto';
 
@@ -14,6 +14,8 @@ export class ScheduleService {
     private readonly examRepo: Repository<ExamSchedule>,
     @InjectRepository(CourseSchedule)
     private readonly courseScheduleRepo: Repository<CourseSchedule>,
+    @InjectRepository(CampusEvent)
+    private readonly campusEventRepo: Repository<CampusEvent>,
   ) {}
 
   async getDailySchedule(userId: number, roles: string[], date?: string) {
@@ -43,6 +45,9 @@ export class ScheduleService {
     // Get exams for the day
     const exams = await this.getExamsForUser(userId, roles, dateStr, dateStr);
 
+    // Get campus events for the day
+    const campusEvents = await this.getCampusEventsForUser(userId, roles, startOfDay, endOfDay);
+
     return {
       date: dateStr,
       dayOfWeek,
@@ -56,6 +61,10 @@ export class ScheduleService {
       })),
       exams: exams.map(e => ({
         type: 'exam',
+        ...e,
+      })),
+      campusEvents: campusEvents.map(e => ({
+        type: 'campus_event',
         ...e,
       })),
     };
@@ -213,6 +222,37 @@ export class ScheduleService {
     }
 
     return qb.orderBy('exam.examDate', 'ASC').addOrderBy('exam.startTime', 'ASC').getMany();
+  }
+
+  private async getCampusEventsForUser(
+    userId: number,
+    roles: string[],
+    startDate: Date,
+    endDate: Date,
+  ) {
+    const isAdmin = roles.includes('admin') || roles.includes('it_admin');
+
+    const qb = this.campusEventRepo.createQueryBuilder('event')
+      .leftJoinAndSelect('event.organizer', 'organizer')
+      .where('event.startDatetime >= :startDate AND event.endDatetime <= :endDate', {
+        startDate,
+        endDate,
+      });
+
+    // Only show published events to non-admins
+    if (!isAdmin) {
+      qb.andWhere('event.status = :status', { status: CampusEventStatus.PUBLISHED });
+
+      // Filter by visibility (university-wide always visible, department based on user's dept)
+      qb.andWhere(
+        new Brackets(qb => {
+          qb.where('event.eventType = :universityWide', { universityWide: 'university_wide' });
+          // TODO: Add department/campus/program filtering based on user
+        })
+      );
+    }
+
+    return qb.orderBy('event.startDatetime', 'ASC').getMany();
   }
 
   private getDayOfWeek(date: Date): string {
