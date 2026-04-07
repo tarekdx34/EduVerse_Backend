@@ -4,6 +4,7 @@ numpy
 opencv-contrib-python
 openpyxl
 pillow
+pymysql
 
 #API
 fastapi
