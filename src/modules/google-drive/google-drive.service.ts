@@ -364,6 +364,25 @@ export class GoogleDriveService {
   }
 
   /**
+   * Make a file publicly accessible (anyone with the link can view)
+   */
+  async makeFilePublic(fileId: string): Promise<void> {
+    try {
+      await this.drive.permissions.create({
+        fileId,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone',
+        },
+      });
+      this.logger.log(`Made file public: ${fileId}`);
+    } catch (error) {
+      this.logger.error(`Error making file public: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
    * Get storage quota information
    */
   async getStorageQuota(): Promise<{ limit: string; usage: string; usageInDrive: string }> {

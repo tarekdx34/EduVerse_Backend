@@ -10,6 +10,7 @@ import { User } from '../auth/entities/user.entity';
 import { CoursesModule } from '../courses/courses.module';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
 import { GoogleDriveModule } from '../google-drive/google-drive.module';
+import { DriveFile } from '../google-drive/entities/drive-file.entity';
 import { GradesModule } from '../grades/grades.module';
 
 @Module({
@@ -21,6 +22,7 @@ import { GradesModule } from '../grades/grades.module';
       CourseSection,
       CourseEnrollment,
       User,
+      DriveFile,
     ]),
     forwardRef(() => CoursesModule),
     forwardRef(() => EnrollmentsModule),

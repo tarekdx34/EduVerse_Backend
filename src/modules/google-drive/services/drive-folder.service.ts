@@ -496,6 +496,9 @@ export class DriveFolderService {
       folder.driveId,
     );
 
+    // Make file publicly accessible so links work
+    await this.driveService.makeFilePublic(driveFile.id);
+
     // Save to database
     const dbFile = this.driveFileRepository.create({
       driveId: driveFile.id,
@@ -674,5 +677,99 @@ export class DriveFolderService {
     } else {
       return 'Fall';
     }
+  }
+
+  // ============================================================================
+  // DRIVE FILE ENTITY LINKING (FIX FOR fileId=NULL ISSUE)
+  // ============================================================================
+
+  /**
+   * Update DriveFile entity linkage to parent submission
+   * 
+   * This is the CORE FIX for the fileId=NULL issue. When files are uploaded to Google Drive,
+   * they create records in drive_files table. This method links those Drive files to their
+   * parent submission entities via entity_type and entity_id fields.
+   * 
+   * Usage:
+   * 1. Upload file to Drive (creates DriveFile record)
+   * 2. Create/update submission (creates LabSubmission or AssignmentSubmission record)
+   * 3. Call this method to link them: updateDriveFileEntity(driveFileId, 'lab_submission', submissionId)
+   * 
+   * @param driveFileId - Primary key of drive_files table (drive_file_id)
+   * @param entityType - Type of parent entity ('lab_submission', 'assignment_submission', etc.)
+   * @param entityId - Primary key of parent entity (submission_id)
+   * @throws NotFoundException if DriveFile not found
+   */
+  async updateDriveFileEntity(
+    driveFileId: number,
+    entityType: DriveFileEntityType,
+    entityId: number,
+  ): Promise<void> {
+    const driveFile = await this.driveFileRepository.findOne({
+      where: { driveFileId },
+    });
+
+    if (!driveFile) {
+      throw new NotFoundException(`DriveFile ${driveFileId} not found`);
+    }
+
+    // Update the entity linkage
+    driveFile.entityType = entityType;
+    driveFile.entityId = entityId;
+
+    await this.driveFileRepository.save(driveFile);
+    this.logger.log(`✅ Linked DriveFile ${driveFileId} to ${entityType} ${entityId}`);
+  }
+
+  /**
+   * Get DriveFiles for a submission
+   * 
+   * Use this method instead of submission.fileId (which is always null for Google Drive uploads).
+   * This queries the drive_files table using entity_type and entity_id linkage.
+   * 
+   * Example:
+   * ```typescript
+   * // Get all files for lab submission ID 15
+   * const files = await driveFolderService.getDriveFilesForEntity('lab_submission', 15);
+   * console.log(files[0].webViewLink); // Google Drive view link
+   * ```
+   * 
+   * @param entityType - 'lab_submission', 'assignment_submission', etc.
+   * @param entityId - The submission_id
+   * @returns Array of DriveFile entities linked to this submission (ordered by newest first)
+   */
+  async getDriveFilesForEntity(
+    entityType: DriveFileEntityType,
+    entityId: number,
+  ): Promise<DriveFile[]> {
+    return this.driveFileRepository.find({
+      where: { entityType, entityId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  // ============================================================================
+  // SHARED LINK-BUILDER UTILITY
+  // ============================================================================
+
+  /**
+   * Build standardised file-link object from a DriveFile entity.
+   * Use this everywhere instead of inline construction so the URL
+   * format (especially iframeUrl /preview suffix) stays consistent.
+   */
+  buildFileLinks(driveFile: DriveFile): {
+    driveId: string;
+    fileName: string;
+    webViewLink: string | null;
+    iframeUrl: string;
+    downloadUrl: string;
+  } {
+    return {
+      driveId: driveFile.driveId,
+      fileName: driveFile.fileName,
+      webViewLink: driveFile.webViewLink,
+      iframeUrl: `https://drive.google.com/file/d/${driveFile.driveId}/preview`,
+      downloadUrl: `https://drive.google.com/uc?id=${driveFile.driveId}&export=download`,
+    };
   }
 }
