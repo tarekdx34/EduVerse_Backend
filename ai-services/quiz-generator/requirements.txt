@@ -6,3 +6,4 @@ fpdf
 langchain-groq
 langchain-core
 python-multipart
+python-dotenv
