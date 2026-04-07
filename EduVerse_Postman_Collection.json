@@ -7202,6 +7202,254 @@
               ]
             }
           }
+        },
+        {
+          "request": {
+            "header": [
+              {
+                "value": "Bearer {{instructor_token}}",
+                "key": "Authorization"
+              }
+            ],
+            "url": {
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "document"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/courses/1/materials/document"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "type": "file",
+                  "key": "document",
+                  "description": "PDF file to upload (max 50MB)",
+                  "src": ""
+                },
+                {
+                  "value": "Week 1: Introduction to Data Structures",
+                  "type": "text",
+                  "key": "title"
+                },
+                {
+                  "value": "Comprehensive PDF lecture notes covering introduction to data structures",
+                  "type": "text",
+                  "key": "description"
+                },
+                {
+                  "value": "lecture",
+                  "type": "text",
+                  "key": "materialType"
+                },
+                {
+                  "value": "1",
+                  "type": "text",
+                  "key": "weekNumber"
+                },
+                {
+                  "value": "0",
+                  "type": "text",
+                  "key": "orderIndex"
+                },
+                {
+                  "value": "false",
+                  "type": "text",
+                  "key": "isPublished"
+                }
+              ]
+            },
+            "description": "Upload a PDF document to Google Drive and create course material.\n\n**File Type:** PDF\n**Max Size:** 50MB\n**MIME Type:** application/pdf\n\n**Flow:**\n1. Document uploaded to Google Drive\n2. File placed in appropriate course folder (Lectures or General)\n3. Material record created with Drive metadata\n\n**Response includes:**\n- materialId, driveId, driveViewUrl, driveDownloadUrl, fileName",
+            "method": "POST"
+          },
+          "name": "Upload PDF Document (Instructor)"
+        },
+        {
+          "request": {
+            "header": [
+              {
+                "value": "Bearer {{instructor_token}}",
+                "key": "Authorization"
+              }
+            ],
+            "url": {
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "document"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/courses/1/materials/document"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "type": "file",
+                  "key": "document",
+                  "description": "PowerPoint file (ppt/pptx, max 50MB)",
+                  "src": ""
+                },
+                {
+                  "value": "Week 2: Algorithms Overview Slides",
+                  "type": "text",
+                  "key": "title"
+                },
+                {
+                  "value": "PowerPoint presentation covering algorithm fundamentals",
+                  "type": "text",
+                  "key": "description"
+                },
+                {
+                  "value": "slide",
+                  "type": "text",
+                  "key": "materialType"
+                },
+                {
+                  "value": "2",
+                  "type": "text",
+                  "key": "weekNumber"
+                },
+                {
+                  "value": "true",
+                  "type": "text",
+                  "key": "isPublished"
+                }
+              ]
+            },
+            "description": "Upload PowerPoint slides to Google Drive.\n\n**File Type:** PowerPoint\n**Supported:** .ppt, .pptx\n**Max Size:** 50MB\n**MIME Types:** application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation\n\n**Note:** Slides automatically go to Course/Lectures folder",
+            "method": "POST"
+          },
+          "name": "Upload PowerPoint Slides (Instructor)"
+        },
+        {
+          "request": {
+            "header": [
+              {
+                "value": "Bearer {{instructor_token}}",
+                "key": "Authorization"
+              }
+            ],
+            "url": {
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "document"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/courses/1/materials/document"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "type": "file",
+                  "key": "document",
+                  "description": "Word document (doc/docx, max 50MB)",
+                  "src": ""
+                },
+                {
+                  "value": "Assignment Guidelines and Rubric",
+                  "type": "text",
+                  "key": "title"
+                },
+                {
+                  "value": "Detailed guidelines and grading rubric for the course project",
+                  "type": "text",
+                  "key": "description"
+                },
+                {
+                  "value": "document",
+                  "type": "text",
+                  "key": "materialType"
+                },
+                {
+                  "value": "3",
+                  "type": "text",
+                  "key": "weekNumber"
+                },
+                {
+                  "value": "true",
+                  "type": "text",
+                  "key": "isPublished"
+                }
+              ]
+            },
+            "description": "Upload Word document to Google Drive.\n\n**File Type:** Word Document\n**Supported:** .doc, .docx\n**Max Size:** 50MB\n**MIME Types:** application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document\n\n**Note:** Documents go to Course/General folder",
+            "method": "POST"
+          },
+          "name": "Upload Word Document (Instructor)"
+        },
+        {
+          "request": {
+            "header": [
+              {
+                "value": "Bearer {{instructor_token}}",
+                "key": "Authorization"
+              }
+            ],
+            "url": {
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "materials",
+                "document"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/courses/1/materials/document"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "type": "file",
+                  "key": "document",
+                  "description": "Image file (jpg/png/gif/webp, max 10MB)",
+                  "src": ""
+                },
+                {
+                  "value": "Course Syllabus Diagram",
+                  "type": "text",
+                  "key": "title"
+                },
+                {
+                  "value": "Visual representation of course topics and timeline",
+                  "type": "text",
+                  "key": "description"
+                },
+                {
+                  "value": "document",
+                  "type": "text",
+                  "key": "materialType"
+                },
+                {
+                  "value": "true",
+                  "type": "text",
+                  "key": "isPublished"
+                }
+              ]
+            },
+            "description": "Upload image as course material.\n\n**File Type:** Image\n**Supported:** .jpg, .jpeg, .png, .gif, .webp, .svg\n**Max Size:** 10MB (smaller than documents)\n**MIME Types:** image/jpeg, image/png, image/gif, image/webp, image/svg+xml\n\n**Note:** Images have lower size limit than documents",
+            "method": "POST"
+          },
+          "name": "Upload Image Material (Instructor)"
         }
       ]
     },

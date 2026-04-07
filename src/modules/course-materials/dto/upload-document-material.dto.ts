@@ -28,19 +28,19 @@ export class UploadDocumentMaterialDto {
     description: 'Document description',
     example: 'Lecture notes covering introduction to the course and syllabus overview.',
   })
-  @IsString()
   @IsOptional()
+  @IsString()
   description?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Material type',
     enum: MaterialType,
     example: MaterialType.DOCUMENT,
     default: MaterialType.DOCUMENT,
   })
-  @IsEnum(MaterialType)
   @IsOptional()
   @Transform(({ value }) => value || MaterialType.DOCUMENT)
+  @IsEnum(MaterialType)
   materialType?: MaterialType;
 
   @ApiPropertyOptional({
@@ -49,11 +49,11 @@ export class UploadDocumentMaterialDto {
     minimum: 1,
     maximum: 52,
   })
+  @IsOptional()
   @Transform(({ value }) => value !== undefined && value !== '' ? parseInt(value, 10) : undefined)
   @IsInt()
   @Min(1)
   @Max(52)
-  @IsOptional()
   weekNumber?: number;
 
   @ApiPropertyOptional({
@@ -61,10 +61,10 @@ export class UploadDocumentMaterialDto {
     example: 0,
     default: 0,
   })
+  @IsOptional()
   @Transform(({ value }) => value !== undefined && value !== '' ? parseInt(value, 10) : undefined)
   @IsInt()
   @Min(0)
-  @IsOptional()
   orderIndex?: number;
 
   @ApiPropertyOptional({
@@ -72,8 +72,8 @@ export class UploadDocumentMaterialDto {
     example: false,
     default: false,
   })
+  @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
-  @IsOptional()
   isPublished?: boolean;
 }

@@ -2,7 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Entities
-import { ExamSchedule, CalendarEvent, CalendarIntegration } from './entities';
+import {
+  ExamSchedule,
+  CalendarEvent,
+  CalendarIntegration,
+  CampusEvent,
+  CampusEventRegistration,
+  ScheduleTemplate,
+  ScheduleTemplateSlot,
+} from './entities';
 import { CourseSchedule } from '../courses/entities/course-schedule.entity';
 
 // Controllers
@@ -11,6 +19,8 @@ import {
   ExamScheduleController,
   CalendarEventsController,
   CalendarIntegrationsController,
+  CampusEventsController,
+  ScheduleTemplatesController,
 } from './controllers';
 
 // Services
@@ -19,6 +29,8 @@ import {
   ExamScheduleService,
   CalendarEventsService,
   CalendarIntegrationsService,
+  CampusEventsService,
+  ScheduleTemplatesService,
 } from './services';
 
 @Module({
@@ -28,6 +40,10 @@ import {
       CalendarEvent,
       CalendarIntegration,
       CourseSchedule,
+      CampusEvent,
+      CampusEventRegistration,
+      ScheduleTemplate,
+      ScheduleTemplateSlot,
     ]),
   ],
   controllers: [
@@ -35,18 +51,24 @@ import {
     ExamScheduleController,
     CalendarEventsController,
     CalendarIntegrationsController,
+    CampusEventsController,
+    ScheduleTemplatesController,
   ],
   providers: [
     ScheduleService,
     ExamScheduleService,
     CalendarEventsService,
     CalendarIntegrationsService,
+    CampusEventsService,
+    ScheduleTemplatesService,
   ],
   exports: [
     ScheduleService,
     ExamScheduleService,
     CalendarEventsService,
     CalendarIntegrationsService,
+    CampusEventsService,
+    ScheduleTemplatesService,
   ],
 })
 export class ScheduleModule {}
