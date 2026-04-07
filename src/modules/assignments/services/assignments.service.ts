@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException, Inject, forwardRef } from '@ne
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Assignment, AssignmentSubmission } from '../entities';
+import { DriveFile } from '../../google-drive/entities/drive-file.entity';
 import { AssignmentStatus, SubmissionStatus } from '../enums';
 import {
   AssignmentNotFoundException,
@@ -35,6 +36,8 @@ export class AssignmentsService {
     private courseRepo: Repository<Course>,
     @InjectRepository(CourseEnrollment)
     private enrollmentRepo: Repository<CourseEnrollment>,
+    @InjectRepository(DriveFile)
+    private driveFileRepo: Repository<DriveFile>,
     private driveFolderService: DriveFolderService,
     @Inject(forwardRef(() => GradesService))
     private gradesService: GradesService,
@@ -132,6 +135,18 @@ export class AssignmentsService {
     if (!assignment) {
       throw new AssignmentNotFoundException();
     }
+
+    // Attach instruction files
+    const instructionFiles = await this.driveFileRepo.find({
+      where: {
+        entityType: DriveFileEntityType.ASSIGNMENT_INSTRUCTION as any,
+        entityId: id,
+      },
+    });
+
+    (assignment as any).instructionFiles = instructionFiles.map(file => 
+      this.driveFolderService.buildFileLinks(file)
+    );
 
     return assignment;
   }
@@ -231,40 +246,86 @@ export class AssignmentsService {
       throw new BadRequestException('Student is not enrolled in this course');
     }
 
-    // Calculate attempt number
-    const existingCount = await this.submissionRepo.count({
+    // ⭐ UPSERT: Find the most recent submission for this student
+    let submission = await this.submissionRepo.findOne({
       where: { assignmentId, userId },
+      order: { attemptNumber: 'DESC' },
     });
 
-    const submission = this.submissionRepo.create({
-      assignmentId,
-      userId,
-      submissionText: dto.submissionText ?? null,
-      submissionLink: dto.submissionLink ?? null,
-      fileId: dto.fileId ?? null,
-      submissionStatus: SubmissionStatus.SUBMITTED,
-      isLate,
-      attemptNumber: existingCount + 1,
-      submittedAt: now,
-    });
+    let attemptNumber = 1;
+    let isUpdate = false;
+
+    if (submission) {
+      if (submission.submissionStatus === SubmissionStatus.GRADED) {
+        // New attempt after grading
+        attemptNumber = submission.attemptNumber + 1;
+        submission = null;
+        this.logger.log(`Starting new attempt ${attemptNumber} for assignment ${assignmentId}, user ${userId} (previous was graded)`);
+      } else {
+        attemptNumber = submission.attemptNumber;
+        isUpdate = true;
+      }
+    }
+
+    if (submission) {
+      // UPDATE existing submission
+      if (dto.submissionText !== undefined) {
+        submission.submissionText = dto.submissionText;
+      }
+      if (dto.submissionLink !== undefined) {
+        submission.submissionLink = dto.submissionLink;
+      }
+      if (dto.fileId !== undefined && dto.fileId !== null) {
+        submission.fileId = dto.fileId;
+      }
+      submission.submittedAt = now;
+      submission.isLate = isLate;
+      submission.submissionStatus = SubmissionStatus.SUBMITTED;
+      this.logger.log(`Assignment ${assignmentId} submission UPDATED for user ${userId}, attempt ${attemptNumber}`);
+    } else {
+      // INSERT new submission
+      submission = this.submissionRepo.create({
+        assignmentId,
+        userId,
+        submissionText: dto.submissionText ?? null,
+        submissionLink: dto.submissionLink ?? null,
+        fileId: dto.fileId ?? null,
+        submissionStatus: SubmissionStatus.SUBMITTED,
+        isLate,
+        attemptNumber,
+        submittedAt: now,
+      });
+      this.logger.log(`Assignment ${assignmentId} submission CREATED for user ${userId}, attempt ${attemptNumber}`);
+    }
 
     const saved = await this.submissionRepo.save(submission);
-    this.logger.log(
-      `Submission created for assignment ${assignmentId} by user ${userId} (attempt ${saved.attemptNumber})`,
-    );
-
     return saved;
   }
 
-  async getSubmissions(assignmentId: number): Promise<AssignmentSubmission[]> {
-    return this.submissionRepo.find({
+  // ============ HELPER ============
+  private async attachDriveFile(submission: AssignmentSubmission): Promise<any> {
+    if (!submission.fileId) {
+      return { ...submission, driveFile: null };
+    }
+    const file = await this.driveFileRepo.findOne({
+      where: { driveFileId: submission.fileId },
+    });
+    return {
+      ...submission,
+      driveFile: file ? this.driveFolderService.buildFileLinks(file) : null,
+    };
+  }
+
+  async getSubmissions(assignmentId: number): Promise<any[]> {
+    const submissions = await this.submissionRepo.find({
       where: { assignmentId },
       relations: ['user'],
       order: { submittedAt: 'DESC' },
     });
+    return Promise.all(submissions.map(sub => this.attachDriveFile(sub)));
   }
 
-  async getMySubmission(assignmentId: number, userId: number): Promise<AssignmentSubmission> {
+  async getMySubmission(assignmentId: number, userId: number): Promise<any> {
     const submission = await this.submissionRepo.findOne({
       where: { assignmentId, userId },
       order: { attemptNumber: 'DESC' },
@@ -274,7 +335,7 @@ export class AssignmentsService {
       throw new SubmissionNotFoundException();
     }
 
-    return submission;
+    return this.attachDriveFile(submission);
   }
 
   async gradeSubmission(
@@ -444,27 +505,67 @@ export class AssignmentsService {
       userId,
     );
 
-    // Calculate attempt number
-    const existingCount = await this.submissionRepo.count({
+    // ⭐ UPSERT: Find the most recent submission for this student
+    let submission = await this.submissionRepo.findOne({
       where: { assignmentId, userId },
+      order: { attemptNumber: 'DESC' }, // Get latest attempt
     });
 
-    // Create submission record
-    const submission = this.submissionRepo.create({
-      assignmentId,
-      userId,
-      submissionText: submissionText ?? null,
-      submissionLink: submissionLink ?? null,
-      fileId: null, // Drive file stored separately
-      submissionStatus: SubmissionStatus.SUBMITTED,
-      isLate,
-      attemptNumber: existingCount + 1,
-      submittedAt: now,
-    });
+    let attemptNumber = 1;
+    let isUpdate = false;
+
+    if (submission) {
+      // Check if the latest submission is already finalized (graded)
+      if (submission.submissionStatus === SubmissionStatus.GRADED) {
+        // Start a new attempt if they're resubmitting after grading
+        attemptNumber = submission.attemptNumber + 1;
+        submission = null; // Force creation of new record
+        this.logger.log(`Starting new attempt ${attemptNumber} for assignment ${assignmentId}, user ${userId} (previous was graded)`);
+      } else {
+        // UPDATE the current in-progress submission
+        attemptNumber = submission.attemptNumber;
+        isUpdate = true;
+      }
+    }
+
+    if (submission) {
+      // UPDATE existing submission
+      if (submissionText !== undefined) {
+        submission.submissionText = submissionText;
+      }
+      if (submissionLink !== undefined) {
+        submission.submissionLink = submissionLink;
+      }
+      submission.submittedAt = now;
+      submission.isLate = isLate;
+      submission.submissionStatus = SubmissionStatus.SUBMITTED;
+      this.logger.log(`Assignment ${assignmentId} submission UPDATED for user ${userId}, attempt ${attemptNumber}`);
+    } else {
+      // INSERT new submission
+      submission = this.submissionRepo.create({
+        assignmentId,
+        userId,
+        submissionText: submissionText ?? null,
+        submissionLink: submissionLink ?? null,
+        fileId: driveFile.driveFileId,
+        submissionStatus: SubmissionStatus.SUBMITTED,
+        isLate,
+        attemptNumber,
+        submittedAt: now,
+      });
+      this.logger.log(`Assignment ${assignmentId} submission CREATED for user ${userId}, attempt ${attemptNumber}`);
+    }
 
     const savedSubmission = await this.submissionRepo.save(submission);
 
-    this.logger.log(`Uploaded assignment submission to Drive: ${fileName} -> ${driveFile.driveId}`);
+    // ⭐ CRITICAL FIX: Link the DriveFile to the submission via entity_id
+    await this.driveFolderService.updateDriveFileEntity(
+      driveFile.driveFileId,
+      DriveFileEntityType.ASSIGNMENT_SUBMISSION,
+      savedSubmission.id,
+    );
+
+    this.logger.log(`Uploaded assignment submission to Drive: ${fileName} -> ${driveFile.driveId} (${isUpdate ? 'UPDATED' : 'CREATED'} submission ${savedSubmission.id})`);
 
     return {
       submission: savedSubmission,

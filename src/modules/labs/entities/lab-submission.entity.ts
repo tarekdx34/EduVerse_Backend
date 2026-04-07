@@ -21,7 +21,7 @@ export class LabSubmission {
   userId: number;
 
   @Column({ name: 'file_id', type: 'bigint', unsigned: true, nullable: true })
-  fileId: number;
+  fileId: number | null;
 
   @Column({ name: 'submission_text', type: 'text', nullable: true })
   submissionText: string;

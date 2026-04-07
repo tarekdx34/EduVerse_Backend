@@ -5,6 +5,7 @@ import { Lab } from '../entities/lab.entity';
 import { LabSubmission } from '../entities/lab-submission.entity';
 import { LabInstruction } from '../entities/lab-instruction.entity';
 import { LabAttendance } from '../entities/lab-attendance.entity';
+import { DriveFile } from '../../google-drive/entities/drive-file.entity';
 import {
   CreateLabDto,
   UpdateLabDto,
@@ -33,6 +34,8 @@ export class LabsService {
     private instructionRepository: Repository<LabInstruction>,
     @InjectRepository(LabAttendance)
     private attendanceRepository: Repository<LabAttendance>,
+    @InjectRepository(DriveFile)
+    private driveFileRepository: Repository<DriveFile>,
     private driveFolderService: DriveFolderService,
     @Inject(forwardRef(() => GradesService))
     private gradesService: GradesService,
@@ -62,6 +65,19 @@ export class LabsService {
       relations: ['course', 'instructions'],
     });
     if (!lab) throw new NotFoundException(`Lab with ID ${id} not found`);
+
+    // Attach instruction files
+    const instructionFiles = await this.driveFileRepository.find({
+      where: {
+        entityType: DriveFileEntityType.LAB_INSTRUCTION as any,
+        entityId: id,
+      },
+    });
+
+    (lab as any).instructionFiles = instructionFiles.map(file => 
+      this.driveFolderService.buildFileLinks(file)
+    );
+
     return lab;
   }
 
@@ -120,35 +136,72 @@ export class LabsService {
       isLate = true;
     }
 
-    const submission = this.submissionRepository.create({
-      labId,
-      userId,
-      submissionText: dto.submissionText,
-      fileId: dto.fileId,
-      isLate,
-      status: 'submitted',
+    // ⭐ UPSERT: Check if submission already exists
+    let submission = await this.submissionRepository.findOne({
+      where: { labId, userId },
     });
+
+    if (submission) {
+      // UPDATE existing submission (created by /upload or previous /submit)
+      if (dto.submissionText !== undefined) {
+        submission.submissionText = dto.submissionText;
+      }
+      if (dto.fileId !== undefined && dto.fileId !== null) {
+        submission.fileId = dto.fileId;
+      }
+      submission.submittedAt = new Date();
+      submission.isLate = isLate;
+      submission.status = 'submitted';
+      this.logger.log(`Lab ${labId} submission UPDATED for user ${userId}`);
+    } else {
+      // INSERT new submission (no prior /upload call)
+      submission = this.submissionRepository.create({
+        labId,
+        userId,
+        submissionText: dto.submissionText,
+        fileId: dto.fileId ?? null,
+        isLate,
+        status: 'submitted',
+      });
+      this.logger.log(`Lab ${labId} submission CREATED for user ${userId}`);
+    }
+
     const saved = await this.submissionRepository.save(submission);
-    this.logger.log(`Lab ${labId} submitted by user ${userId}`);
     return saved;
   }
 
-  async getSubmissions(labId: number) {
+  // ============ HELPER ============
+  private async attachDriveFile(submission: LabSubmission): Promise<any> {
+    if (!submission.fileId) {
+      return { ...submission, driveFile: null };
+    }
+    const file = await this.driveFileRepository.findOne({
+      where: { driveFileId: submission.fileId },
+    });
+    return {
+      ...submission,
+      driveFile: file ? this.driveFolderService.buildFileLinks(file) : null,
+    };
+  }
+
+  async getSubmissions(labId: number): Promise<any[]> {
     await this.findById(labId);
-    return this.submissionRepository.find({
+    const submissions = await this.submissionRepository.find({
       where: { labId },
       relations: ['user', 'file'],
       order: { submittedAt: 'DESC' },
     });
+    return Promise.all(submissions.map(sub => this.attachDriveFile(sub)));
   }
 
-  async getMySubmission(labId: number, userId: number) {
+  async getMySubmission(labId: number, userId: number): Promise<any> {
     await this.findById(labId);
-    return this.submissionRepository.find({
+    const submissions = await this.submissionRepository.find({
       where: { labId, userId },
       relations: ['user', 'file'],
       order: { submittedAt: 'DESC' },
     });
+    return Promise.all(submissions.map(sub => this.attachDriveFile(sub)));
   }
 
   async gradeSubmission(labId: number, submissionId: number, dto: GradeLabSubmissionDto, graderId: number): Promise<LabSubmission> {
@@ -364,31 +417,46 @@ export class LabsService {
     // Check if late submission
     const isLate = lab.dueDate ? new Date() > new Date(lab.dueDate) : false;
 
-    // Create or update submission record
+    // UPSERT: Create or update submission record
     let submission = await this.submissionRepository.findOne({
       where: { labId, userId },
     });
 
+    let isUpdate = false;
     if (submission) {
+      // UPDATE existing submission
       if (submissionText) {
         submission.submissionText = submissionText;
       }
       submission.submittedAt = new Date();
       submission.isLate = isLate;
       submission.status = 'submitted';
+      isUpdate = true;
+      this.logger.log(`Lab ${labId} submission UPDATED for user ${userId}`);
     } else {
+      // INSERT new submission
       submission = this.submissionRepository.create({
         labId,
         userId,
         submissionText: submissionText,
+        fileId: driveFile.driveFileId,
         submittedAt: new Date(),
         isLate,
         status: 'submitted',
       });
+      this.logger.log(`Lab ${labId} submission CREATED for user ${userId}`);
     }
     const savedSubmission = await this.submissionRepository.save(submission);
 
-    this.logger.log(`Uploaded lab submission to Drive: ${fileName} -> ${driveFile.driveId}`);
+    // ⭐ CRITICAL FIX: Link the DriveFile to the submission via entity_id
+    // This fixes the fileId=NULL issue by using drive_files.entity_type and entity_id
+    await this.driveFolderService.updateDriveFileEntity(
+      driveFile.driveFileId,
+      DriveFileEntityType.LAB_SUBMISSION,
+      savedSubmission.id,
+    );
+
+    this.logger.log(`Uploaded lab submission to Drive: ${fileName} -> ${driveFile.driveId} (${isUpdate ? 'UPDATED' : 'CREATED'} submission ${savedSubmission.id})`);
 
     return {
       submission: savedSubmission,
