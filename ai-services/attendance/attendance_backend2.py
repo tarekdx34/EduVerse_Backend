@@ -40,6 +40,10 @@ def load_known_faces(dataset_folder="dataset"):
     all_image_files = list(set(all_image_files))
     for image_path in all_image_files:
         name = os.path.splitext(os.path.basename(image_path))[0]
+        # Only numeric file names are valid student IDs (e.g. 57.jpg).
+        # Skip composites like section_26_group.jpg to avoid false matches.
+        if not name.isdigit():
+            continue
         try:
             img = face_recognition.load_image_file(image_path)
             encs = face_recognition.face_encodings(img)

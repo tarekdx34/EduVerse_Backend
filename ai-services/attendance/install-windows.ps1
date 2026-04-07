@@ -22,6 +22,8 @@ pip install face-recognition --no-deps
 pip install face_recognition_models "Click>=6.0" numpy opencv-contrib-python openpyxl pillow fastapi uvicorn python-multipart
 
 Write-Host ""
+Write-Host "If pip warned that face-recognition needs dlib: ignore it - dlib-bin provides import dlib (pip only checks the package name dlib)."
+Write-Host ""
 Write-Host "Done. Activate with:  .\.venv\Scripts\Activate.ps1"
 Write-Host "Then run:              uvicorn api_main:app --reload --host 127.0.0.1 --port 8000"
 Write-Host "Put reference face photos in .\dataset\ named like 1.jpg, 2.png (name = student id)."
