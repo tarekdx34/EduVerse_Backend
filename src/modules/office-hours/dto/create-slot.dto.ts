@@ -5,11 +5,41 @@ import { Type } from 'class-transformer';
 export class CreateSlotDto {
   @ApiProperty({
     description: 'Day of the week',
-    enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+    enum: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+      'MONDAY',
+      'TUESDAY',
+      'WEDNESDAY',
+      'THURSDAY',
+      'FRIDAY',
+      'SATURDAY',
+      'SUNDAY',
+    ],
     example: 'monday',
   })
   @IsNotEmpty()
-  @IsIn(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+  @IsIn([
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+    'MONDAY',
+    'TUESDAY',
+    'WEDNESDAY',
+    'THURSDAY',
+    'FRIDAY',
+    'SATURDAY',
+    'SUNDAY',
+  ])
   dayOfWeek: string;
 
   @ApiProperty({ description: 'Start time (HH:mm:ss)', example: '10:00:00' })
@@ -26,6 +56,25 @@ export class CreateSlotDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @ApiPropertyOptional({ description: 'Building name (legacy admin payload)', example: 'Engineering Building' })
+  @IsOptional()
+  @IsString()
+  building?: string;
+
+  @ApiPropertyOptional({ description: 'Room identifier (legacy admin payload)', example: '301' })
+  @IsOptional()
+  @IsString()
+  room?: string;
+
+  @ApiPropertyOptional({
+    description: 'Instructor ID (admin compatibility payload)',
+    example: 42,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  instructorId?: number;
 
   @ApiPropertyOptional({
     description: 'Meeting mode',

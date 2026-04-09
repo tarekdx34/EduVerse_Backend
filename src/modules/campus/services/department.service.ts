@@ -29,6 +29,13 @@ export class DepartmentService {
     });
   }
 
+  async findAll(): Promise<Department[]> {
+    return this.departmentRepository.find({
+      relations: ['campus', 'head'],
+      order: { name: 'ASC' },
+    });
+  }
+
   async findById(id: number): Promise<Department> {
     const department = await this.departmentRepository.findOne({
       where: { id },

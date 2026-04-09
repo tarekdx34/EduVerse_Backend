@@ -36,6 +36,32 @@ import { RoleName } from '../../auth/entities/role.entity';
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
 
+  @Get('departments')
+  @Roles(
+    RoleName.IT_ADMIN,
+    RoleName.ADMIN,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.STUDENT,
+  )
+  @ApiOperation({
+    summary: 'List all departments',
+    description: `
+## List All Departments
+
+Retrieves all departments across campuses.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: All roles (STUDENT, INSTRUCTOR, TA, ADMIN, IT_ADMIN)
+    `,
+  })
+  @ApiResponse({ status: 200, description: 'List of all departments' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async findAll(): Promise<DepartmentDto[]> {
+    return this.departmentService.findAll() as Promise<DepartmentDto[]>;
+  }
+
   @Get('campuses/:campusId/departments')
   @Roles(
     RoleName.IT_ADMIN,
