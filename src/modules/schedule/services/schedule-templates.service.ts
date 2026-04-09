@@ -91,9 +91,10 @@ export class ScheduleTemplatesService {
       .take(limit);
 
     const [items, total] = await qb.getManyAndCount();
+    const data = items.map((item) => this.normalizeTemplate(item));
 
     return {
-      data: items,
+      data,
       meta: {
         total,
         page,
@@ -119,7 +120,7 @@ export class ScheduleTemplatesService {
       throw new NotFoundException(`Schedule template with ID ${id} not found`);
     }
 
-    return template;
+    return this.normalizeTemplate(template);
   }
 
   async create(dto: CreateScheduleTemplateDto, userId: number, roles: string[]) {
@@ -182,7 +183,8 @@ export class ScheduleTemplatesService {
     }
 
     Object.assign(template, dto);
-    return this.templateRepo.save(template);
+    const updated = await this.templateRepo.save(template);
+    return this.findById(updated.templateId);
   }
 
   async delete(id: number, userId: number, roles: string[]) {
@@ -309,5 +311,30 @@ export class ScheduleTemplatesService {
     const endTotal = endHour * 60 + endMin;
 
     return endTotal - startTotal;
+  }
+
+  private normalizeTemplate(template: ScheduleTemplate): ScheduleTemplate {
+    if (!template.creator) {
+      return {
+        ...template,
+        creator: {
+          userId: 0,
+          firstName: 'Unknown',
+          lastName: 'User',
+          email: 'unknown@system.local',
+          passwordHash: '',
+          status: 'active' as any,
+          emailVerified: true,
+          createdAt: template.createdAt,
+          updatedAt: template.updatedAt,
+          roles: [],
+          sessions: [],
+          passwordResets: [],
+          twoFactorAuths: [],
+        } as any,
+      };
+    }
+
+    return template;
   }
 }

@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   UseGuards,
   ParseIntPipe,
   Request,
@@ -48,8 +49,53 @@ export class OfficeHoursController {
   })
   @ApiResponse({ status: 200, description: 'Slots returned' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getSlots() {
-    return this.officeHoursService.getSlots();
+  async getSlots(
+    @Query('instructorId') instructorId?: string,
+    @Query('dayOfWeek') dayOfWeek?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.officeHoursService.getSlots({
+      instructorId: instructorId ? Number(instructorId) : undefined,
+      dayOfWeek,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
+  }
+
+  @Get()
+  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiOperation({
+    summary: 'List office hours (compatibility route)',
+    description:
+      'Compatibility alias for list slots. Returns paginated office hour slots for admin/front-end clients using /api/office-hours.',
+  })
+  @ApiResponse({ status: 200, description: 'Office hours returned' })
+  async getOfficeHours(
+    @Query('instructorId') instructorId?: string,
+    @Query('dayOfWeek') dayOfWeek?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.officeHoursService.getSlots({
+      instructorId: instructorId ? Number(instructorId) : undefined,
+      dayOfWeek,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
+  }
+
+  @Get(':id(\\d+)')
+  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiOperation({
+    summary: 'Get office hour slot by ID',
+    description: 'Retrieves one office hour slot by slot ID.',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Slot ID' })
+  @ApiResponse({ status: 200, description: 'Slot returned' })
+  @ApiResponse({ status: 404, description: 'Slot not found' })
+  async getSlotById(@Param('id', ParseIntPipe) id: number) {
+    return this.officeHoursService.getSlotById(id);
   }
 
   @Get('my-slots')
@@ -92,7 +138,32 @@ export class OfficeHoursController {
   @ApiResponse({ status: 201, description: 'Slot created' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async createSlot(@Body() dto: CreateSlotDto, @Request() req) {
-    return this.officeHoursService.createSlot(dto, req.user.userId);
+    const callerUserId = req.user.userId;
+    const roles = this.extractRoles(req.user);
+    const isAdmin =
+      roles.includes(RoleName.ADMIN) || roles.includes(RoleName.IT_ADMIN);
+    const targetInstructorId =
+      isAdmin && dto.instructorId ? dto.instructorId : callerUserId;
+    return this.officeHoursService.createSlot(dto, targetInstructorId);
+  }
+
+  @Post()
+  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiOperation({
+    summary: 'Create an office hour (compatibility route)',
+    description:
+      'Compatibility alias for creating slots via /api/office-hours.',
+  })
+  @ApiBody({ type: CreateSlotDto })
+  @ApiResponse({ status: 201, description: 'Office hour created' })
+  async createOfficeHour(@Body() dto: CreateSlotDto, @Request() req) {
+    const callerUserId = req.user.userId;
+    const roles = this.extractRoles(req.user);
+    const isAdmin =
+      roles.includes(RoleName.ADMIN) || roles.includes(RoleName.IT_ADMIN);
+    const targetInstructorId =
+      isAdmin && dto.instructorId ? dto.instructorId : callerUserId;
+    return this.officeHoursService.createSlot(dto, targetInstructorId);
   }
 
   @Put('slots/:id')
@@ -115,6 +186,24 @@ export class OfficeHoursController {
     return this.officeHoursService.updateSlot(id, dto, req.user.userId);
   }
 
+  @Put(':id(\\d+)')
+  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiOperation({
+    summary: 'Update an office hour (compatibility route)',
+    description:
+      'Compatibility alias for updating slots via /api/office-hours/:id.',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Slot ID' })
+  @ApiBody({ type: UpdateSlotDto })
+  @ApiResponse({ status: 200, description: 'Office hour updated' })
+  async updateOfficeHour(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateSlotDto,
+    @Request() req,
+  ) {
+    return this.officeHoursService.updateSlot(id, dto, req.user.userId);
+  }
+
   @Delete('slots/:id')
   @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
@@ -130,6 +219,19 @@ export class OfficeHoursController {
     return this.officeHoursService.deleteSlot(id);
   }
 
+  @Delete(':id(\\d+)')
+  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiOperation({
+    summary: 'Delete an office hour (compatibility route)',
+    description:
+      'Compatibility alias for deleting slots via /api/office-hours/:id.',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Slot ID' })
+  @ApiResponse({ status: 200, description: 'Office hour deleted' })
+  async deleteOfficeHour(@Param('id', ParseIntPipe) id: number) {
+    return this.officeHoursService.deleteSlot(id);
+  }
+
   // ── Appointments ──
 
   @Get('appointments')
@@ -142,8 +244,11 @@ export class OfficeHoursController {
   })
   @ApiResponse({ status: 200, description: 'Appointments returned' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getAppointments(@Request() req) {
-    return this.officeHoursService.getAppointments(req.user.userId);
+  async getAppointments(@Request() req, @Query('slotId') slotId?: string) {
+    return this.officeHoursService.getAppointments(
+      req.user.userId,
+      slotId ? Number(slotId) : undefined,
+    );
   }
 
   @Get('my-appointments')
@@ -209,5 +314,14 @@ export class OfficeHoursController {
   @ApiResponse({ status: 404, description: 'Appointment not found' })
   async cancelAppointment(@Param('id', ParseIntPipe) id: number, @Request() req) {
     return this.officeHoursService.cancelAppointment(id, req.user.userId);
+  }
+
+  private extractRoles(user: any): string[] {
+    if (Array.isArray(user.roles)) {
+      return user.roles.map((r: any) =>
+        typeof r === 'string' ? r : r.roleName || r.name,
+      );
+    }
+    return [];
   }
 }

@@ -30,12 +30,70 @@ export class OfficeHoursService {
 
   // ── Slots ──
 
-  async getSlots() {
+  async getSlots(params?: {
+    instructorId?: number;
+    dayOfWeek?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const page = params?.page && params.page > 0 ? params.page : 1;
+    const limit = params?.limit && params.limit > 0 ? params.limit : 10;
+    const skip = (page - 1) * limit;
+    const normalizedDay = params?.dayOfWeek
+      ? String(params.dayOfWeek).toLowerCase()
+      : undefined;
+
+    const qb = this.slotRepo
+      .createQueryBuilder('slot')
+      .leftJoinAndSelect('slot.instructor', 'instructor')
+      .orderBy('slot.createdAt', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    if (params?.instructorId) {
+      qb.andWhere('slot.instructorId = :instructorId', {
+        instructorId: params.instructorId,
+      });
+    }
+
+    if (normalizedDay) {
+      qb.andWhere('LOWER(slot.dayOfWeek) = :dayOfWeek', {
+        dayOfWeek: normalizedDay,
+      });
+    }
+
+    const [items, total] = await qb.getManyAndCount();
+    const data = items.map((slot) => ({
+      ...slot,
+      currentAppointments: 0,
+    }));
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getSlotById(id: number) {
     const data = await this.slotRepo.find({
+      where: { slotId: id },
       relations: ['instructor'],
-      order: { createdAt: 'DESC' },
+      take: 1,
     });
-    return { data };
+    if (!data.length) {
+      throw new NotFoundException(`Slot #${id} not found`);
+    }
+    return {
+      data: {
+        ...data[0],
+        currentAppointments: 0,
+      },
+    };
   }
 
   async getMySlots(instructorId: number) {
@@ -56,12 +114,25 @@ export class OfficeHoursService {
   }
 
   async createSlot(dto: CreateSlotDto, instructorId: number) {
+    const payloadInstructorId = dto.instructorId || instructorId;
+    const normalizedDayOfWeek = String(dto.dayOfWeek).toLowerCase();
+    const normalizedLocation =
+      dto.location || [dto.building, dto.room].filter(Boolean).join(' ').trim() || '';
+
     const slot = this.slotRepo.create({
       ...dto,
-      instructorId,
+      dayOfWeek: normalizedDayOfWeek,
+      location: normalizedLocation,
+      instructorId: payloadInstructorId,
     });
     const saved = await this.slotRepo.save(slot);
-    return { data: saved, message: 'Office hour slot created successfully' };
+    return {
+      data: {
+        ...saved,
+        currentAppointments: 0,
+      },
+      message: 'Office hour slot created successfully',
+    };
   }
 
   async updateSlot(id: number, dto: UpdateSlotDto, userId: number) {
@@ -117,7 +188,7 @@ export class OfficeHoursService {
 
   // ── Appointments ──
 
-  async getAppointments(instructorId?: number) {
+  async getAppointments(instructorId?: number, slotId?: number) {
     const qb = this.appointmentRepo
       .createQueryBuilder('appt')
       .leftJoinAndSelect('appt.slot', 'slot')
@@ -127,6 +198,10 @@ export class OfficeHoursService {
 
     if (instructorId) {
       qb.where('slot.instructorId = :instructorId', { instructorId });
+    }
+
+    if (slotId) {
+      qb.andWhere('appt.slotId = :slotId', { slotId });
     }
 
     const data = await qb.getMany();
