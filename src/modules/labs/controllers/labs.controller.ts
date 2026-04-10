@@ -107,11 +107,11 @@ export class LabsController {
   }
 
   @Delete(':id')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete lab',
-    description: 'Delete a lab. Requires INSTRUCTOR, ADMIN, or IT_ADMIN role.',
+    description: 'Delete a lab. Requires INSTRUCTOR, TA, ADMIN, or IT_ADMIN role.',
   })
   @ApiParam({ name: 'id', description: 'Lab ID', example: 1 })
   @ApiResponse({ status: 204, description: 'Lab deleted successfully' })

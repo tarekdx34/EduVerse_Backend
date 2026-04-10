@@ -59,11 +59,11 @@ export class AssignmentsController {
   }
 
   @Post()
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({
     summary: 'Create assignment',
     description:
-      'Create a new assignment for a course. Only instructors and admins.',
+      'Create a new assignment for a course. Only instructors, TAs, and admins.',
   })
   @ApiResponse({ status: 201, description: 'Assignment created' })
   async create(@Body() dto: CreateAssignmentDto, @Request() req) {
@@ -83,7 +83,7 @@ export class AssignmentsController {
   }
 
   @Patch(':id')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({ summary: 'Update assignment' })
   @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
   @ApiResponse({ status: 200, description: 'Assignment updated' })
@@ -97,7 +97,7 @@ export class AssignmentsController {
   }
 
   @Delete(':id')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({ summary: 'Delete assignment (soft delete)' })
   @ApiParam({ name: 'id', type: Number, description: 'Assignment ID', example: 3 })
   @ApiResponse({ status: 200, description: 'Assignment deleted' })
@@ -106,7 +106,7 @@ export class AssignmentsController {
   }
 
   @Patch(':id/status')
-  @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({
     summary: 'Change assignment status (publish/close/archive)',
   })

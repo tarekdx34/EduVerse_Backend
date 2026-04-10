@@ -48,7 +48,7 @@ export class GradesController {
   }
 
   @Get('transcript/:studentId')
-  @Roles(RoleName.STUDENT, RoleName.ADMIN)
+  @Roles(RoleName.STUDENT, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({ summary: 'Get student transcript' })
   @ApiParam({ name: 'studentId', description: 'Student user ID', type: Number, example: 57 })
   @ApiResponse({ status: 200, description: 'Student transcript' })
@@ -57,7 +57,7 @@ export class GradesController {
   }
 
   @Get('gpa/:studentId')
-  @Roles(RoleName.STUDENT, RoleName.ADMIN)
+  @Roles(RoleName.STUDENT, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({ summary: 'Calculate GPA for a student' })
   @ApiParam({ name: 'studentId', description: 'Student user ID', type: Number, example: 57 })
   @ApiResponse({ status: 200, description: 'GPA calculation result' })
@@ -89,7 +89,7 @@ export class GradesController {
   }
 
   @Patch(':id/finalize')
-  @Roles(RoleName.INSTRUCTOR)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({ summary: 'Publish/finalize a grade' })
   @ApiParam({ name: 'id', description: 'Grade ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Grade published' })
