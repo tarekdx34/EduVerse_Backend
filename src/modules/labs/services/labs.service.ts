@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { Lab } from '../entities/lab.entity';
 import { LabSubmission } from '../entities/lab-submission.entity';
 import { LabInstruction } from '../entities/lab-instruction.entity';
@@ -66,13 +66,40 @@ export class LabsService {
     });
     if (!lab) throw new NotFoundException(`Lab with ID ${id} not found`);
 
-    // Attach instruction files
-    const instructionFiles = await this.driveFileRepository.find({
-      where: {
-        entityType: DriveFileEntityType.LAB_INSTRUCTION as any,
-        entityId: id,
-      },
-    });
+    const instructionFileIds = (lab.instructions || [])
+      .map((instruction) => instruction.fileId)
+      .filter((fileId): fileId is number => typeof fileId === 'number' && Number.isFinite(fileId));
+
+    const instructionFileNames = (lab.instructions || [])
+      .map((instruction) => (instruction.instructionText || '').trim())
+      .filter((name) => !!name && name.length <= 255);
+
+    // Attach instruction files by current link strategy (entityId = labId)
+    // and legacy fallback strategies for older rows.
+    const instructionFiles = await this.driveFileRepository
+      .createQueryBuilder('driveFile')
+      .where('driveFile.entityType = :entityType', {
+        entityType: DriveFileEntityType.LAB_INSTRUCTION,
+      })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('driveFile.entityId = :labId', { labId: id });
+
+          if (instructionFileIds.length > 0) {
+            qb.orWhere('driveFile.driveFileId IN (:...instructionFileIds)', {
+              instructionFileIds,
+            });
+          }
+
+          if (instructionFileNames.length > 0) {
+            qb.orWhere('driveFile.fileName IN (:...instructionFileNames)', {
+              instructionFileNames,
+            });
+          }
+        }),
+      )
+      .orderBy('driveFile.createdAt', 'ASC')
+      .getMany();
 
     (lab as any).instructionFiles = instructionFiles.map(file => 
       this.driveFolderService.buildFileLinks(file)
@@ -314,7 +341,7 @@ export class LabsService {
       file.mimetype,
       folders.instructions.driveFolderId,
       DriveFileEntityType.LAB_INSTRUCTION,
-      null,
+      labId,
       userId,
     );
 
