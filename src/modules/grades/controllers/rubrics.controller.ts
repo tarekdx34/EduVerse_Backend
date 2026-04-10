@@ -42,7 +42,7 @@ export class RubricsController {
   }
 
   @Post()
-  @Roles(RoleName.INSTRUCTOR)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({ summary: 'Create a rubric' })
   @ApiResponse({ status: 201, description: 'Rubric created' })
   async create(@Body() dto: CreateRubricDto, @Request() req) {
@@ -51,7 +51,7 @@ export class RubricsController {
   }
 
   @Put(':id')
-  @Roles(RoleName.INSTRUCTOR)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({ summary: 'Update a rubric' })
   @ApiParam({ name: 'id', description: 'Rubric ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Rubric updated' })
@@ -60,7 +60,7 @@ export class RubricsController {
   }
 
   @Delete(':id')
-  @Roles(RoleName.INSTRUCTOR)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA)
   @ApiOperation({ summary: 'Delete a rubric' })
   @ApiParam({ name: 'id', description: 'Rubric ID', type: Number, example: 1 })
   @ApiResponse({ status: 200, description: 'Rubric deleted' })
