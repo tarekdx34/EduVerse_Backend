@@ -236,7 +236,8 @@ Enrolls the authenticated student in a course section.
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @ApiOperation({
     summary: 'Get teaching courses',
-    description: 'Retrieves all course sections assigned to the authenticated instructor.',
+    description:
+      'Retrieves all course sections assigned to the authenticated instructor.',
   })
   @ApiResponse({ status: 200, description: 'List of teaching courses' })
   async getTeachingCourses(@Request() req): Promise<any[]> {
@@ -610,7 +611,7 @@ Returns all instructors assigned to a course section.
    * Get the primary instructor summary for a section
    */
   @Get('section/:sectionId/instructor')
-  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA)
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA, RoleName.STUDENT)
   @ApiOperation({
     summary: 'Get assigned instructor for a section',
     description:
@@ -793,7 +794,7 @@ Returns all Teaching Assistants assigned to a course section.
    * Get simplified TA summaries for a section
    */
   @Get('section/:sectionId/tas')
-  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA)
+  @Roles(RoleName.ADMIN, RoleName.INSTRUCTOR, RoleName.TA, RoleName.STUDENT)
   @ApiOperation({
     summary: 'Get assigned TAs for a section',
     description:

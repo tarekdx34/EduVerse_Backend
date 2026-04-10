@@ -19,6 +19,7 @@ import { NotificationType } from '../../notifications/enums';
 @Injectable()
 export class OfficeHoursService {
   private readonly logger = new Logger(OfficeHoursService.name);
+  private readonly activeAppointmentStatuses = ['booked', 'confirmed'];
 
   constructor(
     @InjectRepository(OfficeHourSlot)
@@ -29,6 +30,33 @@ export class OfficeHoursService {
   ) {}
 
   // ── Slots ──
+
+  private async getSlotAppointmentCounts(slotIds: (number | string)[]) {
+    if (!slotIds.length) return new Map<string, number>();
+
+    const rows = await this.appointmentRepo
+      .createQueryBuilder('appt')
+      .select('appt.slotId', 'slotId')
+      .addSelect('COUNT(*)', 'count')
+      .where('appt.slotId IN (:...slotIds)', { slotIds })
+      .andWhere('appt.status IN (:...statuses)', {
+        statuses: this.activeAppointmentStatuses,
+      })
+      .groupBy('appt.slotId')
+      .getRawMany<{ slotId: string; count: string }>();
+
+    const counts = new Map<string, number>();
+    console.log('appointment count rows:', rows);
+    rows.forEach((row: any) => {
+      // TypeORM raw queries might lowercase aliases (e.g., slotid) or use the column name (slot_id)
+      const sid =
+        row.slotId || row['appt_slot_id'] || row['slotid'] || row['slot_id'];
+      const cnt = row.count || row['COUNT'] || row['COUNT(*)'];
+      counts.set(String(sid), Number(cnt));
+    });
+
+    return counts;
+  }
 
   async getSlots(params?: {
     instructorId?: number;
@@ -63,9 +91,12 @@ export class OfficeHoursService {
     }
 
     const [items, total] = await qb.getManyAndCount();
+    const appointmentCounts = await this.getSlotAppointmentCounts(
+      items.map((slot) => slot.slotId),
+    );
     const data = items.map((slot) => ({
       ...slot,
-      currentAppointments: 0,
+      currentAppointments: appointmentCounts.get(String(slot.slotId)) || 0,
     }));
 
     return {
@@ -88,10 +119,11 @@ export class OfficeHoursService {
     if (!data.length) {
       throw new NotFoundException(`Slot #${id} not found`);
     }
+    const appointmentCounts = await this.getSlotAppointmentCounts([id]);
     return {
       data: {
         ...data[0],
-        currentAppointments: 0,
+        currentAppointments: appointmentCounts.get(String(id)) || 0,
       },
     };
   }
@@ -101,23 +133,47 @@ export class OfficeHoursService {
       where: { instructorId },
       order: { dayOfWeek: 'ASC', startTime: 'ASC' },
     });
-    return { data };
+    const appointmentCounts = await this.getSlotAppointmentCounts(
+      data.map((slot) => slot.slotId),
+    );
+
+    return {
+      data: data.map((slot) => ({
+        ...slot,
+        currentAppointments: appointmentCounts.get(String(slot.slotId)) || 0,
+      })),
+    };
   }
 
-  async getAvailableSlots() {
+  async getAvailableSlots(instructorId?: number) {
+    const whereCondition = instructorId
+      ? ({ status: 'active', instructorId } as const)
+      : ({ status: 'active' } as const);
+
     const data = await this.slotRepo.find({
-      where: { status: 'active' },
+      where: whereCondition,
       relations: ['instructor'],
       order: { dayOfWeek: 'ASC', startTime: 'ASC' },
     });
-    return { data };
+    const appointmentCounts = await this.getSlotAppointmentCounts(
+      data.map((slot) => slot.slotId),
+    );
+
+    return {
+      data: data.map((slot) => ({
+        ...slot,
+        currentAppointments: appointmentCounts.get(String(slot.slotId)) || 0,
+      })),
+    };
   }
 
   async createSlot(dto: CreateSlotDto, instructorId: number) {
     const payloadInstructorId = dto.instructorId || instructorId;
     const normalizedDayOfWeek = String(dto.dayOfWeek).toLowerCase();
     const normalizedLocation =
-      dto.location || [dto.building, dto.room].filter(Boolean).join(' ').trim() || '';
+      dto.location ||
+      [dto.building, dto.room].filter(Boolean).join(' ').trim() ||
+      '';
 
     const slot = this.slotRepo.create({
       ...dto,
@@ -168,22 +224,28 @@ export class OfficeHoursService {
         statuses: ['booked', 'confirmed'],
       })
       .execute();
-      
+
     // Notify students
     for (const appt of appointmentsToCancel) {
       if (['booked', 'confirmed'].includes(appt.status)) {
-        await this.notificationsService.createNotification({
-          userId: appt.studentId,
-          notificationType: NotificationType.SYSTEM,
-          title: 'Office Hour Slot Cancelled',
-          body: `Your appointment for slot #${id} has been cancelled because the slot was cancelled by the instructor.`,
-        }).catch(err => this.logger.error('Failed to send notification', err));
+        await this.notificationsService
+          .createNotification({
+            userId: appt.studentId,
+            notificationType: NotificationType.SYSTEM,
+            title: 'Office Hour Slot Cancelled',
+            body: `Your appointment for slot #${id} has been cancelled because the slot was cancelled by the instructor.`,
+          })
+          .catch((err) =>
+            this.logger.error('Failed to send notification', err),
+          );
       }
     }
 
     slot.status = 'cancelled';
     await this.slotRepo.save(slot);
-    return { message: `Slot #${id} cancelled and all future appointments cancelled` };
+    return {
+      message: `Slot #${id} cancelled and all future appointments cancelled`,
+    };
   }
 
   // ── Appointments ──
@@ -236,7 +298,9 @@ export class OfficeHoursService {
     });
 
     if (existingCount >= slot.maxAppointments) {
-      throw new BadRequestException('No available appointments for this date and slot');
+      throw new BadRequestException(
+        'No available appointments for this date and slot',
+      );
     }
 
     const appointment = this.appointmentRepo.create({
@@ -252,17 +316,23 @@ export class OfficeHoursService {
     const saved = await this.appointmentRepo.save(appointment);
 
     // Notify Instructor
-    await this.notificationsService.createNotification({
-      userId: slot.instructorId,
-      notificationType: NotificationType.MESSAGE,
-      title: 'New Office Hour Booking',
-      body: `A student has booked an appointment for your slot on ${dto.appointmentDate}. Topic: ${dto.topic || 'No topic'}`,
-    }).catch(err => this.logger.error('Failed to notify instructor', err));
+    await this.notificationsService
+      .createNotification({
+        userId: slot.instructorId,
+        notificationType: NotificationType.MESSAGE,
+        title: 'New Office Hour Booking',
+        body: `A student has booked an appointment for your slot on ${dto.appointmentDate}. Topic: ${dto.topic || 'No topic'}`,
+      })
+      .catch((err) => this.logger.error('Failed to notify instructor', err));
 
     return { data: saved, message: 'Appointment booked successfully' };
   }
 
-  async updateAppointment(id: number, dto: UpdateAppointmentDto, userId: number) {
+  async updateAppointment(
+    id: number,
+    dto: UpdateAppointmentDto,
+    userId: number,
+  ) {
     const appointment = await this.appointmentRepo.findOne({
       where: { appointmentId: id },
       relations: ['slot'],
@@ -280,21 +350,28 @@ export class OfficeHoursService {
     const saved = await this.appointmentRepo.save(appointment);
 
     if (dto.status === 'confirmed') {
-      await this.notificationsService.createNotification({
-        userId: appointment.studentId,
-        notificationType: NotificationType.SYSTEM,
-        title: 'Appointment Confirmed',
-        body: `Your office hour appointment on ${appointment.appointmentDate} has been confirmed via instructor.`,
-      }).catch(err => this.logger.error('Failed to notify student', err));
+      await this.notificationsService
+        .createNotification({
+          userId: appointment.studentId,
+          notificationType: NotificationType.SYSTEM,
+          title: 'Appointment Confirmed',
+          body: `Your office hour appointment on ${appointment.appointmentDate} has been confirmed via instructor.`,
+        })
+        .catch((err) => this.logger.error('Failed to notify student', err));
     } else if (dto.status === 'cancelled') {
-       // Target person to notify depends on who cancels. (Assumed student if instructor cancels, instructor if student cancels)
-       const targetUserId = userId === appointment.studentId ? appointment.slot.instructorId : appointment.studentId;
-       await this.notificationsService.createNotification({
-         userId: targetUserId,
-         notificationType: NotificationType.SYSTEM,
-         title: 'Appointment Cancelled',
-         body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
-       }).catch(err => this.logger.error('Failed to notify user', err));
+      // Target person to notify depends on who cancels. (Assumed student if instructor cancels, instructor if student cancels)
+      const targetUserId =
+        userId === appointment.studentId
+          ? appointment.slot.instructorId
+          : appointment.studentId;
+      await this.notificationsService
+        .createNotification({
+          userId: targetUserId,
+          notificationType: NotificationType.SYSTEM,
+          title: 'Appointment Cancelled',
+          body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
+        })
+        .catch((err) => this.logger.error('Failed to notify user', err));
     }
 
     return { data: saved, message: `Appointment #${id} updated successfully` };
@@ -315,14 +392,22 @@ export class OfficeHoursService {
     const saved = await this.appointmentRepo.save(appointment);
 
     // Notify the other party
-    const targetUserId = userId === appointment.studentId ? appointment.slot.instructorId : appointment.studentId;
-    await this.notificationsService.createNotification({
-      userId: targetUserId,
-      notificationType: NotificationType.SYSTEM,
-      title: 'Appointment Cancelled',
-      body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
-    }).catch(err => this.logger.error('Failed to notify user', err));
+    const targetUserId =
+      userId === appointment.studentId
+        ? appointment.slot.instructorId
+        : appointment.studentId;
+    await this.notificationsService
+      .createNotification({
+        userId: targetUserId,
+        notificationType: NotificationType.SYSTEM,
+        title: 'Appointment Cancelled',
+        body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
+      })
+      .catch((err) => this.logger.error('Failed to notify user', err));
 
-    return { data: saved, message: `Appointment #${id} cancelled successfully` };
+    return {
+      data: saved,
+      message: `Appointment #${id} cancelled successfully`,
+    };
   }
 }

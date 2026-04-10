@@ -511,8 +511,9 @@ export class EnrollmentsService {
     }
 
     return Promise.all(
-      Array.from(assignmentsBySection.values()).map(({ course, section, semester }) =>
-        this.buildInstructorEnrollmentView(course, section, semester),
+      Array.from(assignmentsBySection.values()).map(
+        ({ course, section, semester }) =>
+          this.buildInstructorEnrollmentView(course, section, semester),
       ),
     );
   }
@@ -545,7 +546,7 @@ export class EnrollmentsService {
         name: semester.name,
         startDate: semester.startDate,
         endDate: semester.endDate,
-      }
+      },
     };
   }
 
@@ -1130,11 +1131,28 @@ export class EnrollmentsService {
       isInstructor
         ? this.instructorRepository.findOne({ where: { sectionId, userId } })
         : Promise.resolve(null),
-      isTA ? this.taRepository.findOne({ where: { sectionId, userId } }) : Promise.resolve(null),
+      isTA
+        ? this.taRepository.findOne({ where: { sectionId, userId } })
+        : Promise.resolve(null),
     ]);
 
     if (instructorAssignment || taAssignment) {
       return;
+    }
+
+    const isStudent = roles.includes(RoleName.STUDENT);
+    if (isStudent) {
+      const studentEnrollment = await this.enrollmentRepository.findOne({
+        where: {
+          sectionId,
+          userId,
+          status: In([EnrollmentStatus.ENROLLED, EnrollmentStatus.COMPLETED]),
+        },
+      });
+
+      if (studentEnrollment) {
+        return;
+      }
     }
 
     throw new ForbiddenException(

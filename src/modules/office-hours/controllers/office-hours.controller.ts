@@ -40,7 +40,13 @@ export class OfficeHoursController {
   // ── Slots ──
 
   @Get('slots')
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
   @ApiOperation({
     summary: 'List all office hour slots',
     description:
@@ -64,7 +70,13 @@ export class OfficeHoursController {
   }
 
   @Get()
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
   @ApiOperation({
     summary: 'List office hours (compatibility route)',
     description:
@@ -85,25 +97,12 @@ export class OfficeHoursController {
     });
   }
 
-  @Get(':id(\\d+)')
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
-  @ApiOperation({
-    summary: 'Get office hour slot by ID',
-    description: 'Retrieves one office hour slot by slot ID.',
-  })
-  @ApiParam({ name: 'id', type: Number, description: 'Slot ID' })
-  @ApiResponse({ status: 200, description: 'Slot returned' })
-  @ApiResponse({ status: 404, description: 'Slot not found' })
-  async getSlotById(@Param('id', ParseIntPipe) id: number) {
-    return this.officeHoursService.getSlotById(id);
-  }
-
   @Get('my-slots')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
     summary: "Get instructor's own office hour slots",
     description:
-      "Retrieves all office hour slots created by the current instructor. " +
+      'Retrieves all office hour slots created by the current instructor. ' +
       'Access roles: INSTRUCTOR, TA, ADMIN, IT_ADMIN. Uses table: `office_hour_slots`.',
   })
   @ApiResponse({ status: 200, description: "Instructor's slots returned" })
@@ -113,7 +112,13 @@ export class OfficeHoursController {
   }
 
   @Get('available')
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
   @ApiOperation({
     summary: 'Get available office hour slots for booking',
     description:
@@ -122,8 +127,10 @@ export class OfficeHoursController {
   })
   @ApiResponse({ status: 200, description: 'Available slots returned' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getAvailableSlots() {
-    return this.officeHoursService.getAvailableSlots();
+  async getAvailableSlots(@Query('instructorId') instructorId?: string) {
+    return this.officeHoursService.getAvailableSlots(
+      instructorId ? Number(instructorId) : undefined,
+    );
   }
 
   @Post('slots')
@@ -186,7 +193,7 @@ export class OfficeHoursController {
     return this.officeHoursService.updateSlot(id, dto, req.user.userId);
   }
 
-  @Put(':id(\\d+)')
+  @Put(':id')
   @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
     summary: 'Update an office hour (compatibility route)',
@@ -219,7 +226,7 @@ export class OfficeHoursController {
     return this.officeHoursService.deleteSlot(id);
   }
 
-  @Delete(':id(\\d+)')
+  @Delete(':id')
   @Roles(RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
   @ApiOperation({
     summary: 'Delete an office hour (compatibility route)',
@@ -252,11 +259,17 @@ export class OfficeHoursController {
   }
 
   @Get('my-appointments')
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
   @ApiOperation({
     summary: "Get student's own appointments",
     description:
-      "Retrieves all appointments the current user has booked. " +
+      'Retrieves all appointments the current user has booked. ' +
       'Access roles: ALL. Uses tables: `office_hour_appointments`, `office_hour_slots`.',
   })
   @ApiResponse({ status: 200, description: "Student's appointments returned" })
@@ -265,8 +278,33 @@ export class OfficeHoursController {
     return this.officeHoursService.getMyAppointments(req.user.userId);
   }
 
+  @Get(':id')
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
+  @ApiOperation({
+    summary: 'Get office hour slot by ID',
+    description: 'Retrieves one office hour slot by slot ID.',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Slot ID' })
+  @ApiResponse({ status: 200, description: 'Slot returned' })
+  @ApiResponse({ status: 404, description: 'Slot not found' })
+  async getSlotById(@Param('id', ParseIntPipe) id: number) {
+    return this.officeHoursService.getSlotById(id);
+  }
+
   @Post('appointments')
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.TA,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
   @ApiOperation({
     summary: 'Book an appointment',
     description:
@@ -282,7 +320,12 @@ export class OfficeHoursController {
   }
 
   @Patch('appointments/:id')
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
   @ApiOperation({
     summary: 'Update an appointment',
     description:
@@ -302,7 +345,12 @@ export class OfficeHoursController {
   }
 
   @Delete('appointments/:id')
-  @Roles(RoleName.STUDENT, RoleName.INSTRUCTOR, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @Roles(
+    RoleName.STUDENT,
+    RoleName.INSTRUCTOR,
+    RoleName.ADMIN,
+    RoleName.IT_ADMIN,
+  )
   @ApiOperation({
     summary: 'Cancel an appointment',
     description:
@@ -312,7 +360,10 @@ export class OfficeHoursController {
   @ApiParam({ name: 'id', type: Number, description: 'Appointment ID' })
   @ApiResponse({ status: 200, description: 'Appointment cancelled' })
   @ApiResponse({ status: 404, description: 'Appointment not found' })
-  async cancelAppointment(@Param('id', ParseIntPipe) id: number, @Request() req) {
+  async cancelAppointment(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req,
+  ) {
     return this.officeHoursService.cancelAppointment(id, req.user.userId);
   }
 
