@@ -79,6 +79,27 @@ export class GoogleDriveService {
   }
 
   /**
+   * Verify if a folder exists in Google Drive by ID
+   */
+  async verifyFolderExists(folderId: string): Promise<boolean> {
+    try {
+      const response = await this.drive.files.get({
+        fileId: folderId,
+        fields: 'id, mimeType',
+      });
+
+      // Check if it's actually a folder
+      return response.data.mimeType === 'application/vnd.google-apps.folder';
+    } catch (error) {
+      if (error.code === 404 || error.status === 404) {
+        return false;
+      }
+      this.logger.error(`Error verifying folder: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
    * Create a folder in Google Drive
    */
   async createFolder(name: string, parentId?: string): Promise<DriveFolder> {
