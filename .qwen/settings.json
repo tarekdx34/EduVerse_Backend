@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(D:\\Graduation\\backend\\last_backend/**)",
+      "Read(D:\\Graduation/**)",
+      "Bash(npm run *)"
+    ]
+  },
+  "$version": 3
+}

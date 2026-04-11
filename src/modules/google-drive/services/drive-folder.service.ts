@@ -578,6 +578,12 @@ export class DriveFolderService {
 
   /**
    * Get or create a folder (idempotent)
+   * Includes comprehensive check-first logic:
+   * 1. Check database for existing folder
+   * 2. Verify parent folder exists in Google Drive (recover if stale)
+   * 3. Check if folder already exists in Google Drive by name
+   * 4. Use existing or create new folder in Drive
+   * 5. Sync result back to database
    */
   private async getOrCreateFolder(
     name: string,
@@ -588,7 +594,7 @@ export class DriveFolderService {
     userId: number,
     folderPath: string,
   ): Promise<DriveFolder> {
-    // Check if folder exists in DB
+    // STEP 1: Check if folder exists in database
     const existing = await this.driveFolderRepository.findOne({
       where: {
         folderType,
@@ -598,27 +604,62 @@ export class DriveFolderService {
     });
 
     if (existing) {
+      this.logger.debug(`📁 Folder found in DB: ${name} (ID: ${existing.driveFolderId})`);
       return existing;
     }
 
-    // Get parent folder to get Drive ID
+    // STEP 2: Get parent folder from database
     const parentFolder = await this.driveFolderRepository.findOne({
       where: { driveFolderId: parentDriveFolderId },
     });
 
     if (!parentFolder) {
-      throw new NotFoundException(`Parent folder ${parentDriveFolderId} not found`);
+      throw new NotFoundException(`Parent folder ${parentDriveFolderId} not found in database`);
     }
 
-    // Check if folder exists in Drive
-    let driveFolder = await this.driveService.findFolderByName(name, parentFolder.driveId);
-    
-    if (!driveFolder) {
-      // Create in Drive
-      driveFolder = await this.driveService.createFolder(name, parentFolder.driveId);
+    // STEP 3: Verify parent folder exists in Google Drive
+    // This handles cases where the folder was deleted manually or has stale IDs
+    let parentDriveId = parentFolder.driveId;
+    const parentExists = await this.driveService.verifyFolderExists(parentDriveId);
+
+    if (!parentExists) {
+      this.logger.warn(
+        `⚠️ Parent folder "${parentFolder.folderName}" (${parentFolder.driveFolderId}) has stale Drive ID: ${parentDriveId}. ` +
+        `Attempting recovery...`,
+      );
+
+      parentDriveId = await this.recoverParentFolder(parentFolder);
     }
 
-    // Save to database
+    // STEP 4: Check if folder already exists in Google Drive
+    let driveFolder = await this.driveService.findFolderByName(name, parentDriveId);
+
+    if (driveFolder) {
+      // Folder exists in Drive but not in DB - sync it
+      this.logger.log(
+        `🔄 Found existing folder in Drive: "${name}" (${driveFolder.id}) - syncing to database`,
+      );
+
+      // STEP 4.5: Check if this Drive ID is already tracked in the database
+      // (handles edge cases where folder was recreated with different parent/type)
+      const existingByDriveId = await this.driveFolderRepository.findOne({
+        where: { driveId: driveFolder.id },
+      });
+
+      if (existingByDriveId) {
+        // Drive ID already exists in DB - return the existing record
+        this.logger.log(
+          `📁 Drive ID ${driveFolder.id} already linked to folder "${existingByDriveId.folderName}" (DB ID: ${existingByDriveId.driveFolderId}) - returning existing`,
+        );
+        return existingByDriveId;
+      }
+    } else {
+      // Folder doesn't exist in Drive - create it
+      this.logger.log(`✨ Creating new folder in Drive: "${name}" under parent ${parentDriveId}`);
+      driveFolder = await this.driveService.createFolder(name, parentDriveId);
+    }
+
+    // STEP 5: Save folder to database (whether found or created in Drive)
     const newFolder = this.driveFolderRepository.create({
       driveId: driveFolder.id,
       folderType,
@@ -631,9 +672,165 @@ export class DriveFolderService {
     });
 
     await this.driveFolderRepository.save(newFolder);
-    this.logger.log(`Created folder: ${folderPath} (${driveFolder.id})`);
+    this.logger.log(
+      `✅ Folder synced to DB: "${name}" -> Drive ID: ${driveFolder.id} (DB ID: ${newFolder.driveFolderId})`,
+    );
 
     return newFolder;
+  }
+
+  /**
+   * Recover a parent folder that has a stale Drive ID
+   * Tries multiple strategies: search by name, recreate, or rebuild hierarchy
+   */
+  private async recoverParentFolder(folder: DriveFolder): Promise<string> {
+    // Strategy 1: Try to find folder by name in its parent
+    if (folder.parentDriveFolderId) {
+      const grandParentFolder = await this.driveFolderRepository.findOne({
+        where: { driveFolderId: folder.parentDriveFolderId },
+      });
+
+      if (grandParentFolder) {
+        // Verify grandparent exists
+        const grandParentExists = await this.driveService.verifyFolderExists(grandParentFolder.driveId);
+
+        if (grandParentExists) {
+          // Search for the folder by name
+          const foundFolder = await this.driveService.findFolderByName(
+            folder.folderName,
+            grandParentFolder.driveId,
+          );
+
+          if (foundFolder) {
+            // Found it! Update the stale Drive ID
+            this.logger.log(
+              `✅ Recovered folder "${folder.folderName}" (${folder.driveFolderId}): ` +
+              `updated Drive ID from ${folder.driveId} to ${foundFolder.id}`,
+            );
+            folder.driveId = foundFolder.id;
+            await this.driveFolderRepository.save(folder);
+            return foundFolder.id;
+          }
+        } else {
+          // Grandparent also stale - rebuild entire hierarchy
+          this.logger.warn(`🔄 Grandparent also stale. Rebuilding hierarchy from root...`);
+          const newDriveId = await this.rebuildFolderHierarchy(folder);
+          return newDriveId;
+        }
+      } else {
+        throw new NotFoundException(
+          `Grandparent folder ${folder.parentDriveFolderId} not found in database`,
+        );
+      }
+    }
+
+    // Strategy 2: Recreate the folder if it's root-level
+    this.logger.warn(`🔄 Recreating root-level folder "${folder.folderName}" in Drive...`);
+    const newDriveId = await this.recreateRootLevelFolder(folder);
+    return newDriveId;
+  }
+
+  /**
+   * Rebuild folder hierarchy from root when multiple levels are stale
+   */
+  private async rebuildFolderHierarchy(
+    staleFolder: DriveFolder,
+  ): Promise<string> {
+    // Get the full path from root
+    const pathFolders: DriveFolder[] = [staleFolder];
+    let currentParentId = staleFolder.parentDriveFolderId;
+
+    // Walk up the tree to find all ancestors
+    while (currentParentId) {
+      const parent = await this.driveFolderRepository.findOne({
+        where: { driveFolderId: currentParentId },
+      });
+
+      if (!parent) {
+        break;
+      }
+
+      pathFolders.unshift(parent);
+      currentParentId = parent.parentDriveFolderId;
+    }
+
+    // Now rebuild from root
+    let currentDriveId: string | null = null;
+    let currentPath = '';
+
+    for (const folder of pathFolders) {
+      // For root folder, use existing or create
+      if (!folder.parentDriveFolderId) {
+        // This is root - verify it exists
+        if (folder.driveId) {
+          const rootExists = await this.driveService.verifyFolderExists(folder.driveId);
+          if (rootExists) {
+            currentDriveId = folder.driveId;
+            currentPath = folder.folderName;
+            continue;
+          }
+        }
+
+        // Root doesn't exist - create new root
+        const rootFolder = await this.driveService.createFolder('EduVerse');
+        folder.driveId = rootFolder.id;
+        await this.driveFolderRepository.save(folder);
+        currentDriveId = rootFolder.id;
+        currentPath = folder.folderName;
+        continue;
+      }
+
+      // Get parent's new Drive ID
+      const parentFolder = await this.driveFolderRepository.findOne({
+        where: { driveFolderId: folder.parentDriveFolderId! },
+      });
+
+      if (!parentFolder) {
+        throw new Error(`Parent folder not found during rebuild: ${folder.parentDriveFolderId}`);
+      }
+
+      // Create this folder
+      const newFolder = await this.driveService.createFolder(folder.folderName, parentFolder.driveId);
+      folder.driveId = newFolder.id;
+      await this.driveFolderRepository.save(folder);
+
+      currentDriveId = newFolder.id;
+      currentPath = `${currentPath}/${folder.folderName}`;
+
+      this.logger.log(`✅ Rebuilt folder ${folder.driveFolderId} -> ${newFolder.id}`);
+    }
+
+    if (!currentDriveId) {
+      throw new Error('Failed to rebuild hierarchy: no Drive ID generated');
+    }
+
+    return currentDriveId;
+  }
+
+  /**
+   * Recreate a root-level folder (no parent in DB)
+   */
+  private async recreateRootLevelFolder(
+    folder: DriveFolder,
+  ): Promise<string> {
+    // Create under root EduVerse folder
+    const rootFolder = await this.getRootFolder();
+
+    // Verify root exists
+    const rootExists = await this.driveService.verifyFolderExists(rootFolder.driveId);
+    if (!rootExists) {
+      throw new Error(
+        'Root EduVerse folder does not exist in Drive. Please reinitialize it first.',
+      );
+    }
+
+    const newFolder = await this.driveService.createFolder(folder.folderName, rootFolder.driveId);
+    folder.driveId = newFolder.id;
+    await this.driveFolderRepository.save(folder);
+
+    this.logger.log(`✅ Recreated root-level folder ${folder.driveFolderId} -> ${newFolder.id}`);
+
+    return newFolder.id;
   }
 
   /**
