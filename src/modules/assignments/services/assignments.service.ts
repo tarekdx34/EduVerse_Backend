@@ -19,6 +19,7 @@ import { GradeSubmissionDto } from '../dto/grade-submission.dto';
 import { Course } from '../../courses/entities/course.entity';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
+import { GoogleDriveService } from '../../google-drive/google-drive.service';
 import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
 import { GradesService } from '../../grades/services';
 import { GradeType } from '../../grades/enums';
@@ -39,6 +40,7 @@ export class AssignmentsService {
     @InjectRepository(DriveFile)
     private driveFileRepo: Repository<DriveFile>,
     private driveFolderService: DriveFolderService,
+    private googleDriveService: GoogleDriveService,
     @Inject(forwardRef(() => GradesService))
     private gradesService: GradesService,
   ) {}
@@ -577,6 +579,90 @@ export class AssignmentsService {
         webContentLink: driveFile.webContentLink,
       },
       isLate: isLate === 1,
+    };
+  }
+
+  /**
+   * Delete an instruction file from an assignment.
+   * Removes the file from Google Drive and the database record.
+   * If Google Drive deletion fails, still deletes the DB record and returns a warning.
+   */
+  async deleteInstructionFile(
+    assignmentId: number,
+    instructionFileId: number,
+    userId: number,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    deletedFileId: number;
+    assignmentId: number;
+  }> {
+    // a) Verify the assignment exists
+    const assignment = await this.assignmentRepo.findOne({ where: { id: assignmentId } });
+    if (!assignment) {
+      throw new AssignmentNotFoundException();
+    }
+
+    // b) Verify the instruction file record exists and belongs to this assignment
+    const instructionFile = await this.driveFileRepo.findOne({
+      where: {
+        driveFileId: instructionFileId,
+        entityType: DriveFileEntityType.ASSIGNMENT_INSTRUCTION as any,
+        entityId: assignmentId,
+      },
+    });
+
+    if (!instructionFile) {
+      throw new BadRequestException('Instruction file not found');
+    }
+
+    // c) Authorization is handled by the @Roles guard in the controller
+    // (instructor, TA, or admin — same as upload endpoint)
+
+    // d) Delete the physical file from Google Drive (log error but continue on failure)
+    let driveDeletionFailed = false;
+    try {
+      await this.googleDriveService.deleteFile(instructionFile.driveId);
+      this.logger.log(`Deleted instruction file from Google Drive: ${instructionFile.driveId}`);
+    } catch (error) {
+      driveDeletionFailed = true;
+      this.logger.error(
+        `Failed to delete instruction file from Google Drive: ${instructionFile.driveId} — ${error.message}`,
+      );
+    }
+
+    // e) Delete the drive_files database record
+    await this.driveFileRepo.remove(instructionFile);
+    this.logger.log(
+      `Deleted instruction file record ${instructionFileId} from database for assignment ${assignmentId} by user ${userId}`,
+    );
+
+    // f) Clean up: remove any related join/cached references
+    // The drive_files record is the primary link. No separate pivot table exists.
+    // Any cached references in assignment metadata are resolved at query time via
+    // the findOne() method, so removing the DB record is sufficient.
+
+    // g) Do NOT delete:
+    // - Audit logs or activity history (none stored separately for instruction files)
+    // - The assignment itself
+    // - Other instruction files for the same assignment
+
+    // Build response
+    if (driveDeletionFailed) {
+      return {
+        success: true,
+        message:
+          'Instruction file deleted from database records, but failed to delete from Google Drive',
+        deletedFileId: instructionFileId,
+        assignmentId,
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Instruction file deleted successfully',
+      deletedFileId: instructionFileId,
+      assignmentId,
     };
   }
 }
