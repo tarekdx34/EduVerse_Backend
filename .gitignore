@@ -61,6 +61,8 @@ ai-services/**/__pycache__/
 ai-services/**/.venv/
 ai-services/**/venv/
 ai-services/**/*.pyc
-ai-services/attendance/dataset/
+# Local test images (not committed). README stays tracked so the folder exists in the repo.
+ai-services/attendance/dataset/*
+!ai-services/attendance/dataset/README.txt
 ai-services/attendance/Attendance/
 ai-services/attendance/temp_*
