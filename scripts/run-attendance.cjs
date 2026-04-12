@@ -22,6 +22,9 @@ const args = [
   'uvicorn',
   'api_main:app',
   '--reload',
+  // Dev-only script; changes used to trigger a full reload and looked like a crash
+  '--reload-exclude',
+  'fetch_section_faces.py',
   '--host',
   '127.0.0.1',
   '--port',

@@ -2,13 +2,19 @@
 Dev/test helper: download one portrait per student in a course section into dataset/
 and build a synthetic "class photo" by tiling those same images.
 
-Uses https://randomuser.me/ (free for apps; consider attribution in production UI).
+Roster source (first match wins):
+  1) --user-ids
+  2) GET /api/enrollments/section/:id/students with --api-url + --bearer-token
+  3) MySQL: course_enrollments for --section-id (or resolve via --course-code + --semester-name + --section-number)
+
+Portraits: https://randomuser.me/ (not real student photos; 1:1 mapped to user_id for testing).
 
 Examples:
   python fetch_section_faces.py --section-id 26
+  python fetch_section_faces.py --course-code AH102 --semester-name "Fall 2025" --section-number 1 --env ../../.env
+  python fetch_section_faces.py --section-id 26 --api-url http://localhost:3001 --bearer-token YOUR_JWT
   python fetch_section_faces.py --user-ids 57,7,8
-  python fetch_section_faces.py --section-id 26 --env ../../.env
-  python fetch_section_faces.py --refresh-user-ids 13 --user-ids 1,2,3,57
+  python fetch_section_faces.py --audit-only
   python fetch_section_faces.py --rebuild-composite-only --section-id 26
 """
 
@@ -82,6 +88,86 @@ def fetch_user_ids_from_db(section_id: int, env: dict[str, str]) -> list[int]:
     return [int(r["user_id"]) for r in rows]
 
 
+def resolve_section_id_from_db(
+    course_code: str,
+    semester_name: str,
+    section_number: str,
+    env: dict[str, str],
+) -> int:
+    """Match course_sections row: AH102 + Fall 2025 + section 1."""
+    if pymysql is None:
+        raise RuntimeError("Install pymysql: pip install pymysql")
+    port = env.get("DB_PORT")
+    if not port:
+        raise RuntimeError("DB_PORT missing in .env")
+    conn = pymysql.connect(
+        host=env.get("DB_HOST", "localhost"),
+        port=int(port),
+        user=env.get("DB_USERNAME", "root"),
+        password=env.get("DB_PASSWORD", ""),
+        database=env.get("DB_DATABASE", "eduverse_db"),
+        cursorclass=pymysql.cursors.DictCursor,
+    )
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT cs.section_id AS id
+                FROM course_sections cs
+                INNER JOIN courses c ON c.course_id = cs.course_id
+                INNER JOIN semesters s ON s.semester_id = cs.semester_id
+                WHERE c.course_code = %s AND s.semester_name = %s AND cs.section_number = %s
+                LIMIT 2
+                """,
+                (course_code.strip(), semester_name.strip(), str(section_number).strip()),
+            )
+            rows = cur.fetchall()
+    finally:
+        conn.close()
+    if not rows:
+        raise RuntimeError(
+            f"No section found for course_code={course_code!r} semester_name={semester_name!r} section_number={section_number!r}"
+        )
+    if len(rows) > 1:
+        raise RuntimeError("Multiple sections matched; narrow course/semester/section.")
+    return int(rows[0]["id"])
+
+
+def http_get_json_auth(url: str, token: str | None, timeout: float = 60.0) -> object:
+    headers = {
+        "User-Agent": "EduVerse-fetch-section-faces/1.0",
+        "Accept": "application/json",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def fetch_user_ids_from_api(base_url: str, section_id: int, token: str) -> list[int]:
+    """GET {base}/api/enrollments/section/{id}/students — needs Instructor/TA/Admin JWT."""
+    base = base_url.rstrip("/")
+    url = f"{base}/api/enrollments/section/{section_id}/students"
+    data = http_get_json_auth(url, token)
+    if not isinstance(data, list):
+        raise RuntimeError(f"Unexpected API response (expected list): {type(data)}")
+    seen: set[int] = set()
+    out: list[int] = []
+    for row in data:
+        if not isinstance(row, dict):
+            continue
+        uid = row.get("userId") or row.get("user_id")
+        if uid is None:
+            continue
+        i = int(uid)
+        if i not in seen:
+            seen.add(i)
+            out.append(i)
+    out.sort()
+    return out
+
+
 def http_get_json(url: str, timeout: float = 30.0) -> dict:
     req = urllib.request.Request(url, headers={"User-Agent": "EduVerse-fetch-section-faces/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -107,6 +193,27 @@ def _collect_other_hashes(dataset_dir: Path, skip_user_id: int | None) -> set[st
             continue
         out.add(_sha256_file(p))
     return out
+
+
+def audit_dataset(dataset_dir: Path) -> tuple[int, int, list[tuple[str, str, str]]]:
+    """
+    Scan numeric *.jpg in dataset_dir.
+    Returns (total_files, unique_image_count, list of duplicate pairs (hash, path_a, path_b)).
+    """
+    dataset_dir = dataset_dir.resolve()
+    hashes: dict[str, Path] = {}
+    dupes: list[tuple[str, str, str]] = []
+    total = 0
+    for p in sorted(dataset_dir.glob("*.jpg")):
+        if not p.stem.isdigit():
+            continue
+        total += 1
+        h = _sha256_file(p)
+        if h in hashes:
+            dupes.append((h, str(hashes[h]), str(p)))
+        else:
+            hashes[h] = p
+    return total, len(hashes), dupes
 
 
 def download_portrait_for_user(
@@ -187,12 +294,42 @@ def build_grid_composite(image_paths: list[Path], out_path: Path, cols: int = 6,
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Download dataset face images for a section + composite.")
-    parser.add_argument("--section-id", type=int, default=26, help="course_sections.section_id (Arabic seed: 26)")
+    parser.add_argument("--section-id", type=int, default=26, help="course_sections.section_id")
+    parser.add_argument(
+        "--course-code",
+        type=str,
+        default="",
+        help='With --semester-name and --section-number, resolve section id from DB (e.g. AH102)',
+    )
+    parser.add_argument(
+        "--semester-name",
+        type=str,
+        default="",
+        help='Semester display name as in DB (e.g. "Fall 2025")',
+    )
+    parser.add_argument(
+        "--section-number",
+        type=str,
+        default="",
+        help='Section number string (e.g. "1")',
+    )
+    parser.add_argument(
+        "--api-url",
+        type=str,
+        default="",
+        help="Nest base URL (e.g. http://localhost:3001). With --bearer-token, roster from GET /api/enrollments/section/:id/students",
+    )
+    parser.add_argument(
+        "--bearer-token",
+        type=str,
+        default="",
+        help="JWT for Instructor/TA/Admin (used with --api-url)",
+    )
     parser.add_argument(
         "--user-ids",
         type=str,
         default="",
-        help="Comma-separated user IDs (skips DB if set)",
+        help="Comma-separated user IDs (highest priority; skips API/DB roster)",
     )
     parser.add_argument(
         "--env",
@@ -217,7 +354,7 @@ def main() -> None:
         "--fallback-user-ids",
         type=str,
         default="57",
-        help="If DB returns no rows, use these comma-separated IDs (seed Arabic had only 57)",
+        help="If roster is empty, use these comma-separated IDs",
     )
     parser.add_argument(
         "--refresh-user-ids",
@@ -230,18 +367,63 @@ def main() -> None:
         action="store_true",
         help="Do not download; rebuild section_N_group.jpg from existing dataset files in roster order.",
     )
+    parser.add_argument(
+        "--audit-only",
+        action="store_true",
+        help="Only scan dataset/*.jpg for counts and duplicate images; no download.",
+    )
     args = parser.parse_args()
 
     env = load_env_file(args.env)
+    dataset_dir = args.dataset_dir.resolve()
+
+    section_id = args.section_id
+    if args.course_code.strip() and args.semester_name.strip() and str(args.section_number).strip():
+        try:
+            section_id = resolve_section_id_from_db(
+                args.course_code,
+                args.semester_name,
+                str(args.section_number),
+                env,
+            )
+            print(f"Resolved section_id={section_id} ({args.course_code} / {args.semester_name} / sec {args.section_number})", file=sys.stderr)
+        except Exception as e:
+            print(f"Could not resolve section from DB: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    if args.audit_only:
+        if not dataset_dir.is_dir():
+            print(f"Dataset dir missing: {dataset_dir}", file=sys.stderr)
+            sys.exit(1)
+        total, unique, dupes = audit_dataset(dataset_dir)
+        print(f"Dataset: {dataset_dir}")
+        print(f"  Numeric .jpg files: {total}")
+        print(f"  Unique images (by file hash): {unique}")
+        if dupes:
+            print(f"  Duplicate image bytes ({len(dupes)} extra file(s)):", file=sys.stderr)
+            for _h, a, b in dupes:
+                print(f"    same bytes: {a}  <->  {b}", file=sys.stderr)
+        else:
+            print("  No duplicate image hashes across different student files.")
+        sys.exit(0)
 
     if args.user_ids.strip():
         user_ids = [int(x.strip()) for x in args.user_ids.split(",") if x.strip()]
+    elif args.api_url.strip() and args.bearer_token.strip():
+        try:
+            user_ids = fetch_user_ids_from_api(args.api_url.strip(), section_id, args.bearer_token.strip())
+        except Exception as e:
+            print(f"API roster failed ({e}); try DB or --user-ids.", file=sys.stderr)
+            sys.exit(1)
+        if not user_ids:
+            print("API returned no students.", file=sys.stderr)
+            sys.exit(1)
     else:
         user_ids = []
         try:
-            user_ids = fetch_user_ids_from_db(args.section_id, env)
+            user_ids = fetch_user_ids_from_db(section_id, env)
         except Exception as e:
-            print(f"DB query failed ({e}); use --user-ids or fix .env / pymysql.", file=sys.stderr)
+            print(f"DB query failed ({e}); use --api-url + --bearer-token, --user-ids, or fix .env / pymysql.", file=sys.stderr)
             user_ids = []
         if not user_ids:
             user_ids = [int(x.strip()) for x in args.fallback_user_ids.split(",") if x.strip()]
@@ -255,7 +437,6 @@ def main() -> None:
     if args.refresh_user_ids.strip():
         refresh_set = {int(x.strip()) for x in args.refresh_user_ids.split(",") if x.strip()}
 
-    dataset_dir = args.dataset_dir.resolve()
     saved: list[Path] = []
 
     if args.rebuild_composite_only:
@@ -299,12 +480,21 @@ def main() -> None:
 
     comp = args.composite
     if comp is None:
-        comp = dataset_dir / f"section_{args.section_id}_group.jpg"
+        comp = dataset_dir / f"section_{section_id}_group.jpg"
     else:
         comp = comp.resolve()
 
     print(f"Building composite -> {comp}")
     build_grid_composite(saved, comp, cols=args.cols)
+    total, unique, dupes = audit_dataset(dataset_dir)
+    print(
+        f"Dataset check: {total} numeric .jpg file(s), {unique} unique image hash(es).",
+        file=sys.stderr,
+    )
+    if dupes:
+        print("Warning: duplicate image bytes between files:", file=sys.stderr)
+        for _h, a, b in dupes:
+            print(f"  {a} <-> {b}", file=sys.stderr)
     print("Done.")
 
 
