@@ -1,0 +1,87 @@
+{
+  "cbc8cd20-a416-4362-baee-92418d7ab81f": {
+    "quizId": "cbc8cd20-a416-4362-baee-92418d7ab81f",
+    "uploadId": "e9e53e19-ab0b-4dcd-82b5-e069ff7c9ee0",
+    "questionType": "MCQ",
+    "difficulty": "medium",
+    "questions": [
+      {
+        "type": "MCQ",
+        "difficulty": "medium",
+        "question": "Question 1: What is the main motivation for learning embedded systems, according to the text?",
+        "options": [
+          "A) To learn how to use a desktop computer",
+          "B) To gain self-satisfaction and learn about new technologies",
+          "C) To become an expert in programming languages",
+          "D) To learn about the history of computers"
+        ]
+      },
+      {
+        "type": "MCQ",
+        "difficulty": "medium",
+        "question": "Question 2: What type of computing system is embedded within electronic devices?",
+        "options": [
+          "A) Desktop computing system",
+          "B) Embedded computing system",
+          "C) Mainframe computing system",
+          "D) Server computing system"
+        ]
+      },
+      {
+        "type": "MCQ",
+        "difficulty": "medium",
+        "question": "Question 3: What is the name of the company that is considered the world's largest information technology company and is also the birthplace of Silicon Valley?",
+        "options": [
+          "A) Google",
+          "B) HP (Hewlett Packard)",
+          "C) Apple",
+          "D) Intel"
+        ]
+      },
+      {
+        "type": "MCQ",
+        "difficulty": "medium",
+        "question": "Question 4: What is the name of the microcontroller family that is considered \"powerful\" and includes models such as ATMEGA8515 and ATMEGA128?",
+        "options": [
+          "A) AT89CXXXX Family",
+          "B) AT89SXXXX Family",
+          "C) ATMEGA Family",
+          "D) AT90S Family"
+        ]
+      },
+      {
+        "type": "MCQ",
+        "difficulty": "medium",
+        "question": "Question 5: What is the name of the software used to download the machine language file into the flash memory of the ATTINY2313 microcontroller?",
+        "options": [
+          "A) AVRSTUDIO",
+          "B) CodeVision",
+          "C) Progisp and USBASP programmer",
+          "D) ChipBlaster"
+        ]
+      }
+    ],
+    "answerKey": [
+      {
+        "questionId": "Question 1",
+        "correctAnswer": "B"
+      },
+      {
+        "questionId": "Question 2",
+        "correctAnswer": "B"
+      },
+      {
+        "questionId": "Question 3",
+        "correctAnswer": "B"
+      },
+      {
+        "questionId": "Question 4",
+        "correctAnswer": "C"
+      },
+      {
+        "questionId": "Question 5",
+        "correctAnswer": "C"
+      }
+    ]
+  }
+}
