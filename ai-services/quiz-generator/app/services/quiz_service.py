@@ -1,8 +1,20 @@
+import re
+
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from app.core.config import MY_API_KEY
+
+
+def format_standard_question(index: int, body: str) -> str:
+    """Same display line for MCQ, FillBlank, and Explain: Question N: …"""
+    text = (body or "").strip()
+    # If the model left a nested "Question …:" at the start, strip one layer
+    m = re.match(r"^\s*Question\s*\d*\s*:\s*", text, flags=re.IGNORECASE)
+    if m:
+        text = text[m.end() :].strip()
+    return f"Question {index + 1}: {text}"
 
 llm = ChatGroq(
     api_key=MY_API_KEY,
@@ -72,10 +84,17 @@ Generate {num_questions} explanation questions from the following text. These sh
 Text:
 {context}
 
-Format:
+Format (repeat this block exactly {num_questions} times, with Question 1, Question 2, …):
 ## Explanation Question
-Question: [The question here]
+Question 1: [The question here]
 Reference: [A relevant quote or fact from the text]
+
+## Explanation Question
+Question 2: [The next question here]
+Reference: [A relevant quote or fact from the text]
+
+…continue until you have {num_questions} "## Explanation Question" blocks.
+Each question line must start with "Question N:" where N matches the block order (1, 2, 3, …).
 """
 )
 
@@ -105,7 +124,12 @@ def generate_quiz_from_text(text: str, num_questions: int, question_type: str, d
         question_chunks = questions_block.strip().split("Question")[1:]
         for i, chunk in enumerate(question_chunks):
             lines = chunk.strip().split('\n')
-            question_text = "Question " + str(i + 1) + ": " + lines[0].split(":", 1)[1].strip()
+            stem = (
+                lines[0].split(":", 1)[1].strip()
+                if lines and ":" in lines[0]
+                else (lines[0].strip() if lines else "")
+            )
+            question_text = format_standard_question(i, stem)
 
             options = []
             for line in lines[1:]:
@@ -140,7 +164,13 @@ def generate_quiz_from_text(text: str, num_questions: int, question_type: str, d
 
         question_chunks = questions_block.strip().split("Question")[1:]
         for i, chunk in enumerate(question_chunks):
-            question_text = "Question " + str(i + 1) + ": " + chunk.strip()
+            # Chunk may start with " 1: ..." after splitting on "Question"; strip that
+            # number so we do not produce "Question 3: 3: ...".
+            first_line = chunk.strip().split("\n", 1)[0]
+            stem = first_line.split(":", 1)[1].strip() if ":" in first_line else first_line.strip()
+            rest = chunk.strip().split("\n", 1)
+            body = stem + ("\n" + rest[1] if len(rest) > 1 else "")
+            question_text = format_standard_question(i, body)
 
             q_id = f"Question {i+1}"
             if question_text and q_id in answers_map:
@@ -158,23 +188,26 @@ def generate_quiz_from_text(text: str, num_questions: int, question_type: str, d
         raw_ai_output = explain_chain.invoke({"context": text, "num_questions": num_questions})
         for i, item in enumerate(raw_ai_output.split("## Explanation Question")[1:]):
             lines = item.strip().split('\n')
-            q_data = {"type": "Explain", "difficulty": difficulty, "question": "", "reference": ""}
+            q_body = ""
+            q_ref = ""
             for line in lines:
-                if line.startswith("Question:"):
-                    q_data["question"] = line.replace("Question:", "").strip()
-                elif line.startswith("Reference:"):
-                    q_data["reference"] = line.replace("Reference:", "").strip()
+                s = line.strip()
+                if s.startswith("Question") and ":" in s and not q_body:
+                    q_body = s.split(":", 1)[1].strip()
+                elif s.startswith("Reference:"):
+                    q_ref = s.replace("Reference:", "").strip()
 
-            if q_data["question"]:
+            if q_body:
                 q_id = f"Question {i+1}"
+                question_text = format_standard_question(i, q_body)
                 final_questions.append({
                     "type": "Explain",
                     "difficulty": difficulty,
-                    "question": q_data["question"]
+                    "question": question_text
                 })
                 answer_key.append({
                     "questionId": q_id,
-                    "reference": q_data["reference"]
+                    "reference": q_ref
                 })
 
     return final_questions, answer_key, raw_ai_output
