@@ -234,7 +234,7 @@ The API implements role-based access control with the following roles:
     },
   });
 
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 8081;
 
   await app.listen(port, '0.0.0.0');
 
