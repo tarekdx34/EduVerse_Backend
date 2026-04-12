@@ -56,7 +56,13 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 !.env.example
 
-# Python AI microservices (ai-services/)
+# Python (AI microservices and bytecode)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
 ai-services/**/__pycache__/
 ai-services/**/.venv/
 ai-services/**/venv/
@@ -66,3 +72,7 @@ ai-services/attendance/dataset/*
 !ai-services/attendance/dataset/README.txt
 ai-services/attendance/Attendance/
 ai-services/attendance/temp_*
+
+# Quiz generator local runtime state (upload registry + stored quizzes)
+ai-services/quiz-generator/quizzes.json
+ai-services/quiz-generator/uploads.json
