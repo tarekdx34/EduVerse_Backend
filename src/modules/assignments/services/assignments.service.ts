@@ -589,12 +589,12 @@ export class AssignmentsService {
    */
   async deleteInstructionFile(
     assignmentId: number,
-    instructionFileId: number,
+    driveId: string,
     userId: number,
   ): Promise<{
     success: boolean;
     message: string;
-    deletedFileId: number;
+    deletedFileDriveId: string;
     assignmentId: number;
   }> {
     // a) Verify the assignment exists
@@ -606,7 +606,7 @@ export class AssignmentsService {
     // b) Verify the instruction file record exists and belongs to this assignment
     const instructionFile = await this.driveFileRepo.findOne({
       where: {
-        driveFileId: instructionFileId,
+        driveId,
         entityType: DriveFileEntityType.ASSIGNMENT_INSTRUCTION as any,
         entityId: assignmentId,
       },
@@ -634,7 +634,7 @@ export class AssignmentsService {
     // e) Delete the drive_files database record
     await this.driveFileRepo.remove(instructionFile);
     this.logger.log(
-      `Deleted instruction file record ${instructionFileId} from database for assignment ${assignmentId} by user ${userId}`,
+      `Deleted instruction file record ${driveId} from database for assignment ${assignmentId} by user ${userId}`,
     );
 
     // f) Clean up: remove any related join/cached references
@@ -653,7 +653,7 @@ export class AssignmentsService {
         success: true,
         message:
           'Instruction file deleted from database records, but failed to delete from Google Drive',
-        deletedFileId: instructionFileId,
+        deletedFileDriveId: driveId,
         assignmentId,
       };
     }
@@ -661,7 +661,7 @@ export class AssignmentsService {
     return {
       success: true,
       message: 'Instruction file deleted successfully',
-      deletedFileId: instructionFileId,
+      deletedFileDriveId: driveId,
       assignmentId,
     };
   }
