@@ -1,17 +1,21 @@
 import { Injectable, Logger, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Brackets } from 'typeorm';
+import { Repository, Brackets, In } from 'typeorm';
 import { Lab } from '../entities/lab.entity';
 import { LabSubmission } from '../entities/lab-submission.entity';
 import { LabInstruction } from '../entities/lab-instruction.entity';
 import { LabAttendance } from '../entities/lab-attendance.entity';
 import { DriveFile } from '../../google-drive/entities/drive-file.entity';
+import { CourseSection } from '../../courses/entities/course-section.entity';
+import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
+import { EnrollmentStatus } from '../../enrollments/enums';
 import {
   CreateLabDto,
   UpdateLabDto,
   SubmitLabDto,
   GradeLabSubmissionDto,
   CreateInstructionDto,
+  UpdateInstructionDto,
   MarkLabAttendanceDto,
   LabQueryDto,
 } from '../dto';
@@ -34,6 +38,10 @@ export class LabsService {
     private instructionRepository: Repository<LabInstruction>,
     @InjectRepository(LabAttendance)
     private attendanceRepository: Repository<LabAttendance>,
+    @InjectRepository(CourseSection)
+    private sectionRepository: Repository<CourseSection>,
+    @InjectRepository(CourseEnrollment)
+    private enrollmentRepository: Repository<CourseEnrollment>,
     @InjectRepository(DriveFile)
     private driveFileRepository: Repository<DriveFile>,
     private driveFolderService: DriveFolderService,
@@ -68,7 +76,10 @@ export class LabsService {
 
     const instructionFileIds = (lab.instructions || [])
       .map((instruction) => instruction.fileId)
-      .filter((fileId): fileId is number => typeof fileId === 'number' && Number.isFinite(fileId));
+      .filter((fileId): fileId is number => {
+        const parsed = Number(fileId);
+        return Number.isFinite(parsed) && parsed > 0;
+      });
 
     const instructionFileNames = (lab.instructions || [])
       .map((instruction) => (instruction.instructionText || '').trim())
@@ -151,6 +162,32 @@ export class LabsService {
     await this.findById(labId);
     const instruction = this.instructionRepository.create({ ...dto, labId });
     return this.instructionRepository.save(instruction);
+  }
+
+  async updateInstruction(
+    labId: number,
+    instructionId: number,
+    dto: UpdateInstructionDto,
+  ): Promise<LabInstruction> {
+    const lab = await this.findById(labId);
+    const instruction = lab.instructions.find((i) => Number(i.id) === instructionId);
+    if (!instruction) {
+      throw new NotFoundException(`Instruction ${instructionId} not found for lab ${labId}`);
+    }
+    Object.assign(instruction, dto);
+    await this.instructionRepository.save(instruction);
+    this.logger.log(`Instruction ${instructionId} updated for lab ${labId}`);
+    return instruction;
+  }
+
+  async deleteInstruction(labId: number, instructionId: number): Promise<void> {
+    const lab = await this.findById(labId);
+    const instruction = lab.instructions.find((i) => Number(i.id) === instructionId);
+    if (!instruction) {
+      throw new NotFoundException(`Instruction ${instructionId} not found for lab ${labId}`);
+    }
+    await this.instructionRepository.remove(instruction);
+    this.logger.log(`Instruction ${instructionId} deleted for lab ${labId}`);
   }
 
   // ============ SUBMISSIONS ============
@@ -304,12 +341,59 @@ export class LabsService {
     return this.attendanceRepository.save(record);
   }
 
-  async getAttendance(labId: number): Promise<LabAttendance[]> {
-    await this.findById(labId);
-    return this.attendanceRepository.find({
-      where: { labId },
-      order: { createdAt: 'ASC' },
+  async getAttendance(labId: number): Promise<any[]> {
+    const lab = await this.findById(labId);
+
+    // 1. Get all sections for this lab's course
+    const sections = await this.sectionRepository.find({
+      where: { courseId: lab.courseId },
     });
+
+    const sectionIds = sections.map((s) => s.id);
+
+    if (sectionIds.length === 0) {
+      return [];
+    }
+
+    // 2. Get all enrolled students for these sections
+    const enrolledStudents = await this.enrollmentRepository.find({
+      where: {
+        sectionId: In(sectionIds),
+        status: EnrollmentStatus.ENROLLED,
+      },
+      relations: ['user'],
+    });
+
+    // 3. Get existing attendance records for this lab
+    const existingAttendance = await this.attendanceRepository.find({
+      where: { labId },
+      relations: ['user'],
+    });
+
+    // 4. Merge: return existing records for marked students, placeholders for unmarked
+    const results: any[] = [];
+    for (const enrollment of enrolledStudents) {
+      const existing = existingAttendance.find(
+        (a) => Number(a.userId) === Number(enrollment.userId),
+      );
+      if (existing) {
+        results.push(existing);
+      } else {
+        results.push({
+          id: null,
+          labId,
+          userId: enrollment.userId,
+          attendanceStatus: null,
+          checkInTime: null,
+          notes: null,
+          markedBy: null,
+          createdAt: null,
+          user: enrollment.user,
+        });
+      }
+    }
+
+    return results;
   }
 
   // ============ GOOGLE DRIVE UPLOADS ============

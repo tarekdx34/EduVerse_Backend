@@ -45,6 +45,12 @@ export class Lab {
   @Column({ name: 'status', type: 'enum', enum: ['draft', 'published', 'closed', 'archived'], default: 'draft' })
   status: string;
 
+  @Column({ name: 'allowed_file_types', type: 'varchar', length: 255, nullable: true })
+  allowedFileTypes: string | null;
+
+  @Column({ name: 'max_file_size_mb', type: 'float', nullable: true })
+  maxFileSizeMb: number | null;
+
   @Column({ name: 'created_by', type: 'bigint', unsigned: true })
   createdBy: number;
 

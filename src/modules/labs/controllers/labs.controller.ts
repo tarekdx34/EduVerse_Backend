@@ -37,6 +37,7 @@ import {
   SubmitLabDto,
   GradeLabSubmissionDto,
   CreateInstructionDto,
+  UpdateInstructionDto,
   MarkLabAttendanceDto,
   LabQueryDto,
   UploadLabInstructionDto,
@@ -45,6 +46,7 @@ import {
 } from '../dto';
 import { LabStatus } from '../enums';
 import { Lab } from '../entities/lab.entity';
+import { LabInstruction } from '../entities/lab-instruction.entity';
 
 @ApiTags('Labs')
 @ApiBearerAuth('JWT-auth')
@@ -180,6 +182,44 @@ Change the status of a lab (publish, close, or archive).
   @ApiResponse({ status: 201, description: 'Instruction added' })
   async addInstruction(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateInstructionDto) {
     return this.labsService.addInstruction(id, dto);
+  }
+
+  @Patch(':id/instructions/:instructionId')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Update lab instruction',
+    description: 'Update instruction text, order index, or file attachment. Requires INSTRUCTOR, TA, ADMIN, or IT_ADMIN role.',
+  })
+  @ApiParam({ name: 'id', description: 'Lab ID', example: 1 })
+  @ApiParam({ name: 'instructionId', description: 'Instruction ID', example: 1 })
+  @ApiBody({ type: UpdateInstructionDto })
+  @ApiResponse({ status: 200, description: 'Instruction updated' })
+  @ApiResponse({ status: 404, description: 'Instruction not found' })
+  async updateInstruction(
+    @Param('id', ParseIntPipe) labId: number,
+    @Param('instructionId', ParseIntPipe) instructionId: number,
+    @Body() dto: UpdateInstructionDto,
+  ): Promise<LabInstruction> {
+    return this.labsService.updateInstruction(labId, instructionId, dto);
+  }
+
+  @Delete(':id/instructions/:instructionId')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete lab instruction',
+    description: 'Delete an instruction from a lab. Requires INSTRUCTOR, TA, ADMIN, or IT_ADMIN role.',
+  })
+  @ApiParam({ name: 'id', description: 'Lab ID', example: 1 })
+  @ApiParam({ name: 'instructionId', description: 'Instruction ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Instruction deleted' })
+  @ApiResponse({ status: 404, description: 'Instruction not found' })
+  async deleteInstruction(
+    @Param('id', ParseIntPipe) labId: number,
+    @Param('instructionId', ParseIntPipe) instructionId: number,
+  ): Promise<void> {
+    return this.labsService.deleteInstruction(labId, instructionId);
   }
 
   // ============ SUBMISSIONS ============
