@@ -49,6 +49,16 @@ export class CreateLabDto {
   @IsOptional()
   @IsEnum(LabStatus)
   status?: LabStatus;
+
+  @ApiPropertyOptional({ example: 'pdf,docx,zip', description: 'Comma-separated list of allowed file extensions for student submissions' })
+  @IsOptional()
+  @IsString()
+  allowedFileTypes?: string;
+
+  @ApiPropertyOptional({ example: 10, description: 'Maximum file size in MB for student submissions' })
+  @IsOptional()
+  @IsNumber()
+  maxFileSizeMb?: number;
 }
 
 export class UpdateLabDto extends PartialType(CreateLabDto) {}
@@ -97,6 +107,23 @@ export class CreateInstructionDto {
   @IsOptional()
   @IsInt()
   orderIndex?: number;
+}
+
+export class UpdateInstructionDto {
+  @ApiPropertyOptional({ example: '# Updated markdown text', description: 'Updated instruction text (markdown)' })
+  @IsOptional()
+  @IsString()
+  instructionText?: string;
+
+  @ApiPropertyOptional({ example: 2, description: 'Updated order index for reordering' })
+  @IsOptional()
+  @IsInt()
+  orderIndex?: number;
+
+  @ApiPropertyOptional({ example: 1, description: 'Updated file ID for instruction attachment' })
+  @IsOptional()
+  @IsInt()
+  fileId?: number;
 }
 
 export class MarkLabAttendanceDto {

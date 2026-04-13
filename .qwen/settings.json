@@ -7,7 +7,9 @@
       "Bash(npx *)",
       "Bash(findstr *)",
       "Bash(git add *)",
-      "Bash(select-object *)"
+      "Bash(select-object *)",
+      "Read(C:\\Users\\Friends\\Desktop\\Graduation\\EduVerse/**)",
+      "Read(C:\\Users\\Friends\\Desktop\\Graduation\\EduVerse\\eduverse_db.sql/**)"
     ]
   },
   "$version": 3
