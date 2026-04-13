@@ -124,7 +124,17 @@ export class QuizzesService {
       .take(limit)
       .getManyAndCount();
 
-    return { data, total };
+    const quizMetaById = await this.getQuizMetaByIds(data.map((quiz) => Number(quiz.id)));
+    const enriched = data.map((quiz) => {
+      const meta = quizMetaById.get(Number(quiz.id));
+      return {
+        ...quiz,
+        questionCount: meta?.questionCount ?? 0,
+        maxScore: meta?.maxScore ?? 0,
+      };
+    });
+
+    return { data: enriched as Quiz[], total };
   }
 
   async findQuizById(id: number): Promise<Quiz> {
@@ -328,6 +338,70 @@ export class QuizzesService {
     return attempt;
   }
 
+  async saveAttemptProgress(
+    quizId: number,
+    attemptId: number,
+    userId: number,
+    dto: SubmitQuizDto,
+  ): Promise<QuizAttempt> {
+    const attempt = await this.attemptRepo.findOne({
+      where: { id: attemptId, userId, quizId },
+      relations: ['quiz', 'quiz.questions'],
+    });
+
+    if (!attempt) {
+      throw new AttemptNotFoundException(attemptId);
+    }
+
+    if (attempt.status !== AttemptStatus.IN_PROGRESS) {
+      throw new AttemptAlreadySubmittedException(attemptId);
+    }
+
+    for (const answerDto of dto.answers) {
+      const question = attempt.quiz.questions.find((q) => String(q.id) === String(answerDto.questionId));
+      if (!question) {
+        continue;
+      }
+
+      const normalizedAnswerText = answerDto.answerText?.trim() || undefined;
+      const normalizedSelectedOption =
+        Array.isArray(answerDto.selectedOption) && answerDto.selectedOption.length > 0
+          ? answerDto.selectedOption
+          : undefined;
+
+      if (!normalizedAnswerText && !normalizedSelectedOption) {
+        continue;
+      }
+
+      const existing = await this.answerRepo.findOne({
+        where: {
+          attemptId,
+          questionId: answerDto.questionId,
+        },
+      });
+
+      if (existing) {
+        await this.answerRepo.update(existing.id, {
+          answerText: normalizedAnswerText,
+          selectedOption: normalizedSelectedOption,
+          answeredAt: new Date(),
+        });
+      } else {
+        const answerData: Partial<QuizAnswer> = {
+          attemptId,
+          questionId: answerDto.questionId,
+          answerText: normalizedAnswerText,
+          selectedOption: normalizedSelectedOption,
+          answeredAt: new Date(),
+        };
+        const answer = this.answerRepo.create(answerData);
+        await this.answerRepo.save(answer);
+      }
+    }
+
+    return this.getAttemptWithQuestions(attemptId);
+  }
+
   async submitAttempt(attemptId: number, userId: number, dto: SubmitQuizDto): Promise<AttemptResultDto> {
     const attempt = await this.attemptRepo.findOne({
       where: { id: attemptId, userId },
@@ -350,19 +424,46 @@ export class QuizzesService {
       }
     }
 
-    // Save answers
+    // Save answers (upsert to avoid duplicates when progress was auto-saved earlier)
     for (const answerDto of dto.answers) {
-      const question = attempt.quiz.questions.find((q) => q.id === answerDto.questionId);
+      const question = attempt.quiz.questions.find((q) => String(q.id) === String(answerDto.questionId));
       if (!question) continue;
 
-      const answer = this.answerRepo.create({
-        attemptId,
-        questionId: answerDto.questionId,
-        answerText: answerDto.answerText,
-        selectedOption: answerDto.selectedOption,
+      const existing = await this.answerRepo.findOne({
+        where: {
+          attemptId,
+          questionId: answerDto.questionId,
+        },
       });
 
-      await this.answerRepo.save(answer);
+      const normalizedAnswerText = answerDto.answerText?.trim() || undefined;
+      const normalizedSelectedOption =
+        Array.isArray(answerDto.selectedOption) && answerDto.selectedOption.length > 0
+          ? answerDto.selectedOption
+          : undefined;
+
+      if (!normalizedAnswerText && !normalizedSelectedOption) {
+        continue;
+      }
+
+      if (existing) {
+        await this.answerRepo.update(existing.id, {
+          answerText: normalizedAnswerText,
+          selectedOption: normalizedSelectedOption,
+          answeredAt: new Date(),
+        });
+      } else {
+        const answerData: Partial<QuizAnswer> = {
+          attemptId,
+          questionId: answerDto.questionId,
+          answerText: normalizedAnswerText,
+          selectedOption: normalizedSelectedOption,
+          answeredAt: new Date(),
+        };
+        const answer = this.answerRepo.create(answerData);
+
+        await this.answerRepo.save(answer);
+      }
     }
 
     // Auto-grade MCQ and True/False
@@ -460,6 +561,12 @@ export class QuizzesService {
     // Determine if we should show answers
     const showAnswers = this.shouldShowAnswers(attempt.quiz, attempt);
 
+    const totalQuestions = attempt.quiz.questions?.length || 0;
+    const answeredCount = attempt.answers?.length || 0;
+    const correctCount = attempt.answers?.filter((a) => a.isCorrect === true || String(a.isCorrect) === '1' || String(a.isCorrect) === 'true').length || 0;
+    const wrongCount = attempt.answers?.filter((a) => a.isCorrect === false || String(a.isCorrect) === '0' || String(a.isCorrect) === 'false').length || 0;
+    const skippedCount = Math.max(0, totalQuestions - answeredCount);
+
     const result: AttemptResultDto = {
       attemptId: attempt.id,
       quizId: attempt.quizId,
@@ -475,21 +582,56 @@ export class QuizzesService {
       status: attempt.status,
       startedAt: attempt.startedAt,
       submittedAt: attempt.submittedAt,
+      correctCount,
+      wrongCount,
+      skippedCount,
     };
 
     if (showAnswers) {
-      result.questions = attempt.answers.map((a) => ({
-        questionId: a.questionId,
-        questionText: a.question.questionText,
-        questionType: a.question.questionType,
-        options: a.question.options,
-        studentAnswer: a.answerText || a.selectedOption?.join(', ') || '',
-        correctAnswer: attempt.quiz.showCorrectAnswers ? a.question.correctAnswer : undefined,
-        isCorrect: a.isCorrect,
-        pointsEarned: Number(a.pointsEarned) || 0,
-        maxPoints: Number(a.question.points),
-        explanation: attempt.quiz.showCorrectAnswers ? a.question.explanation : undefined,
-      }));
+      result.questions = attempt.answers.map((a) => {
+        let studentAns = a.answerText || '';
+        if (!studentAns && a.selectedOption?.length) {
+          if (Array.isArray(a.question.options) && a.question.options.length > 0) {
+            studentAns = a.selectedOption
+              .map((optIndex) => {
+                const idx = Number(optIndex);
+                return !isNaN(idx) && a.question.options[idx] ? a.question.options[idx] : String(optIndex);
+              })
+              .join(', ');
+          } else {
+            studentAns = a.selectedOption.join(', ');
+          }
+        }
+
+        let correctAns = attempt.quiz.showCorrectAnswers ? a.question.correctAnswer : undefined;
+        if (correctAns && Array.isArray(a.question.options) && a.question.options.length > 0) {
+          try {
+            const parsed = JSON.parse(correctAns);
+            if (Array.isArray(parsed)) {
+              correctAns = parsed.map(idx => a.question.options[Number(idx)] || String(idx)).join(', ');
+            } else {
+              const idx = Number(parsed);
+              correctAns = !isNaN(idx) && a.question.options[idx] ? a.question.options[idx] : correctAns;
+            }
+          } catch {
+            const idx = Number(correctAns);
+            correctAns = !isNaN(idx) && a.question.options[idx] ? a.question.options[idx] : correctAns;
+          }
+        }
+
+        return {
+          questionId: a.questionId,
+          questionText: a.question.questionText,
+          questionType: a.question.questionType,
+          options: a.question.options,
+          studentAnswer: studentAns,
+          correctAnswer: correctAns,
+          isCorrect: a.isCorrect === true || String(a.isCorrect) === '1' || String(a.isCorrect) === 'true',
+          pointsEarned: Number(a.pointsEarned) || 0,
+          maxPoints: Number(a.question.points),
+          explanation: attempt.quiz.showCorrectAnswers ? a.question.explanation : undefined,
+        };
+      });
     }
 
     return result;
@@ -646,7 +788,30 @@ export class QuizzesService {
       .take(limit)
       .getManyAndCount();
 
-    return { data, total };
+    const quizIds = Array.from(new Set(data.map((attempt) => Number(attempt.quizId)).filter((id) => !Number.isNaN(id))));
+    const quizMetaById = await this.getQuizMetaByIds(quizIds);
+
+    const enriched = data.map((attempt) => {
+      const meta = quizMetaById.get(Number(attempt.quizId));
+      const scoreObtained = Number(attempt.score) || 0;
+      const totalScore = meta?.maxScore ?? 0;
+      const scorePercentage = totalScore > 0 ? Math.round((scoreObtained / totalScore) * 10000) / 100 : 0;
+
+      return {
+        ...attempt,
+        questionCount: meta?.questionCount ?? 0,
+        maxScore: totalScore,
+        scoreObtained,
+        scorePercentage,
+        totalScore,
+        // Backward-compatible snake_case aliases used by some frontend screens
+        score_obtained: scoreObtained,
+        score_percentage: scorePercentage,
+        total_score: totalScore,
+      };
+    });
+
+    return { data: enriched as QuizAttempt[], total };
   }
 
   async getDifficultyLevels(): Promise<QuizDifficultyLevel[]> {
@@ -658,6 +823,39 @@ export class QuizzesService {
     if (quiz.availableFrom && now < quiz.availableFrom) return false;
     if (quiz.availableUntil && now > quiz.availableUntil) return false;
     return true;
+  }
+
+  private async getQuizMetaByIds(
+    quizIds: number[],
+  ): Promise<Map<number, { questionCount: number; maxScore: number }>> {
+    const result = new Map<number, { questionCount: number; maxScore: number }>();
+
+    if (!quizIds.length) {
+      return result;
+    }
+
+    const rows = await this.questionRepo
+      .createQueryBuilder('q')
+      .select('q.quizId', 'quizId')
+      .addSelect('COUNT(*)', 'questionCount')
+      .addSelect('COALESCE(SUM(q.points), 0)', 'maxScore')
+      .where('q.quizId IN (:...quizIds)', { quizIds })
+      .groupBy('q.quizId')
+      .getRawMany();
+
+    rows.forEach((row: { quizId: string; questionCount: string; maxScore: string }) => {
+      const id = Number(row.quizId);
+      if (Number.isNaN(id)) {
+        return;
+      }
+
+      result.set(id, {
+        questionCount: Number(row.questionCount) || 0,
+        maxScore: Number(row.maxScore) || 0,
+      });
+    });
+
+    return result;
   }
 
   private shuffleArray<T>(array: T[]): T[] {

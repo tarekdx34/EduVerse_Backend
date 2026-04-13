@@ -73,6 +73,15 @@ export class AttemptResultDto {
   @ApiProperty({ description: 'Start time', example: '2026-03-15T10:00:00Z' })
   startedAt: Date;
 
+  @ApiProperty({ description: 'Number of correct answers', example: 8 })
+  correctCount: number;
+
+  @ApiProperty({ description: 'Number of wrong answers', example: 2 })
+  wrongCount: number;
+
+  @ApiProperty({ description: 'Number of skipped questions', example: 0 })
+  skippedCount: number;
+
   @ApiPropertyOptional({ description: 'Submission time' })
   submittedAt?: Date;
 

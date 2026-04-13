@@ -683,6 +683,40 @@ Starts a new quiz attempt for the authenticated student.
     return this.quizzesService.startAttempt(quizId, req.user.userId, dto);
   }
 
+  @Patch(':quizId/attempts/:attemptId/progress')
+  @Roles(RoleName.STUDENT)
+  @ApiOperation({
+    summary: 'Auto-save quiz progress',
+    description: `
+## Save Quiz Progress
+
+Saves in-progress answers without submitting the attempt.
+
+### Access Control
+- **Authentication Required**: ✅ Yes (Bearer Token)
+- **Roles Required**: STUDENT
+
+### Behavior
+- Updates existing answers for the attempt
+- Inserts new answers if they do not exist yet
+- Keeps attempt in \`in_progress\` status
+    `,
+  })
+  @ApiParam({ name: 'quizId', description: 'Quiz ID', type: Number })
+  @ApiParam({ name: 'attemptId', description: 'Attempt ID', type: Number })
+  @ApiBody({ type: SubmitQuizDto })
+  @ApiResponse({ status: 200, description: 'Progress saved', type: QuizAttempt })
+  @ApiResponse({ status: 400, description: 'Attempt is not in progress' })
+  @ApiResponse({ status: 404, description: 'Attempt not found' })
+  async saveAttemptProgress(
+    @Param('quizId', ParseIntPipe) quizId: number,
+    @Param('attemptId', ParseIntPipe) attemptId: number,
+    @Body() dto: SubmitQuizDto,
+    @Req() req: any,
+  ): Promise<QuizAttempt> {
+    return this.quizzesService.saveAttemptProgress(quizId, attemptId, req.user.userId, dto);
+  }
+
   @Post('attempts/:attemptId/submit')
   @Roles(RoleName.STUDENT)
   @ApiOperation({
