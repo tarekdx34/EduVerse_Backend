@@ -254,6 +254,12 @@ export class QuizGradingService {
       ? percentage >= Number(attempt.quiz.passingScore)
       : true;
 
+    const totalQuestions = attempt.quiz.questions?.length || 0;
+    const answeredCount = attempt.answers?.length || 0;
+    const correctCount = attempt.answers?.filter((a) => a.isCorrect === true).length || 0;
+    const wrongCount = attempt.answers?.filter((a) => a.isCorrect === false).length || 0;
+    const skippedCount = Math.max(0, totalQuestions - answeredCount);
+
     return {
       attemptId: attempt.id,
       quizId: attempt.quizId,
@@ -269,6 +275,9 @@ export class QuizGradingService {
       status: attempt.status,
       startedAt: attempt.startedAt,
       submittedAt: attempt.submittedAt,
+      correctCount,
+      wrongCount,
+      skippedCount,
       questions: attempt.answers.map((a) => ({
         questionId: a.questionId,
         questionText: a.question.questionText,
