@@ -237,7 +237,7 @@ export class AssignmentsController {
     );
   }
 
-  @Delete(':assignmentId/instructions/:instructionFileId')
+  @Delete(':assignmentId/instructions/:driveId')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -245,20 +245,20 @@ export class AssignmentsController {
     description: 'Delete an uploaded instruction file from an assignment. Removes the file from Google Drive and the database record.',
   })
   @ApiParam({ name: 'assignmentId', type: Number, description: 'Assignment ID', example: 3 })
-  @ApiParam({ name: 'instructionFileId', type: Number, description: 'Instruction file record ID (PK)', example: 123 })
+  @ApiParam({ name: 'driveId', type: String, description: 'Google Drive file ID (driveId from instructionFiles array)', example: '1IOjnr6y7JRO7hcoMXkpoRIw8txm7WZlV' })
   @ApiResponse({ status: 200, description: 'Instruction file deleted successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid assignment or instruction file ID' })
+  @ApiResponse({ status: 400, description: 'Instruction file not found or invalid driveId' })
   @ApiResponse({ status: 403, description: 'Forbidden — user not authorized' })
   @ApiResponse({ status: 404, description: 'Assignment not found' })
   async deleteInstruction(
     @Param('assignmentId') assignmentId: number,
-    @Param('instructionFileId') instructionFileId: number,
+    @Param('driveId') driveId: string,
     @Request() req,
   ) {
     const userId = req.user.userId || req.user.id;
     return this.assignmentsService.deleteInstructionFile(
       +assignmentId,
-      +instructionFileId,
+      driveId,
       userId,
     );
   }
