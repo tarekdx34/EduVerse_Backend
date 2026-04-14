@@ -578,6 +578,23 @@ export class EnrollmentsService {
     );
   }
 
+  async getSectionStudentsCount(
+    sectionId: number,
+    userId: number,
+    roles: string[],
+  ): Promise<{ count: number }> {
+    await this.assertStaffCanAccessSection(sectionId, userId, roles);
+
+    const count = await this.enrollmentRepository.count({
+      where: {
+        sectionId,
+        status: EnrollmentStatus.ENROLLED,
+      },
+    });
+
+    return { count };
+  }
+
   async getWaitlist(sectionId: number): Promise<EnrollmentResponseDto[]> {
     // Waitlist functionality is currently not implemented
     // In the future, a separate waitlist table should be created
