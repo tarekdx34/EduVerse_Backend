@@ -65,6 +65,7 @@ import { GoogleDriveModule } from './modules/google-drive/google-drive.module';
           migrationsRun: true,
           synchronize: dbConfig.synchronize,
           logging: dbConfig.logging,
+          ssl: dbConfig.ssl,
         };
       },
     }),

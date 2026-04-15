@@ -36,8 +36,12 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 
+# Aiven / cloud DB TLS (local only; never commit real certs)
+ca.pem
+
 .env
 .env.local
+.env.aiven
 .env.*.local
 .env.test.local
 .env.production.local

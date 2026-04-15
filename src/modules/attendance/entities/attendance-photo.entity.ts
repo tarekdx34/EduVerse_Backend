@@ -29,10 +29,10 @@ export class AttendancePhoto {
 
   @Column({
     type: 'bigint',
-    nullable: false,
+    nullable: true,
     name: 'file_id',
   })
-  fileId: number;
+  fileId: number | null;
 
   @Column({
     type: 'bigint',
