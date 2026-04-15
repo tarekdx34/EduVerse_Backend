@@ -8,9 +8,15 @@ import {
   AttendancePhoto,
   AiAttendanceProcessing,
 } from '../entities';
-import { AttendanceStatus, MarkedBy, ProcessingStatus, PhotoType } from '../enums';
+import {
+  AttendanceStatus,
+  MarkedBy,
+  ProcessingStatus,
+  PhotoType,
+} from '../enums';
 import { AiProcessingResultDto } from '../dto';
 import { SessionNotFoundException } from '../exceptions';
+import { StudentFaceReferenceService } from './student-face-reference.service';
 
 @Injectable()
 export class AttendanceAiService {
@@ -26,6 +32,7 @@ export class AttendanceAiService {
     @InjectRepository(AiAttendanceProcessing)
     private readonly processingRepo: Repository<AiAttendanceProcessing>,
     private readonly configService: ConfigService,
+    private readonly studentFaceReferenceService: StudentFaceReferenceService,
   ) {
     this.aiServiceUrl =
       this.configService.get<string>('AI_ATTENDANCE_SERVICE_URL') ||
@@ -34,8 +41,9 @@ export class AttendanceAiService {
 
   async uploadPhotoForProcessing(
     sessionId: number,
-    fileId: number,
+    fileId: number | null,
     uploadedBy: number,
+    photoFile: Express.Multer.File,
   ): Promise<AiProcessingResultDto> {
     const session = await this.sessionRepo.findOne({
       where: { id: sessionId },
@@ -66,11 +74,14 @@ export class AttendanceAiService {
     // In a real implementation, we would send the photo to the AI microservice here
     // For now, we'll simulate the async processing
     // The frontend should poll getProcessingResult() to check status
-    this.startAiProcessing(savedProcessing.id, session.sectionId).catch(
-      (err) => {
-        console.error('AI processing error:', err);
-      },
-    );
+    this.startAiProcessing(
+      savedProcessing.id,
+      session.id,
+      session.sectionId,
+      photoFile,
+    ).catch((err) => {
+      console.error('AI processing error:', err);
+    });
 
     return {
       processingId: savedProcessing.id,
@@ -81,7 +92,9 @@ export class AttendanceAiService {
     };
   }
 
-  async getProcessingResult(processingId: number): Promise<AiProcessingResultDto> {
+  async getProcessingResult(
+    processingId: number,
+  ): Promise<AiProcessingResultDto> {
     const processing = await this.processingRepo.findOne({
       where: { id: processingId },
     });
@@ -105,7 +118,9 @@ export class AttendanceAiService {
 
   private async startAiProcessing(
     processingId: number,
+    sessionId: number,
     sectionId: number,
+    photoFile: Express.Multer.File,
   ): Promise<void> {
     const startTime = Date.now();
 
@@ -115,14 +130,60 @@ export class AttendanceAiService {
         status: ProcessingStatus.PROCESSING,
       });
 
-      // In a real implementation, we would:
-      // 1. Call the AI microservice: POST {aiServiceUrl}/process-photo
-      // 2. Wait for or poll for results
-      // 3. Parse the returned Excel file with recognized student IDs
-      // 4. Mark attendance for matched students
+      // Pull only section-scoped student reference images so AI matching is constrained
+      // to the enrolled students for this section.
+      const sectionReferences =
+        await this.studentFaceReferenceService.getSectionReferencesForAi(
+          sectionId,
+        );
 
-      // For now, simulate processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!sectionReferences.length) {
+        await this.processingRepo.update(processingId, {
+          status: ProcessingStatus.FAILED,
+          errorMessage:
+            'No active student face references found for this section.',
+          processingTimeMs: Date.now() - startTime,
+          completedAt: new Date(),
+        });
+        return;
+      }
+
+      await this.processingRepo.update(processingId, {
+        confidenceScores: JSON.stringify({
+          sectionId,
+          aiServiceUrl: this.aiServiceUrl,
+          referenceCount: sectionReferences.length,
+          // Keep only fields needed by AI runtime lookup/debug.
+          references: sectionReferences.map((ref) => ({
+            userId: ref.userId,
+            referenceId: ref.referenceId,
+            signedUrl: ref.signedUrl,
+          })),
+        }),
+      });
+
+      if (!photoFile?.buffer || !photoFile.mimetype) {
+        throw new BadRequestException(
+          'Class photo is required for AI attendance',
+        );
+      }
+
+      const aiResponse = await this.callSectionAttendanceAi(
+        photoFile,
+        sectionReferences,
+      );
+
+      const recognizedStudentIds = Array.isArray(aiResponse.marked_ids)
+        ? aiResponse.marked_ids
+            .map((id: string) => Number(id))
+            .filter((id: number) => !Number.isNaN(id))
+        : [];
+
+      await this.markAttendanceFromAiResults(
+        sessionId,
+        recognizedStudentIds,
+        processingId,
+      );
 
       // Simulate successful processing (in reality, this would come from AI service)
       const processing = await this.processingRepo.findOne({
@@ -134,9 +195,16 @@ export class AttendanceAiService {
       // Update processing record
       await this.processingRepo.update(processingId, {
         status: ProcessingStatus.COMPLETED,
-        detectedFacesCount: 0, // Would be set by AI service
-        matchedStudentsCount: 0, // Would be set by AI service
-        unmatchedFacesCount: 0, // Would be set by AI service
+        detectedFacesCount: Array.isArray(aiResponse.recognized_faces)
+          ? aiResponse.recognized_faces.length
+          : 0,
+        matchedStudentsCount: recognizedStudentIds.length,
+        unmatchedFacesCount: Math.max(
+          0,
+          (Array.isArray(aiResponse.recognized_faces)
+            ? aiResponse.recognized_faces.length
+            : 0) - recognizedStudentIds.length,
+        ),
         processingTimeMs: Date.now() - startTime,
         completedAt: new Date(),
       });
@@ -145,15 +213,12 @@ export class AttendanceAiService {
       await this.photoRepo.update(processing.photoId, {
         processingStatus: ProcessingStatus.COMPLETED,
       });
-
-      // Note: In a real implementation, we would mark attendance based on AI results
-      // The AI service would return a list of recognized student IDs
-      // We would then call markAttendanceFromAiResults()
-
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       await this.processingRepo.update(processingId, {
         status: ProcessingStatus.FAILED,
-        errorMessage: error.message,
+        errorMessage,
         processingTimeMs: Date.now() - startTime,
         completedAt: new Date(),
       });
@@ -196,5 +261,48 @@ export class AttendanceAiService {
       matchedStudentsCount: matchedCount,
       unmatchedFacesCount: recognizedStudentIds.length - matchedCount,
     });
+  }
+
+  private async callSectionAttendanceAi(
+    photoFile: Express.Multer.File,
+    sectionReferences: Array<{ userId: number; signedUrl: string | null }>,
+  ): Promise<{
+    marked_ids: string[];
+    recognized_faces: Array<Record<string, unknown>>;
+  }> {
+    const endpoint = `${this.aiServiceUrl.replace(/\/$/, '')}/attendance/section`;
+    const refsPayload = sectionReferences
+      .filter((ref) => !!ref.signedUrl)
+      .map((ref) => ({
+        userId: ref.userId,
+        signedUrl: ref.signedUrl,
+      }));
+
+    const formData = new FormData();
+    formData.append(
+      'image',
+      new Blob([new Uint8Array(photoFile.buffer)], {
+        type: photoFile.mimetype,
+      }),
+      photoFile.originalname || 'class-photo.jpg',
+    );
+    formData.append('references_json', JSON.stringify(refsPayload));
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const details = await res.text();
+      throw new Error(
+        `AI attendance service failed (${res.status}): ${details}`,
+      );
+    }
+
+    return (await res.json()) as {
+      marked_ids: string[];
+      recognized_faces: Array<Record<string, unknown>>;
+    };
   }
 }
