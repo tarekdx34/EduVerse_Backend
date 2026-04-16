@@ -131,8 +131,6 @@ export class CoursesService {
       credits: dto.credits,
       level: dto.level,
       syllabusUrl: dto.syllabusUrl || null,
-      instructorId: dto.instructorId || null,
-      taIds: dto.taIds || null,
       status: CourseStatus.ACTIVE,
     });
 

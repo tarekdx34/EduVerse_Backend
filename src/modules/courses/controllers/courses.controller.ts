@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Query,
+  UseGuards,
   HttpStatus,
   HttpCode,
   ParseIntPipe,
@@ -15,6 +16,7 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse,
+  ApiBearerAuth,
   ApiParam,
   ApiQuery,
   ApiBody,
@@ -22,6 +24,10 @@ import {
 import { CoursesService } from '../services/courses.service';
 import { CreateCourseDto, UpdateCourseDto, CreatePrerequisiteDto } from '../dtos';
 import { CourseStatus } from '../enums';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/roles.decorator';
+import { RoleName } from '../../auth/entities/role.entity';
 
 @ApiTags('📖 Courses')
 @Controller('api/courses')
@@ -133,6 +139,9 @@ Retrieves detailed information about a specific course.
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Create new course',
     description: `
@@ -164,6 +173,9 @@ Creates a new course in the catalog.
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Update course',
     description: `
@@ -190,6 +202,9 @@ Updates an existing course's information.
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Delete course',
     description: `
@@ -239,6 +254,9 @@ Returns list of courses that must be completed before enrolling.
 
   @Post(':id/prerequisites')
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Add prerequisite to course',
     description: `
@@ -273,6 +291,9 @@ Adds a prerequisite requirement to a course.
 
   @Delete(':id/prerequisites/:prereqId')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Remove prerequisite from course',
     description: `
