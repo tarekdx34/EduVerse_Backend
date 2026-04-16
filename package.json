@@ -41,7 +41,7 @@
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.1.15",
-    "@supabase/supabase-js": "^2.103.0",
+    "@supabase/supabase-js": "^2.103.2",
     "@types/pdfkit": "^0.17.5",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",

@@ -5,6 +5,7 @@ import {
   Delete,
   Body,
   Param,
+  UseGuards,
   HttpStatus,
   HttpCode,
   ParseIntPipe,
@@ -13,11 +14,16 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse,
+  ApiBearerAuth,
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
 import { CourseSchedulesService } from '../services/course-schedules.service';
 import { CreateScheduleDto } from '../dtos';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/roles.decorator';
+import { RoleName } from '../../auth/entities/role.entity';
 
 @ApiTags('🕐 Course Schedules')
 @Controller('api/schedules')
@@ -54,6 +60,9 @@ export class CourseSchedulesController {
 
   @Post('section/:sectionId')
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Create schedule for section',
     description: `Creates a new schedule entry (day/time slot) for a course section.`,
@@ -72,6 +81,9 @@ export class CourseSchedulesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Delete schedule',
     description: `Deletes a schedule entry by its ID.`,
