@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Query,
+  UseGuards,
   HttpStatus,
   HttpCode,
   ParseIntPipe,
@@ -15,12 +16,17 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse,
+  ApiBearerAuth,
   ApiParam,
   ApiQuery,
   ApiBody,
 } from '@nestjs/swagger';
 import { CourseSectionsService } from '../services/course-sections.service';
 import { CreateSectionDto, UpdateSectionDto } from '../dtos';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/roles.decorator';
+import { RoleName } from '../../auth/entities/role.entity';
 
 @ApiTags('📝 Course Sections')
 @Controller('api/sections')
@@ -85,6 +91,9 @@ Retrieves detailed information about a specific course section.
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Create new section',
     description: `
@@ -113,6 +122,9 @@ Creates a new section for a course.
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Update section',
     description: `
@@ -138,6 +150,9 @@ Updates an existing course section.
   }
 
   @Patch(':id/enrollment')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Update section enrollment count',
     description: `
