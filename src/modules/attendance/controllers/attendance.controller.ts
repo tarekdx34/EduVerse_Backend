@@ -38,6 +38,7 @@ import {
   AttendanceService,
   AttendanceExcelService,
   AttendanceAiService,
+  StudentFaceReferenceService,
 } from '../services';
 import {
   CreateSessionDto,
@@ -65,6 +66,7 @@ export class AttendanceController {
     private readonly attendanceService: AttendanceService,
     private readonly excelService: AttendanceExcelService,
     private readonly aiService: AttendanceAiService,
+    private readonly studentFaceReferenceService: StudentFaceReferenceService,
   ) {}
 
   // ==================== SESSION ENDPOINTS ====================
@@ -809,6 +811,80 @@ Exports complete attendance data for all sessions in a section.
 
   // ==================== AI PHOTO ENDPOINTS ====================
 
+  @Post('face-references/me')
+  @Roles(RoleName.STUDENT)
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiOperation({
+    summary: 'Upload my face reference image',
+    description:
+      'Uploads a student face reference image to Supabase private storage and marks it as the primary image for AI attendance.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Face image (jpeg/png/webp)',
+        },
+      },
+      required: ['image'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Face reference uploaded' })
+  async uploadMyFaceReference(
+    @UploadedFile() image: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    return this.studentFaceReferenceService.uploadMyReference(user.userId, image);
+  }
+
+  @Get('face-references/me')
+  @Roles(RoleName.STUDENT)
+  @ApiOperation({
+    summary: 'List my face reference images',
+    description:
+      'Returns all active face reference images for the current student, including signed URLs.',
+  })
+  @ApiResponse({ status: 200, description: 'List of student face references' })
+  async getMyFaceReferences(@CurrentUser() user: any) {
+    return this.studentFaceReferenceService.listMyReferences(user.userId);
+  }
+
+  @Delete('face-references/me/:referenceId')
+  @Roles(RoleName.STUDENT)
+  @ApiOperation({
+    summary: 'Delete my face reference image',
+    description:
+      'Deletes a student face reference image from Supabase storage and marks it inactive.',
+  })
+  @ApiParam({ name: 'referenceId', description: 'Face reference ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Face reference deleted' })
+  async deleteMyFaceReference(
+    @Param('referenceId', ParseIntPipe) referenceId: number,
+    @CurrentUser() user: any,
+  ) {
+    await this.studentFaceReferenceService.deleteMyReference(user.userId, referenceId);
+    return { success: true };
+  }
+
+  @Get('face-references/section/:sectionId')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  @ApiOperation({
+    summary: 'Get section face references for AI matching',
+    description:
+      'Returns signed URLs for active primary student reference images restricted to enrolled students in the section.',
+  })
+  @ApiParam({ name: 'sectionId', description: 'Section ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Section-scoped face references' })
+  async getSectionFaceReferences(
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+  ) {
+    return this.studentFaceReferenceService.getSectionReferencesForAi(sectionId);
+  }
+
   @Post('ai-photo')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   @UseInterceptors(FileInterceptor('photo'))
@@ -871,9 +947,13 @@ Uploads a classroom photo for AI-based face recognition to automatically mark at
     @Body('sessionId', ParseIntPipe) sessionId: number,
     @CurrentUser() user: any,
   ) {
-    // In real implementation, we would first save the file and get fileId
-    const fileId = 0; // Placeholder - would come from Files module
-    return this.aiService.uploadPhotoForProcessing(sessionId, fileId, user.userId);
+    // When the Files module stores the class photo, pass its id here. Otherwise NULL (no FK to files).
+    return this.aiService.uploadPhotoForProcessing(
+      sessionId,
+      null,
+      user.userId,
+      photo,
+    );
   }
 
   @Get('ai-photo/:processingId')
