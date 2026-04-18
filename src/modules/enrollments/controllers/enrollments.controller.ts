@@ -350,6 +350,33 @@ Retrieves all enrollments across all sections of a course.
   }
 
   /**
+   * GET /api/enrollments/section/:sectionId/students/count
+   * Get enrolled students count for a section (instructor/admin only)
+   */
+  @Get('section/:sectionId/students/count')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  @ApiOperation({
+    summary: 'Get enrolled students count for section',
+    description: 'Returns the actual count of enrolled students (status=ENROLLED) for a section.',
+  })
+  @ApiParam({ name: 'sectionId', description: 'Section ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Student count retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Instructor, TA, or Admin required',
+  })
+  @ApiResponse({ status: 404, description: 'Section not found' })
+  async getSectionStudentsCount(
+    @Request() req,
+    @Param('sectionId', ParseIntPipe) sectionId: number,
+  ): Promise<{ count: number }> {
+    const userId = req.user.userId || req.user.id;
+    const roles = this.extractRoles(req.user);
+    return this.enrollmentsService.getSectionStudentsCount(sectionId, userId, roles);
+  }
+
+  /**
    * GET /api/sections/:sectionId/students
    * Get all enrolled students in a section (instructor/admin only)
    */

@@ -27,7 +27,8 @@
     "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/config/typeorm.config.ts",
     "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d src/config/typeorm.config.ts",
     "quiz:install": "powershell -ExecutionPolicy Bypass -File ./ai-services/quiz-generator/install-windows.ps1",
-    "quiz": "node scripts/run-quiz-generator.cjs"
+    "quiz": "node scripts/run-quiz-generator.cjs",
+    "db:campus-events": "node scripts/run-campus-events-sql.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -42,6 +43,7 @@
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.1.15",
+    "@supabase/supabase-js": "^2.103.2",
     "@types/pdfkit": "^0.17.5",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",

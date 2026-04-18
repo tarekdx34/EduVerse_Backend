@@ -6,11 +6,13 @@ import {
   AttendanceRecord,
   AttendancePhoto,
   AiAttendanceProcessing,
+  StudentFaceReference,
 } from './entities';
 import {
   AttendanceService,
   AttendanceExcelService,
   AttendanceAiService,
+  StudentFaceReferenceService,
 } from './services';
 import { AttendanceController } from './controllers';
 import { CourseSection } from '../courses/entities/course-section.entity';
@@ -26,6 +28,7 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
       AttendanceRecord,
       AttendancePhoto,
       AiAttendanceProcessing,
+      StudentFaceReference,
       CourseSection,
       CourseEnrollment,
       User,
@@ -35,7 +38,12 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
     forwardRef(() => EnrollmentsModule),
   ],
   controllers: [AttendanceController],
-  providers: [AttendanceService, AttendanceExcelService, AttendanceAiService],
+  providers: [
+    AttendanceService,
+    AttendanceExcelService,
+    AttendanceAiService,
+    StudentFaceReferenceService,
+  ],
   exports: [AttendanceService],
 })
 export class AttendanceModule {}

@@ -4,6 +4,8 @@ import os
 import glob
 import numpy as np
 import datetime
+import urllib.request
+import tempfile
 
 # ----------------- USER TUNABLE PARAMETERS -----------------
 HOG_MODEL = "hog"
@@ -52,6 +54,39 @@ def load_known_faces(dataset_folder="dataset"):
                 known_face_names.append(name)
         except Exception as e:
             print(f"Error loading {image_path}: {e}")
+
+    return known_face_encodings, known_face_names
+
+
+def load_known_faces_from_reference_urls(references):
+    known_face_encodings = []
+    known_face_names = []
+
+    for ref in references:
+        user_id = ref.get("userId")
+        signed_url = ref.get("signedUrl")
+        if user_id is None or not signed_url:
+            continue
+
+        try:
+            with urllib.request.urlopen(signed_url, timeout=30) as resp:
+                image_bytes = resp.read()
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+                tmp.write(image_bytes)
+                temp_path = tmp.name
+
+            try:
+                img = face_recognition.load_image_file(temp_path)
+                encs = face_recognition.face_encodings(img)
+                if len(encs) > 0:
+                    known_face_encodings.append(encs[0])
+                    known_face_names.append(str(user_id))
+            finally:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+        except Exception as e:
+            print(f"Error loading reference for user {user_id}: {e}")
 
     return known_face_encodings, known_face_names
 
@@ -210,6 +245,43 @@ def get_attendance_from_image(image_path, save_excel=True):
     marked_ids = sorted(list(set(marked_ids)))
 
     # Save to Excel if requested
+    if save_excel and marked_ids:
+        save_attendance_excel(marked_ids, known_face_names)
+
+    return marked_ids, recognized_faces
+
+
+def get_attendance_from_image_with_references(image_path, references, save_excel=False):
+    """
+    Uses section-scoped face references (signed URLs) instead of local dataset files.
+    references: list[dict] with at least { userId, signedUrl }.
+    """
+    known_face_encodings, known_face_names = load_known_faces_from_reference_urls(references or [])
+    if not known_face_encodings:
+        return [], []
+
+    recognized_faces = process_uploaded_image(
+        image_path,
+        known_face_encodings,
+        known_face_names,
+    )
+
+    marked_ids = []
+    for f in recognized_faces:
+        if f["name"] != "Unknown":
+            top, right, bottom, left = f["location"]
+            face_height = bottom - top
+            min_confidence = (
+                CONFIDENCE_THRESHOLD_SMALL
+                if face_height < SMALL_FACE_HEIGHT_PX
+                else CONFIDENCE_THRESHOLD_CLOSE
+            )
+
+            if f["confidence"] > min_confidence:
+                marked_ids.append(f["name"])
+
+    marked_ids = sorted(list(set(marked_ids)))
+
     if save_excel and marked_ids:
         save_attendance_excel(marked_ids, known_face_names)
 
