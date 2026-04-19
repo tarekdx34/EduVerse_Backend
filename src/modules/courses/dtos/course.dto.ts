@@ -49,6 +49,12 @@ export class CreateCourseDto {
   @IsOptional()
   @IsString()
   syllabusUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Skills gained from this course', example: ['Python', 'Data Analysis'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
 }
 
 export class UpdateCourseDto {
@@ -83,6 +89,12 @@ export class UpdateCourseDto {
   @IsOptional()
   @IsEnum(CourseStatus)
   status?: CourseStatus;
+
+  @ApiPropertyOptional({ description: 'Skills gained from this course', example: ['Python', 'Data Analysis'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
 }
 
 export class CourseDto {
@@ -95,6 +107,7 @@ export class CourseDto {
   level: CourseLevel;
   syllabusUrl: string | null;
   status: CourseStatus;
+  skills: string[] | null;
   createdAt: Date;
   updatedAt: Date;
 }

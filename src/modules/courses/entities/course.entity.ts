@@ -93,6 +93,13 @@ export class Course {
   taIds: number[] | null;
 
   @Column({
+    type: 'json',
+    nullable: true,
+    name: 'skills',
+  })
+  skills: string[] | null;
+
+  @Column({
     type: 'enum',
     enum: CourseStatus,
     default: CourseStatus.ACTIVE,

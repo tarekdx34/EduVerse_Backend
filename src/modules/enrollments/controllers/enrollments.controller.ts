@@ -490,8 +490,7 @@ Manually updates the status of an enrollment.
     @Param('id') enrollmentId: number,
     @Body() body: { status: string },
   ): Promise<EnrollmentResponseDto> {
-    // Implementation for admin to update status
-    return this.enrollmentsService.getEnrollmentById(enrollmentId);
+    return this.enrollmentsService.updateEnrollmentStatus(enrollmentId, body.status as any);
   }
 
   // ─── Admin: Instructor Assignment Endpoints ───────────────────────────────
