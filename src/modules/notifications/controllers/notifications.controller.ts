@@ -86,6 +86,17 @@ export class NotificationsController {
     return this.notificationsService.clearAll(userId);
   }
 
+  @Delete('clear-read')
+  @ApiOperation({
+    summary: 'Clear read notifications',
+    description: 'Delete all read notifications for the current user.',
+  })
+  @ApiResponse({ status: 200, description: 'Read notifications cleared', schema: { example: { affected: 10 } } })
+  async clearRead(@Req() req: any) {
+    const userId = req.user.userId || req.user.id;
+    return this.notificationsService.clearRead(userId);
+  }
+
   @Get('preferences')
   @ApiOperation({
     summary: 'Get notification preferences',

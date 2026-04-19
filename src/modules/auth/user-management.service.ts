@@ -902,6 +902,8 @@ export class UserManagementService {
       profilePictureUrl: user.profilePictureUrl,
       bio: user.bio,
       socialLinks: user.socialLinks,
+      academicInterests: user.academicInterests || [],
+      skills: user.skills || [],
       status: user.status,
       emailVerified: user.emailVerified,
       roles: user.roles?.map((r) => r.roleName) || [],
@@ -926,6 +928,8 @@ export class UserManagementService {
       profilePictureUrl: user.profilePictureUrl,
       bio: user.bio,
       socialLinks: user.socialLinks,
+      academicInterests: user.academicInterests || [],
+      skills: user.skills || [],
       roles: user.roles?.map((r) => r.roleName) || [],
     };
   }
@@ -941,6 +945,8 @@ export class UserManagementService {
       user.profilePictureUrl = dto.profilePictureUrl;
     if (dto.bio !== undefined) user.bio = dto.bio;
     if (dto.socialLinks !== undefined) user.socialLinks = dto.socialLinks;
+    if (dto.academicInterests !== undefined) user.academicInterests = dto.academicInterests;
+    if (dto.skills !== undefined) user.skills = dto.skills;
 
     await this.userRepository.save(user);
     return this.getProfile(userId);

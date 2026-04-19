@@ -55,6 +55,12 @@ export class User {
   @Column({ name: 'social_links', type: 'json', nullable: true })
   socialLinks?: Record<string, string>;
 
+  @Column({ name: 'academic_interests', type: 'json', nullable: true })
+  academicInterests?: string[];
+
+  @Column({ name: 'skills', type: 'json', nullable: true })
+  skills?: string[];
+
   @Column({ name: 'campus_id', nullable: true })
   campusId?: number;
 

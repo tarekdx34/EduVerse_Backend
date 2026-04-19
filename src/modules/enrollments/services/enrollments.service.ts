@@ -619,6 +619,47 @@ export class EnrollmentsService {
     );
   }
 
+  async updateEnrollmentStatus(
+    enrollmentId: number,
+    status: EnrollmentStatus,
+  ): Promise<EnrollmentResponseDto> {
+    const enrollment = await this.enrollmentRepository.findOne({
+      where: { id: enrollmentId },
+      relations: ['section', 'section.course', 'section.semester', 'user'],
+    });
+
+    if (!enrollment) throw new EnrollmentNotFoundException();
+
+    enrollment.status = status;
+    
+    if (status === EnrollmentStatus.COMPLETED) {
+      enrollment.completedAt = new Date();
+      
+      const gradeInfo = this.parseGrade(enrollment.grade);
+      
+      if (gradeInfo.isPassing && enrollment.user) {
+        const courseSkills = enrollment.section.course.skills || [];
+        if (courseSkills.length > 0) {
+          const userSkills = new Set(enrollment.user.skills || []);
+          courseSkills.forEach(skill => userSkills.add(skill));
+          enrollment.user.skills = Array.from(userSkills);
+          
+          await this.userRepository.save(enrollment.user);
+          this.logger.log(`Added skills [${courseSkills.join(', ')}] to user ${enrollment.userId} upon passing course ${enrollment.section.course.code}`);
+        }
+      }
+    }
+
+    const updated = await this.enrollmentRepository.save(enrollment);
+
+    return this.buildEnrollmentResponse(
+      updated,
+      updated.section.course,
+      updated.section,
+      updated.section.semester,
+    );
+  }
+
   // Private helper methods
 
   private async validatePrerequisites(
@@ -817,6 +858,14 @@ export class EnrollmentsService {
     return {
       id: enrollment.id,
       userId: enrollment.userId,
+      user: enrollment.user ? {
+        userId: enrollment.user.userId,
+        firstName: enrollment.user.firstName,
+        lastName: enrollment.user.lastName,
+        fullName: `${enrollment.user.firstName} ${enrollment.user.lastName}`,
+        email: enrollment.user.email,
+        profilePictureUrl: enrollment.user.profilePictureUrl,
+      } : undefined,
       sectionId: enrollment.sectionId,
       status: enrollment.status,
       grade: enrollment.grade,

@@ -131,6 +131,7 @@ export class CoursesService {
       credits: dto.credits,
       level: dto.level,
       syllabusUrl: dto.syllabusUrl || null,
+      skills: dto.skills || [],
       status: CourseStatus.ACTIVE,
     });
 
@@ -144,6 +145,9 @@ export class CoursesService {
     const course = await this.findById(id);
 
     Object.assign(course, dto);
+    if (dto.skills !== undefined) {
+      course.skills = dto.skills;
+    }
     await this.courseRepository.save(course);
     this.logger.log(`Course updated: ${id}`);
 

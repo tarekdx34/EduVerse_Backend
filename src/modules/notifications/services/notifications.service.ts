@@ -82,6 +82,11 @@ export class NotificationsService {
     return { affected: result.affected || 0 };
   }
 
+  async clearRead(userId: number): Promise<{ affected: number }> {
+    const result = await this.notificationRepository.delete({ userId, isRead: true as any });
+    return { affected: result.affected || 0 };
+  }
+
   // ============ PREFERENCES ============
 
   async getPreferences(userId: number): Promise<NotificationPreference> {

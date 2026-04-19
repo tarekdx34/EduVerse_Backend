@@ -27,6 +27,16 @@ export class UserUpdateDto {
   @IsNumber()
   @IsOptional()
   campusId?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  academicInterests?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
 }
 
 export class UserStatusUpdateDto {
@@ -167,6 +177,16 @@ export class UpdateProfileDto {
 
   @IsOptional()
   socialLinks?: Record<string, string>;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  academicInterests?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
 }
 
 export class UpdateUserPreferencesDto {

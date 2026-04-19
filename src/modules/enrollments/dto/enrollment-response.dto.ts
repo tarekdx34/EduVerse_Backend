@@ -45,6 +45,15 @@ export class EnrollmentResponseDto {
     email: string;
   };
 
+  user?: {
+    userId: number;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    email: string;
+    profilePictureUrl?: string;
+  };
+
   prerequisites?: {
     id: number;
     courseId: number;
