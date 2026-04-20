@@ -28,7 +28,7 @@ type FaceReferenceResponse = {
 export class StudentFaceReferenceService {
   private readonly supabase: SupabaseClient;
   private readonly bucketName: string;
-  private readonly maxFileSize = 5 * 1024 * 1024;
+  private readonly maxFileSize = 15 * 1024 * 1024;
   private readonly allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
   constructor(
@@ -205,8 +205,9 @@ export class StudentFaceReferenceService {
     }
 
     if (file.size <= 0 || file.size > this.maxFileSize) {
+      const maxMb = this.maxFileSize / (1024 * 1024);
       throw new BadRequestException(
-        `Invalid file size. Maximum allowed size is ${this.maxFileSize} bytes`,
+        `Invalid file size. Maximum allowed size is ${maxMb} MB`,
       );
     }
   }
