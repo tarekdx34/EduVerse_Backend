@@ -21,6 +21,7 @@ import { User } from '../../auth/entities/user.entity';
 import { Semester } from '../../campus/entities/semester.entity';
 import { SectionStatus } from '../../courses/enums';
 import { EnrollmentStatus, DropReason } from '../enums';
+import { StudentProgress } from '../../analytics/entities/student-progress.entity';
 import {
   EnrollmentNotFoundException,
   AlreadyEnrolledException,
@@ -94,6 +95,8 @@ export class EnrollmentsService {
     private userRepository: Repository<User>,
     @InjectRepository(Semester)
     private semesterRepository: Repository<Semester>,
+    @InjectRepository(StudentProgress)
+    private studentProgressRepository: Repository<StudentProgress>,
   ) {}
 
   async getEnrollmentPeriods(): Promise<any[]> {
@@ -855,6 +858,15 @@ export class EnrollmentsService {
       }),
     );
 
+    const progress = await this.studentProgressRepository.findOne({
+      where: {
+        userId: enrollment.userId,
+        courseId: course.id,
+        enrollmentId: enrollment.id,
+      },
+      order: { updatedAt: 'DESC' },
+    });
+
     return {
       id: enrollment.id,
       userId: enrollment.userId,
@@ -875,6 +887,11 @@ export class EnrollmentsService {
       completedAt: enrollment.completedAt,
       canDrop,
       dropDeadline,
+      materialsViewed: progress?.materialsViewed ?? 0,
+      totalMaterials: progress?.totalMaterials ?? 0,
+      progressPercentage: progress
+        ? Number(progress.completionPercentage)
+        : 0,
       course: {
         id: course.id,
         name: course.name,

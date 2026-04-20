@@ -15,6 +15,7 @@ import { User } from '../auth/entities/user.entity';
 import { Semester } from '../campus/entities/semester.entity';
 import { Program } from '../campus/entities/program.entity';
 import { CoursesModule } from '../courses/courses.module';
+import { StudentProgress } from '../analytics/entities/student-progress.entity';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CoursesModule } from '../courses/courses.module';
       User,
       Semester,
       Program,
+      StudentProgress,
     ]),
     forwardRef(() => CoursesModule),
   ],
