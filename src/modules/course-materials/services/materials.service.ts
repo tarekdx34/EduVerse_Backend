@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, In, DataSource } from 'typeorm';
-import { CourseMaterial } from '../entities';
+import { CourseMaterial, StudentMaterialView } from '../entities';
 import { File } from '../../files/entities/file.entity';
 import {
   CreateMaterialDto,
@@ -20,6 +20,9 @@ import { YoutubeService } from '../../youtube/youtube.service';
 import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
 import { DriveFolderType } from '../../google-drive/entities/drive-folder.entity';
 import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
+import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
+import { EnrollmentStatus } from '../../enrollments/enums';
+import { StudentProgress } from '../../analytics/entities/student-progress.entity';
 
 @Injectable()
 export class MaterialsService {
@@ -28,8 +31,14 @@ export class MaterialsService {
   constructor(
     @InjectRepository(CourseMaterial)
     private readonly materialRepo: Repository<CourseMaterial>,
+    @InjectRepository(StudentMaterialView)
+    private readonly studentMaterialViewRepo: Repository<StudentMaterialView>,
     @InjectRepository(File)
     private readonly fileRepo: Repository<File>,
+    @InjectRepository(CourseEnrollment)
+    private readonly enrollmentRepo: Repository<CourseEnrollment>,
+    @InjectRepository(StudentProgress)
+    private readonly studentProgressRepo: Repository<StudentProgress>,
     private readonly youtubeService: YoutubeService,
     private readonly dataSource: DataSource,
     private readonly driveFolderService: DriveFolderService,
@@ -358,10 +367,95 @@ export class MaterialsService {
     // Increment view count
     await this.materialRepo.increment({ materialId: id }, 'viewCount', 1);
 
+    const existingStudentView = await this.studentMaterialViewRepo.findOne({
+      where: {
+        userId,
+        materialId: id,
+      },
+    });
+
+    if (existingStudentView) {
+      existingStudentView.viewsCount += 1;
+      await this.studentMaterialViewRepo.save(existingStudentView);
+    } else {
+      await this.studentMaterialViewRepo.save(
+        this.studentMaterialViewRepo.create({
+          userId,
+          courseId: material.courseId,
+          materialId: id,
+          viewsCount: 1,
+        }),
+      );
+    }
+
+    const [totalPublishedMaterials, viewedPublishedMaterials] = await Promise.all([
+      this.materialRepo.count({
+        where: {
+          courseId: material.courseId,
+          isPublished: true,
+        },
+      }),
+      this.studentMaterialViewRepo
+        .createQueryBuilder('smv')
+        .innerJoin(CourseMaterial, 'm', 'm.material_id = smv.material_id')
+        .where('smv.user_id = :userId', { userId })
+        .andWhere('smv.course_id = :courseId', { courseId: material.courseId })
+        .andWhere('m.is_published = 1')
+        .getCount(),
+    ]);
+
+    const completionPercentage =
+      totalPublishedMaterials > 0
+        ? Number(
+            ((viewedPublishedMaterials / totalPublishedMaterials) * 100).toFixed(2),
+          )
+        : 0;
+
+    const activeEnrollment = await this.enrollmentRepo
+      .createQueryBuilder('enrollment')
+      .innerJoin('enrollment.section', 'section')
+      .where('enrollment.userId = :userId', { userId })
+      .andWhere('section.courseId = :courseId', { courseId: material.courseId })
+      .andWhere('enrollment.status IN (:...statuses)', {
+        statuses: [EnrollmentStatus.ENROLLED, EnrollmentStatus.COMPLETED],
+      })
+      .orderBy('enrollment.enrollmentDate', 'DESC')
+      .getOne();
+
+    if (activeEnrollment) {
+      let progress = await this.studentProgressRepo.findOne({
+        where: {
+          userId,
+          courseId: material.courseId,
+          enrollmentId: activeEnrollment.id,
+        },
+      });
+
+      if (!progress) {
+        progress = this.studentProgressRepo.create({
+          userId,
+          courseId: material.courseId,
+          enrollmentId: activeEnrollment.id,
+        });
+      }
+
+      progress.materialsViewed = viewedPublishedMaterials;
+      progress.totalMaterials = totalPublishedMaterials;
+      progress.completionPercentage = completionPercentage;
+      progress.lastActivityAt = new Date();
+
+      await this.studentProgressRepo.save(progress);
+    }
+
     return {
       message: 'View tracked successfully',
       materialId: id,
       viewCount: material.viewCount + 1,
+      progress: {
+        materialsViewed: viewedPublishedMaterials,
+        totalMaterials: totalPublishedMaterials,
+        completionPercentage,
+      },
     };
   }
 

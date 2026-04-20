@@ -2,8 +2,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Entities
-import { CourseMaterial, LectureSectionLab } from './entities';
+import {
+  CourseMaterial,
+  LectureSectionLab,
+  StudentMaterialView,
+} from './entities';
 import { File } from '../files/entities/file.entity';
+import { CourseEnrollment } from '../enrollments/entities/course-enrollment.entity';
+import { StudentProgress } from '../analytics/entities/student-progress.entity';
 
 // Controllers
 import { MaterialsController, CourseStructureController } from './controllers';
@@ -22,7 +28,10 @@ import { GoogleDriveModule } from '../google-drive/google-drive.module';
     TypeOrmModule.forFeature([
       CourseMaterial,
       LectureSectionLab,
+      StudentMaterialView,
       File,
+      CourseEnrollment,
+      StudentProgress,
     ]),
     YoutubeModule,
     GoogleDriveModule,

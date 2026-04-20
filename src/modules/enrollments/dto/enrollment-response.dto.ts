@@ -12,6 +12,9 @@ export class EnrollmentResponseDto {
   completedAt: Date | null;
   canDrop: boolean;
   dropDeadline: Date | null;
+  materialsViewed?: number;
+  totalMaterials?: number;
+  progressPercentage?: number;
 
   // Related data
   course?: {
