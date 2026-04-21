@@ -179,4 +179,17 @@ export class DiscussionsController {
     const userId = req.user.userId || req.user.id;
     return this.discussionsService.endorseReply(replyId, userId);
   }
+
+  @Post('replies/:replyId/upvote')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Toggle upvote on reply',
+    description: 'Add or remove an upvote on a discussion reply.',
+  })
+  @ApiParam({ name: 'replyId', description: 'Reply message ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Upvote toggled' })
+  async toggleMessageUpvote(@Param('replyId', ParseIntPipe) replyId: number, @Req() req: any) {
+    const userId = req.user.userId || req.user.id;
+    return this.discussionsService.toggleMessageUpvote(replyId, userId);
+  }
 }

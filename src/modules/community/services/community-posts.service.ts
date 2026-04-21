@@ -10,6 +10,7 @@ import { CommunityPost } from '../entities/community-post.entity';
 import { CommunityComment } from '../entities/community-comment.entity';
 import { CommunityReaction } from '../entities/community-reaction.entity';
 import { CommunityTag } from '../entities/community-tag.entity';
+import { CommunityPostView } from '../entities/community-post-view.entity';
 import {
   CreatePostDto,
   UpdatePostDto,
@@ -32,6 +33,8 @@ export class CommunityPostsService {
     private reactionRepository: Repository<CommunityReaction>,
     @InjectRepository(CommunityTag)
     private tagRepository: Repository<CommunityTag>,
+    @InjectRepository(CommunityPostView)
+    private postViewRepository: Repository<CommunityPostView>,
   ) {}
 
   /**
@@ -89,7 +92,7 @@ export class CommunityPostsService {
   /**
    * Get a single post with comments
    */
-  async findOne(id: number, page = 1, limit = 50): Promise<any> {
+  async findOne(id: number, userId?: number, page = 1, limit = 50): Promise<any> {
     const post = await this.postRepository.findOne({
       where: { id },
       relations: ['author', 'community', 'tags'],
@@ -99,9 +102,15 @@ export class CommunityPostsService {
       throw new PostNotFoundException(id);
     }
 
-    // Increment view count
-    await this.postRepository.increment({ id }, 'viewCount', 1);
-    post.viewCount++;
+    // Increment view count logically
+    if (userId) {
+      const existingView = await this.postViewRepository.findOne({ where: { postId: id, userId } });
+      if (!existingView) {
+        await this.postViewRepository.save(this.postViewRepository.create({ postId: id, userId }));
+        await this.postRepository.increment({ id }, 'viewCount', 1);
+        post.viewCount++;
+      }
+    }
 
     // Get comments (paginated)
     const [comments, commentTotal] = await this.commentRepository.findAndCount({

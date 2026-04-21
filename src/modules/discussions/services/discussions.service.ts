@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { CourseChatThread } from '../entities/course-chat-thread.entity';
 import { ChatMessage } from '../entities/chat-message.entity';
 import { CreateThreadDto, UpdateThreadDto, CreateReplyDto, ThreadQueryDto } from '../dto';
+import { CourseChatThreadView } from '../entities/course-chat-thread-view.entity';
+import { ChatMessageUpvote } from '../entities/chat-message-upvote.entity';
 
 @Injectable()
 export class DiscussionsService {
@@ -14,6 +16,10 @@ export class DiscussionsService {
     private threadRepository: Repository<CourseChatThread>,
     @InjectRepository(ChatMessage)
     private messageRepository: Repository<ChatMessage>,
+    @InjectRepository(CourseChatThreadView)
+    private threadViewRepository: Repository<CourseChatThreadView>,
+    @InjectRepository(ChatMessageUpvote)
+    private messageUpvoteRepository: Repository<ChatMessageUpvote>,
   ) {}
 
   // ============ ENROLLMENT CHECK ============
@@ -51,7 +57,9 @@ export class DiscussionsService {
       await this.validateCourseAccess(courseId, userId, roles);
     }
 
-    const qb = this.threadRepository.createQueryBuilder('t');
+    const qb = this.threadRepository.createQueryBuilder('t')
+      .leftJoinAndSelect('t.course', 'course')
+      .leftJoinAndSelect('t.creator', 'creator');
 
     if (courseId) qb.andWhere('t.courseId = :courseId', { courseId });
 
@@ -75,13 +83,18 @@ export class DiscussionsService {
     const thread = await this.findById(id);
     await this.validateCourseAccess(thread.courseId, userId, roles);
 
-    // Increment view count
-    await this.threadRepository.increment({ id }, 'viewCount', 1);
-    thread.viewCount++;
+    // Increment view count logically
+    const existingView = await this.threadViewRepository.findOne({ where: { threadId: id, userId } });
+    if (!existingView) {
+      await this.threadViewRepository.save(this.threadViewRepository.create({ threadId: id, userId }));
+      await this.threadRepository.increment({ id }, 'viewCount', 1);
+      thread.viewCount++;
+    }
 
     // Get replies (paginated, answers first)
     const qb = this.messageRepository
       .createQueryBuilder('m')
+      .leftJoinAndSelect('m.user', 'user')
       .where('m.threadId = :threadId', { threadId: id })
       .orderBy('m.isAnswer', 'DESC')
       .addOrderBy('m.createdAt', 'ASC')
@@ -196,5 +209,24 @@ export class DiscussionsService {
     const saved = await this.messageRepository.save(reply);
     this.logger.log(`Reply ${replyId} ${saved.isEndorsed ? 'endorsed' : 'unendorsed'} by user ${endorserId}`);
     return saved;
+  }
+
+  async toggleMessageUpvote(replyId: number, userId: number) {
+    const reply = await this.messageRepository.findOne({ where: { id: replyId } });
+    if (!reply) throw new NotFoundException(`Reply ${replyId} not found`);
+
+    const existingUpvote = await this.messageUpvoteRepository.findOne({ where: { messageId: replyId, userId } });
+
+    if (existingUpvote) {
+      await this.messageUpvoteRepository.remove(existingUpvote);
+      await this.messageRepository.decrement({ id: replyId }, 'upvoteCount', 1);
+      this.logger.log(`Upvote removed from reply ${replyId} by user ${userId}`);
+      return { action: 'removed' };
+    } else {
+      await this.messageUpvoteRepository.save(this.messageUpvoteRepository.create({ messageId: replyId, userId }));
+      await this.messageRepository.increment({ id: replyId }, 'upvoteCount', 1);
+      this.logger.log(`Upvote added to reply ${replyId} by user ${userId}`);
+      return { action: 'added' };
+    }
   }
 }

@@ -3,4 +3,5 @@ export enum ReactionType {
   HELPFUL = 'helpful',
   INSIGHTFUL = 'insightful',
   THANKS = 'thanks',
+  UPVOTE = 'upvote',
 }
