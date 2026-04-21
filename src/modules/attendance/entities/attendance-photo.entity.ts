@@ -6,9 +6,10 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { PhotoType, ProcessingStatus } from '../enums';
-import { AttendanceSession } from './attendance-session.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { AttendanceSession } from './attendance-session.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('attendance_photos')
 @Index(['sessionId'])
@@ -64,15 +65,15 @@ export class AttendancePhoto {
   })
   processingStatus: ProcessingStatus;
 
-  @ManyToOne(() => AttendanceSession, (session) => session.photos, {
+  @ManyToOne('AttendanceSession', 'photos', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'session_id' })
-  session: AttendanceSession;
+  session: Relation<AttendanceSession>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'uploaded_by' })
-  uploader: User;
+  uploader: Relation<User>;
 }

@@ -7,8 +7,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { CommunityPost } from './community-post.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { CommunityPost } from './community-post.entity';
 
 @Entity('community_post_comments')
 export class CommunityComment {
@@ -37,15 +38,15 @@ export class CommunityComment {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne('User', { eager: true })
   @JoinColumn({ name: 'user_id' })
-  author: User;
+  author: Relation<User>;
 
-  @ManyToOne(() => CommunityPost, (post) => post.comments, { onDelete: 'CASCADE' })
+  @ManyToOne('CommunityPost', 'comments', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id' })
-  post: CommunityPost;
+  post: Relation<CommunityPost>;
 
-  @ManyToOne(() => CommunityComment, { nullable: true })
+  @ManyToOne('CommunityComment', { nullable: true })
   @JoinColumn({ name: 'parent_comment_id' })
-  parentComment: CommunityComment;
+  parentComment: Relation<CommunityComment>;
 }

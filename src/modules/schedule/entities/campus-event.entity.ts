@@ -9,11 +9,12 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Department } from '../../campus/entities/department.entity';
-import { Campus } from '../../campus/entities/campus.entity';
-import { Program } from '../../campus/entities/program.entity';
-import { CampusEventRegistration } from './campus-event-registration.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Department } from '../../campus/entities/department.entity';
+import type { Campus } from '../../campus/entities/campus.entity';
+import type { Program } from '../../campus/entities/program.entity';
+import type { CampusEventRegistration } from './campus-event-registration.entity';
 
 export enum CampusEventType {
   UNIVERSITY_WIDE = 'university_wide',
@@ -115,9 +116,9 @@ export class CampusEvent {
   })
   organizerId: number;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organizer_id' })
-  organizer: User;
+  organizer: Relation<User>;
 
   @Column({
     name: 'is_mandatory',
@@ -172,12 +173,12 @@ export class CampusEvent {
   })
   updatedAt: Date;
 
-  @OneToMany(() => CampusEventRegistration, (registration) => registration.event)
-  registrations: CampusEventRegistration[];
+  @OneToMany('CampusEventRegistration', 'event')
+  registrations: Relation<CampusEventRegistration>[];
 
   // Virtual relations for scope
   // These are not actual FK in DB but useful for joins
-  department?: Department;
-  campus?: Campus;
-  program?: Program;
+  department?: Relation<Department>;
+  campus?: Relation<Campus>;
+  program?: Relation<Program>;
 }

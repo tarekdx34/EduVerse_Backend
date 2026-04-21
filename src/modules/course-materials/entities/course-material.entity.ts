@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
-import { File } from '../../files/entities/file.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { Course } from '../../courses/entities/course.entity';
+import type { File } from '../../files/entities/file.entity';
+import type { User } from '../../auth/entities/user.entity';
 import { MaterialType } from '../enums';
 
 @Entity('course_materials')
@@ -33,9 +34,9 @@ export class CourseMaterial {
   })
   courseId: number;
 
-  @ManyToOne(() => Course, { onDelete: 'CASCADE' })
+  @ManyToOne('Course', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
   @Column({
     name: 'file_id',
@@ -45,9 +46,9 @@ export class CourseMaterial {
   })
   fileId: number | null;
 
-  @ManyToOne(() => File, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('File', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'file_id' })
-  file: File | null;
+  file: Relation<File> | null;
 
   @Column({
     name: 'drive_file_id',
@@ -131,9 +132,9 @@ export class CourseMaterial {
   })
   uploadedBy: number;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'uploaded_by' })
-  uploader: User;
+  uploader: Relation<User>;
 
   @Column({
     name: 'is_published',

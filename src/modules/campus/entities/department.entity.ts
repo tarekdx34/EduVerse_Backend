@@ -9,10 +9,11 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Status } from '../enums/status.enum';
-import { Campus } from './campus.entity';
-import { Program } from './program.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Campus } from './campus.entity';
+import type { Program } from './program.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('departments')
 @Index(['campusId', 'code'], { unique: true })
@@ -69,16 +70,16 @@ export class Department {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => Campus, (campus) => campus.departments, {
+  @ManyToOne('Campus', 'departments', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'campus_id' })
-  campus: Campus;
+  campus: Relation<Campus>;
 
-  @OneToMany(() => Program, (program) => program.department)
-  programs: Program[];
+  @OneToMany('Program', 'department')
+  programs: Relation<Program>[];
 
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne('User', { nullable: true })
   @JoinColumn({ name: 'head_of_department_id' })
-  head: User;
+  head: Relation<User>;
 }

@@ -5,7 +5,8 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { User } from './user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from './user.entity';
 import { Permission } from './permission.entity';
 
 export enum RoleName {
@@ -34,8 +35,8 @@ export class Role {
   roleDescription?: string;
 
   // Relationships
-  @ManyToMany(() => User, (user) => user.roles)
-  users: User[];
+  @ManyToMany('User', 'roles')
+  users: Relation<User>[];
 
   @ManyToMany(() => Permission, (permission) => permission.roles)
   @JoinTable({

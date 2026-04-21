@@ -6,8 +6,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Lab } from './lab.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { Lab } from './lab.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('lab_attendance')
 export class LabAttendance {
@@ -35,15 +36,15 @@ export class LabAttendance {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne(() => Lab, (lab) => lab.attendanceRecords)
+  @ManyToOne('Lab', 'attendanceRecords')
   @JoinColumn({ name: 'lab_id' })
-  lab: Lab;
+  lab: Relation<Lab>;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('User', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'marked_by' })
-  marker: User;
+  marker: Relation<User>;
 }

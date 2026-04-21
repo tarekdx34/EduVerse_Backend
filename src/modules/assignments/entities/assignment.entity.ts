@@ -9,10 +9,11 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { SubmissionType, AssignmentStatus } from '../enums';
-import { Course } from '../../courses/entities/course.entity';
-import { User } from '../../auth/entities/user.entity';
-import { AssignmentSubmission } from './assignment-submission.entity';
+import type { Course } from '../../courses/entities/course.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { AssignmentSubmission } from './assignment-submission.entity';
 
 @Entity('assignments')
 @Index(['courseId'])
@@ -150,18 +151,18 @@ export class Assignment {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Course, {
+  @ManyToOne('Course', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'created_by' })
-  creator: User;
+  creator: Relation<User>;
 
-  @OneToMany(() => AssignmentSubmission, (submission) => submission.assignment)
-  submissions: AssignmentSubmission[];
+  @OneToMany('AssignmentSubmission', 'assignment')
+  submissions: Relation<AssignmentSubmission>[];
 }

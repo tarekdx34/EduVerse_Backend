@@ -60,7 +60,7 @@ import { GoogleDriveModule } from './modules/google-drive/google-drive.module';
           username: dbConfig.username,
           password: dbConfig.password,
           database: dbConfig.database,
-          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          autoLoadEntities: true,
           migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
           migrationsRun: true,
           synchronize: dbConfig.synchronize,

@@ -8,12 +8,13 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { GradeType } from '../enums';
-import { User } from '../../auth/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
-import { Assignment } from '../../assignments/entities/assignment.entity';
-import { Quiz } from '../../quizzes/entities/quiz.entity';
-import { Lab } from '../../labs/entities/lab.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { Course } from '../../courses/entities/course.entity';
+import type { Assignment } from '../../assignments/entities/assignment.entity';
+import type { Quiz } from '../../quizzes/entities/quiz.entity';
+import type { Lab } from '../../labs/entities/lab.entity';
 
 @Entity('grades')
 @Index(['userId', 'courseId'])
@@ -142,41 +143,41 @@ export class Grade {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => Course, {
+  @ManyToOne('Course', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => Assignment, {
+  @ManyToOne('Assignment', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'assignment_id' })
-  assignment: Assignment;
+  assignment: Relation<Assignment>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'graded_by' })
-  grader: User;
+  grader: Relation<User>;
 
-  @ManyToOne(() => Quiz, {
+  @ManyToOne('Quiz', {
     onDelete: 'SET NULL',
     nullable: true,
   })
   @JoinColumn({ name: 'quiz_id' })
-  quiz: Quiz;
+  quiz: Relation<Quiz>;
 
-  @ManyToOne(() => Lab, {
+  @ManyToOne('Lab', {
     onDelete: 'SET NULL',
     nullable: true,
   })
   @JoinColumn({ name: 'lab_id' })
-  lab: Lab;
+  lab: Relation<Lab>;
 }

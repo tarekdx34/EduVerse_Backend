@@ -9,11 +9,12 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { Course } from '../../courses/entities/course.entity';
+import type { User } from '../../auth/entities/user.entity';
 import { QuizType, QuizStatus, ShowAnswersAfter } from '../enums';
-import { QuizQuestion } from './quiz-question.entity';
-import { QuizAttempt } from './quiz-attempt.entity';
+import type { QuizQuestion } from './quiz-question.entity';
+import type { QuizAttempt } from './quiz-attempt.entity';
 
 @Entity('quizzes')
 export class Quiz {
@@ -93,17 +94,17 @@ export class Quiz {
   deletedAt: Date;
 
   // Relations
-  @ManyToOne(() => Course, { onDelete: 'CASCADE' })
+  @ManyToOne('Course', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'created_by' })
-  creator: User;
+  creator: Relation<User>;
 
-  @OneToMany(() => QuizQuestion, (question) => question.quiz)
-  questions: QuizQuestion[];
+  @OneToMany('QuizQuestion', 'quiz')
+  questions: Relation<QuizQuestion>[];
 
-  @OneToMany(() => QuizAttempt, (attempt) => attempt.quiz)
-  attempts: QuizAttempt[];
+  @OneToMany('QuizAttempt', 'quiz')
+  attempts: Relation<QuizAttempt>[];
 }

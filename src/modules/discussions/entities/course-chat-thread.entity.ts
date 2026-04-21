@@ -8,8 +8,9 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Course } from '../../courses/entities/course.entity';
 
 @Entity('course_chat_threads')
 export class CourseChatThread {
@@ -47,16 +48,16 @@ export class CourseChatThread {
   updatedAt: Date;
 
   // Relations
-  @OneToMany(() => ChatMessage, (cm) => cm.thread)
-  messages: ChatMessage[];
+  @OneToMany('ChatMessage', 'thread')
+  messages: Relation<ChatMessage>[];
 
-  @ManyToOne(() => Course, { onDelete: 'CASCADE' })
+  @ManyToOne('Course', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'created_by' })
-  creator: User;
+  creator: Relation<User>;
 }
 
-import { ChatMessage } from './chat-message.entity';
+import type { ChatMessage } from './chat-message.entity';

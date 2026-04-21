@@ -9,9 +9,10 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
-import { User } from '../../auth/entities/user.entity';
-import { RubricCriteria } from './rubric-criteria.entity';
+import type { Relation } from 'typeorm';
+import type { Course } from '../../courses/entities/course.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { RubricCriteria } from './rubric-criteria.entity';
 
 @Entity('rubrics')
 @Index(['courseId'])
@@ -77,20 +78,20 @@ export class Rubric {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Course, {
+  @ManyToOne('Course', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'created_by' })
-  creator: User;
+  creator: Relation<User>;
 
-  @OneToMany(() => RubricCriteria, (criteria) => criteria.rubric, {
+  @OneToMany('RubricCriteria', 'rubric', {
     cascade: true,
   })
-  criteriaItems: RubricCriteria[];
+  criteriaItems: Relation<RubricCriteria>[];
 }

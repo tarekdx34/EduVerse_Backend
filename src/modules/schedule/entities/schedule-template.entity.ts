@@ -9,9 +9,10 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Department } from '../../campus/entities/department.entity';
-import { ScheduleTemplateSlot } from './schedule-template-slot.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Department } from '../../campus/entities/department.entity';
+import type { ScheduleTemplateSlot } from './schedule-template-slot.entity';
 
 export enum TemplateScheduleType {
   LECTURE = 'LECTURE',
@@ -55,9 +56,9 @@ export class ScheduleTemplate {
   })
   departmentId: number | null;
 
-  @ManyToOne(() => Department, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('Department', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'department_id' })
-  department: Department | null;
+  department: Relation<Department> | null;
 
   @Column({
     name: 'schedule_type',
@@ -75,9 +76,9 @@ export class ScheduleTemplate {
   })
   createdBy: number;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'created_by' })
-  creator: User;
+  creator: Relation<User>;
 
   @Column({
     name: 'is_active',
@@ -97,6 +98,6 @@ export class ScheduleTemplate {
   })
   updatedAt: Date;
 
-  @OneToMany(() => ScheduleTemplateSlot, (slot) => slot.template, { cascade: true })
-  slots: ScheduleTemplateSlot[];
+  @OneToMany('ScheduleTemplateSlot', 'template', { cascade: true })
+  slots: Relation<ScheduleTemplateSlot>[];
 }

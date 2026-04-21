@@ -6,7 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from './user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from './user.entity';
 
 @Entity('password_resets')
 export class PasswordReset {
@@ -32,7 +33,7 @@ export class PasswordReset {
   createdAt: Date;
 
   // Relationships
-  @ManyToOne(() => User, (user) => user.passwordResets, { onDelete: 'CASCADE' })
+  @ManyToOne('User', 'passwordResets', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

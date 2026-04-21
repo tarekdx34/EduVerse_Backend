@@ -7,8 +7,9 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { File } from './file.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { File } from './file.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('file_versions')
 @Index(['fileId'])
@@ -19,9 +20,9 @@ export class FileVersion {
   @Column({ name: 'file_id', type: 'bigint', nullable: false })
   fileId: number;
 
-  @ManyToOne(() => File, (file) => file.versions, { onDelete: 'CASCADE' })
+  @ManyToOne('File', 'versions', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'file_id' })
-  file: File;
+  file: Relation<File>;
 
   @Column({ name: 'version_number', type: 'int', nullable: false })
   versionNumber: number;
@@ -35,9 +36,9 @@ export class FileVersion {
   @Column({ name: 'uploaded_by', type: 'bigint', nullable: false })
   uploadedBy: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'uploaded_by' })
-  uploader: User;
+  uploader: Relation<User>;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -8,8 +8,9 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Grade } from './grade.entity';
-import { RubricCriteria } from './rubric-criteria.entity';
+import type { Relation } from 'typeorm';
+import type { Grade } from './grade.entity';
+import type { RubricCriteria } from './rubric-criteria.entity';
 
 @Entity('grade_components')
 @Index(['gradeId'])
@@ -69,15 +70,15 @@ export class GradeComponent {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Grade, {
+  @ManyToOne('Grade', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'grade_id' })
-  grade: Grade;
+  grade: Relation<Grade>;
 
-  @ManyToOne(() => RubricCriteria, {
+  @ManyToOne('RubricCriteria', {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'rubric_criteria_id' })
-  rubricCriteria: RubricCriteria;
+  rubricCriteria: Relation<RubricCriteria>;
 }

@@ -9,11 +9,12 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { SessionStatus, SessionType } from '../enums';
-import { CourseSection } from '../../courses/entities/course-section.entity';
-import { User } from '../../auth/entities/user.entity';
-import { AttendanceRecord } from './attendance-record.entity';
-import { AttendancePhoto } from './attendance-photo.entity';
+import type { CourseSection } from '../../courses/entities/course-section.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { AttendanceRecord } from './attendance-record.entity';
+import type { AttendancePhoto } from './attendance-photo.entity';
 
 @Entity('attendance_sessions')
 @Index(['sectionId'])
@@ -124,21 +125,21 @@ export class AttendanceSession {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => CourseSection, {
+  @ManyToOne('CourseSection', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  section: Relation<CourseSection>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'instructor_id' })
-  instructor: User;
+  instructor: Relation<User>;
 
-  @OneToMany(() => AttendanceRecord, (record) => record.session)
-  records: AttendanceRecord[];
+  @OneToMany('AttendanceRecord', 'session')
+  records: Relation<AttendanceRecord>[];
 
-  @OneToMany(() => AttendancePhoto, (photo) => photo.session)
-  photos: AttendancePhoto[];
+  @OneToMany('AttendancePhoto', 'session')
+  photos: Relation<AttendancePhoto>[];
 }

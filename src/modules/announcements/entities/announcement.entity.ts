@@ -7,8 +7,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Course } from '../../courses/entities/course.entity';
 import { AnnouncementType, AnnouncementPriority, TargetAudience } from '../enums';
 
 @Entity('announcements')
@@ -73,11 +74,11 @@ export class Announcement {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne('User', { eager: true })
   @JoinColumn({ name: 'created_by' })
-  author: User;
+  author: Relation<User>;
 
-  @ManyToOne(() => Course, { eager: true, nullable: true })
+  @ManyToOne('Course', { eager: true, nullable: true })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 }

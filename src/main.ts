@@ -65,11 +65,13 @@ async function bootstrap() {
   // Global class serializer interceptor (for @Exclude() decorator support)
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  // Swagger Configuration
-  const config = new DocumentBuilder()
-    .setTitle('EduVerse API')
-    .setDescription(
-      `
+  // Swagger Configuration — skip in dev for faster startup
+  const enableSwagger = process.env.NODE_ENV !== 'development' || process.env.ENABLE_SWAGGER === 'true';
+  if (enableSwagger) {
+    const config = new DocumentBuilder()
+      .setTitle('EduVerse API')
+      .setDescription(
+        `
 ## EduVerse Backend API Documentation
 
 ### Overview
@@ -110,129 +112,132 @@ The API implements role-based access control with the following roles:
 | 404 | Not Found - Resource doesn't exist |
 | 409 | Conflict - Resource already exists |
 | 500 | Internal Server Error |
-    `,
-    )
-    .setVersion('1.0.0')
-    .setContact('EduVerse Team', 'https://eduverse.com', 'support@eduverse.com')
-    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description:
-          'Enter your JWT access token obtained from /api/auth/login',
-        in: 'header',
-      },
-      'JWT-auth',
-    )
-    .addTag(
-      '🔐 Authentication',
-      'User authentication, registration, and session management',
-    )
-    .addTag(
-      '👥 User Management',
-      'Admin endpoints for managing users, roles, and permissions',
-    )
-    .addTag('🏛️ Campus', 'Campus management endpoints')
-    .addTag('🏢 Departments', 'Department management within campuses')
-    .addTag('📚 Programs', 'Academic program management')
-    .addTag('📅 Semesters', 'Semester and academic period management')
-    .addTag('📖 Courses', 'Course catalog and management')
-    .addTag('📝 Course Sections', 'Course section and schedule management')
-    .addTag(
-      '🕐 Course Schedules',
-      'Course schedule (day/time) management per section',
-    )
-    .addTag('✅ Enrollments', 'Student course enrollment and registration')
-    .addTag('📝 Assignments', 'Assignment creation, submission, and grading')
-    .addTag('📊 Grades', 'Grade management, GPA calculation, and transcripts')
-    .addTag('📋 Rubrics', 'Grading rubric management')
-    .addTag('📁 Files', 'File upload, download, and management')
-    .addTag('📂 Folders', 'Folder organization and hierarchy')
-    .addTag('🎬 YouTube', 'YouTube video integration and uploads')
-    .addTag('📋 Attendance', 'Attendance session and record management')
-    .addTag('📝 Quizzes', 'Quiz creation, questions, attempts, and grading')
-    .addTag(
-      'Labs',
-      'Lab assignments, submissions, instructions, and attendance',
-    )
-    .addTag(
-      'Notifications',
-      'User notifications, preferences, and admin broadcast',
-    )
-    .addTag(
-      '💬 Messaging',
-      'WhatsApp-like real-time messaging with conversations, read receipts, and file sharing',
-    )
-    .addTag(
-      '💭 Discussions',
-      'Course discussion forums with threads, replies, pinning, and answer marking',
-    )
-    .addTag(
-      '📢 Announcements',
-      'Course, department, and system-wide announcements with scheduling and targeting',
-    )
-    .addTag(
-      '🌐 Community Posts',
-      'Community forum posts with discussions, questions, and resource sharing',
-    )
-    .addTag('💬 Community Comments', 'Comments and replies on community posts')
-    .addTag(
-      '📁 Forum Categories',
-      'Forum category management for organizing community discussions',
-    )
-    .addTag(
-      '📅 Schedule',
-      'Personal schedule views with daily/weekly aggregation of classes, exams, and events',
-    )
-    .addTag(
-      '📝 Exam Schedules',
-      'Exam scheduling management with conflict detection',
-    )
-    .addTag(
-      '📆 Calendar Events',
-      'Personal and course calendar events management',
-    )
-    .addTag(
-      '🔗 Calendar Integrations',
-      'External calendar sync (Google Calendar, Outlook, iCal)',
-    )
-    .addTag(
-      '📚 Course Materials',
-      'Course material upload, management, and YouTube video integration',
-    )
-    .addTag(
-      '🏗️ Course Structure',
-      'Course content organization by lectures, sections, labs, and weeks',
-    )
-    .build();
+      `,
+      )
+      .setVersion('1.0.0')
+      .setContact('EduVerse Team', 'https://eduverse.com', 'support@eduverse.com')
+      .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description:
+            'Enter your JWT access token obtained from /api/auth/login',
+          in: 'header',
+        },
+        'JWT-auth',
+      )
+      .addTag(
+        '🔐 Authentication',
+        'User authentication, registration, and session management',
+      )
+      .addTag(
+        '👥 User Management',
+        'Admin endpoints for managing users, roles, and permissions',
+      )
+      .addTag('🏛️ Campus', 'Campus management endpoints')
+      .addTag('🏢 Departments', 'Department management within campuses')
+      .addTag('📚 Programs', 'Academic program management')
+      .addTag('📅 Semesters', 'Semester and academic period management')
+      .addTag('📖 Courses', 'Course catalog and management')
+      .addTag('📝 Course Sections', 'Course section and schedule management')
+      .addTag(
+        '🕐 Course Schedules',
+        'Course schedule (day/time) management per section',
+      )
+      .addTag('✅ Enrollments', 'Student course enrollment and registration')
+      .addTag('📝 Assignments', 'Assignment creation, submission, and grading')
+      .addTag('📊 Grades', 'Grade management, GPA calculation, and transcripts')
+      .addTag('📋 Rubrics', 'Grading rubric management')
+      .addTag('📁 Files', 'File upload, download, and management')
+      .addTag('📂 Folders', 'Folder organization and hierarchy')
+      .addTag('🎬 YouTube', 'YouTube video integration and uploads')
+      .addTag('📋 Attendance', 'Attendance session and record management')
+      .addTag('📝 Quizzes', 'Quiz creation, questions, attempts, and grading')
+      .addTag(
+        'Labs',
+        'Lab assignments, submissions, instructions, and attendance',
+      )
+      .addTag(
+        'Notifications',
+        'User notifications, preferences, and admin broadcast',
+      )
+      .addTag(
+        '💬 Messaging',
+        'WhatsApp-like real-time messaging with conversations, read receipts, and file sharing',
+      )
+      .addTag(
+        '💭 Discussions',
+        'Course discussion forums with threads, replies, pinning, and answer marking',
+      )
+      .addTag(
+        '📢 Announcements',
+        'Course, department, and system-wide announcements with scheduling and targeting',
+      )
+      .addTag(
+        '🌐 Community Posts',
+        'Community forum posts with discussions, questions, and resource sharing',
+      )
+      .addTag('💬 Community Comments', 'Comments and replies on community posts')
+      .addTag(
+        '📁 Forum Categories',
+        'Forum category management for organizing community discussions',
+      )
+      .addTag(
+        '📅 Schedule',
+        'Personal schedule views with daily/weekly aggregation of classes, exams, and events',
+      )
+      .addTag(
+        '📝 Exam Schedules',
+        'Exam scheduling management with conflict detection',
+      )
+      .addTag(
+        '📆 Calendar Events',
+        'Personal and course calendar events management',
+      )
+      .addTag(
+        '🔗 Calendar Integrations',
+        'External calendar sync (Google Calendar, Outlook, iCal)',
+      )
+      .addTag(
+        '📚 Course Materials',
+        'Course material upload, management, and YouTube video integration',
+      )
+      .addTag(
+        '🏗️ Course Structure',
+        'Course content organization by lectures, sections, labs, and weeks',
+      )
+      .build();
 
-  const swaggerStartTime = Date.now();
-  const document = SwaggerModule.createDocument(app, config);
-  logger.log(
-    `Swagger documentation generated (+${Date.now() - swaggerStartTime}ms)`,
-  );
-  SwaggerModule.setup('api-docs', app, document, {
-    customSiteTitle: 'EduVerse API Documentation',
-    customfavIcon: 'https://nestjs.com/img/logo-small.svg',
-    customCss: `
-      .swagger-ui .topbar { display: none }
-      .swagger-ui .info .title { color: #3b82f6; }
-      .swagger-ui .scheme-container { background: #f8fafc; padding: 15px; border-radius: 8px; }
-    `,
-    swaggerOptions: {
-      persistAuthorization: true,
-      docExpansion: 'none',
-      filter: true,
-      showRequestDuration: true,
-      syntaxHighlight: {
-        activate: true,
-        theme: 'monokai',
+    const swaggerStartTime = Date.now();
+    const document = SwaggerModule.createDocument(app, config);
+    logger.log(
+      `Swagger documentation generated (+${Date.now() - swaggerStartTime}ms)`,
+    );
+    SwaggerModule.setup('api-docs', app, document, {
+      customSiteTitle: 'EduVerse API Documentation',
+      customfavIcon: 'https://nestjs.com/img/logo-small.svg',
+      customCss: `
+        .swagger-ui .topbar { display: none }
+        .swagger-ui .info .title { color: #3b82f6; }
+        .swagger-ui .scheme-container { background: #f8fafc; padding: 15px; border-radius: 8px; }
+      `,
+      swaggerOptions: {
+        persistAuthorization: true,
+        docExpansion: 'none',
+        filter: true,
+        showRequestDuration: true,
+        syntaxHighlight: {
+          activate: true,
+          theme: 'monokai',
+        },
       },
-    },
-  });
+    });
+  } else {
+    logger.log('Swagger disabled in development (set ENABLE_SWAGGER=true to override)');
+  }
 
   const port = process.env.PORT || 8081;
 

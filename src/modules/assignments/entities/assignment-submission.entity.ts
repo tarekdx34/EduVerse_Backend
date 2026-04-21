@@ -6,10 +6,11 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { SubmissionStatus } from '../enums';
-import { Assignment } from './assignment.entity';
-import { User } from '../../auth/entities/user.entity';
-import { File } from '../../files/entities/file.entity';
+import type { Assignment } from './assignment.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { File } from '../../files/entities/file.entity';
 
 @Entity('assignment_submissions')
 @Index(['assignmentId'])
@@ -118,28 +119,28 @@ export class AssignmentSubmission {
   })
   gradedAt: Date | null;
 
-  @ManyToOne(() => Assignment, (assignment) => assignment.submissions, {
+  @ManyToOne('Assignment', 'submissions', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'assignment_id' })
-  assignment: Assignment;
+  assignment: Relation<Assignment>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => File, {
+  @ManyToOne('File', {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'file_id' })
-  file: File | null;
+  file: Relation<File> | null;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'SET NULL',
     nullable: true,
   })
   @JoinColumn({ name: 'graded_by' })
-  grader: User | null;
+  grader: Relation<User> | null;
 }

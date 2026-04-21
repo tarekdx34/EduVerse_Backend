@@ -7,9 +7,10 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { File } from './file.entity';
-import { User } from '../../auth/entities/user.entity';
-import { Role } from '../../auth/entities/role.entity';
+import type { Relation } from 'typeorm';
+import type { File } from './file.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { Role } from '../../auth/entities/role.entity';
 
 export enum PermissionType {
   READ = 'read',
@@ -29,23 +30,23 @@ export class FilePermission {
   @Column({ name: 'file_id', type: 'bigint', nullable: false })
   fileId: number;
 
-  @ManyToOne(() => File, (file) => file.permissions, { onDelete: 'CASCADE' })
+  @ManyToOne('File', 'permissions', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'file_id' })
-  file: File;
+  file: Relation<File>;
 
   @Column({ name: 'user_id', type: 'bigint', nullable: true })
   userId?: number;
 
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne('User', { nullable: true })
   @JoinColumn({ name: 'user_id' })
-  user?: User;
+  user?: Relation<User>;
 
   @Column({ name: 'role_id', type: 'bigint', nullable: true })
   roleId?: number;
 
-  @ManyToOne(() => Role, { nullable: true })
+  @ManyToOne('Role', { nullable: true })
   @JoinColumn({ name: 'role_id' })
-  role?: Role;
+  role?: Relation<Role>;
 
   @Column({
     name: 'permission_type',
@@ -58,9 +59,9 @@ export class FilePermission {
   @Column({ name: 'granted_by', type: 'bigint', nullable: false })
   grantedBy: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'granted_by' })
-  granter: User;
+  granter: Relation<User>;
 
   @Column({ name: 'granted_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   grantedAt: Date;

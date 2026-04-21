@@ -9,10 +9,11 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Folder } from './folder.entity';
-import { FileVersion } from './file-version.entity';
-import { FilePermission } from './file-permission.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { Folder } from './folder.entity';
+import type { FileVersion } from './file-version.entity';
+import type { FilePermission } from './file-permission.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('files')
 @Index(['folderId'])
@@ -42,16 +43,16 @@ export class File {
   @Column({ name: 'uploaded_by', type: 'bigint', nullable: false })
   uploadedBy: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'uploaded_by' })
-  uploader: User;
+  uploader: Relation<User>;
 
   @Column({ name: 'folder_id', type: 'bigint', nullable: true })
   folderId?: number;
 
-  @ManyToOne(() => Folder, (folder) => folder.files, { nullable: true })
+  @ManyToOne('Folder', 'files', { nullable: true })
   @JoinColumn({ name: 'folder_id' })
-  folder?: Folder;
+  folder?: Relation<Folder>;
 
   @Column({ name: 'checksum', type: 'varchar', length: 64, nullable: true })
   checksum?: string;
@@ -65,11 +66,11 @@ export class File {
   @Column({ name: 'status', type: 'enum', enum: ['active', 'processing', 'archived', 'deleted'], default: 'active' })
   status: string;
 
-  @OneToMany(() => FileVersion, (version) => version.file)
-  versions: FileVersion[];
+  @OneToMany('FileVersion', 'file')
+  versions: Relation<FileVersion>[];
 
-  @OneToMany(() => FilePermission, (permission) => permission.file)
-  permissions: FilePermission[];
+  @OneToMany('FilePermission', 'file')
+  permissions: Relation<FilePermission>[];
 
   @Column({ name: 'uploaded_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   uploadedAt: Date;

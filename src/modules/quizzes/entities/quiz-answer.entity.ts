@@ -6,8 +6,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { QuizAttempt } from './quiz-attempt.entity';
-import { QuizQuestion } from './quiz-question.entity';
+import type { Relation } from 'typeorm';
+import type { QuizAttempt } from './quiz-attempt.entity';
+import type { QuizQuestion } from './quiz-question.entity';
 
 @Entity('quiz_answers')
 export class QuizAnswer {
@@ -36,11 +37,11 @@ export class QuizAnswer {
   answeredAt: Date;
 
   // Relations
-  @ManyToOne(() => QuizAttempt, (attempt) => attempt.answers, { onDelete: 'CASCADE' })
+  @ManyToOne('QuizAttempt', 'answers', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'attempt_id' })
-  attempt: QuizAttempt;
+  attempt: Relation<QuizAttempt>;
 
-  @ManyToOne(() => QuizQuestion, (question) => question.answers, { onDelete: 'CASCADE' })
+  @ManyToOne('QuizQuestion', 'answers', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'question_id' })
-  question: QuizQuestion;
+  question: Relation<QuizQuestion>;
 }

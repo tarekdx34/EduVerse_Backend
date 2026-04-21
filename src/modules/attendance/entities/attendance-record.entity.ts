@@ -7,9 +7,10 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { AttendanceStatus, MarkedBy } from '../enums';
-import { AttendanceSession } from './attendance-session.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { AttendanceSession } from './attendance-session.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('attendance_records')
 @Index(['sessionId'])
@@ -80,15 +81,15 @@ export class AttendanceRecord {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => AttendanceSession, (session) => session.records, {
+  @ManyToOne('AttendanceSession', 'records', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'session_id' })
-  session: AttendanceSession;
+  session: Relation<AttendanceSession>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

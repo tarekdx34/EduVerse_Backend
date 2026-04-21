@@ -6,8 +6,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Status } from '../enums/status.enum';
-import { Department } from './department.entity';
+import type { Department } from './department.entity';
 
 @Entity('campuses')
 export class Campus {
@@ -63,6 +64,6 @@ export class Campus {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => Department, (department) => department.campus)
-  departments: Department[];
+  @OneToMany('Department', 'campus')
+  departments: Relation<Department>[];
 }

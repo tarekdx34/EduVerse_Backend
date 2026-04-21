@@ -6,8 +6,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { StudyGroup } from './study-group.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { StudyGroup } from './study-group.entity';
 
 @Entity('study_group_members')
 export class StudyGroupMember {
@@ -30,11 +31,11 @@ export class StudyGroupMember {
   @CreateDateColumn({ name: 'joined_at' })
   joinedAt: Date;
 
-  @ManyToOne(() => StudyGroup)
+  @ManyToOne('StudyGroup')
   @JoinColumn({ name: 'group_id' })
-  group: StudyGroup;
+  group: Relation<StudyGroup>;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

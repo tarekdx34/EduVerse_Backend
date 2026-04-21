@@ -6,8 +6,9 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { StudentTask } from './student-task.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { StudentTask } from './student-task.entity';
 
 export enum ReminderType {
   EMAIL = 'email',
@@ -53,11 +54,11 @@ export class DeadlineReminder {
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @ManyToOne(() => StudentTask)
+  @ManyToOne('StudentTask')
   @JoinColumn({ name: 'task_id' })
-  task: StudentTask;
+  task: Relation<StudentTask>;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

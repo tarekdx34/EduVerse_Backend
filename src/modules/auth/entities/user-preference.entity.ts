@@ -7,7 +7,8 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from './user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from './user.entity';
 
 @Entity('user_preferences')
 export class UserPreference {
@@ -35,7 +36,7 @@ export class UserPreference {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToOne(() => User)
+  @OneToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }
