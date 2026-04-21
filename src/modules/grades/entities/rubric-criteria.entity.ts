@@ -8,7 +8,8 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Rubric } from './rubric.entity';
+import type { Relation } from 'typeorm';
+import type { Rubric } from './rubric.entity';
 
 @Entity('rubric_criteria')
 @Index(['rubricId'])
@@ -67,9 +68,9 @@ export class RubricCriteria {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Rubric, {
+  @ManyToOne('Rubric', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'rubric_id' })
-  rubric: Rubric;
+  rubric: Relation<Rubric>;
 }

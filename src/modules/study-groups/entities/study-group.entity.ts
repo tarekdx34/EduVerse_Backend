@@ -8,7 +8,8 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('study_groups')
 export class StudyGroup {
@@ -52,7 +53,7 @@ export class StudyGroup {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'created_by' })
-  creator: User;
+  creator: Relation<User>;
 }

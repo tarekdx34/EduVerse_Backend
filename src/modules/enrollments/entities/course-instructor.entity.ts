@@ -9,8 +9,9 @@ import {
   Index,
   Unique,
 } from 'typeorm';
-import { CourseSection } from '../../courses/entities/course-section.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { CourseSection } from '../../courses/entities/course-section.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 export enum InstructorRole {
   PRIMARY = 'primary',
@@ -56,15 +57,15 @@ export class CourseInstructor {
   })
   assignedAt: Date;
 
-  @ManyToOne(() => CourseSection, {
+  @ManyToOne('CourseSection', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  section: Relation<CourseSection>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  instructor: User;
+  instructor: Relation<User>;
 }

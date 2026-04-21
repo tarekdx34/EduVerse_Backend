@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Status } from '../enums/status.enum';
 import { DegreeType } from '../enums/degree-type.enum';
-import { Department } from './department.entity';
+import type { Department } from './department.entity';
 
 @Entity('programs')
 @Index(['departmentId', 'code'], { unique: true })
@@ -75,9 +76,9 @@ export class Program {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => Department, (department) => department.programs, {
+  @ManyToOne('Department', 'programs', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'department_id' })
-  department: Department;
+  department: Relation<Department>;
 }

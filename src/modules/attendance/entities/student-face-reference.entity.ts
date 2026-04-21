@@ -8,7 +8,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('student_face_references')
 @Index(['userId', 'isActive'])
@@ -44,8 +45,8 @@ export class StudentFaceReference {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'userId' })
-  user: User;
+  user: Relation<User>;
 }
 

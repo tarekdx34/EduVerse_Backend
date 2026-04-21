@@ -6,6 +6,7 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 
 @Entity('messages')
 export class Message {
@@ -40,19 +41,19 @@ export class Message {
   editedAt: Date | null;
 
   // Relations
-  @ManyToOne(() => Message, (m) => m.replies, { nullable: true })
+  @ManyToOne('Message', 'replies', { nullable: true })
   @JoinColumn({ name: 'parent_message_id' })
-  parentMessage: Message;
+  parentMessage: Relation<Message>;
 
-  @OneToMany(() => Message, (m) => m.parentMessage)
-  replies: Message[];
+  @OneToMany('Message', 'parentMessage')
+  replies: Relation<Message>[];
 
-  @ManyToOne(() => Message, { nullable: true })
+  @ManyToOne('Message', { nullable: true })
   @JoinColumn({ name: 'reply_to_id' })
-  replyTo: Message;
+  replyTo: Relation<Message>;
 
-  @OneToMany(() => MessageParticipant, (mp) => mp.message)
-  participants: MessageParticipant[];
+  @OneToMany('MessageParticipant', 'message')
+  participants: Relation<MessageParticipant>[];
 }
 
-import { MessageParticipant } from './message-participant.entity';
+import type { MessageParticipant } from './message-participant.entity';

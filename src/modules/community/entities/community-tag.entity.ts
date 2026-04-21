@@ -5,7 +5,8 @@ import {
   CreateDateColumn,
   ManyToMany,
 } from 'typeorm';
-import { CommunityPost } from './community-post.entity';
+import type { Relation } from 'typeorm';
+import type { CommunityPost } from './community-post.entity';
 
 @Entity('community_tags')
 export class CommunityTag {
@@ -18,6 +19,6 @@ export class CommunityTag {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToMany(() => CommunityPost, (post) => post.tags)
-  posts: CommunityPost[];
+  @ManyToMany('CommunityPost', 'tags')
+  posts: Relation<CommunityPost>[];
 }

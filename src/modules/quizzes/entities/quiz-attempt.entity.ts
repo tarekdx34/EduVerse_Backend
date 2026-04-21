@@ -7,10 +7,11 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Quiz } from './quiz.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { Quiz } from './quiz.entity';
+import type { User } from '../../auth/entities/user.entity';
 import { AttemptStatus } from '../enums';
-import { QuizAnswer } from './quiz-answer.entity';
+import type { QuizAnswer } from './quiz-answer.entity';
 
 @Entity('quiz_attempts')
 export class QuizAttempt {
@@ -49,14 +50,14 @@ export class QuizAttempt {
   ipAddress: string;
 
   // Relations
-  @ManyToOne(() => Quiz, (quiz) => quiz.attempts, { onDelete: 'CASCADE' })
+  @ManyToOne('Quiz', 'attempts', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'quiz_id' })
-  quiz: Quiz;
+  quiz: Relation<Quiz>;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @OneToMany(() => QuizAnswer, (answer) => answer.attempt)
-  answers: QuizAnswer[];
+  @OneToMany('QuizAnswer', 'attempt')
+  answers: Relation<QuizAnswer>[];
 }

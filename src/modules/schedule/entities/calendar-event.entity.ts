@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
-import { CourseSchedule } from '../../courses/entities/course-schedule.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Course } from '../../courses/entities/course.entity';
+import type { CourseSchedule } from '../../courses/entities/course-schedule.entity';
 import { EventType, EventStatus } from '../enums';
 
 @Entity('calendar_events')
@@ -33,9 +34,9 @@ export class CalendarEvent {
   })
   userId: number;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
   @Column({
     name: 'course_id',
@@ -45,9 +46,9 @@ export class CalendarEvent {
   })
   courseId: number | null;
 
-  @ManyToOne(() => Course, { onDelete: 'CASCADE', nullable: true })
+  @ManyToOne('Course', { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'course_id' })
-  course: Course | null;
+  course: Relation<Course> | null;
 
   @Column({
     name: 'event_type',
@@ -108,9 +109,9 @@ export class CalendarEvent {
   })
   scheduleId: number | null;
 
-  @ManyToOne(() => CourseSchedule, { onDelete: 'CASCADE', nullable: true })
+  @ManyToOne('CourseSchedule', { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'schedule_id' })
-  schedule: CourseSchedule | null;
+  schedule: Relation<CourseSchedule> | null;
 
   @Column({
     name: 'exam_id',

@@ -5,8 +5,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Message } from './message.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { Message } from './message.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('message_participants')
 export class MessageParticipant {
@@ -26,11 +27,11 @@ export class MessageParticipant {
   deletedAt: Date;
 
   // Relations
-  @ManyToOne(() => Message, (m) => m.participants)
+  @ManyToOne('Message', 'participants')
   @JoinColumn({ name: 'message_id' })
-  message: Message;
+  message: Relation<Message>;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

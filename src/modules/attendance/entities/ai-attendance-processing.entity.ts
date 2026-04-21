@@ -7,10 +7,11 @@ import {
   CreateDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { ProcessingStatus } from '../enums';
-import { AttendanceSession } from './attendance-session.entity';
-import { AttendancePhoto } from './attendance-photo.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { AttendanceSession } from './attendance-session.entity';
+import type { AttendancePhoto } from './attendance-photo.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('ai_attendance_processing')
 @Index(['sessionId'])
@@ -127,21 +128,21 @@ export class AiAttendanceProcessing {
   })
   completedAt: Date | null;
 
-  @ManyToOne(() => AttendanceSession, {
+  @ManyToOne('AttendanceSession', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'session_id' })
-  session: AttendanceSession;
+  session: Relation<AttendanceSession>;
 
-  @ManyToOne(() => AttendancePhoto, {
+  @ManyToOne('AttendancePhoto', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'photo_id' })
-  photo: AttendancePhoto;
+  photo: Relation<AttendancePhoto>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'reviewed_by' })
-  reviewer: User;
+  reviewer: Relation<User>;
 }

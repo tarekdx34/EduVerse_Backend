@@ -7,8 +7,9 @@ import {
   CreateDateColumn,
   Unique,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { CommunityPost } from './community-post.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { CommunityPost } from './community-post.entity';
 import { ReactionType } from '../enums';
 
 @Entity('community_post_reactions')
@@ -35,11 +36,11 @@ export class CommunityReaction {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne('User', { eager: true })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => CommunityPost, (post) => post.reactions, { onDelete: 'CASCADE' })
+  @ManyToOne('CommunityPost', 'reactions', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id' })
-  post: CommunityPost;
+  post: Relation<CommunityPost>;
 }

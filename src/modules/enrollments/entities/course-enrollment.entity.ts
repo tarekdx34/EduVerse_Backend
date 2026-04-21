@@ -9,10 +9,11 @@ import {
   Index,
   Unique,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { EnrollmentStatus, DropReason } from '../enums';
-import { User } from '../../auth/entities/user.entity';
-import { CourseSection } from '../../courses/entities/course-section.entity';
-import { Program } from '../../campus/entities/program.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { CourseSection } from '../../courses/entities/course-section.entity';
+import type { Program } from '../../campus/entities/program.entity';
 
 @Entity('course_enrollments')
 @Unique(['userId', 'sectionId'])
@@ -97,21 +98,21 @@ export class CourseEnrollment {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => CourseSection, {
+  @ManyToOne('CourseSection', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  section: Relation<CourseSection>;
 
-  @ManyToOne(() => Program, {
+  @ManyToOne('Program', {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'program_id' })
-  program: Program | null;
+  program: Relation<Program> | null;
 }

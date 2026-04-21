@@ -8,8 +8,9 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
-import { Semester } from '../../campus/entities/semester.entity';
+import type { Relation } from 'typeorm';
+import type { Course } from '../../courses/entities/course.entity';
+import type { Semester } from '../../campus/entities/semester.entity';
 import { ExamType, EventStatus } from '../enums';
 
 @Entity('exam_schedules')
@@ -31,9 +32,9 @@ export class ExamSchedule {
   })
   courseId: number;
 
-  @ManyToOne(() => Course, { onDelete: 'CASCADE' })
+  @ManyToOne('Course', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
   @Column({
     name: 'semester_id',
@@ -42,9 +43,9 @@ export class ExamSchedule {
   })
   semesterId: number;
 
-  @ManyToOne(() => Semester, { onDelete: 'CASCADE' })
+  @ManyToOne('Semester', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'semester_id' })
-  semester: Semester;
+  semester: Relation<Semester>;
 
   @Column({
     name: 'exam_type',

@@ -6,7 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('peer_reviews')
 export class PeerReview {
@@ -44,11 +45,11 @@ export class PeerReview {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'reviewer_id' })
-  reviewer: User;
+  reviewer: Relation<User>;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'reviewee_id' })
-  reviewee: User;
+  reviewee: Relation<User>;
 }

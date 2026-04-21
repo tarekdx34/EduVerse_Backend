@@ -1,7 +1,7 @@
 // src/modules/youtube/youtube.service.ts
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { google, youtube_v3 } from 'googleapis';
+import { youtube, youtube_v3 } from '@googleapis/youtube';
 import { OAuth2Client } from 'google-auth-library';
 import * as fs from 'fs';
 import { Readable } from 'stream';
@@ -9,10 +9,10 @@ import { Readable } from 'stream';
 @Injectable()
 export class YoutubeService {
   private oauth2Client: OAuth2Client;
-  private youtube: youtube_v3.Youtube;
+  private youtubeClient: youtube_v3.Youtube;
 
   constructor(private configService: ConfigService) {
-    this.oauth2Client = new google.auth.OAuth2(
+    this.oauth2Client = new OAuth2Client(
       this.configService.get<string>('YOUTUBE_CLIENT_ID'),
       this.configService.get<string>('YOUTUBE_CLIENT_SECRET'),
       this.configService.get<string>('YOUTUBE_REDIRECT_URI'),
@@ -28,7 +28,7 @@ export class YoutubeService {
       });
     }
 
-    this.youtube = google.youtube({
+    this.youtubeClient = youtube({
       version: 'v3',
       auth: this.oauth2Client,
     });
@@ -66,7 +66,7 @@ export class YoutubeService {
     tags?: string[],
   ) {
     try {
-      const response = await this.youtube.videos.insert({
+      const response = await this.youtubeClient.videos.insert({
         part: ['snippet', 'status'],
         requestBody: {
           snippet: {
@@ -110,7 +110,7 @@ export class YoutubeService {
       stream.push(buffer);
       stream.push(null);
 
-      const response = await this.youtube.videos.insert({
+      const response = await this.youtubeClient.videos.insert({
         part: ['snippet', 'status'],
         requestBody: {
           snippet: {
@@ -150,7 +150,7 @@ export class YoutubeService {
     privacyStatus?: 'public' | 'private' | 'unlisted',
   ) {
     try {
-      const response = await this.youtube.videos.update({
+      const response = await this.youtubeClient.videos.update({
         part: ['snippet', 'status'],
         requestBody: {
           id: videoId,
@@ -176,7 +176,7 @@ export class YoutubeService {
    */
   async deleteVideo(videoId: string) {
     try {
-      await this.youtube.videos.delete({
+      await this.youtubeClient.videos.delete({
         id: videoId,
       });
       return { success: true, message: 'Video deleted successfully' };
@@ -191,7 +191,7 @@ export class YoutubeService {
    */
   async searchVideos(query: string, maxResults: number = 10) {
     try {
-      const response = await this.youtube.search.list({
+      const response = await this.youtubeClient.search.list({
         part: ['snippet'],
         q: query,
         type: ['video'],
@@ -224,7 +224,7 @@ export class YoutubeService {
    */
   async getVideoDetails(videoId: string) {
     try {
-      const response = await this.youtube.videos.list({
+      const response = await this.youtubeClient.videos.list({
         part: ['snippet', 'contentDetails', 'statistics', 'status'],
         id: [videoId],
       });
@@ -267,7 +267,7 @@ export class YoutubeService {
    */
   async getChannelVideos(channelId: string, maxResults: number = 10) {
     try {
-      const response = await this.youtube.search.list({
+      const response = await this.youtubeClient.search.list({
         part: ['snippet'],
         channelId,
         type: ['video'],

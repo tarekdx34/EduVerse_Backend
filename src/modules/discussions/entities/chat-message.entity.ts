@@ -7,8 +7,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { CourseChatThread } from './course-chat-thread.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { CourseChatThread } from './course-chat-thread.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('chat_messages')
 export class ChatMessage {
@@ -46,19 +47,19 @@ export class ChatMessage {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => CourseChatThread, (t) => t.messages)
+  @ManyToOne('CourseChatThread', 'messages')
   @JoinColumn({ name: 'thread_id' })
-  thread: CourseChatThread;
+  thread: Relation<CourseChatThread>;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('User', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'endorsed_by' })
-  endorser: User;
+  endorser: Relation<User>;
 
-  @ManyToOne(() => ChatMessage, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('ChatMessage', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'parent_message_id' })
-  parentMessage: ChatMessage;
+  parentMessage: Relation<ChatMessage>;
 }

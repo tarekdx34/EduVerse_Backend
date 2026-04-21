@@ -11,6 +11,7 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Role } from './role.entity';
@@ -93,16 +94,16 @@ export class User {
     joinColumn: { name: 'user_id', referencedColumnName: 'userId' },
     inverseJoinColumn: { name: 'role_id', referencedColumnName: 'roleId' },
   })
-  roles: Role[];
+  roles: Relation<Role>[];
 
   @OneToMany(() => Session, (session) => session.user)
-  sessions: Session[];
+  sessions: Relation<Session>[];
 
   @OneToMany(() => PasswordReset, (passwordReset) => passwordReset.user)
-  passwordResets: PasswordReset[];
+  passwordResets: Relation<PasswordReset>[];
 
   @OneToMany(() => TwoFactorAuth, (twoFactorAuth) => twoFactorAuth.user)
-  twoFactorAuths: TwoFactorAuth[];
+  twoFactorAuths: Relation<TwoFactorAuth>[];
 
   // Hooks for password hashing
   @BeforeInsert()

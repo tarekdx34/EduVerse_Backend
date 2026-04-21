@@ -8,8 +8,9 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { CampusEvent } from './campus-event.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { CampusEvent } from './campus-event.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 export enum RegistrationStatus {
   REGISTERED = 'registered',
@@ -40,9 +41,9 @@ export class CampusEventRegistration {
   })
   eventId: number;
 
-  @ManyToOne(() => CampusEvent, (event) => event.registrations, { onDelete: 'CASCADE' })
+  @ManyToOne('CampusEvent', 'registrations', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'event_id' })
-  event: CampusEvent;
+  event: Relation<CampusEvent>;
 
   @Column({
     name: 'user_id',
@@ -52,9 +53,9 @@ export class CampusEventRegistration {
   })
   userId: number;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
   @Column({
     type: 'enum',

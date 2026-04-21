@@ -5,9 +5,10 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Lab } from './lab.entity';
-import { User } from '../../auth/entities/user.entity';
-import { File } from '../../files/entities/file.entity';
+import type { Relation } from 'typeorm';
+import type { Lab } from './lab.entity';
+import type { User } from '../../auth/entities/user.entity';
+import type { File } from '../../files/entities/file.entity';
 
 @Entity('lab_submissions')
 export class LabSubmission {
@@ -47,19 +48,19 @@ export class LabSubmission {
   @Column({ name: 'graded_at', type: 'timestamp', nullable: true })
   gradedAt: Date | null;
 
-  @ManyToOne(() => Lab, (lab) => lab.submissions)
+  @ManyToOne('Lab', 'submissions')
   @JoinColumn({ name: 'lab_id' })
-  lab: Lab;
+  lab: Relation<Lab>;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => File, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('File', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'file_id' })
-  file: File;
+  file: Relation<File>;
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('User', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'graded_by' })
-  grader: User | null;
+  grader: Relation<User> | null;
 }

@@ -6,8 +6,9 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { StudentTask } from './student-task.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { StudentTask } from './student-task.entity';
 
 @Entity('task_completion')
 export class TaskCompletion {
@@ -29,11 +30,11 @@ export class TaskCompletion {
   @Column({ name: 'notes', type: 'text', nullable: true })
   notes: string | null;
 
-  @ManyToOne(() => StudentTask)
+  @ManyToOne('StudentTask')
   @JoinColumn({ name: 'task_id' })
-  task: StudentTask;
+  task: Relation<StudentTask>;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

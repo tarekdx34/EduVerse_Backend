@@ -9,8 +9,9 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { File } from './file.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { File } from './file.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('folders')
 @Index(['parentFolderId'])
@@ -25,19 +26,19 @@ export class Folder {
   @Column({ name: 'parent_folder_id', type: 'bigint', nullable: true })
   parentFolderId?: number;
 
-  @ManyToOne(() => Folder, (folder) => folder.children, { nullable: true })
+  @ManyToOne('Folder', 'children', { nullable: true })
   @JoinColumn({ name: 'parent_folder_id' })
-  parentFolder?: Folder;
+  parentFolder?: Relation<Folder>;
 
-  @OneToMany(() => Folder, (folder) => folder.parentFolder)
-  children: Folder[];
+  @OneToMany('Folder', 'parentFolder')
+  children: Relation<Folder>[];
 
   @Column({ name: 'created_by', type: 'bigint', nullable: false })
   createdBy: number;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne('User', { nullable: false })
   @JoinColumn({ name: 'created_by' })
-  user?: User;
+  user?: Relation<User>;
 
   @Column({ name: 'path', type: 'text', nullable: true })
   path?: string;
@@ -48,8 +49,8 @@ export class Folder {
   @Column({ name: 'is_system_folder', type: 'tinyint', default: 0 })
   isSystemFolder: number;
 
-  @OneToMany(() => File, (file) => file.folder)
-  files: File[];
+  @OneToMany('File', 'folder')
+  files: Relation<File>[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

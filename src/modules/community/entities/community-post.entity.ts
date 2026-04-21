@@ -10,13 +10,14 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Course } from '../../courses/entities/course.entity';
 import { PostType } from '../enums';
-import { CommunityComment } from './community-comment.entity';
-import { CommunityReaction } from './community-reaction.entity';
-import { Community } from './community.entity';
-import { CommunityTag } from './community-tag.entity';
+import type { CommunityComment } from './community-comment.entity';
+import type { CommunityReaction } from './community-reaction.entity';
+import type { Community } from './community.entity';
+import type { CommunityTag } from './community-tag.entity';
 
 @Entity('community_posts')
 export class CommunityPost {
@@ -68,29 +69,29 @@ export class CommunityPost {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne('User', { eager: true })
   @JoinColumn({ name: 'user_id' })
-  author: User;
+  author: Relation<User>;
 
-  @ManyToOne(() => Course, { eager: true, nullable: true })
+  @ManyToOne('Course', { eager: true, nullable: true })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => Community, (community) => community.posts, { nullable: true })
+  @ManyToOne('Community', 'posts', { nullable: true })
   @JoinColumn({ name: 'community_id' })
-  community: Community;
+  community: Relation<Community>;
 
-  @OneToMany(() => CommunityComment, (comment) => comment.post)
-  comments: CommunityComment[];
+  @OneToMany('CommunityComment', 'post')
+  comments: Relation<CommunityComment>[];
 
-  @OneToMany(() => CommunityReaction, (reaction) => reaction.post)
-  reactions: CommunityReaction[];
+  @OneToMany('CommunityReaction', 'post')
+  reactions: Relation<CommunityReaction>[];
 
-  @ManyToMany(() => CommunityTag, (tag) => tag.posts, { eager: true })
+  @ManyToMany('CommunityTag', 'posts', { eager: true })
   @JoinTable({
     name: 'community_post_tags',
     joinColumn: { name: 'post_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
-  tags: CommunityTag[];
+  tags: Relation<CommunityTag>[];
 }

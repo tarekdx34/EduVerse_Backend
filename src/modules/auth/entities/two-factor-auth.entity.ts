@@ -7,7 +7,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from './user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from './user.entity';
 
 @Entity('two_factor_auth')
 export class TwoFactorAuth {
@@ -36,7 +37,7 @@ export class TwoFactorAuth {
   updatedAt: Date;
 
   // Relationships
-  @ManyToOne(() => User, (user) => user.twoFactorAuths, { onDelete: 'CASCADE' })
+  @ManyToOne('User', 'twoFactorAuths', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

@@ -10,10 +10,11 @@ import {
   DeleteDateColumn,
   Index,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { CourseLevel, CourseStatus } from '../enums';
-import { Department } from '../../campus/entities/department.entity';
-import { CoursePrerequisite } from './course-prerequisite.entity';
-import { CourseSection } from './course-section.entity';
+import type { Department } from '../../campus/entities/department.entity';
+import type { CoursePrerequisite } from './course-prerequisite.entity';
+import type { CourseSection } from './course-section.entity';
 
 @Entity('courses')
 @Index(['departmentId', 'code'], { unique: true })
@@ -123,19 +124,19 @@ export class Course {
   })
   deletedAt: Date | null;
 
-  @ManyToOne(() => Department, {
+  @ManyToOne('Department', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'department_id' })
-  department: Department;
+  department: Relation<Department>;
 
-  @OneToMany(() => CoursePrerequisite, (prereq) => prereq.course, {
+  @OneToMany('CoursePrerequisite', 'course', {
     cascade: true,
   })
-  prerequisites: CoursePrerequisite[];
+  prerequisites: Relation<CoursePrerequisite>[];
 
-  @OneToMany(() => CourseSection, (section) => section.course, {
+  @OneToMany('CourseSection', 'course', {
     cascade: true,
   })
-  sections: CourseSection[];
+  sections: Relation<CourseSection>[];
 }

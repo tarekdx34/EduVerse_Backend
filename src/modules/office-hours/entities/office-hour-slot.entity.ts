@@ -7,7 +7,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('office_hour_slots')
 export class OfficeHourSlot {
@@ -71,7 +72,7 @@ export class OfficeHourSlot {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'instructor_id' })
-  instructor: User;
+  instructor: Relation<User>;
 }

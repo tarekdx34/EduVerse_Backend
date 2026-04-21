@@ -10,10 +10,11 @@ import {
   Index,
   Unique,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { SectionStatus } from '../enums';
-import { Course } from './course.entity';
-import { CourseSchedule } from './course-schedule.entity';
-import { Semester } from '../../campus/entities/semester.entity';
+import type { Course } from './course.entity';
+import type { CourseSchedule } from './course-schedule.entity';
+import type { Semester } from '../../campus/entities/semester.entity';
 
 @Entity('course_sections')
 @Unique(['courseId', 'semesterId', 'sectionNumber'])
@@ -88,20 +89,20 @@ export class CourseSection {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Course, (course) => course.sections, {
+  @ManyToOne('Course', 'sections', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => Semester, {
+  @ManyToOne('Semester', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'semester_id' })
-  semester: Semester;
+  semester: Relation<Semester>;
 
-  @OneToMany(() => CourseSchedule, (schedule) => schedule.section, {
+  @OneToMany('CourseSchedule', 'section', {
     cascade: true,
   })
-  schedules: CourseSchedule[];
+  schedules: Relation<CourseSchedule>[];
 }

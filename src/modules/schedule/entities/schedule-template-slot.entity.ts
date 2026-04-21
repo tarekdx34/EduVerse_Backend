@@ -6,7 +6,8 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { ScheduleTemplate } from './schedule-template.entity';
+import type { Relation } from 'typeorm';
+import type { ScheduleTemplate } from './schedule-template.entity';
 import { DayOfWeek, ScheduleType } from '../../courses/enums';
 
 @Entity('schedule_template_slots')
@@ -29,9 +30,9 @@ export class ScheduleTemplateSlot {
   })
   templateId: number;
 
-  @ManyToOne(() => ScheduleTemplate, (template) => template.slots, { onDelete: 'CASCADE' })
+  @ManyToOne('ScheduleTemplate', 'slots', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'template_id' })
-  template: ScheduleTemplate;
+  template: Relation<ScheduleTemplate>;
 
   @Column({
     name: 'day_of_week',

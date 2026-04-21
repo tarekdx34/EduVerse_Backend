@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Department } from '../../campus/entities/department.entity';
-import { CommunityPost } from './community-post.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Department } from '../../campus/entities/department.entity';
+import type { CommunityPost } from './community-post.entity';
 
 export enum CommunityType {
   GLOBAL = 'global',
@@ -54,14 +55,14 @@ export class Community {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => Department, { nullable: true, onDelete: 'CASCADE' })
+  @ManyToOne('Department', { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'department_id' })
-  department: Department;
+  department: Relation<Department>;
 
-  @ManyToOne(() => User, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne('User', { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
-  @OneToMany(() => CommunityPost, (post) => post.community)
-  posts: CommunityPost[];
+  @OneToMany('CommunityPost', 'community')
+  posts: Relation<CommunityPost>[];
 }

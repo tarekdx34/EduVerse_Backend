@@ -6,8 +6,9 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { Semester } from '../../campus/entities/semester.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
+import type { Semester } from '../../campus/entities/semester.entity';
 
 @Entity('gpa_calculations')
 @Index(['userId', 'semesterId'], { unique: true })
@@ -73,15 +74,15 @@ export class GpaCalculation {
   })
   calculatedAt: Date;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToOne(() => Semester, {
+  @ManyToOne('Semester', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'semester_id' })
-  semester: Semester;
+  semester: Relation<Semester>;
 }

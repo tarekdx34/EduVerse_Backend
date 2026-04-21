@@ -6,7 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Lab } from './lab.entity';
+import type { Relation } from 'typeorm';
+import type { Lab } from './lab.entity';
 
 @Entity('lab_instructions')
 export class LabInstruction {
@@ -28,7 +29,7 @@ export class LabInstruction {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne(() => Lab, (lab) => lab.instructions)
+  @ManyToOne('Lab', 'instructions')
   @JoinColumn({ name: 'lab_id' })
-  lab: Lab;
+  lab: Relation<Lab>;
 }

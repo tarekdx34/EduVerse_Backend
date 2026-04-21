@@ -8,10 +8,11 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
-import { LabSubmission } from './lab-submission.entity';
-import { LabInstruction } from './lab-instruction.entity';
-import { LabAttendance } from './lab-attendance.entity';
+import type { Relation } from 'typeorm';
+import type { Course } from '../../courses/entities/course.entity';
+import type { LabSubmission } from './lab-submission.entity';
+import type { LabInstruction } from './lab-instruction.entity';
+import type { LabAttendance } from './lab-attendance.entity';
 
 @Entity('labs')
 export class Lab {
@@ -60,16 +61,16 @@ export class Lab {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => Course)
+  @ManyToOne('Course')
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @OneToMany(() => LabSubmission, (s) => s.lab)
-  submissions: LabSubmission[];
+  @OneToMany('LabSubmission', 'lab')
+  submissions: Relation<LabSubmission>[];
 
-  @OneToMany(() => LabInstruction, (i) => i.lab)
-  instructions: LabInstruction[];
+  @OneToMany('LabInstruction', 'lab')
+  instructions: Relation<LabInstruction>[];
 
-  @OneToMany(() => LabAttendance, (a) => a.lab)
-  attendanceRecords: LabAttendance[];
+  @OneToMany('LabAttendance', 'lab')
+  attendanceRecords: Relation<LabAttendance>[];
 }

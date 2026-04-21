@@ -6,7 +6,8 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
+import type { Relation } from 'typeorm';
+import type { Course } from '../../courses/entities/course.entity';
 
 @Entity('forum_categories')
 export class ForumCategory {
@@ -29,7 +30,7 @@ export class ForumCategory {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => Course, { eager: true })
+  @ManyToOne('Course', { eager: true })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 }

@@ -1,7 +1,7 @@
 // src/modules/google-drive/google-drive.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { google, drive_v3 } from 'googleapis';
+import { drive, drive_v3 } from '@googleapis/drive';
 import { OAuth2Client } from 'google-auth-library';
 import { Readable } from 'stream';
 
@@ -29,10 +29,10 @@ export interface DriveFolder {
 export class GoogleDriveService {
   private readonly logger = new Logger(GoogleDriveService.name);
   private oauth2Client: OAuth2Client;
-  private drive: drive_v3.Drive;
+  private driveClient: drive_v3.Drive;
 
   constructor(private configService: ConfigService) {
-    this.oauth2Client = new google.auth.OAuth2(
+    this.oauth2Client = new OAuth2Client(
       this.configService.get<string>('YOUTUBE_CLIENT_ID'),
       this.configService.get<string>('YOUTUBE_CLIENT_SECRET'),
       this.configService.get<string>('YOUTUBE_REDIRECT_URI'),
@@ -46,7 +46,7 @@ export class GoogleDriveService {
       });
     }
 
-    this.drive = google.drive({
+    this.driveClient = drive({
       version: 'v3',
       auth: this.oauth2Client,
     });
@@ -83,7 +83,7 @@ export class GoogleDriveService {
    */
   async verifyFolderExists(folderId: string): Promise<boolean> {
     try {
-      const response = await this.drive.files.get({
+      const response = await this.driveClient.files.get({
         fileId: folderId,
         fields: 'id, mimeType',
       });
@@ -113,7 +113,7 @@ export class GoogleDriveService {
         fileMetadata.parents = [parentId];
       }
 
-      const response = await this.drive.files.create({
+      const response = await this.driveClient.files.create({
         requestBody: fileMetadata,
         fields: 'id, name, webViewLink, createdTime',
       });
@@ -154,7 +154,7 @@ export class GoogleDriveService {
         fileMetadata.parents = [folderId];
       }
 
-      const response = await this.drive.files.create({
+      const response = await this.driveClient.files.create({
         requestBody: fileMetadata,
         media: {
           mimeType,
@@ -188,7 +188,7 @@ export class GoogleDriveService {
    */
   async getFile(fileId: string): Promise<DriveFile> {
     try {
-      const response = await this.drive.files.get({
+      const response = await this.driveClient.files.get({
         fileId,
         fields: 'id, name, mimeType, size, webViewLink, webContentLink, thumbnailLink, createdTime, modifiedTime, parents',
       });
@@ -216,7 +216,7 @@ export class GoogleDriveService {
    */
   async downloadFile(fileId: string): Promise<Buffer> {
     try {
-      const response = await this.drive.files.get(
+      const response = await this.driveClient.files.get(
         { fileId, alt: 'media' },
         { responseType: 'arraybuffer' },
       );
@@ -233,7 +233,7 @@ export class GoogleDriveService {
    */
   async listFolder(folderId: string): Promise<DriveFile[]> {
     try {
-      const response = await this.drive.files.list({
+      const response = await this.driveClient.files.list({
         q: `'${folderId}' in parents and trashed = false`,
         fields: 'files(id, name, mimeType, size, webViewLink, webContentLink, thumbnailLink, createdTime, modifiedTime, parents)',
         orderBy: 'name',
@@ -262,7 +262,7 @@ export class GoogleDriveService {
    */
   async deleteFile(fileId: string): Promise<void> {
     try {
-      await this.drive.files.delete({ fileId });
+      await this.driveClient.files.delete({ fileId });
       this.logger.log(`Deleted file/folder: ${fileId}`);
     } catch (error) {
       this.logger.error(`Error deleting file: ${error.message}`);
@@ -276,14 +276,14 @@ export class GoogleDriveService {
   async moveFile(fileId: string, newParentId: string): Promise<DriveFile> {
     try {
       // Get current parents
-      const file = await this.drive.files.get({
+      const file = await this.driveClient.files.get({
         fileId,
         fields: 'parents',
       });
 
       const previousParents = file.data.parents?.join(',') || '';
 
-      const response = await this.drive.files.update({
+      const response = await this.driveClient.files.update({
         fileId,
         addParents: newParentId,
         removeParents: previousParents,
@@ -315,7 +315,7 @@ export class GoogleDriveService {
    */
   async renameFile(fileId: string, newName: string): Promise<DriveFile> {
     try {
-      const response = await this.drive.files.update({
+      const response = await this.driveClient.files.update({
         fileId,
         requestBody: { name: newName },
         fields: 'id, name, mimeType, size, webViewLink, webContentLink, thumbnailLink, createdTime, modifiedTime, parents',
@@ -351,7 +351,7 @@ export class GoogleDriveService {
         query += ` and '${parentId}' in parents`;
       }
 
-      const response = await this.drive.files.list({
+      const response = await this.driveClient.files.list({
         q: query,
         fields: 'files(id, name, webViewLink, createdTime)',
       });
@@ -389,7 +389,7 @@ export class GoogleDriveService {
    */
   async makeFilePublic(fileId: string): Promise<void> {
     try {
-      await this.drive.permissions.create({
+      await this.driveClient.permissions.create({
         fileId,
         requestBody: {
           role: 'reader',
@@ -408,7 +408,7 @@ export class GoogleDriveService {
    */
   async getStorageQuota(): Promise<{ limit: string; usage: string; usageInDrive: string }> {
     try {
-      const response = await this.drive.about.get({
+      const response = await this.driveClient.about.get({
         fields: 'storageQuota',
       });
 

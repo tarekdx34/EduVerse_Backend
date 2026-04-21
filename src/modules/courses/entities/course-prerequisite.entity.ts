@@ -8,7 +8,8 @@ import {
   Index,
   Unique,
 } from 'typeorm';
-import { Course } from './course.entity';
+import type { Relation } from 'typeorm';
+import type { Course } from './course.entity';
 
 @Entity('course_prerequisites')
 @Unique(['courseId', 'prerequisiteCourseId'])
@@ -45,15 +46,15 @@ export class CoursePrerequisite {
   })
   createdAt: Date;
 
-  @ManyToOne(() => Course, (course) => course.prerequisites, {
+  @ManyToOne('Course', 'prerequisites', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course: Relation<Course>;
 
-  @ManyToOne(() => Course, {
+  @ManyToOne('Course', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'prerequisite_course_id' })
-  prerequisiteCourse: Course;
+  prerequisiteCourse: Relation<Course>;
 }

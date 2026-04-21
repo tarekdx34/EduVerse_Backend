@@ -7,7 +7,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
 
 export enum TaskType {
   ASSIGNMENT = 'assignment',
@@ -74,7 +75,7 @@ export class StudentTask {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne('User')
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

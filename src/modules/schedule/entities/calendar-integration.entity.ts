@@ -8,7 +8,8 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { User } from '../../auth/entities/user.entity';
 import { CalendarType, SyncStatus } from '../enums';
 
 @Entity('calendar_integrations')
@@ -28,9 +29,9 @@ export class CalendarIntegration {
   })
   userId: number;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
   @Column({
     name: 'calendar_type',

@@ -8,10 +8,11 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Quiz } from './quiz.entity';
+import type { Relation } from 'typeorm';
+import type { Quiz } from './quiz.entity';
 import { QuestionType } from '../enums';
-import { QuizDifficultyLevel } from './quiz-difficulty-level.entity';
-import { QuizAnswer } from './quiz-answer.entity';
+import type { QuizDifficultyLevel } from './quiz-difficulty-level.entity';
+import type { QuizAnswer } from './quiz-answer.entity';
 
 @Entity('quiz_questions')
 export class QuizQuestion {
@@ -56,14 +57,14 @@ export class QuizQuestion {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => Quiz, (quiz) => quiz.questions, { onDelete: 'CASCADE' })
+  @ManyToOne('Quiz', 'questions', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'quiz_id' })
-  quiz: Quiz;
+  quiz: Relation<Quiz>;
 
-  @ManyToOne(() => QuizDifficultyLevel, { nullable: true })
+  @ManyToOne('QuizDifficultyLevel', { nullable: true })
   @JoinColumn({ name: 'difficulty_level_id' })
-  difficultyLevel: QuizDifficultyLevel;
+  difficultyLevel: Relation<QuizDifficultyLevel>;
 
-  @OneToMany(() => QuizAnswer, (answer) => answer.question)
-  answers: QuizAnswer[];
+  @OneToMany('QuizAnswer', 'question')
+  answers: Relation<QuizAnswer>[];
 }

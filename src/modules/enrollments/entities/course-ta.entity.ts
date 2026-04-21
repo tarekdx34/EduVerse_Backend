@@ -8,8 +8,9 @@ import {
   Index,
   Unique,
 } from 'typeorm';
-import { CourseSection } from '../../courses/entities/course-section.entity';
-import { User } from '../../auth/entities/user.entity';
+import type { Relation } from 'typeorm';
+import type { CourseSection } from '../../courses/entities/course-section.entity';
+import type { User } from '../../auth/entities/user.entity';
 
 @Entity('course_tas')
 @Unique('UQ_section_id_user_id', ['sectionId', 'userId'])
@@ -48,15 +49,15 @@ export class CourseTA {
   })
   assignedAt: Date;
 
-  @ManyToOne(() => CourseSection, {
+  @ManyToOne('CourseSection', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'section_id' })
-  section: CourseSection;
+  section: Relation<CourseSection>;
 
-  @ManyToOne(() => User, {
+  @ManyToOne('User', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  ta: User;
+  ta: Relation<User>;
 }
