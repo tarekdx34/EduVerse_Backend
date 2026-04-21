@@ -25,6 +25,7 @@ export class CourseTA {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'user_id',
   })
@@ -32,6 +33,7 @@ export class CourseTA {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'section_id',
   })

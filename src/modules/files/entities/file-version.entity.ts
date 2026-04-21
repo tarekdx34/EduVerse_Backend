@@ -17,7 +17,7 @@ export class FileVersion {
   @PrimaryGeneratedColumn({ name: 'version_id', type: 'bigint' })
   versionId: number;
 
-  @Column({ name: 'file_id', type: 'bigint', nullable: false })
+  @Column({ name: 'file_id', type: 'bigint', unsigned: true, nullable: false })
   fileId: number;
 
   @ManyToOne('File', 'versions', { onDelete: 'CASCADE' })
@@ -33,7 +33,7 @@ export class FileVersion {
   @Column({ name: 'file_size', type: 'bigint', nullable: true })
   fileSize: number;
 
-  @Column({ name: 'uploaded_by', type: 'bigint', nullable: false })
+  @Column({ name: 'uploaded_by', type: 'bigint', unsigned: true, nullable: false })
   uploadedBy: number;
 
   @ManyToOne('User')

@@ -23,11 +23,13 @@ export class Assignment {
   @PrimaryGeneratedColumn('increment', {
     name: 'assignment_id',
     type: 'bigint',
+    unsigned: true,
   })
   id: number;
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'course_id',
   })
@@ -136,6 +138,7 @@ export class Assignment {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'created_by',
   })

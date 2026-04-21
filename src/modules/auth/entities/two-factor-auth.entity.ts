@@ -15,7 +15,7 @@ export class TwoFactorAuth {
   @PrimaryGeneratedColumn({ name: 'auth_id' })
   authId: number;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ name: 'secret_key', length: 255, nullable: true })

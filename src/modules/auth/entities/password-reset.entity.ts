@@ -14,7 +14,7 @@ export class PasswordReset {
   @PrimaryGeneratedColumn({ name: 'reset_id' })
   resetId: number;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ name: 'reset_token', length: 255 })

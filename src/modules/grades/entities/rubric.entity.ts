@@ -25,6 +25,7 @@ export class Rubric {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'course_id',
   })
@@ -63,6 +64,7 @@ export class Rubric {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'created_by',
   })

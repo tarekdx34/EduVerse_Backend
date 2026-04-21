@@ -30,6 +30,7 @@ export class AttendancePhoto {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'file_id',
   })
@@ -37,6 +38,7 @@ export class AttendancePhoto {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'uploaded_by',
   })

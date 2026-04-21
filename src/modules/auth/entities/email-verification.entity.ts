@@ -13,7 +13,7 @@ export class EmailVerification {
   @PrimaryGeneratedColumn({ name: 'verification_id' })
   verificationId: number;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ name: 'verification_token', length: 255 })

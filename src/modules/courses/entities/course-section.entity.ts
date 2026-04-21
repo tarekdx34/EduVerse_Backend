@@ -24,11 +24,13 @@ export class CourseSection {
   @PrimaryGeneratedColumn('increment', {
     name: 'section_id',
     type: 'bigint',
+    unsigned: true,
   })
   id: number;
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'course_id',
   })
@@ -36,6 +38,7 @@ export class CourseSection {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'semester_id',
   })

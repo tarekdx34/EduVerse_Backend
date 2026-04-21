@@ -22,6 +22,7 @@ export class CoursePrerequisite {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'course_id',
   })
@@ -29,6 +30,7 @@ export class CoursePrerequisite {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'prerequisite_course_id',
   })

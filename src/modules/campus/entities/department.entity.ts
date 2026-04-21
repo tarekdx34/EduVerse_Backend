@@ -21,6 +21,7 @@ export class Department {
   @PrimaryGeneratedColumn('increment', {
     name: 'department_id',
     type: 'bigint',
+    unsigned: true,
   })
   id: number;
 
@@ -49,6 +50,7 @@ export class Department {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'head_of_department_id', // Map to actual column name
   })
