@@ -95,10 +95,12 @@ Create a new community post in a course.
   @ApiResponse({ status: 404, description: 'Post not found' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.postsService.findOne(id, page || 1, limit || 50);
+    const userId = req.user?.userId || req.user?.id;
+    return this.postsService.findOne(id, userId, page || 1, limit || 50);
   }
 
   @Put(':id')
@@ -190,6 +192,23 @@ Add or remove a reaction on a post. If the same reaction type exists, it will be
   ) {
     const userId = req.user.userId || req.user.id;
     return this.postsService.toggleReaction(id, dto, userId);
+  }
+
+  @Post(':id/upvote')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Toggle upvote on post',
+    description: 'Add or remove an upvote on a post.',
+  })
+  @ApiParam({ name: 'id', description: 'Post ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Upvote toggled. Returns action (added/removed)' })
+  @ApiResponse({ status: 404, description: 'Post not found' })
+  async toggleUpvote(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    return this.postsService.toggleReaction(id, { reactionType: 'upvote' as any }, userId);
   }
 
   @Patch(':id/pin')

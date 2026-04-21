@@ -5,3 +5,4 @@ export * from './community-reaction.entity';
 export * from './community.entity';
 export * from './community.entity';
 export * from './community-tag.entity';
+export * from './community-post-view.entity';
