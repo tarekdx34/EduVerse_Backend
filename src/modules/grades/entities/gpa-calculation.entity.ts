@@ -21,6 +21,7 @@ export class GpaCalculation {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'user_id',
   })
@@ -28,6 +29,7 @@ export class GpaCalculation {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'semester_id',
   })

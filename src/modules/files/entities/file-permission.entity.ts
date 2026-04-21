@@ -27,14 +27,14 @@ export class FilePermission {
   @PrimaryGeneratedColumn({ name: 'permission_id', type: 'bigint' })
   permissionId: number;
 
-  @Column({ name: 'file_id', type: 'bigint', nullable: false })
+  @Column({ name: 'file_id', type: 'bigint', unsigned: true, nullable: false })
   fileId: number;
 
   @ManyToOne('File', 'permissions', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'file_id' })
   file: Relation<File>;
 
-  @Column({ name: 'user_id', type: 'bigint', nullable: true })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true, nullable: true })
   userId?: number;
 
   @ManyToOne('User', { nullable: true })
@@ -56,7 +56,7 @@ export class FilePermission {
   })
   permissionType: PermissionType;
 
-  @Column({ name: 'granted_by', type: 'bigint', nullable: false })
+  @Column({ name: 'granted_by', type: 'bigint', unsigned: true, nullable: false })
   grantedBy: number;
 
   @ManyToOne('User')

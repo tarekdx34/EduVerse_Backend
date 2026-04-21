@@ -14,7 +14,7 @@ export class Session {
   @PrimaryGeneratedColumn({ name: 'session_id' })
   sessionId: number;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ name: 'session_token', type: 'text' })

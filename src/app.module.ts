@@ -62,7 +62,7 @@ import { GoogleDriveModule } from './modules/google-drive/google-drive.module';
           database: dbConfig.database,
           autoLoadEntities: true,
           migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-          migrationsRun: true,
+          migrationsRun: false,
           synchronize: dbConfig.synchronize,
           logging: dbConfig.logging,
           ssl: dbConfig.ssl,

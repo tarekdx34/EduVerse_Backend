@@ -28,6 +28,7 @@ export class Grade {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'user_id',
   })
@@ -35,6 +36,7 @@ export class Grade {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'course_id',
   })
@@ -50,6 +52,7 @@ export class Grade {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'assignment_id',
   })
@@ -57,6 +60,7 @@ export class Grade {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'quiz_id',
   })
@@ -64,6 +68,7 @@ export class Grade {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'lab_id',
   })
@@ -113,6 +118,7 @@ export class Grade {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'graded_by',
   })

@@ -25,6 +25,7 @@ export class AssignmentSubmission {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'assignment_id',
   })
@@ -32,6 +33,7 @@ export class AssignmentSubmission {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'user_id',
   })
@@ -54,6 +56,7 @@ export class AssignmentSubmission {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'file_id',
   })
@@ -107,6 +110,7 @@ export class AssignmentSubmission {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'graded_by',
   })

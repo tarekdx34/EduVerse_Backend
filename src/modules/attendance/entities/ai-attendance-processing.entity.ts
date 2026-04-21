@@ -104,6 +104,7 @@ export class AiAttendanceProcessing {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: true,
     name: 'reviewed_by',
   })

@@ -17,11 +17,13 @@ export class CourseSchedule {
   @PrimaryGeneratedColumn('increment', {
     name: 'schedule_id',
     type: 'bigint',
+    unsigned: true,
   })
   id: number;
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'section_id',
   })

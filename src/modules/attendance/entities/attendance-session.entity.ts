@@ -30,6 +30,7 @@ export class AttendanceSession {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'section_id',
   })
@@ -52,6 +53,7 @@ export class AttendanceSession {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'instructor_id',
   })

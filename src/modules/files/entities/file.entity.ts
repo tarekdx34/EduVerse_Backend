@@ -19,7 +19,7 @@ import type { User } from '../../auth/entities/user.entity';
 @Index(['folderId'])
 @Index(['uploadedBy'])
 export class File {
-  @PrimaryGeneratedColumn({ name: 'file_id', type: 'bigint' })
+  @PrimaryGeneratedColumn({ name: 'file_id', type: 'bigint', unsigned: true })
   fileId: number;
 
   @Column({ name: 'file_name', type: 'varchar', length: 255, nullable: false })
@@ -40,7 +40,7 @@ export class File {
   @Column({ name: 'file_extension', type: 'varchar', length: 10, nullable: true })
   fileExtension?: string;
 
-  @Column({ name: 'uploaded_by', type: 'bigint', nullable: false })
+  @Column({ name: 'uploaded_by', type: 'bigint', unsigned: true, nullable: false })
   uploadedBy: number;
 
   @ManyToOne('User')

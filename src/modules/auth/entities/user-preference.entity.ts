@@ -15,7 +15,7 @@ export class UserPreference {
   @PrimaryGeneratedColumn({ name: 'preference_id' })
   preferenceId: number;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ length: 10, default: 'en' })

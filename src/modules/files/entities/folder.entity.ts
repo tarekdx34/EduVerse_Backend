@@ -33,7 +33,7 @@ export class Folder {
   @OneToMany('Folder', 'parentFolder')
   children: Relation<Folder>[];
 
-  @Column({ name: 'created_by', type: 'bigint', nullable: false })
+  @Column({ name: 'created_by', type: 'bigint', unsigned: true, nullable: false })
   createdBy: number;
 
   @ManyToOne('User', { nullable: false })

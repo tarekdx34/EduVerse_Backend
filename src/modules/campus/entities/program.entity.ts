@@ -24,6 +24,7 @@ export class Program {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'department_id', // Map to actual column name
   })

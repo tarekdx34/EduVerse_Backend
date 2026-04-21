@@ -32,8 +32,8 @@ export class ScheduledNotification {
   @Column({ name: 'status', type: 'enum', enum: ['pending', 'sent', 'failed', 'cancelled'], default: 'pending' })
   status: string;
 
-  @Column({ name: 'created_by', type: 'bigint', unsigned: true })
-  createdBy: number;
+  @Column({ name: 'created_by', type: 'bigint', unsigned: true, nullable: true })
+  createdBy: number | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

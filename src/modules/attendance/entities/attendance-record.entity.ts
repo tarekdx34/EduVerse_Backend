@@ -32,6 +32,7 @@ export class AttendanceRecord {
 
   @Column({
     type: 'bigint',
+    unsigned: true,
     nullable: false,
     name: 'user_id',
   })

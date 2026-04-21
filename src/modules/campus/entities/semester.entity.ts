@@ -10,7 +10,7 @@ import { SemesterStatus } from '../enums/semester-status.enum';
 @Entity('semesters')
 @Index('idx_semester_code', ['code'], { unique: true })
 export class Semester {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint', name: 'semester_id' })
+  @PrimaryGeneratedColumn('increment', { type: 'bigint', unsigned: true, name: 'semester_id' })
   id: number;
 
   @Column({ type: 'varchar', length: 100, nullable: false, name: 'semester_name' })
