@@ -1,4 +1,0 @@
-This is a test document for Google Drive upload testing.
-Page 1 Content
-
-This is the second paragraph of the test document.
