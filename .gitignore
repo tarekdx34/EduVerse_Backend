@@ -1,0 +1,85 @@
+# compiled output
+/dist
+/node_modules
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+
+# Aiven / cloud DB TLS (local only; never commit real certs)
+ca.pem
+
+.env
+.env.local
+.env.aiven
+.env.*.local
+.env.test.local
+.env.production.local
+# temp directory
+.temp
+.tmp
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+!.env.example
+
+# Python (AI microservices and bytecode)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+ai-services/**/__pycache__/
+ai-services/**/.venv/
+ai-services/**/venv/
+ai-services/**/*.pyc
+# Local test images (not committed). README stays tracked so the folder exists in the repo.
+ai-services/attendance/dataset/*
+!ai-services/attendance/dataset/README.txt
+ai-services/attendance/Attendance/
+ai-services/attendance/temp_*
+
+# Quiz generator local runtime state (upload registry + stored quizzes)
+ai-services/quiz-generator/quizzes.json
+ai-services/quiz-generator/uploads.json
+
+# Runtime uploads should never be versioned
+uploads/

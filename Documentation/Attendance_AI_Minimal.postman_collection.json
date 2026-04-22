@@ -1,0 +1,344 @@
+{
+  "info": {
+    "name": "EduVerse Attendance AI - Minimal",
+    "_postman_id": "2a632ca8-7fe7-4e58-b82c-bc7411ffb5c3",
+    "description": "Minimal collection for Attendance AI flow: login, upload student face reference, list references, upload class photo, poll AI processing result.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "tarekstudent@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Test@1234",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "sectionId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "processingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "referenceId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentFaceImagePath",
+      "value": "C:/replace/with/student-face.jpg",
+      "type": "string"
+    },
+    {
+      "key": "classPhotoPath",
+      "value": "C:/replace/with/class-photo.jpg",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1) Login (Student)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "Logs in and stores JWT token as collection variable `token`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login success', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "const token = res?.accessToken || res?.data?.accessToken || res?.token;",
+              "",
+              "pm.test('Token exists in response', function () {",
+              "  pm.expect(token).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "if (token) {",
+              "  pm.collectionVariables.set('token', token);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2) Upload My Face Reference",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "{{studentFaceImagePath}}"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/attendance/face-references/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "attendance",
+            "face-references",
+            "me"
+          ]
+        },
+        "description": "Uploads student's reference face image to Supabase private bucket."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Upload response is success', function () {",
+              "  pm.expect([200, 201]).to.include(pm.response.code);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "if (res?.id) {",
+              "  pm.collectionVariables.set('referenceId', String(res.id));",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3) List My Face References",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/attendance/face-references/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "attendance",
+            "face-references",
+            "me"
+          ]
+        },
+        "description": "Fetches current student's active face references (with signed URLs)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('List references success', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Response is array', function () {",
+              "  pm.expect(res).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4) Get Section Face References (Instructor/TA/Admin Token Required)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/attendance/face-references/section/{{sectionId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "attendance",
+            "face-references",
+            "section",
+            "{{sectionId}}"
+          ]
+        },
+        "description": "Returns section-scoped references for AI. Requires instructor/TA/admin role."
+      }
+    },
+    {
+      "name": "5) Upload Class Photo for AI Attendance (Instructor/TA/Admin Token Required)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "photo",
+              "type": "file",
+              "src": "{{classPhotoPath}}"
+            },
+            {
+              "key": "sessionId",
+              "type": "text",
+              "value": "{{sessionId}}"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/attendance/ai-photo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "attendance",
+            "ai-photo"
+          ]
+        },
+        "description": "Starts AI attendance processing for a class photo. Requires instructor/TA/admin role."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('AI processing started', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "if (res?.processingId) {",
+              "  pm.collectionVariables.set('processingId', String(res.processingId));",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6) Get AI Processing Result",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/attendance/ai-photo/{{processingId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "attendance",
+            "ai-photo",
+            "{{processingId}}"
+          ]
+        },
+        "description": "Poll processing result until status is completed or failed."
+      }
+    },
+    {
+      "name": "7) Delete My Face Reference (Optional Cleanup)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/attendance/face-references/me/{{referenceId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "attendance",
+            "face-references",
+            "me",
+            "{{referenceId}}"
+          ]
+        },
+        "description": "Optional cleanup: deletes a previously uploaded face reference."
+      }
+    }
+  ]
+}
+

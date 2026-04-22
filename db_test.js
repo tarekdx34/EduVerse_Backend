@@ -1,0 +1,1 @@
+const mysql = require('mysql2/promise'); mysql.createConnection({host: 'localhost', user: 'root', password: '1234', database: 'eduverse_db'}).then(c => c.query('SELECT * FROM office_hour_slots WHERE slot_id=13').then(([rows]) => console.log(rows)).finally(() => c.end()));
