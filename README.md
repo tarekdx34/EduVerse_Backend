@@ -1,6 +1,6 @@
----
+﻿---
 title: Eduverse Backend
-emoji: "??"
+emoji: "🎓"
 colorFrom: blue
 colorTo: indigo
 sdk: docker
