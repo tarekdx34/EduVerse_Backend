@@ -119,8 +119,13 @@ export class AnnouncementsService {
         
       
       if (roles.includes('student')) {
-        // Students only see published announcements for their courses
+        // Students only see published announcements for their courses and targeted at them
         qb.andWhere('a.isPublished = :isPublished', { isPublished: true });
+        qb.andWhere('(a.targetAudience = :allAudience OR a.targetAudience = :studentAudience)', {
+          allAudience: 'all',
+          studentAudience: 'students',
+        });
+        
         if (accessibleCourseIds.length > 0) {
           qb.andWhere('(a.courseId IN (:...courseIds) OR a.courseId IS NULL)', { courseIds: accessibleCourseIds });
         } else {
@@ -128,7 +133,16 @@ export class AnnouncementsService {
           qb.andWhere('a.courseId IS NULL');
         }
       } else {
-        // Instructors/TAs see their courses + their own drafts
+        // Instructors/TAs see their courses + their own drafts + announcements targeted at their role
+        const roleAudiences = ['all'];
+        if (roles.includes('instructor')) roleAudiences.push('instructors');
+        if (roles.includes('teaching_assistant')) roleAudiences.push('tas');
+
+        qb.andWhere('(a.targetAudience IN (:...roleAudiences) OR a.createdBy = :userId)', {
+          roleAudiences,
+          userId,
+        });
+
         if (accessibleCourseIds.length > 0) {
           qb.andWhere('(a.courseId IN (:...courseIds) OR a.createdBy = :userId OR a.courseId IS NULL)', {
             courseIds: accessibleCourseIds,
