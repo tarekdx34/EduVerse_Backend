@@ -80,3 +80,6 @@ ai-services/attendance/temp_*
 # Quiz generator local runtime state (upload registry + stored quizzes)
 ai-services/quiz-generator/quizzes.json
 ai-services/quiz-generator/uploads.json
+
+# Runtime uploads should never be versioned
+uploads/
