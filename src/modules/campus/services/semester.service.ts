@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Semester } from '../entities/semester.entity';
+import { CourseSection } from '../../courses/entities/course-section.entity';
 import { CreateSemesterDto, UpdateSemesterDto } from '../dtos/semester.dto';
 import { SemesterStatus } from '../enums/semester-status.enum';
 import {
@@ -15,6 +16,8 @@ export class SemesterService {
   constructor(
     @InjectRepository(Semester)
     private semesterRepository: Repository<Semester>,
+    @InjectRepository(CourseSection)
+    private courseSectionRepository: Repository<CourseSection>,
   ) {}
 
   async findAll(status?: SemesterStatus, year?: number): Promise<Semester[]> {
@@ -120,6 +123,14 @@ export class SemesterService {
 
   async delete(id: number): Promise<void> {
     const semester = await this.findById(id);
+    const sectionCount = await this.courseSectionRepository.count({
+      where: { semesterId: id },
+    });
+    if (sectionCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete semester: ${sectionCount} course section(s) are still linked to this semester. Remove or reassign those sections first.`,
+      );
+    }
     await this.semesterRepository.remove(semester);
   }
 

@@ -99,21 +99,81 @@ export class EnrollmentsService {
     private studentProgressRepository: Repository<StudentProgress>,
   ) {}
 
-  async getEnrollmentPeriods(): Promise<any[]> {
+  async getEnrollmentPeriods(departmentId?: number): Promise<any[]> {
     const semesters = await this.semesterRepository.find({
       order: { startDate: 'DESC' },
     });
 
-    return semesters.map((s) => ({
-      id: s.id,
-      semesterName: s.name,
-      semesterCode: s.code,
-      registrationStart: s.registrationStart,
-      registrationEnd: s.registrationEnd,
-      semesterStart: s.startDate,
-      semesterEnd: s.endDate,
-      status: s.status,
-    }));
+    const deptScoped =
+      departmentId != null && Number.isFinite(Number(departmentId));
+
+    const rows = await Promise.all(
+      semesters.map(async (s) => {
+        const coursesQb = this.sectionRepository
+          .createQueryBuilder('sec')
+          .select('COUNT(DISTINCT sec.courseId)', 'cnt')
+          .where('sec.semesterId = :sid', { sid: s.id })
+          .andWhere('sec.status IN (:...openish)', {
+            openish: [SectionStatus.OPEN, SectionStatus.FULL],
+          });
+        if (deptScoped) {
+          coursesQb.innerJoin('sec.course', 'c').andWhere('c.departmentId = :did', {
+            did: Number(departmentId),
+          });
+        }
+        const coursesRow = await coursesQb.getRawOne<{ cnt: string }>();
+
+        const enrolledQb = this.enrollmentRepository
+          .createQueryBuilder('e')
+          .innerJoin('e.section', 'sec')
+          .where('sec.semesterId = :sid', { sid: s.id })
+          .andWhere('e.status IN (:...sts)', {
+            sts: [EnrollmentStatus.ENROLLED, EnrollmentStatus.COMPLETED],
+          });
+        if (deptScoped) {
+          enrolledQb.innerJoin('sec.course', 'c').andWhere('c.departmentId = :did', {
+            did: Number(departmentId),
+          });
+        }
+        const enrolledRow = await enrolledQb
+          .select('COUNT(DISTINCT e.userId)', 'cnt')
+          .getRawOne<{ cnt: string }>();
+
+        const capQb = this.sectionRepository
+          .createQueryBuilder('sec')
+          .select('COALESCE(SUM(sec.maxCapacity), 0)', 'sum')
+          .where('sec.semesterId = :sid', { sid: s.id })
+          .andWhere('sec.status IN (:...openish)', {
+            openish: [SectionStatus.OPEN, SectionStatus.FULL],
+          });
+        if (deptScoped) {
+          capQb.innerJoin('sec.course', 'c').andWhere('c.departmentId = :did', {
+            did: Number(departmentId),
+          });
+        }
+        const capRow = await capQb.getRawOne<{ sum: string }>();
+
+        const coursesAvailableCount = Number(coursesRow?.cnt ?? 0) || 0;
+        const registeredStudentCount = Number(enrolledRow?.cnt ?? 0) || 0;
+        const totalSeatCapacity = Number(capRow?.sum ?? 0) || 0;
+
+        return {
+          id: s.id,
+          semesterName: s.name,
+          semesterCode: s.code,
+          registrationStart: s.registrationStart,
+          registrationEnd: s.registrationEnd,
+          semesterStart: s.startDate,
+          semesterEnd: s.endDate,
+          status: s.status,
+          coursesAvailableCount,
+          registeredStudentCount,
+          totalSeatCapacity,
+        };
+      }),
+    );
+
+    return rows;
   }
 
   async enrollStudent(

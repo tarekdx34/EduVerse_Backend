@@ -6,7 +6,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { OfficeHourSlot } from '../entities/office-hour-slot.entity';
 import { OfficeHourAppointment } from '../entities/office-hour-appointment.entity';
 import { CreateSlotDto } from '../dto/create-slot.dto';
@@ -74,6 +74,7 @@ export class OfficeHoursService {
     const qb = this.slotRepo
       .createQueryBuilder('slot')
       .leftJoinAndSelect('slot.instructor', 'instructor')
+      .andWhere('slot.status != :cancelled', { cancelled: 'cancelled' })
       .orderBy('slot.createdAt', 'DESC')
       .skip(skip)
       .take(limit);
@@ -130,7 +131,7 @@ export class OfficeHoursService {
 
   async getMySlots(instructorId: number) {
     const data = await this.slotRepo.find({
-      where: { instructorId },
+      where: { instructorId, status: Not('cancelled') },
       order: { dayOfWeek: 'ASC', startTime: 'ASC' },
     });
     const appointmentCounts = await this.getSlotAppointmentCounts(
