@@ -296,8 +296,16 @@ export class QuizzesService {
     });
 
     if (inProgress) {
-      // Resume existing attempt
-      return this.getAttemptWithQuestions(inProgress.id);
+      const elapsedMinutes = await this.getAttemptElapsedMinutes(inProgress.id, inProgress.startedAt);
+      const isExpired = this.hasExceededTimeLimit(elapsedMinutes, quiz.timeLimitMinutes);
+
+      if (!isExpired) {
+        // Resume existing active attempt
+        return this.getAttemptWithQuestions(inProgress.id);
+      }
+
+      // Stale in-progress attempt: close it so a fresh one can be created.
+      await this.markAttemptAsAbandoned(inProgress.id, elapsedMinutes);
     }
 
     const attempt = this.attemptRepo.create({
@@ -416,12 +424,12 @@ export class QuizzesService {
       throw new AttemptAlreadySubmittedException(attemptId);
     }
 
-    // Check time limit
-    if (attempt.quiz.timeLimitMinutes) {
-      const elapsed = (Date.now() - attempt.startedAt.getTime()) / 60000;
-      if (elapsed > attempt.quiz.timeLimitMinutes + 1) { // 1 min grace
-        throw new QuizTimeExpiredException(attemptId);
-      }
+    const elapsedMinutes = await this.getAttemptElapsedMinutes(attempt.id, attempt.startedAt);
+
+    // Check time limit (1 minute grace)
+    if (this.hasExceededTimeLimit(elapsedMinutes, attempt.quiz.timeLimitMinutes)) {
+      await this.markAttemptAsAbandoned(attempt.id, elapsedMinutes);
+      throw new QuizTimeExpiredException(attemptId);
     }
 
     // Save answers (upsert to avoid duplicates when progress was auto-saved earlier)
@@ -474,7 +482,7 @@ export class QuizzesService {
     const totalScore = answers.reduce((sum, a) => sum + Number(a.pointsEarned || 0), 0);
     const maxScore = attempt.quiz.questions.reduce((sum, q) => sum + Number(q.points), 0);
 
-    const timeTaken = Math.round((Date.now() - attempt.startedAt.getTime()) / 60000);
+    const timeTaken = Math.max(0, Math.round(elapsedMinutes));
 
     // Determine status based on whether manual grading is needed
     const needsManualGrading = attempt.quiz.questions.some(
@@ -655,6 +663,46 @@ export class QuizzesService {
     if (quiz.availableUntil && now > quiz.availableUntil) {
       throw new QuizNotAvailableException(quiz.id, `Quiz closed on ${quiz.availableUntil.toISOString()}`);
     }
+  }
+
+  private hasExceededTimeLimit(
+    elapsedMinutes: number,
+    timeLimitMinutes?: number | null,
+  ): boolean {
+    if (!timeLimitMinutes || timeLimitMinutes <= 0) {
+      return false;
+    }
+
+    return elapsedMinutes > timeLimitMinutes + 1;
+  }
+
+  private async getAttemptElapsedMinutes(attemptId: number, startedAt: Date): Promise<number> {
+    try {
+      const rows: Array<{ elapsedSeconds?: string | number }> = await this.attemptRepo.query(
+        `SELECT TIMESTAMPDIFF(SECOND, started_at, NOW()) AS elapsedSeconds
+         FROM quiz_attempts
+         WHERE attempt_id = ?
+         LIMIT 1`,
+        [attemptId],
+      );
+
+      const elapsedSeconds = Number(rows?.[0]?.elapsedSeconds);
+      if (!Number.isNaN(elapsedSeconds)) {
+        return Math.max(0, elapsedSeconds / 60);
+      }
+    } catch {
+      // Fallback below if DB-level diff fails for any reason.
+    }
+
+    return Math.max(0, (Date.now() - startedAt.getTime()) / 60000);
+  }
+
+  private async markAttemptAsAbandoned(attemptId: number, elapsedMinutes: number): Promise<void> {
+    await this.attemptRepo.update(attemptId, {
+      status: AttemptStatus.ABANDONED,
+      submittedAt: new Date(),
+      timeTakenMinutes: Math.max(0, Math.round(elapsedMinutes)),
+    });
   }
 
   // ============ STATISTICS & SUMMARIES ============
