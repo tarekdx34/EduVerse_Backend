@@ -33,6 +33,8 @@ import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './roles.decorator';
 import { RoleName } from './entities/role.entity';
 import { UserManagementService } from './user-management.service';
+import { AdminDashboardService } from './admin-dashboard.service';
+import type { AdminDashboardSummary } from './admin-dashboard.service';
 import {
   UserUpdateDto,
   UserStatusUpdateDto,
@@ -59,7 +61,10 @@ import {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class UserManagementController {
-  constructor(private readonly userManagementService: UserManagementService) {}
+  constructor(
+    private readonly userManagementService: UserManagementService,
+    private readonly adminDashboardService: AdminDashboardService,
+  ) {}
 
   // ============ USER MANAGEMENT ENDPOINTS ============
 
@@ -187,6 +192,21 @@ Search for users by name, email, or other criteria.
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   async getUserStatistics() {
     return this.userManagementService.getUserStatistics();
+  }
+
+  @Get('dashboard/summary')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN, RoleName.DEPARTMENT_HEAD)
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Admin dashboard summary',
+    description:
+      'Returns DB-backed analytics (user sign-ups by month, course enrollment counts) and recent audit log activity.',
+  })
+  @ApiResponse({ status: 200, description: 'Dashboard summary' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  async getAdminDashboardSummary(): Promise<AdminDashboardSummary> {
+    return this.adminDashboardService.getDashboardSummary();
   }
 
   // ============ USER EXPORT ============

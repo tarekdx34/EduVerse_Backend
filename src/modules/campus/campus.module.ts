@@ -5,6 +5,7 @@ import { Department } from './entities/department.entity';
 import { Program } from './entities/program.entity';
 import { Semester } from './entities/semester.entity';
 import { User } from '../auth/entities/user.entity';
+import { CourseSection } from '../courses/entities/course-section.entity';
 import { CampusService } from './services/campus.service';
 import { DepartmentService } from './services/department.service';
 import { ProgramService } from './services/program.service';
@@ -22,6 +23,7 @@ import { SemesterController } from './controllers/semester.controller';
       Program,
       Semester,
       User,
+      CourseSection,
     ]),
   ],
   controllers: [
