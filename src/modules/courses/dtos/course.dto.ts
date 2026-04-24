@@ -41,7 +41,7 @@ export class CreateCourseDto {
   @Max(6)
   credits: number;
 
-  @ApiProperty({ description: 'Course level', enum: CourseLevel, example: 'beginner' })
+  @ApiProperty({ description: 'Course level', enum: ['FRESHMAN', 'SOPHOMORE', 'JUNIOR', 'SENIOR', 'GRADUATE'], example: 'FRESHMAN' })
   @IsEnum(CourseLevel)
   level: CourseLevel;
 
@@ -75,7 +75,7 @@ export class UpdateCourseDto {
   @Max(6)
   credits?: number;
 
-  @ApiPropertyOptional({ description: 'Course level', enum: CourseLevel, example: 'intermediate' })
+  @ApiPropertyOptional({ description: 'Course level', enum: ['FRESHMAN', 'SOPHOMORE', 'JUNIOR', 'SENIOR', 'GRADUATE'], example: 'JUNIOR' })
   @IsOptional()
   @IsEnum(CourseLevel)
   level?: CourseLevel;
@@ -85,7 +85,7 @@ export class UpdateCourseDto {
   @IsString()
   syllabusUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Course status', enum: CourseStatus, example: 'active' })
+  @ApiPropertyOptional({ description: 'Course status', enum: ['ACTIVE', 'INACTIVE', 'ARCHIVED'], example: 'ACTIVE' })
   @IsOptional()
   @IsEnum(CourseStatus)
   status?: CourseStatus;

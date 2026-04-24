@@ -59,7 +59,7 @@ Retrieves a paginated list of courses with optional filters.
   })
   @ApiQuery({ name: 'departmentId', required: false, type: Number })
   @ApiQuery({ name: 'level', required: false, type: String, example: '300' })
-  @ApiQuery({ name: 'status', required: false, enum: CourseStatus })
+  @ApiQuery({ name: 'status', required: false, enum: ['ACTIVE', 'INACTIVE', 'ARCHIVED'] })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 20 })

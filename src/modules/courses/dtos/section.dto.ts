@@ -58,7 +58,7 @@ export class UpdateSectionDto {
   @IsOptional()
   location?: string;
 
-  @ApiPropertyOptional({ description: 'Section status', enum: SectionStatus, example: 'active' })
+  @ApiPropertyOptional({ description: 'Section status', enum: ['OPEN', 'CLOSED', 'FULL', 'CANCELLED'], example: 'OPEN' })
   @IsOptional()
   @IsEnum(SectionStatus)
   status?: SectionStatus;

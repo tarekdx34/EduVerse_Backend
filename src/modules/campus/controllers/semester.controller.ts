@@ -63,7 +63,7 @@ Retrieves all semesters with optional filters.
 - \`year\`: Filter by academic year
     `,
   })
-  @ApiQuery({ name: 'status', required: false, enum: SemesterStatus })
+  @ApiQuery({ name: 'status', required: false, enum: ['upcoming', 'active', 'completed'] })
   @ApiQuery({ name: 'year', required: false, type: String, example: '2024' })
   @ApiResponse({ status: 200, description: 'List of semesters' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

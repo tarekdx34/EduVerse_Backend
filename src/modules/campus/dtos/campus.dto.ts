@@ -86,8 +86,8 @@ export class CreateCampusDto {
 
   @ApiPropertyOptional({
     description: 'Campus status',
-    enum: Status,
-    example: Status.ACTIVE,
+    enum: ['active', 'inactive'],
+    example: 'active',
   })
   @IsOptional()
   @IsEnum(Status)
@@ -124,7 +124,7 @@ export class CampusDto {
   @ApiProperty({ example: 'Africa/Cairo' })
   timezone: string;
 
-  @ApiProperty({ enum: Status, example: Status.ACTIVE })
+  @ApiProperty({ enum: ['active', 'inactive'], example: 'active' })
   status: Status;
 
   @ApiProperty({ example: '2024-01-15T10:30:00Z' })
