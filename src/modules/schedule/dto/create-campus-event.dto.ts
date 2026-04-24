@@ -35,8 +35,8 @@ export class CreateCampusEventDto {
 
   @ApiProperty({
     description: 'Type of event',
-    enum: CampusEventType,
-    example: CampusEventType.UNIVERSITY_WIDE,
+    enum: ['university_wide', 'department', 'campus', 'program'],
+    example: 'university_wide',
   })
   @IsEnum(CampusEventType)
   @IsNotEmpty()
@@ -133,8 +133,8 @@ export class CreateCampusEventDto {
 
   @ApiPropertyOptional({
     description: 'Event status',
-    enum: CampusEventStatus,
-    example: CampusEventStatus.PUBLISHED,
+    enum: ['draft', 'published', 'cancelled', 'completed'],
+    example: 'published',
   })
   @IsEnum(CampusEventStatus)
   @IsOptional()

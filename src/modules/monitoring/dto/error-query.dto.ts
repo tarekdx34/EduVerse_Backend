@@ -4,12 +4,12 @@ import { Type } from 'class-transformer';
 import { ErrorType, ErrorSeverity } from '../entities/system-error.entity';
 
 export class ErrorQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by error type', enum: ErrorType })
+  @ApiPropertyOptional({ description: 'Filter by error type', enum: ['application', 'database', 'api', 'security', 'system'] })
   @IsOptional()
   @IsEnum(ErrorType)
   errorType?: ErrorType;
 
-  @ApiPropertyOptional({ description: 'Filter by severity', enum: ErrorSeverity })
+  @ApiPropertyOptional({ description: 'Filter by severity', enum: ['low', 'medium', 'high', 'critical'] })
   @IsOptional()
   @IsEnum(ErrorSeverity)
   severity?: ErrorSeverity;

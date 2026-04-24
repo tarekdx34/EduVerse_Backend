@@ -5,8 +5,8 @@ import { CalendarType } from '../enums';
 export class ConnectCalendarDto {
   @ApiProperty({
     description: 'Type of calendar to connect',
-    enum: CalendarType,
-    example: CalendarType.GOOGLE,
+    enum: ['google', 'outlook', 'ical'],
+    example: 'google',
   })
   @IsEnum(CalendarType)
   @IsNotEmpty()

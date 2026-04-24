@@ -16,8 +16,8 @@ export class CreateQuestionDto {
 
   @ApiProperty({ 
     description: 'Question type', 
-    enum: QuestionType, 
-    example: QuestionType.MCQ 
+    enum: ['mcq', 'true_false', 'short_answer', 'essay', 'matching'], 
+    example: 'mcq' 
   })
   @IsEnum(QuestionType)
   questionType: QuestionType;

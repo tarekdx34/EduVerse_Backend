@@ -7,7 +7,7 @@ export enum ExportFormat {
 }
 
 export class ExportLogsDto {
-  @ApiProperty({ description: 'Export format', enum: ExportFormat })
+  @ApiProperty({ description: 'Export format', enum: ['csv', 'json'] })
   @IsEnum(ExportFormat)
   format: ExportFormat;
 

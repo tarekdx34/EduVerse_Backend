@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 import { CommunityType } from '../entities/community.entity';
 
 export class CommunityQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by community type', enum: CommunityType })
+  @ApiPropertyOptional({ description: 'Filter by community type', enum: ['global', 'department'] })
   @IsOptional()
   @IsEnum(CommunityType)
   communityType?: CommunityType;

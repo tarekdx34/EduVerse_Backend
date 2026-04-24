@@ -34,9 +34,9 @@ export class CreateQuizDto {
 
   @ApiPropertyOptional({ 
     description: 'Quiz type', 
-    enum: QuizType, 
-    default: QuizType.GRADED,
-    example: QuizType.GRADED 
+    enum: ['practice', 'graded', 'midterm', 'final'], 
+    default: 'graded',
+    example: 'graded' 
   })
   @IsOptional()
   @IsEnum(QuizType)
@@ -74,8 +74,8 @@ export class CreateQuizDto {
 
   @ApiPropertyOptional({ 
     description: 'When to show answers', 
-    enum: ShowAnswersAfter, 
-    default: ShowAnswersAfter.AFTER_DUE 
+    enum: ['immediate', 'after_due', 'never'], 
+    default: 'after_due' 
   })
   @IsOptional()
   @IsEnum(ShowAnswersAfter)
@@ -100,9 +100,9 @@ export class CreateQuizDto {
 
   @ApiPropertyOptional({
     description: 'Quiz status',
-    enum: QuizStatus,
-    default: QuizStatus.DRAFT,
-    example: QuizStatus.DRAFT,
+    enum: ['draft', 'published', 'closed', 'archived'],
+    default: 'draft',
+    example: 'draft',
   })
   @IsOptional()
   @IsEnum(QuizStatus)

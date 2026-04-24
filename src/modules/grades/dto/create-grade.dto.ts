@@ -18,7 +18,7 @@ export class CreateGradeDto {
   @IsNumber()
   courseId: number;
 
-  @ApiProperty({ description: 'Type of grade', enum: GradeType, example: 'assignment' })
+  @ApiProperty({ description: 'Type of grade', enum: ['assignment', 'quiz', 'lab', 'exam', 'final', 'participation', 'project', 'other'], example: 'assignment' })
   @IsEnum(GradeType)
   gradeType: GradeType;
 

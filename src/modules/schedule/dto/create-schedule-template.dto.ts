@@ -17,8 +17,8 @@ import { DayOfWeek, ScheduleType } from '../../courses/enums';
 export class TemplateSlotDto {
   @ApiProperty({
     description: 'Day of week',
-    enum: DayOfWeek,
-    example: DayOfWeek.MONDAY,
+    enum: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
+    example: 'MONDAY',
   })
   @IsEnum(DayOfWeek)
   @IsNotEmpty()
@@ -42,8 +42,8 @@ export class TemplateSlotDto {
 
   @ApiProperty({
     description: 'Type of slot',
-    enum: ScheduleType,
-    example: ScheduleType.LECTURE,
+    enum: ['LECTURE', 'LAB', 'TUTORIAL', 'EXAM'],
+    example: 'LECTURE',
   })
   @IsEnum(ScheduleType)
   @IsNotEmpty()
@@ -95,8 +95,8 @@ export class CreateScheduleTemplateDto {
 
   @ApiProperty({
     description: 'Schedule type',
-    enum: TemplateScheduleType,
-    example: TemplateScheduleType.LECTURE,
+    enum: ['LECTURE', 'LAB', 'TUTORIAL', 'HYBRID'],
+    example: 'LECTURE',
   })
   @IsEnum(TemplateScheduleType)
   @IsNotEmpty()

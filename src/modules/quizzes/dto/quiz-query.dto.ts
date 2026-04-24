@@ -10,7 +10,7 @@ export class QuizQueryDto {
   @IsNumber()
   courseId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by quiz type', enum: QuizType })
+  @ApiPropertyOptional({ description: 'Filter by quiz type', enum: ['practice', 'graded', 'midterm', 'final'] })
   @IsOptional()
   @IsEnum(QuizType)
   quizType?: QuizType;
@@ -50,7 +50,7 @@ export class AttemptQueryDto {
   @IsNumber()
   userId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by attempt status', enum: AttemptStatus })
+  @ApiPropertyOptional({ description: 'Filter by attempt status', enum: ['in_progress', 'submitted', 'graded', 'abandoned'] })
   @IsOptional()
   @IsEnum(AttemptStatus)
   status?: AttemptStatus;

@@ -16,7 +16,7 @@ export class GradeQueryDto {
   @Type(() => Number)
   userId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by grade type', enum: GradeType, example: 'assignment' })
+  @ApiPropertyOptional({ description: 'Filter by grade type', enum: ['assignment', 'quiz', 'lab', 'exam', 'final', 'participation', 'project', 'other'], example: 'assignment' })
   @IsEnum(GradeType)
   @IsOptional()
   gradeType?: GradeType;

@@ -24,8 +24,8 @@ export class QueryExamScheduleDto {
 
   @ApiPropertyOptional({
     description: 'Filter by exam type',
-    enum: ExamType,
-    example: ExamType.MIDTERM,
+    enum: ['midterm', 'final', 'quiz', 'makeup'],
+    example: 'midterm',
   })
   @IsEnum(ExamType)
   @IsOptional()

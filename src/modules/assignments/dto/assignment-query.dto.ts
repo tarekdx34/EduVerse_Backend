@@ -22,7 +22,7 @@ export class AssignmentQueryDto {
   @IsOptional()
   sectionId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by status', enum: AssignmentStatus, example: 'published' })
+  @ApiPropertyOptional({ description: 'Filter by status', enum: ['draft', 'published', 'closed', 'archived'], example: 'published' })
   @IsEnum(AssignmentStatus)
   @IsOptional()
   status?: AssignmentStatus;

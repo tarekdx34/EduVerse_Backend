@@ -8,7 +8,7 @@ export class QuestionResultDto {
   @ApiProperty({ description: 'Question text', example: 'What is O(log n)?' })
   questionText: string;
 
-  @ApiProperty({ description: 'Question type', enum: QuestionType })
+  @ApiProperty({ description: 'Question type', enum: ['mcq', 'true_false', 'short_answer', 'essay', 'matching'] })
   questionType: QuestionType;
 
   @ApiPropertyOptional({ description: 'Answer options', type: [String] })
@@ -67,7 +67,7 @@ export class AttemptResultDto {
   @ApiProperty({ description: 'Time taken in minutes', example: 45 })
   timeTakenMinutes: number;
 
-  @ApiProperty({ description: 'Attempt status', enum: AttemptStatus })
+  @ApiProperty({ description: 'Attempt status', enum: ['in_progress', 'submitted', 'graded', 'abandoned'] })
   status: AttemptStatus;
 
   @ApiProperty({ description: 'Start time', example: '2026-03-15T10:00:00Z' })
@@ -125,7 +125,7 @@ export class QuizSummaryDto {
   @ApiProperty({ description: 'Quiz title', example: 'Midterm Quiz' })
   title: string;
 
-  @ApiProperty({ description: 'Quiz type', enum: QuizType })
+  @ApiProperty({ description: 'Quiz type', enum: ['practice', 'graded', 'midterm', 'final'] })
   quizType: QuizType;
 
   @ApiProperty({ description: 'Number of questions', example: 20 })

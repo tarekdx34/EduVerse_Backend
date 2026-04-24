@@ -13,8 +13,8 @@ import { TemplateScheduleType } from '../entities/schedule-template.entity';
 export class QueryScheduleTemplateDto {
   @ApiPropertyOptional({
     description: 'Filter by schedule type',
-    enum: TemplateScheduleType,
-    example: TemplateScheduleType.LECTURE,
+    enum: ['LECTURE', 'LAB', 'TUTORIAL', 'HYBRID'],
+    example: 'LECTURE',
   })
   @IsEnum(TemplateScheduleType)
   @IsOptional()

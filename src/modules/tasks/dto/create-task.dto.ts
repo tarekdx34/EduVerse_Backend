@@ -13,7 +13,7 @@ export class CreateTaskDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Task type', enum: TaskType, example: TaskType.ASSIGNMENT })
+  @ApiProperty({ description: 'Task type', enum: ['assignment', 'quiz', 'lab', 'study', 'custom'], example: 'assignment' })
   @IsEnum(TaskType)
   taskType: TaskType;
 
@@ -40,7 +40,7 @@ export class CreateTaskDto {
   @IsDateString()
   dueDate?: string;
 
-  @ApiPropertyOptional({ description: 'Task priority', enum: TaskPriority, example: TaskPriority.MEDIUM })
+  @ApiPropertyOptional({ description: 'Task priority', enum: ['low', 'medium', 'high'], example: 'medium' })
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority;

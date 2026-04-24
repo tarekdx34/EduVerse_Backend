@@ -8,7 +8,7 @@ export class CreateNotificationDto {
   @IsInt()
   userId: number;
 
-  @ApiProperty({ example: 'assignment', enum: NotificationType, description: 'Notification type' })
+  @ApiProperty({ example: 'assignment', enum: ['announcement', 'grade', 'assignment', 'message', 'deadline', 'system', 'lab', 'quiz', 'material', 'community', 'discussion', 'enrollment', 'schedule', 'office_hours'], description: 'Notification type' })
   @IsEnum(NotificationType)
   notificationType: NotificationType;
 
@@ -30,7 +30,7 @@ export class CreateNotificationDto {
   @IsInt()
   relatedEntityId?: number;
 
-  @ApiPropertyOptional({ example: 'medium', enum: NotificationPriority, description: 'Priority level' })
+  @ApiPropertyOptional({ example: 'medium', enum: ['low', 'medium', 'high', 'urgent'], description: 'Priority level' })
   @IsOptional()
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;
@@ -46,7 +46,7 @@ export class SendNotificationDto {
   @IsInt({ each: true })
   userIds: number[];
 
-  @ApiProperty({ example: 'system', enum: NotificationType, description: 'Notification type' })
+  @ApiProperty({ example: 'system', enum: ['announcement', 'grade', 'assignment', 'message', 'deadline', 'system', 'lab', 'quiz', 'material', 'community', 'discussion', 'enrollment', 'schedule', 'office_hours'], description: 'Notification type' })
   @IsEnum(NotificationType)
   notificationType: NotificationType;
 
@@ -58,7 +58,7 @@ export class SendNotificationDto {
   @IsString()
   body: string;
 
-  @ApiPropertyOptional({ example: 'high', enum: NotificationPriority })
+  @ApiPropertyOptional({ example: 'high', enum: ['low', 'medium', 'high', 'urgent'] })
   @IsOptional()
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;
@@ -70,12 +70,12 @@ export class SendNotificationDto {
 }
 
 export class NotificationQueryDto {
-  @ApiPropertyOptional({ example: 'assignment', enum: NotificationType, description: 'Filter by type' })
+  @ApiPropertyOptional({ example: 'assignment', enum: ['announcement', 'grade', 'assignment', 'message', 'deadline', 'system', 'lab', 'quiz', 'material', 'community', 'discussion', 'enrollment', 'schedule', 'office_hours'], description: 'Filter by type' })
   @IsOptional()
   @IsEnum(NotificationType)
   type?: NotificationType;
 
-  @ApiPropertyOptional({ example: 'high', enum: NotificationPriority, description: 'Filter by priority' })
+  @ApiPropertyOptional({ example: 'high', enum: ['low', 'medium', 'high', 'urgent'], description: 'Filter by priority' })
   @IsOptional()
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;

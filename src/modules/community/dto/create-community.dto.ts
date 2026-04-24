@@ -13,7 +13,7 @@ export class CreateCommunityDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Community type', enum: CommunityType, example: CommunityType.GLOBAL })
+  @ApiProperty({ description: 'Community type', enum: ['global', 'department'], example: 'global' })
   @IsEnum(CommunityType)
   communityType: CommunityType;
 

@@ -40,6 +40,7 @@ export class UserUpdateDto {
 }
 
 export class UserStatusUpdateDto {
+  @ApiProperty({ description: 'New status', enum: ['active', 'inactive', 'blocked', 'pending'], example: 'active' })
   @IsEnum(UserStatus)
   status: UserStatus;
 }
@@ -50,6 +51,7 @@ export class RoleAssignmentDto {
 }
 
 export class RoleCreateDto {
+  @ApiProperty({ description: 'Role name', enum: ['student', 'instructor', 'ta', 'admin', 'it_admin'], example: 'student' })
   @IsEnum(RoleName)
   roleName: RoleName;
 
@@ -59,6 +61,7 @@ export class RoleCreateDto {
 }
 
 export class RoleUpdateDto {
+  @ApiPropertyOptional({ description: 'Role name', enum: ['student', 'instructor', 'ta', 'admin', 'it_admin'], example: 'student' })
   @IsEnum(RoleName)
   @IsOptional()
   roleName?: RoleName;
@@ -120,14 +123,17 @@ export class BulkPermissionsDto {
 }
 
 export class UserFilterDto {
+  @ApiPropertyOptional({ description: 'Filter by status', enum: ['active', 'inactive', 'blocked', 'pending'] })
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus;
 
+  @ApiPropertyOptional({ description: 'Filter by role name', example: 'student' })
   @IsOptional()
   @IsString()
   role?: string;
 
+  @ApiPropertyOptional({ description: 'Filter by campus ID', example: 1 })
   @IsOptional()
   @IsNumber()
   campusId?: number;

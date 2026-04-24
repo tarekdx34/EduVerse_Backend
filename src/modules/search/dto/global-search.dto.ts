@@ -14,7 +14,7 @@ export class GlobalSearchDto {
   @MinLength(1)
   query: string;
 
-  @ApiPropertyOptional({ description: 'Filter by entity type', enum: SearchEntityType })
+  @ApiPropertyOptional({ description: 'Filter by entity type', enum: ['course', 'material', 'user', 'announcement', 'assignment', 'quiz', 'file', 'post'] })
   @IsOptional()
   @IsEnum(SearchEntityType)
   entityType?: SearchEntityType;
@@ -31,7 +31,7 @@ export class GlobalSearchDto {
   @Type(() => Number)
   campusId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by visibility', enum: SearchVisibility })
+  @ApiPropertyOptional({ description: 'Filter by visibility', enum: ['public', 'students', 'instructors', 'private'] })
   @IsOptional()
   @IsEnum(SearchVisibility)
   visibility?: SearchVisibility;
@@ -50,7 +50,7 @@ export class GlobalSearchDto {
   @Type(() => Number)
   limit?: number = 20;
 
-  @ApiPropertyOptional({ description: 'Sort by', enum: SearchSortBy, default: SearchSortBy.RELEVANCE })
+  @ApiPropertyOptional({ description: 'Sort by', enum: ['relevance', 'recent'], default: 'relevance' })
   @IsOptional()
   @IsEnum(SearchSortBy)
   sortBy?: SearchSortBy = SearchSortBy.RELEVANCE;

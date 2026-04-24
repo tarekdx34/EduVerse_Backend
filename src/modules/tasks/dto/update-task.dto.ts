@@ -6,7 +6,7 @@ import { CreateTaskDto } from './create-task.dto';
 import { TaskStatus } from '../entities/student-task.entity';
 
 export class UpdateTaskDto extends PartialType(CreateTaskDto) {
-  @ApiPropertyOptional({ description: 'Task status', enum: TaskStatus, example: TaskStatus.IN_PROGRESS })
+  @ApiPropertyOptional({ description: 'Task status', enum: ['pending', 'in_progress', 'completed', 'overdue'], example: 'in_progress' })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;

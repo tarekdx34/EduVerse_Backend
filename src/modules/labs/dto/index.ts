@@ -45,7 +45,7 @@ export class CreateLabDto {
   @IsNumber()
   weight?: number;
 
-  @ApiPropertyOptional({ example: 'draft', enum: LabStatus, description: 'Lab status' })
+  @ApiPropertyOptional({ example: 'draft', enum: ['draft', 'published', 'closed', 'archived'], description: 'Lab status' })
   @IsOptional()
   @IsEnum(LabStatus)
   status?: LabStatus;
@@ -148,7 +148,7 @@ export class LabQueryDto {
   @IsInt()
   courseId?: number;
 
-  @ApiPropertyOptional({ example: 'published', enum: LabStatus, description: 'Filter by status' })
+  @ApiPropertyOptional({ example: 'published', enum: ['draft', 'published', 'closed', 'archived'], description: 'Filter by status' })
   @IsOptional()
   @IsEnum(LabStatus)
   status?: LabStatus;

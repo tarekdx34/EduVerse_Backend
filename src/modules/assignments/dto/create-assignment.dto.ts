@@ -37,7 +37,7 @@ export class CreateAssignmentDto {
   @IsOptional()
   instructions?: string;
 
-  @ApiPropertyOptional({ description: 'Submission type', enum: SubmissionType, default: SubmissionType.FILE, example: 'file' })
+  @ApiPropertyOptional({ description: 'Submission type', enum: ['file', 'text', 'link', 'multiple'], default: 'file', example: 'file' })
   @IsEnum(SubmissionType)
   @IsOptional()
   submissionType?: SubmissionType;

@@ -15,9 +15,9 @@ export class AssignInstructorDto {
 
   @ApiPropertyOptional({
     description: 'Role of the instructor in this section',
-    enum: InstructorRole,
-    default: InstructorRole.PRIMARY,
-    example: InstructorRole.PRIMARY,
+    enum: ['primary', 'co_instructor', 'guest'],
+    default: 'primary',
+    example: 'primary',
   })
   @IsOptional()
   @IsEnum(InstructorRole)
@@ -34,7 +34,7 @@ export class InstructorAssignmentResponseDto {
   @ApiProperty({ example: 5 })
   userId: number;
 
-  @ApiProperty({ enum: InstructorRole, example: InstructorRole.PRIMARY })
+  @ApiProperty({ enum: ['primary', 'co_instructor', 'guest'], example: 'primary' })
   role: InstructorRole;
 
   @ApiProperty()

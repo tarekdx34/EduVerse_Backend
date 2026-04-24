@@ -10,8 +10,8 @@ import { DayOfWeek, ScheduleType } from '../enums';
 export class CreateScheduleDto {
   @ApiProperty({
     description: 'Day of the week',
-    enum: DayOfWeek,
-    example: 'monday',
+    enum: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
+    example: 'MONDAY',
   })
   @IsEnum(DayOfWeek)
   dayOfWeek: DayOfWeek;
@@ -54,8 +54,8 @@ export class CreateScheduleDto {
 
   @ApiProperty({
     description: 'Type of schedule entry',
-    enum: ScheduleType,
-    example: 'lecture',
+    enum: ['LECTURE', 'LAB', 'TUTORIAL', 'EXAM'],
+    example: 'LECTURE',
   })
   @IsEnum(ScheduleType)
   scheduleType: ScheduleType;

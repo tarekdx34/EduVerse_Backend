@@ -31,8 +31,8 @@ export class CreateExamScheduleDto {
 
   @ApiProperty({
     description: 'Type of exam',
-    enum: ExamType,
-    example: ExamType.MIDTERM,
+    enum: ['midterm', 'final', 'quiz', 'makeup'],
+    example: 'midterm',
   })
   @IsEnum(ExamType)
   @IsNotEmpty()

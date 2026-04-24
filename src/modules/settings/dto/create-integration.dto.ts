@@ -8,7 +8,7 @@ export class CreateIntegrationDto {
   @IsString()
   integrationName: string;
 
-  @ApiProperty({ description: 'Integration type', enum: IntegrationType })
+  @ApiProperty({ description: 'Integration type', enum: ['lms', 'sso', 'payment', 'email', 'sms', 'ai', 'storage', 'other'] })
   @IsEnum(IntegrationType)
   integrationType: IntegrationType;
 

@@ -13,7 +13,7 @@ export class CreateReminderDto {
   @IsDateString()
   reminderTime: string;
 
-  @ApiPropertyOptional({ description: 'Reminder type', enum: ReminderType, default: ReminderType.IN_APP })
+  @ApiPropertyOptional({ description: 'Reminder type', enum: ['email', 'push', 'sms', 'in_app'], default: 'in_app' })
   @IsOptional()
   @IsEnum(ReminderType)
   reminderType?: ReminderType;

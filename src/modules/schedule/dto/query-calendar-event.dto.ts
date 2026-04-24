@@ -15,8 +15,8 @@ export class QueryCalendarEventDto {
 
   @ApiPropertyOptional({
     description: 'Filter by event type',
-    enum: EventType,
-    example: EventType.LECTURE,
+    enum: ['lecture', 'lab', 'exam', 'assignment', 'quiz', 'meeting', 'holiday', 'academic', 'custom'],
+    example: 'lecture',
   })
   @IsEnum(EventType)
   @IsOptional()
@@ -24,8 +24,8 @@ export class QueryCalendarEventDto {
 
   @ApiPropertyOptional({
     description: 'Filter by event status',
-    enum: EventStatus,
-    example: EventStatus.SCHEDULED,
+    enum: ['scheduled', 'completed', 'cancelled'],
+    example: 'scheduled',
   })
   @IsEnum(EventStatus)
   @IsOptional()

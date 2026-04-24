@@ -53,8 +53,8 @@ export class QueryScheduleDto {
 
   @ApiPropertyOptional({
     description: 'Filter by event type',
-    enum: EventType,
-    example: EventType.LECTURE,
+    enum: ['lecture', 'lab', 'exam', 'assignment', 'quiz', 'meeting', 'holiday', 'academic', 'custom'],
+    example: 'lecture',
   })
   @IsEnum(EventType)
   @IsOptional()

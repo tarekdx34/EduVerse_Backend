@@ -13,8 +13,8 @@ import { CampusEventType, CampusEventStatus } from '../entities/campus-event.ent
 export class QueryCampusEventDto {
   @ApiPropertyOptional({
     description: 'Filter by event type',
-    enum: CampusEventType,
-    example: CampusEventType.UNIVERSITY_WIDE,
+    enum: ['university_wide', 'department', 'campus', 'program'],
+    example: 'university_wide',
   })
   @IsEnum(CampusEventType)
   @IsOptional()
@@ -31,8 +31,8 @@ export class QueryCampusEventDto {
 
   @ApiPropertyOptional({
     description: 'Filter by status',
-    enum: CampusEventStatus,
-    example: CampusEventStatus.PUBLISHED,
+    enum: ['draft', 'published', 'cancelled', 'completed'],
+    example: 'published',
   })
   @IsEnum(CampusEventStatus)
   @IsOptional()

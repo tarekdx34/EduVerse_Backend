@@ -10,17 +10,17 @@ export enum TaskSortBy {
 }
 
 export class TaskQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by status', enum: TaskStatus })
+  @ApiPropertyOptional({ description: 'Filter by status', enum: ['pending', 'in_progress', 'completed', 'overdue'] })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;
 
-  @ApiPropertyOptional({ description: 'Filter by priority', enum: TaskPriority })
+  @ApiPropertyOptional({ description: 'Filter by priority', enum: ['low', 'medium', 'high'] })
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
 
-  @ApiPropertyOptional({ description: 'Filter by task type', enum: TaskType })
+  @ApiPropertyOptional({ description: 'Filter by task type', enum: ['assignment', 'quiz', 'lab', 'study', 'custom'] })
   @IsOptional()
   @IsEnum(TaskType)
   taskType?: TaskType;
@@ -39,7 +39,7 @@ export class TaskQueryDto {
   @Type(() => Number)
   limit?: number = 20;
 
-  @ApiPropertyOptional({ description: 'Sort by field', enum: TaskSortBy, default: TaskSortBy.CREATED_AT })
+  @ApiPropertyOptional({ description: 'Sort by field', enum: ['due_date', 'created_at', 'priority'], default: 'created_at' })
   @IsOptional()
   @IsEnum(TaskSortBy)
   sortBy?: TaskSortBy = TaskSortBy.CREATED_AT;

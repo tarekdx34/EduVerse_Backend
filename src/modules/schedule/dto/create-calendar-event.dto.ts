@@ -35,8 +35,8 @@ export class CreateCalendarEventDto {
 
   @ApiProperty({
     description: 'Type of event',
-    enum: EventType,
-    example: EventType.EXAM,
+    enum: ['lecture', 'lab', 'exam', 'assignment', 'quiz', 'meeting', 'holiday', 'academic', 'custom'],
+    example: 'exam',
   })
   @IsEnum(EventType)
   @IsNotEmpty()
@@ -118,8 +118,8 @@ export class CreateCalendarEventDto {
 
   @ApiPropertyOptional({
     description: 'Event status',
-    enum: EventStatus,
-    example: EventStatus.SCHEDULED,
+    enum: ['scheduled', 'completed', 'cancelled'],
+    example: 'scheduled',
   })
   @IsEnum(EventStatus)
   @IsOptional()
