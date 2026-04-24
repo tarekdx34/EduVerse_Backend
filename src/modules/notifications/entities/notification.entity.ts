@@ -17,7 +17,7 @@ export class Notification {
   @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
-  @Column({ name: 'notification_type', type: 'enum', enum: ['announcement', 'grade', 'assignment', 'message', 'deadline', 'system'] })
+  @Column({ name: 'notification_type', type: 'enum', enum: ['announcement', 'grade', 'assignment', 'message', 'deadline', 'system', 'lab', 'quiz', 'material', 'community', 'discussion', 'enrollment', 'schedule', 'office_hours'] })
   notificationType: string;
 
   @Column({ name: 'title', type: 'varchar', length: 255 })

@@ -16,6 +16,7 @@ import { Semester } from '../campus/entities/semester.entity';
 import { Program } from '../campus/entities/program.entity';
 import { CoursesModule } from '../courses/courses.module';
 import { StudentProgress } from '../analytics/entities/student-progress.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { StudentProgress } from '../analytics/entities/student-progress.entity';
       StudentProgress,
     ]),
     forwardRef(() => CoursesModule),
+    NotificationsModule,
   ],
   controllers: [EnrollmentsController],
   providers: [EnrollmentsService],

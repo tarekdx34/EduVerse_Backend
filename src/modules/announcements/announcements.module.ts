@@ -7,6 +7,7 @@ import { CourseEnrollment } from '../enrollments/entities/course-enrollment.enti
 import { CourseInstructor } from '../enrollments/entities/course-instructor.entity';
 import { CourseTA } from '../enrollments/entities/course-ta.entity';
 import { CourseSection } from '../courses/entities/course-section.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CourseSection } from '../courses/entities/course-section.entity';
       CourseTA,
       CourseSection,
     ]),
+    NotificationsModule,
   ],
   controllers: [AnnouncementsController],
   providers: [AnnouncementsService],

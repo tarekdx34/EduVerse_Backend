@@ -232,7 +232,7 @@ export class OfficeHoursService {
         await this.notificationsService
           .createNotification({
             userId: appt.studentId,
-            notificationType: NotificationType.SYSTEM,
+            notificationType: NotificationType.OFFICE_HOURS,
             title: 'Office Hour Slot Cancelled',
             body: `Your appointment for slot #${id} has been cancelled because the slot was cancelled by the instructor.`,
           })
@@ -320,7 +320,7 @@ export class OfficeHoursService {
     await this.notificationsService
       .createNotification({
         userId: slot.instructorId,
-        notificationType: NotificationType.MESSAGE,
+        notificationType: NotificationType.OFFICE_HOURS,
         title: 'New Office Hour Booking',
         body: `A student has booked an appointment for your slot on ${dto.appointmentDate}. Topic: ${dto.topic || 'No topic'}`,
       })
@@ -354,7 +354,7 @@ export class OfficeHoursService {
       await this.notificationsService
         .createNotification({
           userId: appointment.studentId,
-          notificationType: NotificationType.SYSTEM,
+          notificationType: NotificationType.OFFICE_HOURS,
           title: 'Appointment Confirmed',
           body: `Your office hour appointment on ${appointment.appointmentDate} has been confirmed via instructor.`,
         })
@@ -368,7 +368,7 @@ export class OfficeHoursService {
       await this.notificationsService
         .createNotification({
           userId: targetUserId,
-          notificationType: NotificationType.SYSTEM,
+          notificationType: NotificationType.OFFICE_HOURS,
           title: 'Appointment Cancelled',
           body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
         })
@@ -400,7 +400,7 @@ export class OfficeHoursService {
     await this.notificationsService
       .createNotification({
         userId: targetUserId,
-        notificationType: NotificationType.SYSTEM,
+        notificationType: NotificationType.OFFICE_HOURS,
         title: 'Appointment Cancelled',
         body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
       })
