@@ -24,10 +24,52 @@ import { DriveFileEntityType } from '../../google-drive/entities/drive-file.enti
 import { GradesService } from '../../grades/services';
 import { GradeType } from '../../grades/enums';
 import { LabStatus } from '../enums';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 
 @Injectable()
 export class LabsService {
   private readonly logger = new Logger(LabsService.name);
+
+  private async notifyStudentsAboutPublishedLab(lab: Lab): Promise<void> {
+    const studentIds = await this.notificationsService.getEnrolledStudentIds(
+      Number(lab.courseId),
+    );
+    if (studentIds.length === 0) {
+      this.logger.warn(`No enrolled students found to notify for lab ${lab.id}`);
+      return;
+    }
+
+    await this.notificationsService.createBulkNotifications(studentIds, {
+      notificationType: NotificationType.LAB,
+      title: 'New Lab Posted',
+      body: `A new lab "${lab.title}" has been posted in ${lab.course?.name || 'your course'}.`,
+      relatedEntityType: 'lab',
+      relatedEntityId: lab.id,
+      priority: NotificationPriority.MEDIUM,
+      actionUrl: `/courses/${lab.courseId}/labs/${lab.id}`,
+    });
+  }
+
+  private async notifyCourseStaffAboutSubmission(lab: Lab, studentId: number): Promise<void> {
+    const staffIds = (await this.notificationsService.getCourseStaffUserIds(
+      Number(lab.courseId),
+    )).filter((userId) => Number(userId) !== Number(studentId));
+
+    if (!staffIds.length) {
+      return;
+    }
+
+    await this.notificationsService.createBulkNotifications(staffIds, {
+      notificationType: NotificationType.LAB,
+      title: 'Lab Submission Received',
+      body: `A student submitted work for lab "${lab.title}".`,
+      relatedEntityType: 'lab',
+      relatedEntityId: lab.id,
+      priority: NotificationPriority.LOW,
+      actionUrl: `/courses/${lab.courseId}/labs/${lab.id}/submissions`,
+    });
+  }
 
   constructor(
     @InjectRepository(Lab)
@@ -47,6 +89,7 @@ export class LabsService {
     private driveFolderService: DriveFolderService,
     @Inject(forwardRef(() => GradesService))
     private gradesService: GradesService,
+    private notificationsService: NotificationsService,
   ) {}
 
   // ============ LABS CRUD ============
@@ -123,14 +166,37 @@ export class LabsService {
     const lab = this.labRepository.create({ ...dto, createdBy: userId });
     const saved = await this.labRepository.save(lab);
     this.logger.log(`Lab created: ${saved.id} by user ${userId}`);
-    return saved;
+
+    const result = await this.labRepository.findOne({
+      where: { id: saved.id },
+      relations: ['course'],
+    });
+
+    if (result?.status === LabStatus.PUBLISHED) {
+      await this.notifyStudentsAboutPublishedLab(result);
+    }
+
+    return result ?? saved;
   }
 
   async update(id: number, dto: UpdateLabDto): Promise<Lab> {
     const lab = await this.findById(id);
+    const previousStatus = lab.status;
     Object.assign(lab, dto);
     const updated = await this.labRepository.save(lab);
     this.logger.log(`Lab updated: ${id}`);
+
+    if (previousStatus !== LabStatus.PUBLISHED && updated.status === LabStatus.PUBLISHED) {
+      const publishedLab = await this.labRepository.findOne({
+        where: { id: updated.id },
+        relations: ['course'],
+      });
+
+      if (publishedLab) {
+        await this.notifyStudentsAboutPublishedLab(publishedLab);
+      }
+    }
+
     return updated;
   }
 
@@ -145,6 +211,19 @@ export class LabsService {
     lab.status = status;
     const updated = await this.labRepository.save(lab);
     this.logger.log(`Lab status changed to ${status}: ${id}`);
+
+    // Notify students if published
+    if (status === LabStatus.PUBLISHED) {
+      const publishedLab = await this.labRepository.findOne({
+        where: { id: updated.id },
+        relations: ['course'],
+      });
+
+      if (publishedLab) {
+        await this.notifyStudentsAboutPublishedLab(publishedLab);
+      }
+    }
+
     return updated;
   }
 
@@ -231,6 +310,7 @@ export class LabsService {
     }
 
     const saved = await this.submissionRepository.save(submission);
+    await this.notifyCourseStaffAboutSubmission(lab, userId);
     return saved;
   }
 
@@ -302,6 +382,18 @@ export class LabsService {
         isPublished: true, // Lab grades are immediately visible
       }, graderId);
       this.logger.log(`Grade record created for lab ${labId}, user ${submission.userId}`);
+
+      // Notify student about graded lab
+      await this.notificationsService.createNotification({
+        userId: submission.userId,
+        notificationType: NotificationType.GRADE,
+        title: 'Lab Graded',
+        body: `Your submission for lab "${lab.title}" has been graded. Score: ${dto.score}/${lab.maxScore}`,
+        relatedEntityType: 'lab',
+        relatedEntityId: labId,
+        priority: NotificationPriority.HIGH,
+        actionUrl: `/courses/${lab.courseId}/labs/${labId}`,
+      });
     }
 
     return this.submissionRepository.findOne({
@@ -558,6 +650,7 @@ export class LabsService {
       this.logger.log(`Lab ${labId} submission CREATED for user ${userId}`);
     }
     const savedSubmission = await this.submissionRepository.save(submission);
+    await this.notifyCourseStaffAboutSubmission(lab, userId);
 
     // ⭐ CRITICAL FIX: Link the DriveFile to the submission via entity_id
     // This fixes the fileId=NULL issue by using drive_files.entity_type and entity_id

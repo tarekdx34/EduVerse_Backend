@@ -5,6 +5,14 @@ export enum NotificationType {
   MESSAGE = 'message',
   DEADLINE = 'deadline',
   SYSTEM = 'system',
+  LAB = 'lab',
+  QUIZ = 'quiz',
+  MATERIAL = 'material',
+  COMMUNITY = 'community',
+  DISCUSSION = 'discussion',
+  ENROLLMENT = 'enrollment',
+  SCHEDULE = 'schedule',
+  OFFICE_HOURS = 'office_hours',
 }
 
 export enum NotificationPriority {

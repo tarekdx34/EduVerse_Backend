@@ -12,6 +12,7 @@ import { IpBlockerService } from './services/ip-blocker.service';
 import { SecurityController } from './controllers/security.controller';
 import { AuditController } from './controllers/audit.controller';
 import { AuditLogInterceptor } from './interceptors/audit-log.interceptor';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuditLogInterceptor } from './interceptors/audit-log.interceptor';
       BlockedIp,
       Session,
     ]),
+    NotificationsModule,
   ],
   controllers: [SecurityController, AuditController],
   providers: [

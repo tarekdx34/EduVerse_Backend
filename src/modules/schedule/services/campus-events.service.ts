@@ -9,6 +9,8 @@ import {
   QueryCampusEventDto,
   RegisterCampusEventDto,
 } from '../dto';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { NotificationPriority, NotificationType } from '../../notifications/enums';
 
 @Injectable()
 export class CampusEventsService {
@@ -18,7 +20,21 @@ export class CampusEventsService {
     @InjectRepository(CampusEventRegistration)
     private readonly registrationRepo: Repository<CampusEventRegistration>,
     private readonly dataSource: DataSource,
+    private readonly notificationsService: NotificationsService,
   ) {}
+
+  private async notifyRegistrationConfirmed(event: CampusEvent, userId: number): Promise<void> {
+    await this.notificationsService.createNotification({
+      userId,
+      notificationType: NotificationType.SCHEDULE,
+      title: 'Campus Event Registration Confirmed',
+      body: `You are registered for "${event.title}".`,
+      relatedEntityType: 'campus_event',
+      relatedEntityId: event.eventId,
+      priority: NotificationPriority.MEDIUM,
+      actionUrl: `/campus-events/${event.eventId}`,
+    });
+  }
 
   /**
    * Get user's department, campus, and program IDs for filtering
@@ -337,7 +353,9 @@ export class CampusEventsService {
     if (existing) {
       existing.status = RegistrationStatus.REGISTERED;
       existing.notes = dto.notes || null;
-      return this.registrationRepo.save(existing);
+      const saved = await this.registrationRepo.save(existing);
+      await this.notifyRegistrationConfirmed(event, userId);
+      return saved;
     }
 
     const registration = this.registrationRepo.create({
@@ -347,7 +365,9 @@ export class CampusEventsService {
       notes: dto.notes,
     });
 
-    return this.registrationRepo.save(registration);
+    const saved = await this.registrationRepo.save(registration);
+    await this.notifyRegistrationConfirmed(event, userId);
+    return saved;
   }
 
   async unregister(eventId: number, userId: number) {

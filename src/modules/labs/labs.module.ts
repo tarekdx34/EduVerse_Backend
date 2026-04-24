@@ -11,12 +11,14 @@ import { LabsController } from './controllers/labs.controller';
 import { GoogleDriveModule } from '../google-drive/google-drive.module';
 import { DriveFile } from '../google-drive/entities/drive-file.entity';
 import { GradesModule } from '../grades/grades.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Lab, LabSubmission, LabInstruction, LabAttendance, DriveFile, CourseSection, CourseEnrollment]),
     GoogleDriveModule,
     forwardRef(() => GradesModule),
+    NotificationsModule,
   ],
   controllers: [LabsController],
   providers: [LabsService],

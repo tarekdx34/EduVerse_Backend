@@ -1,12 +1,14 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SecurityLog, SecurityEventType } from '../entities/security-log.entity';
+import { SecurityLog, SecurityEventType, SecuritySeverity } from '../entities/security-log.entity';
 import { LoginAttempt } from '../entities/login-attempt.entity';
 import { BlockedIp } from '../entities/blocked-ip.entity';
 import { Session } from '../../auth/entities/session.entity';
 import { SecurityLogQueryDto } from '../dto/security-log-query.dto';
 import { ExportLogsDto, ExportFormat } from '../dto/export-logs.dto';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { NotificationPriority, NotificationType } from '../../notifications/enums';
 
 @Injectable()
 export class SecurityService {
@@ -21,6 +23,7 @@ export class SecurityService {
     private blockedIpRepo: Repository<BlockedIp>,
     @InjectRepository(Session)
     private sessionRepo: Repository<Session>,
+    private notificationsService: NotificationsService,
   ) {}
 
   // ── Security Logs ──────────────────────────────────────────
@@ -209,7 +212,25 @@ export class SecurityService {
 
   async logSecurityEvent(data: Partial<SecurityLog>) {
     const log = this.securityLogRepo.create(data);
-    return this.securityLogRepo.save(log);
+    const saved = await this.securityLogRepo.save(log);
+
+    if ([SecuritySeverity.HIGH, SecuritySeverity.CRITICAL].includes(saved.severity as SecuritySeverity)) {
+      const adminIds = await this.notificationsService.getOperationalAdminIds();
+      await this.notificationsService.createBulkNotifications(adminIds, {
+        notificationType: NotificationType.SYSTEM,
+        title: 'Security Event Detected',
+        body: `A ${saved.severity} security event (${saved.eventType}) was logged and requires attention.`,
+        relatedEntityType: 'security_log',
+        relatedEntityId: saved.logId,
+        priority:
+          saved.severity === SecuritySeverity.CRITICAL
+            ? NotificationPriority.URGENT
+            : NotificationPriority.HIGH,
+        actionUrl: '/admin/security',
+      });
+    }
+
+    return saved;
   }
 
   // ── Export ──────────────────────────────────────────────────
