@@ -16,6 +16,7 @@ import { CommunityCommentsService } from './services/community-comments.service'
 import { ForumCategoriesService } from './services/forum-categories.service';
 import { CommunitiesService } from './services/communities.service';
 import { CommunityTagsService } from './services/community-tags.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CommunityTagsService } from './services/community-tags.service';
       CommunityTag,
       CommunityPostView,
     ]),
+    NotificationsModule,
   ],
   controllers: [
     CommunitiesController,

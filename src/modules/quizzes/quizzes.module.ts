@@ -6,7 +6,10 @@ import { Quiz, QuizQuestion, QuizAttempt, QuizAnswer, QuizDifficultyLevel } from
 import { Course } from '../courses/entities/course.entity';
 import { CourseTA } from '../enrollments/entities/course-ta.entity';
 import { CourseInstructor } from '../enrollments/entities/course-instructor.entity';
+import { AuthModule } from '../auth/auth.module';
 import { GradesModule } from '../grades/grades.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { CourseEnrollment } from '../enrollments/entities/course-enrollment.entity';
 
 @Module({
   imports: [
@@ -19,8 +22,11 @@ import { GradesModule } from '../grades/grades.module';
       Course,
       CourseTA,
       CourseInstructor,
+      CourseEnrollment,
     ]),
+    AuthModule,
     forwardRef(() => GradesModule),
+    NotificationsModule,
   ],
   controllers: [QuizzesController],
   providers: [QuizzesService, QuizGradingService],

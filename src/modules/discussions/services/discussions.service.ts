@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CourseChatThread } from '../entities/course-chat-thread.entity';
@@ -6,6 +6,8 @@ import { ChatMessage } from '../entities/chat-message.entity';
 import { CreateThreadDto, UpdateThreadDto, CreateReplyDto, ThreadQueryDto } from '../dto';
 import { CourseChatThreadView } from '../entities/course-chat-thread-view.entity';
 import { ChatMessageUpvote } from '../entities/chat-message-upvote.entity';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 
 @Injectable()
 export class DiscussionsService {
@@ -20,6 +22,7 @@ export class DiscussionsService {
     private threadViewRepository: Repository<CourseChatThreadView>,
     @InjectRepository(ChatMessageUpvote)
     private messageUpvoteRepository: Repository<ChatMessageUpvote>,
+    private notificationsService: NotificationsService,
   ) {}
 
   // ============ ENROLLMENT CHECK ============
@@ -122,6 +125,23 @@ export class DiscussionsService {
     });
     const saved = await this.threadRepository.save(thread);
     this.logger.log(`Thread ${saved.id} created by user ${userId}`);
+
+    const staffIds = (await this.notificationsService.getCourseStaffUserIds(dto.courseId)).filter(
+      (staffUserId) => Number(staffUserId) !== Number(userId),
+    );
+
+    if (staffIds.length) {
+      await this.notificationsService.createBulkNotifications(staffIds, {
+        notificationType: NotificationType.DISCUSSION,
+        title: 'New Discussion Thread',
+        body: `A new discussion thread "${dto.title}" was created in one of your courses.`,
+        relatedEntityType: 'discussion_thread',
+        relatedEntityId: saved.id,
+        priority: NotificationPriority.LOW,
+        actionUrl: `/courses/${dto.courseId}/discussions/${saved.id}`,
+      });
+    }
+
     return saved;
   }
 
@@ -167,6 +187,38 @@ export class DiscussionsService {
     await this.threadRepository.increment({ id: threadId }, 'replyCount', 1);
 
     this.logger.log(`Reply ${saved.id} added to thread ${threadId} by user ${userId}`);
+
+    // Notify thread author if not the same person
+    if (Number(thread.createdBy) !== Number(userId)) {
+      await this.notificationsService.createNotification({
+        userId: thread.createdBy,
+        notificationType: NotificationType.DISCUSSION,
+        title: 'New Reply in Discussion',
+        body: `Someone replied to your discussion thread: "${thread.title.substring(0, 30)}..."`,
+        relatedEntityType: 'discussion_thread',
+        relatedEntityId: threadId,
+        priority: NotificationPriority.LOW,
+        actionUrl: `/courses/${thread.courseId}/discussions/${threadId}`,
+      });
+    }
+
+    // Notify parent message author if reply and not the same person
+    if (dto.parentMessageId) {
+      const parentMessage = await this.messageRepository.findOne({ where: { id: dto.parentMessageId } });
+      if (parentMessage && Number(parentMessage.userId) !== Number(userId) && Number(parentMessage.userId) !== Number(thread.createdBy)) {
+        await this.notificationsService.createNotification({
+          userId: parentMessage.userId,
+          notificationType: NotificationType.DISCUSSION,
+          title: 'New Reply to Your Message',
+          body: `Someone replied to your message in: "${thread.title.substring(0, 30)}..."`,
+          relatedEntityType: 'discussion_thread',
+          relatedEntityId: threadId,
+          priority: NotificationPriority.LOW,
+          actionUrl: `/courses/${thread.courseId}/discussions/${threadId}`,
+        });
+      }
+    }
+
     return saved;
   }
 
@@ -180,39 +232,90 @@ export class DiscussionsService {
     return saved;
   }
 
-  async toggleLock(id: number): Promise<CourseChatThread> {
+  async toggleLock(id: number, actorId: number): Promise<CourseChatThread> {
     const thread = await this.findById(id);
     thread.isLocked = !thread.isLocked;
     const saved = await this.threadRepository.save(thread);
     this.logger.log(`Thread ${id} ${saved.isLocked ? 'locked' : 'unlocked'}`);
+
+    if (saved.isLocked && Number(saved.createdBy) !== Number(actorId)) {
+      await this.notificationsService.createNotification({
+        userId: saved.createdBy,
+        notificationType: NotificationType.DISCUSSION,
+        title: 'Discussion Thread Locked',
+        body: `Your discussion thread has been locked by course staff.`,
+        relatedEntityType: 'discussion_thread',
+        relatedEntityId: saved.id,
+        priority: NotificationPriority.MEDIUM,
+        actionUrl: `/courses/${saved.courseId}/discussions/${saved.id}`,
+      });
+    }
+
     return saved;
   }
 
   // ============ MARK ANSWER / ENDORSE ============
 
   async markAnswer(replyId: number): Promise<ChatMessage> {
-    const reply = await this.messageRepository.findOne({ where: { id: replyId } });
+    const reply = await this.messageRepository.findOne({
+      where: { id: replyId },
+      relations: ['thread'],
+    });
     if (!reply) throw new NotFoundException(`Reply ${replyId} not found`);
 
     reply.isAnswer = !reply.isAnswer;
     const saved = await this.messageRepository.save(reply);
     this.logger.log(`Reply ${replyId} ${saved.isAnswer ? 'marked' : 'unmarked'} as answer`);
+
+    if (saved.isAnswer && Number(saved.userId) !== Number(saved.thread?.createdBy)) {
+      await this.notificationsService.createNotification({
+        userId: saved.userId,
+        notificationType: NotificationType.DISCUSSION,
+        title: 'Reply Marked as Answer',
+        body: `Your reply was marked as the correct answer in: "${saved.thread?.title.substring(0, 30)}..."`,
+        relatedEntityType: 'discussion_thread',
+        relatedEntityId: saved.threadId,
+        priority: NotificationPriority.MEDIUM,
+        actionUrl: `/courses/${saved.thread?.courseId}/discussions/${saved.threadId}`,
+      });
+    }
+
     return saved;
   }
 
   async endorseReply(replyId: number, endorserId: number): Promise<ChatMessage> {
-    const reply = await this.messageRepository.findOne({ where: { id: replyId } });
+    const reply = await this.messageRepository.findOne({
+      where: { id: replyId },
+      relations: ['thread'],
+    });
     if (!reply) throw new NotFoundException(`Reply ${replyId} not found`);
 
     reply.isEndorsed = !reply.isEndorsed;
     reply.endorsedBy = reply.isEndorsed ? endorserId : null;
     const saved = await this.messageRepository.save(reply);
     this.logger.log(`Reply ${replyId} ${saved.isEndorsed ? 'endorsed' : 'unendorsed'} by user ${endorserId}`);
+
+    if (saved.isEndorsed && Number(saved.userId) !== Number(endorserId)) {
+      await this.notificationsService.createNotification({
+        userId: saved.userId,
+        notificationType: NotificationType.DISCUSSION,
+        title: 'Reply Endorsed',
+        body: `An instructor endorsed your reply in: "${saved.thread?.title.substring(0, 30)}..."`,
+        relatedEntityType: 'discussion_thread',
+        relatedEntityId: saved.threadId,
+        priority: NotificationPriority.MEDIUM,
+        actionUrl: `/courses/${saved.thread?.courseId}/discussions/${saved.threadId}`,
+      });
+    }
+
     return saved;
   }
 
   async toggleMessageUpvote(replyId: number, userId: number) {
-    const reply = await this.messageRepository.findOne({ where: { id: replyId } });
+    const reply = await this.messageRepository.findOne({
+      where: { id: replyId },
+      relations: ['thread'],
+    });
     if (!reply) throw new NotFoundException(`Reply ${replyId} not found`);
 
     const existingUpvote = await this.messageUpvoteRepository.findOne({ where: { messageId: replyId, userId } });
@@ -226,6 +329,21 @@ export class DiscussionsService {
       await this.messageUpvoteRepository.save(this.messageUpvoteRepository.create({ messageId: replyId, userId }));
       await this.messageRepository.increment({ id: replyId }, 'upvoteCount', 1);
       this.logger.log(`Upvote added to reply ${replyId} by user ${userId}`);
+
+      // Notify reply author if not the same person
+      if (Number(reply.userId) !== Number(userId)) {
+        await this.notificationsService.createNotification({
+          userId: reply.userId,
+          notificationType: NotificationType.DISCUSSION,
+          title: 'Reply Upvoted',
+          body: `Someone upvoted your reply in a discussion.`,
+          relatedEntityType: 'discussion_thread',
+          relatedEntityId: reply.threadId,
+          priority: NotificationPriority.LOW,
+          actionUrl: `/courses/${reply.thread?.courseId}/discussions/${reply.threadId}`,
+        });
+      }
+
       return { action: 'added' };
     }
   }

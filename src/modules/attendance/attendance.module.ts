@@ -20,6 +20,7 @@ import { CourseEnrollment } from '../enrollments/entities/course-enrollment.enti
 import { User } from '../auth/entities/user.entity';
 import { CoursesModule } from '../courses/courses.module';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
     ConfigModule,
     forwardRef(() => CoursesModule),
     forwardRef(() => EnrollmentsModule),
+    NotificationsModule,
   ],
   controllers: [AttendanceController],
   providers: [

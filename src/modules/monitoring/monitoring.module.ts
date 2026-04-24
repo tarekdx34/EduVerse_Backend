@@ -12,6 +12,7 @@ import { MonitoringController } from './controllers/monitoring.controller';
 import { ErrorsController } from './controllers/errors.controller';
 import { SslController } from './controllers/ssl.controller';
 import { AlertsController } from './controllers/alerts.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AlertsController } from './controllers/alerts.controller';
       SslCertificate,
       SystemAlert,
     ]),
+    NotificationsModule,
   ],
   controllers: [
     MonitoringController,

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Grade, GpaCalculation } from '../entities';
 import { GradeType } from '../enums';
 import {
@@ -11,6 +11,7 @@ import {
   CreateGradeDto,
   UpdateGradeDto,
   GradeQueryDto,
+  BulkPublishGradesDto,
   TranscriptResponseDto,
   TranscriptSemester,
   TranscriptCourse,
@@ -18,6 +19,8 @@ import {
 import { Course } from '../../courses/entities/course.entity';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 import { User } from '../../auth/entities/user.entity';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 
 @Injectable()
 export class GradesService {
@@ -48,6 +51,7 @@ export class GradesService {
     private enrollmentRepo: Repository<CourseEnrollment>,
     @InjectRepository(User)
     private userRepo: Repository<User>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async createGrade(dto: CreateGradeDto, graderId: number): Promise<Grade> {
@@ -154,8 +158,73 @@ export class GradesService {
       throw new GradeNotFoundException(id);
     }
 
+    if (grade.isPublished) {
+      throw new GradeAlreadyPublishedException();
+    }
+
     grade.isPublished = 1;
-    return this.gradeRepo.save(grade);
+    const saved = await this.gradeRepo.save(grade);
+
+    // Notify student about published grade
+    await this.notificationsService.createNotification({
+      userId: saved.userId,
+      notificationType: NotificationType.GRADE,
+      title: 'Grade Published',
+      body: `Your grade for a ${saved.gradeType} has been published.`,
+      relatedEntityType: 'grade',
+      relatedEntityId: saved.id,
+      priority: NotificationPriority.HIGH,
+      actionUrl: `/grades`,
+    });
+
+    return saved;
+  }
+
+  async publishGrades(dto: BulkPublishGradesDto): Promise<{
+    affected: number;
+    gradeIds: number[];
+    grades: Grade[];
+  }> {
+    const requestedIds = [...new Set(dto.gradeIds.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0))];
+    if (!requestedIds.length) {
+      return { affected: 0, gradeIds: [], grades: [] };
+    }
+
+    const grades = await this.gradeRepo.find({
+      where: { id: In(requestedIds) as any },
+    });
+
+    const unpublishedGrades = grades.filter((grade) => !grade.isPublished);
+    if (!unpublishedGrades.length) {
+      return { affected: 0, gradeIds: [], grades: [] };
+    }
+
+    unpublishedGrades.forEach((grade) => {
+      grade.isPublished = 1;
+    });
+
+    const savedGrades = await this.gradeRepo.save(unpublishedGrades);
+
+    await Promise.all(
+      savedGrades.map((grade) =>
+        this.notificationsService.createNotification({
+          userId: grade.userId,
+          notificationType: NotificationType.GRADE,
+          title: 'Grade Published',
+          body: `Your grade for a ${grade.gradeType} has been published.`,
+          relatedEntityType: 'grade',
+          relatedEntityId: grade.id,
+          priority: NotificationPriority.HIGH,
+          actionUrl: '/grades',
+        }),
+      ),
+    );
+
+    return {
+      affected: savedGrades.length,
+      gradeIds: savedGrades.map((grade) => Number(grade.id)),
+      grades: savedGrades,
+    };
   }
 
   async getTranscript(studentId: number): Promise<TranscriptResponseDto> {

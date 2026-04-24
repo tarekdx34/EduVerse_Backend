@@ -23,6 +23,8 @@ import { LoginResponseDto } from './dto/auth-response.dto';
 import { UserDto } from './dto/user.dto';
 import { plainToClass } from 'class-transformer';
 import { EmailService } from '../email/email.service';
+import { NotificationsService } from '../notifications/services/notifications.service';
+import { NotificationPriority, NotificationType } from '../notifications/enums';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +40,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private emailService: EmailService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async register(
@@ -240,6 +243,17 @@ export class AuthService {
       console.error('Failed to send password changed notification:', error);
       // Don't throw error, password was already changed successfully
     }
+
+    await this.notificationsService.createNotification({
+      userId: passwordReset.user.userId,
+      notificationType: NotificationType.SYSTEM,
+      title: 'Password Changed',
+      body: 'Your password was changed successfully. If this was not you, contact support immediately.',
+      relatedEntityType: 'user',
+      relatedEntityId: passwordReset.user.userId,
+      priority: NotificationPriority.HIGH,
+      actionUrl: '/profile/security',
+    });
   }
 
   async getCurrentUser(userId: number): Promise<UserDto> {

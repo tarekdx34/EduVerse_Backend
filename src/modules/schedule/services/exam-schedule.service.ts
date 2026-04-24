@@ -8,6 +8,8 @@ import {
   QueryExamScheduleDto,
 } from '../dto';
 import { ExamConflictException } from '../exceptions';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { NotificationPriority, NotificationType } from '../../notifications/enums';
 
 @Injectable()
 export class ExamScheduleService {
@@ -15,7 +17,32 @@ export class ExamScheduleService {
     @InjectRepository(ExamSchedule)
     private readonly examRepo: Repository<ExamSchedule>,
     private readonly dataSource: DataSource,
+    private readonly notificationsService: NotificationsService,
   ) {}
+
+  private async notifyStudentsAboutExam(exam: ExamSchedule, updated = false): Promise<void> {
+    if (exam.status === 'cancelled') {
+      return;
+    }
+
+    const studentIds = await this.notificationsService.getEnrolledStudentIds(Number(exam.courseId));
+    if (!studentIds.length) {
+      return;
+    }
+
+    const examLabel = exam.title || `${exam.examType} exam`;
+    await this.notificationsService.createBulkNotifications(studentIds, {
+      notificationType: NotificationType.SCHEDULE,
+      title: updated ? 'Exam Schedule Updated' : 'Exam Scheduled',
+      body: updated
+        ? `The schedule for "${examLabel}" has been updated. Please review the latest exam details.`
+        : `A new exam, "${examLabel}", has been scheduled for your course.`,
+      relatedEntityType: 'exam_schedule',
+      relatedEntityId: exam.examId,
+      priority: NotificationPriority.HIGH,
+      actionUrl: `/exams/schedule/${exam.examId}`,
+    });
+  }
 
   /**
    * Check if instructor is assigned to a course
@@ -133,7 +160,10 @@ export class ExamScheduleService {
     }
 
     const exam = this.examRepo.create(dto);
-    return this.examRepo.save(exam);
+    const saved = await this.examRepo.save(exam);
+    const result = await this.findById(saved.examId, createdBy, roles);
+    await this.notifyStudentsAboutExam(result);
+    return result;
   }
 
   async update(id: number, dto: UpdateExamScheduleDto, userId: number, roles: string[]) {
@@ -162,7 +192,9 @@ export class ExamScheduleService {
     }
 
     Object.assign(exam, dto);
-    return this.examRepo.save(exam);
+    const saved = await this.examRepo.save(exam);
+    await this.notifyStudentsAboutExam(saved, true);
+    return saved;
   }
 
   async delete(id: number, userId: number, roles: string[]) {

@@ -22,6 +22,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { EmailModule } from '../email/email.module';
 import { SecurityModule } from '../security/security.module';
 import { AdminDashboardService } from './admin-dashboard.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
     }),
     EmailModule,
     SecurityModule,
+    NotificationsModule,
   ],
   controllers: [AuthController, UserManagementController, UserProfileController],
   providers: [AuthService, UserManagementService, AdminDashboardService, JwtStrategy],
