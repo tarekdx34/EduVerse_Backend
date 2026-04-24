@@ -12,6 +12,7 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
 import { GoogleDriveModule } from '../google-drive/google-drive.module';
 import { DriveFile } from '../google-drive/entities/drive-file.entity';
 import { GradesModule } from '../grades/grades.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { GradesModule } from '../grades/grades.module';
     forwardRef(() => EnrollmentsModule),
     GoogleDriveModule,
     forwardRef(() => GradesModule),
+    NotificationsModule,
   ],
   controllers: [AssignmentsController],
   providers: [AssignmentsService],

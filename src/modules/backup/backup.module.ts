@@ -6,11 +6,13 @@ import { BackupService } from './services/backup.service';
 import { DatabaseService } from './services/database.service';
 import { BackupController } from './controllers/backup.controller';
 import { DatabaseController } from './controllers/database.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([BackupRecord]),
     ConfigModule,
+    NotificationsModule,
   ],
   controllers: [BackupController, DatabaseController],
   providers: [BackupService, DatabaseService],

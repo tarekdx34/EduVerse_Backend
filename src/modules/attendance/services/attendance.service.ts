@@ -26,6 +26,8 @@ import {
 import { CourseSection } from '../../courses/entities/course-section.entity';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 import { User } from '../../auth/entities/user.entity';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { NotificationPriority, NotificationType } from '../../notifications/enums';
 
 @Injectable()
 export class AttendanceService {
@@ -40,7 +42,30 @@ export class AttendanceService {
     private readonly enrollmentRepo: Repository<CourseEnrollment>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly notificationsService: NotificationsService,
   ) {}
+
+  private async notifyStudentIfMarkedAbsent(
+    session: AttendanceSession,
+    userId: number,
+    previousStatus?: AttendanceStatus | null,
+    nextStatus?: AttendanceStatus | null,
+  ): Promise<void> {
+    if (nextStatus !== AttendanceStatus.ABSENT || previousStatus === AttendanceStatus.ABSENT) {
+      return;
+    }
+
+    await this.notificationsService.createNotification({
+      userId,
+      notificationType: NotificationType.SYSTEM,
+      title: 'Attendance Marked Absent',
+      body: `You were marked absent for ${session.section?.course?.name || 'a class session'} on ${session.sessionDate}.`,
+      relatedEntityType: 'attendance_session',
+      relatedEntityId: session.id,
+      priority: NotificationPriority.MEDIUM,
+      actionUrl: '/attendance/my',
+    });
+  }
 
   async createSession(
     dto: CreateSessionDto,
@@ -272,6 +297,7 @@ export class AttendanceService {
     let record = await this.recordRepo.findOne({
       where: { sessionId: dto.sessionId, userId: dto.userId },
     });
+    const previousStatus = record?.attendanceStatus ?? null;
 
     if (record) {
       record.attendanceStatus = dto.attendanceStatus;
@@ -289,7 +315,14 @@ export class AttendanceService {
       });
     }
 
-    return this.recordRepo.save(record);
+    const saved = await this.recordRepo.save(record);
+    await this.notifyStudentIfMarkedAbsent(
+      session,
+      dto.userId,
+      previousStatus,
+      saved.attendanceStatus,
+    );
+    return saved;
   }
 
   async markBatchAttendance(dto: BatchAttendanceDto): Promise<AttendanceRecord[]> {
@@ -308,6 +341,7 @@ export class AttendanceService {
       let record = await this.recordRepo.findOne({
         where: { sessionId: dto.sessionId, userId: recordDto.userId },
       });
+      const previousStatus = record?.attendanceStatus ?? null;
 
       if (record) {
         record.attendanceStatus = recordDto.attendanceStatus;
@@ -329,7 +363,14 @@ export class AttendanceService {
         });
       }
 
-      results.push(await this.recordRepo.save(record));
+      const saved = await this.recordRepo.save(record);
+      await this.notifyStudentIfMarkedAbsent(
+        session,
+        recordDto.userId,
+        previousStatus,
+        saved.attendanceStatus,
+      );
+      results.push(saved);
     }
 
     return results;
@@ -355,6 +396,8 @@ export class AttendanceService {
       throw new SessionClosedException(record.sessionId);
     }
 
+    const previousStatus = record.attendanceStatus;
+
     if (dto.attendanceStatus) {
       record.attendanceStatus = dto.attendanceStatus;
     }
@@ -365,7 +408,15 @@ export class AttendanceService {
       record.notes = dto.notes;
     }
 
-    return this.recordRepo.save(record);
+    const saved = await this.recordRepo.save(record);
+    const session = await this.findSessionById(record.sessionId);
+    await this.notifyStudentIfMarkedAbsent(
+      session,
+      record.userId,
+      previousStatus,
+      saved.attendanceStatus,
+    );
+    return saved;
   }
 
   async getStudentAttendance(

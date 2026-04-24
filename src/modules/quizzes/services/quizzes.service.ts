@@ -1,7 +1,14 @@
 import { Injectable, BadRequestException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Like, IsNull } from 'typeorm';
-import { Quiz, QuizQuestion, QuizAttempt, QuizAnswer, QuizDifficultyLevel } from '../entities';
+import { 
+  Quiz, 
+  QuizQuestion, 
+  QuizAttempt, 
+  QuizAnswer, 
+  QuizDifficultyLevel 
+} from '../entities';
+import { EnrollmentStatus } from '../../enrollments/enums';
 import { AttemptStatus, QuestionType, QuizStatus } from '../enums';
 import {
   CreateQuizDto,
@@ -32,9 +39,37 @@ import { CourseTA } from '../../enrollments/entities/course-ta.entity';
 import { CourseInstructor } from '../../enrollments/entities/course-instructor.entity';
 import { GradesService } from '../../grades/services';
 import { GradeType } from '../../grades/enums';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 
 @Injectable()
 export class QuizzesService {
+  private async notifyStudentsAboutPublishedQuiz(quiz: Quiz): Promise<void> {
+    const enrollments = await this.enrollmentRepo.find({
+      where: {
+        section: { courseId: quiz.courseId },
+        status: EnrollmentStatus.ENROLLED,
+      },
+      relations: ['section'],
+    });
+
+    const studentIds = [...new Set(enrollments.map((enrollment) => enrollment.userId))];
+    if (studentIds.length === 0) {
+      return;
+    }
+
+    await this.notificationsService.createBulkNotifications(studentIds, {
+      notificationType: NotificationType.QUIZ,
+      title: 'New Quiz Published',
+      body: `A new quiz "${quiz.title}" is now available in ${quiz.course?.name || 'your course'}.`,
+      relatedEntityType: 'quiz',
+      relatedEntityId: quiz.id,
+      priority: NotificationPriority.MEDIUM,
+      actionUrl: `/courses/${quiz.courseId}/quizzes/${quiz.id}`,
+    });
+  }
+
   constructor(
     @InjectRepository(Quiz)
     private readonly quizRepo: Repository<Quiz>,
@@ -54,6 +89,9 @@ export class QuizzesService {
     private readonly courseInstructorRepo: Repository<CourseInstructor>,
     @Inject(forwardRef(() => GradesService))
     private readonly gradesService: GradesService,
+    private readonly notificationsService: NotificationsService,
+    @InjectRepository(CourseEnrollment)
+    private readonly enrollmentRepo: Repository<CourseEnrollment>,
   ) {}
 
   // ============ QUIZ CRUD ============
@@ -81,10 +119,18 @@ export class QuizzesService {
       availableFrom: dto.availableFrom ? new Date(dto.availableFrom) : undefined,
       availableUntil: dto.availableUntil ? new Date(dto.availableUntil) : undefined,
       weight: dto.weight,
+      status: dto.status ?? QuizStatus.DRAFT,
       createdBy,
     });
 
-    return this.quizRepo.save(quiz);
+    const saved = await this.quizRepo.save(quiz);
+    const result = await this.findQuizById(saved.id);
+
+    if (result.status === QuizStatus.PUBLISHED) {
+      await this.notifyStudentsAboutPublishedQuiz(result);
+    }
+
+    return result;
   }
 
   async findAllQuizzes(query: QuizQueryDto): Promise<{ data: Quiz[]; total: number }> {
@@ -153,6 +199,7 @@ export class QuizzesService {
   async updateQuiz(id: number, dto: UpdateQuizDto, userId: number, roles: string[]): Promise<Quiz> {
     const quiz = await this.findQuizById(id);
     await this.assertQuizManagementAccess(quiz, userId, roles);
+    const previousStatus = quiz.status;
 
     Object.assign(quiz, {
       ...dto,
@@ -161,7 +208,13 @@ export class QuizzesService {
     });
 
     await this.quizRepo.save(quiz);
-    return this.findQuizById(id);
+    const updatedQuiz = await this.findQuizById(id);
+
+    if (previousStatus !== QuizStatus.PUBLISHED && updatedQuiz.status === QuizStatus.PUBLISHED) {
+      await this.notifyStudentsAboutPublishedQuiz(updatedQuiz);
+    }
+
+    return updatedQuiz;
   }
 
   async deleteQuiz(id: number, userId: number, roles: string[]): Promise<void> {
@@ -175,7 +228,15 @@ export class QuizzesService {
     await this.assertQuizManagementAccess(quiz, userId, roles);
     
     quiz.status = status;
-    return this.quizRepo.save(quiz);
+    const saved = await this.quizRepo.save(quiz);
+
+    // Notify students if published
+    if (status === QuizStatus.PUBLISHED) {
+      const publishedQuiz = await this.findQuizById(saved.id);
+      await this.notifyStudentsAboutPublishedQuiz(publishedQuiz);
+    }
+
+    return saved;
   }
 
   // ============ QUESTION MANAGEMENT ============
@@ -509,6 +570,18 @@ export class QuizzesService {
         maxScore: maxScore,
         isPublished: true,
       }, attempt.quiz.createdBy);
+
+      // Notify student about graded quiz
+      await this.notificationsService.createNotification({
+        userId: userId,
+        notificationType: NotificationType.GRADE,
+        title: 'Quiz Graded',
+        body: `Your attempt for quiz "${attempt.quiz.title}" has been graded. Score: ${totalScore}/${maxScore}`,
+        relatedEntityType: 'quiz',
+        relatedEntityId: attempt.quiz.id,
+        priority: NotificationPriority.HIGH,
+        actionUrl: `/courses/${attempt.quiz.courseId}/quizzes/${attempt.quiz.id}`,
+      });
     }
 
     return this.getAttemptResult(attemptId, userId);

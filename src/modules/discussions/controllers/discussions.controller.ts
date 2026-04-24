@@ -151,8 +151,9 @@ export class DiscussionsController {
   })
   @ApiParam({ name: 'id', description: 'Thread ID', example: 1 })
   @ApiResponse({ status: 200, description: 'Lock status toggled' })
-  async toggleLock(@Param('id', ParseIntPipe) id: number) {
-    return this.discussionsService.toggleLock(id);
+  async toggleLock(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const userId = req.user.userId || req.user.id;
+    return this.discussionsService.toggleLock(id, userId);
   }
 
   @Patch('replies/:replyId/mark-answer')

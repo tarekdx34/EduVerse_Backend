@@ -7,10 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Announcement } from '../entities/announcement.entity';
+import { DataSource } from 'typeorm';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 import { CourseInstructor } from '../../enrollments/entities/course-instructor.entity';
 import { CourseTA } from '../../enrollments/entities/course-ta.entity';
 import { CourseSection } from '../../courses/entities/course-section.entity';
+import { EnrollmentStatus } from '../../enrollments/enums';
 import {
   CreateAnnouncementDto,
   UpdateAnnouncementDto,
@@ -34,7 +38,77 @@ export class AnnouncementsService {
     private taRepository: Repository<CourseTA>,
     @InjectRepository(CourseSection)
     private sectionRepository: Repository<CourseSection>,
+    private notificationsService: NotificationsService,
+    private dataSource: DataSource,
   ) {}
+
+  private async notifyTargetAudience(announcement: Announcement) {
+    const { courseId, targetAudience, title, content } = announcement;
+    let userIds: number[] = [];
+
+    if (courseId) {
+      // Course-specific announcement
+      if (targetAudience === 'all' || targetAudience === 'students') {
+        const studentEnrollments = await this.enrollmentRepository.find({
+          where: { section: { courseId }, status: EnrollmentStatus.ENROLLED },
+          relations: ['section'],
+        });
+        userIds = userIds.concat(studentEnrollments.map((e) => e.userId));
+      }
+      
+      if (targetAudience === 'all' || targetAudience === 'instructors') {
+        const instructors = await this.instructorRepository.find({
+          where: { section: { courseId } },
+          relations: ['section'],
+        });
+        userIds = userIds.concat(instructors.map((i) => i.userId));
+      }
+      
+      if (targetAudience === 'all' || targetAudience === 'tas') {
+        const tas = await this.taRepository.find({
+          where: { section: { courseId } },
+          relations: ['section'],
+        });
+        userIds = userIds.concat(tas.map((t) => t.userId));
+      }
+    } else {
+      // System-wide announcement
+      if (targetAudience === 'all') {
+        const allUsers = await this.dataSource.query('SELECT user_id FROM users');
+        userIds = allUsers.map((u) => u.user_id);
+      } else {
+        // Filter by role
+        const roleMap: Record<string, string> = {
+          students: 'student',
+          instructors: 'instructor',
+          tas: 'teaching_assistant',
+        };
+        const targetRole = roleMap[targetAudience];
+        if (targetRole) {
+          const roleUsers = await this.dataSource.query(
+            'SELECT u.user_id FROM users u JOIN roles r ON u.role_id = r.role_id WHERE r.role_name = ?',
+            [targetRole]
+          );
+          userIds = roleUsers.map((u) => u.user_id);
+        }
+      }
+    }
+
+    // Remove duplicates and exclude author
+    userIds = [...new Set(userIds)].filter((id) => Number(id) !== Number(announcement.createdBy));
+
+    if (userIds.length > 0) {
+      await this.notificationsService.createBulkNotifications(userIds, {
+        notificationType: NotificationType.ANNOUNCEMENT,
+        title: `Announcement: ${title}`,
+        body: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+        relatedEntityType: 'announcement',
+        relatedEntityId: announcement.id,
+        priority: announcement.priority === 'urgent' ? NotificationPriority.HIGH : NotificationPriority.MEDIUM,
+        actionUrl: `/announcements/${announcement.id}`,
+      });
+    }
+  }
 
   /**
    * Get course IDs accessible by user based on their role
@@ -229,6 +303,11 @@ export class AnnouncementsService {
       where: { id: saved.id },
       relations: ['author', 'course'],
     });
+
+    if (saved.isPublished) {
+      await this.notifyTargetAudience(saved);
+    }
+
     return result!;
   }
 
@@ -253,6 +332,10 @@ export class AnnouncementsService {
 
     const saved = await this.announcementRepository.save(announcement);
     this.logger.log(`Announcement ${id} updated by user ${userId}`);
+
+    if (dto.isPublished && !announcement.publishedAt) {
+      await this.notifyTargetAudience(saved);
+    }
 
     return saved;
   }
@@ -290,6 +373,8 @@ export class AnnouncementsService {
 
     const saved = await this.announcementRepository.save(announcement);
     this.logger.log(`Announcement ${id} published by user ${userId}`);
+
+    await this.notifyTargetAudience(saved);
 
     return saved;
   }

@@ -10,7 +10,7 @@ import {
   Max,
   MaxLength,
 } from 'class-validator';
-import { QuizType, ShowAnswersAfter } from '../enums';
+import { QuizType, QuizStatus, ShowAnswersAfter } from '../enums';
 
 export class CreateQuizDto {
   @ApiProperty({ description: 'Course ID this quiz belongs to', example: 1 })
@@ -97,4 +97,14 @@ export class CreateQuizDto {
   @Min(0)
   @Max(100)
   weight?: number;
+
+  @ApiPropertyOptional({
+    description: 'Quiz status',
+    enum: QuizStatus,
+    default: QuizStatus.DRAFT,
+    example: QuizStatus.DRAFT,
+  })
+  @IsOptional()
+  @IsEnum(QuizStatus)
+  status?: QuizStatus;
 }

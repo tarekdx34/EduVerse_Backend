@@ -10,6 +10,7 @@ import { Semester } from '../campus/entities/semester.entity';
 import { Assignment } from '../assignments/entities/assignment.entity';
 import { CoursesModule } from '../courses/courses.module';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
     ]),
     forwardRef(() => CoursesModule),
     forwardRef(() => EnrollmentsModule),
+    NotificationsModule,
   ],
   controllers: [GradesController, RubricsController],
   providers: [GradesService, RubricsService],

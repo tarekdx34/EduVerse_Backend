@@ -15,9 +15,10 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiBody,
 } from '@nestjs/swagger';
 import { GradesService } from '../services';
-import { UpdateGradeDto, GradeQueryDto } from '../dto';
+import { UpdateGradeDto, GradeQueryDto, BulkPublishGradesDto } from '../dto';
 import { Roles } from '../../auth/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
@@ -86,6 +87,15 @@ export class GradesController {
   ) {
     const graderId = req.user.userId || req.user.id;
     return this.gradesService.updateGrade(id, dto, graderId);
+  }
+
+  @Patch('bulk/finalize')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA)
+  @ApiOperation({ summary: 'Bulk publish/finalize grades' })
+  @ApiBody({ type: BulkPublishGradesDto })
+  @ApiResponse({ status: 200, description: 'Grades published in bulk' })
+  async finalizeGrades(@Body() dto: BulkPublishGradesDto) {
+    return this.gradesService.publishGrades(dto);
   }
 
   @Patch(':id/finalize')

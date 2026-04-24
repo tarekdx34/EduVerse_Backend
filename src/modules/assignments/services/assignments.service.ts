@@ -23,10 +23,56 @@ import { GoogleDriveService } from '../../google-drive/google-drive.service';
 import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
 import { GradesService } from '../../grades/services';
 import { GradeType } from '../../grades/enums';
+import { EnrollmentStatus } from '../../enrollments/enums';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 
 @Injectable()
 export class AssignmentsService {
   private readonly logger = new Logger(AssignmentsService.name);
+
+  private async notifyStudentsAboutPublishedAssignment(assignment: Assignment): Promise<void> {
+    const studentIds = await this.notificationsService.getEnrolledStudentIds(
+      Number(assignment.courseId),
+    );
+    if (studentIds.length === 0) {
+      this.logger.warn(`No enrolled students found to notify for assignment ${assignment.id}`);
+      return;
+    }
+
+    await this.notificationsService.createBulkNotifications(studentIds, {
+      notificationType: NotificationType.ASSIGNMENT,
+      title: 'New Assignment Posted',
+      body: `A new assignment "${assignment.title}" has been posted in ${assignment.course?.name || 'your course'}.`,
+      relatedEntityType: 'assignment',
+      relatedEntityId: assignment.id,
+      priority: NotificationPriority.MEDIUM,
+      actionUrl: `/courses/${assignment.courseId}/assignments/${assignment.id}`,
+    });
+  }
+
+  private async notifyCourseStaffAboutSubmission(
+    assignment: Assignment,
+    studentId: number,
+  ): Promise<void> {
+    const staffIds = (await this.notificationsService.getCourseStaffUserIds(
+      Number(assignment.courseId),
+    )).filter((userId) => Number(userId) !== Number(studentId));
+
+    if (!staffIds.length) {
+      return;
+    }
+
+    await this.notificationsService.createBulkNotifications(staffIds, {
+      notificationType: NotificationType.ASSIGNMENT,
+      title: 'Assignment Submission Received',
+      body: `A student submitted work for "${assignment.title}".`,
+      relatedEntityType: 'assignment',
+      relatedEntityId: assignment.id,
+      priority: NotificationPriority.LOW,
+      actionUrl: `/courses/${assignment.courseId}/assignments/${assignment.id}/submissions`,
+    });
+  }
 
   constructor(
     @InjectRepository(Assignment)
@@ -43,6 +89,7 @@ export class AssignmentsService {
     private googleDriveService: GoogleDriveService,
     @Inject(forwardRef(() => GradesService))
     private gradesService: GradesService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(dto: CreateAssignmentDto, userId: number): Promise<Assignment> {
@@ -65,6 +112,10 @@ export class AssignmentsService {
       where: { id: saved.id },
       relations: ['course'],
     });
+
+    if (result?.status === AssignmentStatus.PUBLISHED) {
+      await this.notifyStudentsAboutPublishedAssignment(result);
+    }
 
     return result!;
   }
@@ -159,6 +210,8 @@ export class AssignmentsService {
       throw new AssignmentNotFoundException();
     }
 
+    const previousStatus = assignment.status;
+
     const updateData: Partial<Assignment> = { ...dto } as any;
     if (dto.lateSubmissionAllowed !== undefined) {
       updateData.lateSubmissionAllowed = dto.lateSubmissionAllowed ? 1 : 0;
@@ -167,6 +220,17 @@ export class AssignmentsService {
     Object.assign(assignment, updateData);
     const saved = await this.assignmentRepo.save(assignment);
     this.logger.log(`Assignment ${id} updated by user ${userId}`);
+
+    if (previousStatus !== AssignmentStatus.PUBLISHED && saved.status === AssignmentStatus.PUBLISHED) {
+      const publishedAssignment = await this.assignmentRepo.findOne({
+        where: { id: saved.id },
+        relations: ['course'],
+      });
+
+      if (publishedAssignment) {
+        await this.notifyStudentsAboutPublishedAssignment(publishedAssignment);
+      }
+    }
 
     return saved;
   }
@@ -202,6 +266,18 @@ export class AssignmentsService {
     assignment.status = status;
     const saved = await this.assignmentRepo.save(assignment);
     this.logger.log(`Assignment ${id} status changed to ${status} by user ${userId}`);
+
+    // Notify students if published
+    if (status === AssignmentStatus.PUBLISHED) {
+      const publishedAssignment = await this.assignmentRepo.findOne({
+        where: { id: saved.id },
+        relations: ['course'],
+      });
+
+      if (publishedAssignment) {
+        await this.notifyStudentsAboutPublishedAssignment(publishedAssignment);
+      }
+    }
 
     return saved;
   }
@@ -301,6 +377,7 @@ export class AssignmentsService {
     }
 
     const saved = await this.submissionRepo.save(submission);
+    await this.notifyCourseStaffAboutSubmission(assignment, userId);
     return saved;
   }
 
@@ -382,6 +459,18 @@ export class AssignmentsService {
       isPublished: true, // Assignment grades are immediately visible
     }, graderId);
     this.logger.log(`Grade record created: ${grade.id} for assignment ${assignmentId}, user ${submission.userId}`);
+    
+    // Notify student about graded assignment
+    await this.notificationsService.createNotification({
+      userId: submission.userId,
+      notificationType: NotificationType.GRADE,
+      title: 'Assignment Graded',
+      body: `Your submission for "${assignment.title}" has been graded. Score: ${dto.score}/${assignment.maxScore}`,
+      relatedEntityType: 'assignment',
+      relatedEntityId: assignmentId,
+      priority: NotificationPriority.HIGH,
+      actionUrl: `/courses/${assignment.courseId}/assignments/${assignmentId}`,
+    });
 
     return {
       submissionId: submission.id,
@@ -559,6 +648,7 @@ export class AssignmentsService {
     }
 
     const savedSubmission = await this.submissionRepo.save(submission);
+    await this.notifyCourseStaffAboutSubmission(assignment, userId);
 
     // ⭐ CRITICAL FIX: Link the DriveFile to the submission via entity_id
     await this.driveFolderService.updateDriveFileEntity(
