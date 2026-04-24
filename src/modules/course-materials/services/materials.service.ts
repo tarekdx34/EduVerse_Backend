@@ -23,6 +23,8 @@ import { DriveFileEntityType } from '../../google-drive/entities/drive-file.enti
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 import { EnrollmentStatus } from '../../enrollments/enums';
 import { StudentProgress } from '../../analytics/entities/student-progress.entity';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 
 @Injectable()
 export class MaterialsService {
@@ -42,7 +44,31 @@ export class MaterialsService {
     private readonly youtubeService: YoutubeService,
     private readonly dataSource: DataSource,
     private readonly driveFolderService: DriveFolderService,
+    private readonly notificationsService: NotificationsService,
   ) {}
+
+  private async notifyStudentsOfNewMaterial(courseId: number, material: CourseMaterial) {
+    const enrollments = await this.enrollmentRepo.find({
+      where: {
+        section: { courseId: courseId },
+        status: EnrollmentStatus.ENROLLED,
+      },
+      relations: ['section'],
+    });
+
+    const studentIds = enrollments.map((e) => e.userId);
+    if (studentIds.length > 0) {
+      await this.notificationsService.createBulkNotifications(studentIds, {
+        notificationType: NotificationType.MATERIAL,
+        title: 'New Course Material',
+        body: `New material "${material.title}" has been uploaded in your course.`,
+        relatedEntityType: 'material',
+        relatedEntityId: material.materialId,
+        priority: NotificationPriority.LOW,
+        actionUrl: `/courses/${courseId}/materials`,
+      });
+    }
+  }
 
   /**
    * Check if user is assigned to a course (as instructor or TA)
@@ -202,16 +228,20 @@ export class MaterialsService {
 
     // Default isPublished to false (draft) if not specified - per spec
     const isPublished = dto.isPublished ?? false;
-
     const material = this.materialRepo.create({
       ...dto,
       courseId,
       uploadedBy: userId,
       isPublished,
-      publishedAt: isPublished ? new Date() : null,
     });
 
-    return this.materialRepo.save(material);
+    const saved = await this.materialRepo.save(material) as CourseMaterial;
+    
+    if (isPublished) {
+      await this.notifyStudentsOfNewMaterial(courseId, saved);
+    }
+
+    return saved;
   }
 
   async update(
@@ -250,7 +280,13 @@ export class MaterialsService {
     }
 
     Object.assign(material, dto);
-    return this.materialRepo.save(material);
+    const saved = await this.materialRepo.save(material);
+    
+    if (dto.isPublished && !material.isPublished) {
+      await this.notifyStudentsOfNewMaterial(material.courseId, saved);
+    }
+    
+    return saved;
   }
 
   async delete(id: number, userId: number, roles: string[]) {
@@ -327,6 +363,10 @@ export class MaterialsService {
 
     if (!updated) {
       throw new NotFoundException(`Material with ID ${id} not found`);
+    }
+
+    if (dto.isPublished && !material.isPublished) {
+      await this.notifyStudentsOfNewMaterial(updated.courseId, updated);
     }
 
     return updated;
@@ -609,6 +649,10 @@ export class MaterialsService {
 
     const savedMaterial = await this.materialRepo.save(material);
 
+    if (shouldPublish) {
+      await this.notifyStudentsOfNewMaterial(courseId, savedMaterial);
+    }
+
     return {
       ...savedMaterial,
       youtubeUrl: youtubeResult.videoUrl,
@@ -841,6 +885,10 @@ export class MaterialsService {
     });
 
     const savedMaterial = await this.materialRepo.save(material);
+
+    if (shouldPublish) {
+      await this.notifyStudentsOfNewMaterial(courseId, savedMaterial);
+    }
 
     // Update drive file with material entity ID
     await this.dataSource.query(

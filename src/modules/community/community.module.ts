@@ -6,6 +6,7 @@ import { CommunityComment } from './entities/community-comment.entity';
 import { CommunityReaction } from './entities/community-reaction.entity';
 import { Community } from './entities/community.entity';
 import { CommunityTag } from './entities/community-tag.entity';
+import { CommunityPostView } from './entities/community-post-view.entity';
 import { CommunityPostsController } from './controllers/community-posts.controller';
 import { CommunityCommentsController } from './controllers/community-comments.controller';
 import { ForumCategoriesController } from './controllers/forum-categories.controller';
@@ -15,6 +16,7 @@ import { CommunityCommentsService } from './services/community-comments.service'
 import { ForumCategoriesService } from './services/forum-categories.service';
 import { CommunitiesService } from './services/communities.service';
 import { CommunityTagsService } from './services/community-tags.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -25,7 +27,9 @@ import { CommunityTagsService } from './services/community-tags.service';
       CommunityReaction,
       Community,
       CommunityTag,
+      CommunityPostView,
     ]),
+    NotificationsModule,
   ],
   controllers: [
     CommunitiesController,

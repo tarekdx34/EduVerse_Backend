@@ -22,6 +22,8 @@ import { Semester } from '../../campus/entities/semester.entity';
 import { SectionStatus } from '../../courses/enums';
 import { EnrollmentStatus, DropReason } from '../enums';
 import { StudentProgress } from '../../analytics/entities/student-progress.entity';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 import {
   EnrollmentNotFoundException,
   AlreadyEnrolledException,
@@ -97,23 +99,84 @@ export class EnrollmentsService {
     private semesterRepository: Repository<Semester>,
     @InjectRepository(StudentProgress)
     private studentProgressRepository: Repository<StudentProgress>,
+    private notificationsService: NotificationsService,
   ) {}
 
-  async getEnrollmentPeriods(): Promise<any[]> {
+  async getEnrollmentPeriods(departmentId?: number): Promise<any[]> {
     const semesters = await this.semesterRepository.find({
       order: { startDate: 'DESC' },
     });
 
-    return semesters.map((s) => ({
-      id: s.id,
-      semesterName: s.name,
-      semesterCode: s.code,
-      registrationStart: s.registrationStart,
-      registrationEnd: s.registrationEnd,
-      semesterStart: s.startDate,
-      semesterEnd: s.endDate,
-      status: s.status,
-    }));
+    const deptScoped =
+      departmentId != null && Number.isFinite(Number(departmentId));
+
+    const rows = await Promise.all(
+      semesters.map(async (s) => {
+        const coursesQb = this.sectionRepository
+          .createQueryBuilder('sec')
+          .select('COUNT(DISTINCT sec.courseId)', 'cnt')
+          .where('sec.semesterId = :sid', { sid: s.id })
+          .andWhere('sec.status IN (:...openish)', {
+            openish: [SectionStatus.OPEN, SectionStatus.FULL],
+          });
+        if (deptScoped) {
+          coursesQb.innerJoin('sec.course', 'c').andWhere('c.departmentId = :did', {
+            did: Number(departmentId),
+          });
+        }
+        const coursesRow = await coursesQb.getRawOne<{ cnt: string }>();
+
+        const enrolledQb = this.enrollmentRepository
+          .createQueryBuilder('e')
+          .innerJoin('e.section', 'sec')
+          .where('sec.semesterId = :sid', { sid: s.id })
+          .andWhere('e.status IN (:...sts)', {
+            sts: [EnrollmentStatus.ENROLLED, EnrollmentStatus.COMPLETED],
+          });
+        if (deptScoped) {
+          enrolledQb.innerJoin('sec.course', 'c').andWhere('c.departmentId = :did', {
+            did: Number(departmentId),
+          });
+        }
+        const enrolledRow = await enrolledQb
+          .select('COUNT(DISTINCT e.userId)', 'cnt')
+          .getRawOne<{ cnt: string }>();
+
+        const capQb = this.sectionRepository
+          .createQueryBuilder('sec')
+          .select('COALESCE(SUM(sec.maxCapacity), 0)', 'sum')
+          .where('sec.semesterId = :sid', { sid: s.id })
+          .andWhere('sec.status IN (:...openish)', {
+            openish: [SectionStatus.OPEN, SectionStatus.FULL],
+          });
+        if (deptScoped) {
+          capQb.innerJoin('sec.course', 'c').andWhere('c.departmentId = :did', {
+            did: Number(departmentId),
+          });
+        }
+        const capRow = await capQb.getRawOne<{ sum: string }>();
+
+        const coursesAvailableCount = Number(coursesRow?.cnt ?? 0) || 0;
+        const registeredStudentCount = Number(enrolledRow?.cnt ?? 0) || 0;
+        const totalSeatCapacity = Number(capRow?.sum ?? 0) || 0;
+
+        return {
+          id: s.id,
+          semesterName: s.name,
+          semesterCode: s.code,
+          registrationStart: s.registrationStart,
+          registrationEnd: s.registrationEnd,
+          semesterStart: s.startDate,
+          semesterEnd: s.endDate,
+          status: s.status,
+          coursesAvailableCount,
+          registeredStudentCount,
+          totalSeatCapacity,
+        };
+      }),
+    );
+
+    return rows;
   }
 
   async enrollStudent(
@@ -238,6 +301,18 @@ export class EnrollmentsService {
         );
       }
     }
+
+    // Notify student about successful enrollment
+    await this.notificationsService.createNotification({
+      userId,
+      notificationType: NotificationType.ENROLLMENT,
+      title: 'Course Enrollment Successful',
+      body: `You have been successfully enrolled in ${course_.code}: ${course_.name}.`,
+      relatedEntityType: 'course',
+      relatedEntityId: course_.id,
+      priority: NotificationPriority.MEDIUM,
+      actionUrl: `/courses/${course_.id}`,
+    });
 
     return this.buildEnrollmentResponse(
       savedEnrollment,
@@ -458,6 +533,17 @@ export class EnrollmentsService {
         `Student ${enrollment.userId} dropped from section ${enrollment.sectionId}`,
       );
     }
+
+    await this.notificationsService.createNotification({
+      userId: enrollment.userId,
+      notificationType: NotificationType.ENROLLMENT,
+      title: 'Course Dropped',
+      body: `You have successfully dropped ${updated.section.course.code}: ${updated.section.course.name}.`,
+      relatedEntityType: 'course',
+      relatedEntityId: updated.section.course.id,
+      priority: NotificationPriority.MEDIUM,
+      actionUrl: `/courses/${updated.section.course.id}`,
+    });
 
     return this.buildEnrollmentResponse(
       updated,
@@ -980,6 +1066,18 @@ export class EnrollmentsService {
       `Instructor ${userId} assigned to section ${sectionId} as ${role}`,
     );
 
+    // Notify instructor about assignment
+    await this.notificationsService.createNotification({
+      userId,
+      notificationType: NotificationType.ENROLLMENT,
+      title: 'New Teaching Assignment',
+      body: `You have been assigned as ${role} instructor for section ${section.sectionNumber} of ${section.courseId}.`,
+      relatedEntityType: 'section',
+      relatedEntityId: sectionId,
+      priority: NotificationPriority.HIGH,
+      actionUrl: `/instructor/courses/${section.courseId}`,
+    });
+
     const full = await this.instructorRepository.findOne({
       where: { id: saved.id },
       relations: ['instructor'],
@@ -1119,6 +1217,18 @@ export class EnrollmentsService {
     const saved = await this.taRepository.save(assignment);
 
     this.logger.log(`TA ${userId} assigned to section ${sectionId}`);
+
+    // Notify TA about assignment
+    await this.notificationsService.createNotification({
+      userId,
+      notificationType: NotificationType.ENROLLMENT,
+      title: 'New TA Assignment',
+      body: `You have been assigned as TA for section ${section.sectionNumber} of ${section.courseId}.`,
+      relatedEntityType: 'section',
+      relatedEntityId: sectionId,
+      priority: NotificationPriority.HIGH,
+      actionUrl: `/ta/courses/${section.courseId}`,
+    });
 
     const full = await this.taRepository.findOne({
       where: { id: saved.id },

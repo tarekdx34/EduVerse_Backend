@@ -7,6 +7,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { NotificationsService } from '../../notifications/services/notifications.service';
+import { NotificationPriority, NotificationType } from '../../notifications/enums';
 
 const execAsync = promisify(exec);
 
@@ -19,6 +21,7 @@ export class BackupService {
     @InjectRepository(BackupRecord)
     private backupRepo: Repository<BackupRecord>,
     private configService: ConfigService,
+    private notificationsService: NotificationsService,
   ) {
     this.backupDir = path.join(process.cwd(), 'backups');
     if (!fs.existsSync(this.backupDir)) {
@@ -69,11 +72,32 @@ export class BackupService {
       saved.completedAt = new Date();
       await this.backupRepo.save(saved);
 
+      const adminIds = await this.notificationsService.getOperationalAdminIds();
+      await this.notificationsService.createBulkNotifications(adminIds, {
+        notificationType: NotificationType.SYSTEM,
+        title: 'Backup Completed',
+        body: `Backup "${fileName}" completed successfully.`,
+        relatedEntityType: 'backup_record',
+        relatedEntityId: saved.id,
+        priority: NotificationPriority.MEDIUM,
+        actionUrl: '/admin/backup',
+      });
+
       this.logger.log(`Backup created: ${fileName} (${stats.size} bytes)`);
       return { data: saved, message: 'Backup created successfully' };
     } catch (error) {
       saved.status = BackupStatus.FAILED;
       await this.backupRepo.save(saved);
+      const adminIds = await this.notificationsService.getOperationalAdminIds();
+      await this.notificationsService.createBulkNotifications(adminIds, {
+        notificationType: NotificationType.SYSTEM,
+        title: 'Backup Failed',
+        body: `Backup "${fileName}" failed: ${error.message}`,
+        relatedEntityType: 'backup_record',
+        relatedEntityId: saved.id,
+        priority: NotificationPriority.URGENT,
+        actionUrl: '/admin/backup',
+      });
       this.logger.error(`Backup failed: ${error.message}`);
       return { data: saved, message: `Backup failed: ${error.message}` };
     }

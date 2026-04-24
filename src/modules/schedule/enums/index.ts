@@ -12,6 +12,8 @@ export enum EventType {
   ASSIGNMENT = 'assignment',
   QUIZ = 'quiz',
   MEETING = 'meeting',
+  HOLIDAY = 'holiday',
+  ACADEMIC = 'academic',
   CUSTOM = 'custom',
 }
 

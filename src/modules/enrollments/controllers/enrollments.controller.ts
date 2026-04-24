@@ -64,9 +64,21 @@ export class EnrollmentsController {
     description:
       'Returns semesters with registration date ranges as enrollment periods.',
   })
+  @ApiQuery({
+    name: 'departmentId',
+    required: false,
+    type: Number,
+    description:
+      'When set, course and enrollment counts are limited to this department.',
+  })
   @ApiResponse({ status: 200, description: 'List of enrollment periods' })
-  async getEnrollmentPeriods(): Promise<any[]> {
-    return this.enrollmentsService.getEnrollmentPeriods();
+  async getEnrollmentPeriods(
+    @Query('departmentId') departmentId?: string,
+  ): Promise<any[]> {
+    const id = departmentId ? parseInt(departmentId, 10) : undefined;
+    return this.enrollmentsService.getEnrollmentPeriods(
+      id !== undefined && Number.isFinite(id) ? id : undefined,
+    );
   }
 
   /**
@@ -112,12 +124,7 @@ Use \`semester\` query parameter to filter by specific semester.
     @Request() req,
     @Query('semester') semester?: number,
   ): Promise<EnrollmentResponseDto[]> {
-    console.log(
-      'GET MY COURSES - req.user.userId:',
-      req.user.userId,
-      'req.user.id:',
-      req.user.id,
-    );
+
     const userId = req.user.userId || req.user.id;
     return this.enrollmentsService.getMyEnrollments(userId, semester);
   }
@@ -210,13 +217,7 @@ Enrolls the authenticated student in a course section.
     @Request() req,
     @Body() enrollCourseDto: EnrollCourseDto,
   ): Promise<EnrollmentResponseDto> {
-    // DEBUG: Check what req.user contains
-    console.log('=== ENROLL DEBUG ===');
-    console.log('req.user:', req.user);
-    console.log('req.user.userId:', req.user.userId);
-    console.log('req.user.id:', req.user.id);
-    console.log('req.user properties:', Object.keys(req.user));
-    console.log('==================');
+
 
     const userId = req.user.userId || req.user.id;
     if (!userId) {
@@ -243,6 +244,32 @@ Enrolls the authenticated student in a course section.
   async getTeachingCourses(@Request() req): Promise<any[]> {
     const userId = req.user.userId || req.user.id;
     return this.enrollmentsService.getTeachingCourses(userId);
+  }
+
+  /**
+   * GET /api/enrollments/student/:userId
+   * List enrollments for a student (admin / IT admin / department head)
+   */
+  @Get('student/:userId')
+  @Roles(RoleName.ADMIN, RoleName.IT_ADMIN, RoleName.DEPARTMENT_HEAD)
+  @ApiOperation({
+    summary: 'Get enrollments for a student (staff)',
+    description:
+      'Returns the same enrollment payload as the student “my courses” view, for roster and admin tools.',
+  })
+  @ApiParam({ name: 'userId', description: 'Student user ID', type: Number })
+  @ApiQuery({
+    name: 'semester',
+    required: false,
+    type: Number,
+    description: 'Optional semester ID to filter sections',
+  })
+  @ApiResponse({ status: 200, description: 'List of enrollments' })
+  async getEnrollmentsForStudent(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('semester') semester?: number,
+  ): Promise<EnrollmentResponseDto[]> {
+    return this.enrollmentsService.getMyEnrollments(userId, semester);
   }
 
   /**
@@ -308,11 +335,16 @@ Dropping may move waitlisted students into the section.
     @Param('id') enrollmentId: number,
     @Body() dropCourseDto?: DropCourseDto,
   ): Promise<EnrollmentResponseDto> {
-    const isAdmin = req.user.roles?.some((r) => r.roleName === RoleName.ADMIN);
+    const staffRoles = [
+      RoleName.ADMIN,
+      RoleName.IT_ADMIN,
+      RoleName.DEPARTMENT_HEAD,
+    ];
+    const isAdmin = req.user.roles?.some((r) => staffRoles.includes(r.roleName));
     return this.enrollmentsService.dropCourse(
       enrollmentId,
       req.user.userId,
-      isAdmin,
+      !!isAdmin,
     );
   }
 

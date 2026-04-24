@@ -20,6 +20,9 @@ import { TwoFactorAuth } from './entities/two-factor-auth.entity';
 import { UserPreference } from './entities/user-preference.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { EmailModule } from '../email/email.module';
+import { SecurityModule } from '../security/security.module';
+import { AdminDashboardService } from './admin-dashboard.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -53,9 +56,11 @@ import { EmailModule } from '../email/email.module';
       },
     }),
     EmailModule,
+    SecurityModule,
+    NotificationsModule,
   ],
   controllers: [AuthController, UserManagementController, UserProfileController],
-  providers: [AuthService, UserManagementService, JwtStrategy],
+  providers: [AuthService, UserManagementService, AdminDashboardService, JwtStrategy],
   exports: [AuthService, UserManagementService],
 })
 export class AuthModule {}

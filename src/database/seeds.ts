@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { AuthSeeder } from './seeders/auth.seeder';
-import { AcademicStructureSeeder } from './seeders/academic-structure.seeder';
 
 // Load environment variables
 dotenv.config();
@@ -33,10 +32,6 @@ async function runSeeders() {
     // Run auth seeder
     const authSeeder = new AuthSeeder();
     await authSeeder.run(AppDataSource);
-
-    // Run academic structure seeder
-    const academicSeeder = new AcademicStructureSeeder();
-    await academicSeeder.run(AppDataSource);
 
     console.log('✅ Seeding completed successfully');
     await AppDataSource.destroy();

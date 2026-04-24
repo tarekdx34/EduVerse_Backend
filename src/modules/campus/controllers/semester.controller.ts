@@ -108,7 +108,7 @@ Only one semester can be active at a time.
   }
 
   @Post()
-  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN)
+  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN, RoleName.DEPARTMENT_HEAD)
   @HttpCode(201)
   @ApiOperation({
     summary: 'Create new semester',
@@ -166,7 +166,7 @@ Retrieves details of a specific semester.
   }
 
   @Put(':id')
-  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN)
+  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN, RoleName.DEPARTMENT_HEAD)
   @ApiOperation({
     summary: 'Update semester',
     description: `
@@ -197,7 +197,7 @@ Be careful changing dates on active semesters.
   }
 
   @Delete(':id')
-  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN)
+  @Roles(RoleName.IT_ADMIN, RoleName.ADMIN, RoleName.DEPARTMENT_HEAD)
   @HttpCode(204)
   @ApiOperation({
     summary: 'Delete semester',

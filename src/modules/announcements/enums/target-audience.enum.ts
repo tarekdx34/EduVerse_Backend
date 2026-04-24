@@ -3,5 +3,6 @@ export enum TargetAudience {
   STUDENTS = 'students',
   INSTRUCTORS = 'instructors',
   TAS = 'tas',
+  ADMINS = 'admins',
   CUSTOM = 'custom',
 }

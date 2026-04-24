@@ -23,6 +23,9 @@ import { YoutubeModule } from '../youtube/youtube.module';
 // Import Google Drive module for document upload functionality
 import { GoogleDriveModule } from '../google-drive/google-drive.module';
 
+// Import Notifications module
+import { NotificationsModule } from '../notifications/notifications.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -35,6 +38,7 @@ import { GoogleDriveModule } from '../google-drive/google-drive.module';
     ]),
     YoutubeModule,
     GoogleDriveModule,
+    NotificationsModule,
   ],
   controllers: [
     MaterialsController,

@@ -1,12 +1,10 @@
 import { DataSource } from 'typeorm';
 import { Role, RoleName } from '../../modules/auth/entities/role.entity';
 import { Permission } from '../../modules/auth/entities/permission.entity';
-import { User, UserStatus } from '../../modules/auth/entities/user.entity';
 
 export async function seedAuthData(dataSource: DataSource) {
   const roleRepository = dataSource.getRepository(Role);
   const permissionRepository = dataSource.getRepository(Permission);
-  const userRepository = dataSource.getRepository(User);
 
   // Seed Roles
   const roles = [
@@ -88,105 +86,7 @@ export async function seedAuthData(dataSource: DataSource) {
     }
   }
 
-  const roleMap = new Map<RoleName, Role>();
-  const allRoles = await roleRepository.find();
-  for (const role of allRoles) {
-    roleMap.set(role.roleName, role);
-  }
-
-  const seedUsers = [
-    ...buildUsers('student', RoleName.STUDENT, 200),
-    ...buildUsers('ta', RoleName.TA, 40),
-    ...buildUsers('instructor', RoleName.INSTRUCTOR, 20),
-    ...buildUsers('admin', RoleName.ADMIN, 5),
-    ...buildUsers('itadmin', RoleName.IT_ADMIN, 1),
-  ];
-
-  const existingUsers = await userRepository.find({
-    where: seedUsers.map((u) => ({ email: u.email })),
-    relations: ['roles'],
-  });
-  const existingByEmail = new Map(existingUsers.map((u) => [u.email, u]));
-
-  let createdCount = 0;
-  let updatedRoleCount = 0;
-
-  for (const seedUser of seedUsers) {
-    const role = roleMap.get(seedUser.roleName);
-    if (!role) {
-      throw new Error(`Missing role for ${seedUser.roleName}. Run role seeding first.`);
-    }
-
-    const existing = existingByEmail.get(seedUser.email);
-    if (!existing) {
-      const user = userRepository.create({
-        email: seedUser.email,
-        passwordHash: 'password123',
-        firstName: seedUser.firstName,
-        lastName: seedUser.lastName,
-        status: UserStatus.ACTIVE,
-        emailVerified: true,
-        roles: [role],
-      });
-      await userRepository.save(user);
-      createdCount++;
-      continue;
-    }
-
-    const hasRole = existing.roles?.some((r) => r.roleName === seedUser.roleName);
-    if (!hasRole) {
-      existing.roles = [role];
-      existing.status = UserStatus.ACTIVE;
-      existing.emailVerified = true;
-      await userRepository.save(existing);
-      updatedRoleCount++;
-    }
-  }
-
-  console.log(`✅ Seeded users: created ${createdCount}, updated ${updatedRoleCount}`);
   console.log('✅ Auth seeding completed!');
-}
-
-function buildUsers(
-  prefix: string,
-  roleName: RoleName,
-  count: number,
-): Array<{
-  email: string;
-  firstName: string;
-  lastName: string;
-  roleName: RoleName;
-}> {
-  return Array.from({ length: count }, (_, i) => {
-    const index = i + 1;
-    return {
-      email: `${prefix}${index}.tarek@example.com`,
-      firstName: `${toTitleCase(prefix)}${index}`,
-      lastName: roleNameToLastName(roleName),
-      roleName,
-    };
-  });
-}
-
-function toTitleCase(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-}
-
-function roleNameToLastName(roleName: RoleName): string {
-  switch (roleName) {
-    case RoleName.STUDENT:
-      return 'Student';
-    case RoleName.TA:
-      return 'TA';
-    case RoleName.INSTRUCTOR:
-      return 'Instructor';
-    case RoleName.ADMIN:
-      return 'Admin';
-    case RoleName.IT_ADMIN:
-      return 'ITAdmin';
-    default:
-      return 'User';
-  }
 }
 
 export class AuthSeeder {

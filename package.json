@@ -29,7 +29,9 @@
     "quiz:install": "powershell -ExecutionPolicy Bypass -File ./ai-services/quiz-generator/install-windows.ps1",
     "quiz": "node scripts/run-quiz-generator.cjs",
     "db:campus-events": "node scripts/run-campus-events-sql.cjs",
-    "db:student-progress": "node scripts/run-student-progress-sql.cjs"
+    "db:student-progress": "node scripts/run-student-progress-sql.cjs",
+    "dev:export-quick-login-seeds": "node scripts/export-quick-login-seeds.cjs",
+    "db:rename-users-option-a": "node scripts/rename-users-option-a.cjs"
   },
   "dependencies": {
     "@googleapis/drive": "^20.1.0",

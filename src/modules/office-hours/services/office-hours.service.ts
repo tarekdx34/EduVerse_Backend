@@ -6,7 +6,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { OfficeHourSlot } from '../entities/office-hour-slot.entity';
 import { OfficeHourAppointment } from '../entities/office-hour-appointment.entity';
 import { CreateSlotDto } from '../dto/create-slot.dto';
@@ -74,6 +74,7 @@ export class OfficeHoursService {
     const qb = this.slotRepo
       .createQueryBuilder('slot')
       .leftJoinAndSelect('slot.instructor', 'instructor')
+      .andWhere('slot.status != :cancelled', { cancelled: 'cancelled' })
       .orderBy('slot.createdAt', 'DESC')
       .skip(skip)
       .take(limit);
@@ -130,7 +131,7 @@ export class OfficeHoursService {
 
   async getMySlots(instructorId: number) {
     const data = await this.slotRepo.find({
-      where: { instructorId },
+      where: { instructorId, status: Not('cancelled') },
       order: { dayOfWeek: 'ASC', startTime: 'ASC' },
     });
     const appointmentCounts = await this.getSlotAppointmentCounts(
@@ -231,7 +232,7 @@ export class OfficeHoursService {
         await this.notificationsService
           .createNotification({
             userId: appt.studentId,
-            notificationType: NotificationType.SYSTEM,
+            notificationType: NotificationType.OFFICE_HOURS,
             title: 'Office Hour Slot Cancelled',
             body: `Your appointment for slot #${id} has been cancelled because the slot was cancelled by the instructor.`,
           })
@@ -319,7 +320,7 @@ export class OfficeHoursService {
     await this.notificationsService
       .createNotification({
         userId: slot.instructorId,
-        notificationType: NotificationType.MESSAGE,
+        notificationType: NotificationType.OFFICE_HOURS,
         title: 'New Office Hour Booking',
         body: `A student has booked an appointment for your slot on ${dto.appointmentDate}. Topic: ${dto.topic || 'No topic'}`,
       })
@@ -353,7 +354,7 @@ export class OfficeHoursService {
       await this.notificationsService
         .createNotification({
           userId: appointment.studentId,
-          notificationType: NotificationType.SYSTEM,
+          notificationType: NotificationType.OFFICE_HOURS,
           title: 'Appointment Confirmed',
           body: `Your office hour appointment on ${appointment.appointmentDate} has been confirmed via instructor.`,
         })
@@ -367,7 +368,7 @@ export class OfficeHoursService {
       await this.notificationsService
         .createNotification({
           userId: targetUserId,
-          notificationType: NotificationType.SYSTEM,
+          notificationType: NotificationType.OFFICE_HOURS,
           title: 'Appointment Cancelled',
           body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
         })
@@ -399,7 +400,7 @@ export class OfficeHoursService {
     await this.notificationsService
       .createNotification({
         userId: targetUserId,
-        notificationType: NotificationType.SYSTEM,
+        notificationType: NotificationType.OFFICE_HOURS,
         title: 'Appointment Cancelled',
         body: `An office hour appointment on ${appointment.appointmentDate} has been cancelled.`,
       })

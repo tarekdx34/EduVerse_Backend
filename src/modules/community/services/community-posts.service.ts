@@ -10,6 +10,7 @@ import { CommunityPost } from '../entities/community-post.entity';
 import { CommunityComment } from '../entities/community-comment.entity';
 import { CommunityReaction } from '../entities/community-reaction.entity';
 import { CommunityTag } from '../entities/community-tag.entity';
+import { CommunityPostView } from '../entities/community-post-view.entity';
 import {
   CreatePostDto,
   UpdatePostDto,
@@ -18,6 +19,8 @@ import {
   CreateReactionDto,
 } from '../dto';
 import { PostNotFoundException, CommentNotFoundException } from '../exceptions';
+import { NotificationType, NotificationPriority } from '../../notifications/enums';
+import { NotificationsService } from '../../notifications/services/notifications.service';
 
 @Injectable()
 export class CommunityPostsService {
@@ -32,6 +35,9 @@ export class CommunityPostsService {
     private reactionRepository: Repository<CommunityReaction>,
     @InjectRepository(CommunityTag)
     private tagRepository: Repository<CommunityTag>,
+    @InjectRepository(CommunityPostView)
+    private postViewRepository: Repository<CommunityPostView>,
+    private notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -89,7 +95,7 @@ export class CommunityPostsService {
   /**
    * Get a single post with comments
    */
-  async findOne(id: number, page = 1, limit = 50): Promise<any> {
+  async findOne(id: number, userId?: number, page = 1, limit = 50): Promise<any> {
     const post = await this.postRepository.findOne({
       where: { id },
       relations: ['author', 'community', 'tags'],
@@ -99,9 +105,15 @@ export class CommunityPostsService {
       throw new PostNotFoundException(id);
     }
 
-    // Increment view count
-    await this.postRepository.increment({ id }, 'viewCount', 1);
-    post.viewCount++;
+    // Increment view count logically
+    if (userId) {
+      const existingView = await this.postViewRepository.findOne({ where: { postId: id, userId } });
+      if (!existingView) {
+        await this.postViewRepository.save(this.postViewRepository.create({ postId: id, userId }));
+        await this.postRepository.increment({ id }, 'viewCount', 1);
+        post.viewCount++;
+      }
+    }
 
     // Get comments (paginated)
     const [comments, commentTotal] = await this.commentRepository.findAndCount({
@@ -278,6 +290,38 @@ export class CommunityPostsService {
       where: { id: saved.id },
       relations: ['author'],
     });
+
+    // Notify post author if not the same person
+    if (Number(post.userId) !== Number(userId)) {
+      await this.notificationsService.createNotification({
+        userId: post.userId,
+        notificationType: NotificationType.COMMUNITY,
+        title: 'New Comment on Your Post',
+        body: `Someone commented on your post: "${post.title.substring(0, 30)}..."`,
+        relatedEntityType: 'community_post',
+        relatedEntityId: postId,
+        priority: NotificationPriority.LOW,
+        actionUrl: `/community/posts/${postId}`,
+      });
+    }
+
+    // Notify parent comment author if reply and not the same person
+    if (dto.parentCommentId) {
+      const parentComment = await this.commentRepository.findOne({ where: { id: dto.parentCommentId } });
+      if (parentComment && Number(parentComment.userId) !== Number(userId) && Number(parentComment.userId) !== Number(post.userId)) {
+        await this.notificationsService.createNotification({
+          userId: parentComment.userId,
+          notificationType: NotificationType.COMMUNITY,
+          title: 'New Reply to Your Comment',
+          body: `Someone replied to your comment on post: "${post.title.substring(0, 30)}..."`,
+          relatedEntityType: 'community_post',
+          relatedEntityId: postId,
+          priority: NotificationPriority.LOW,
+          actionUrl: `/community/posts/${postId}`,
+        });
+      }
+    }
+
     return result!;
   }
 
@@ -309,6 +353,21 @@ export class CommunityPostsService {
       await this.reactionRepository.save(reaction);
       await this.postRepository.increment({ id: postId }, 'upvoteCount', 1);
       this.logger.log(`Reaction ${dto.reactionType} added to post ${postId} by user ${userId}`);
+
+      // Notify post author if not the same person
+      if (Number(post.userId) !== Number(userId)) {
+        await this.notificationsService.createNotification({
+          userId: post.userId,
+          notificationType: NotificationType.COMMUNITY,
+          title: 'Post Reacted To',
+          body: `Your post "${post.title.substring(0, 30)}..." received a ${dto.reactionType} reaction.`,
+          relatedEntityType: 'community_post',
+          relatedEntityId: postId,
+          priority: NotificationPriority.LOW,
+          actionUrl: `/community/posts/${postId}`,
+        });
+      }
+
       return { action: 'added', reactionType: dto.reactionType };
     }
   }
