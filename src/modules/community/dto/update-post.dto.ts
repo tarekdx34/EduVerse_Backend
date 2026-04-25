@@ -23,7 +23,7 @@ export class UpdatePostDto {
 
   @ApiPropertyOptional({
     description: 'Type of post',
-    enum: PostType,
+    enum: ['discussion', 'question', 'announcement', 'resource'],
   })
   @IsOptional()
   @IsEnum(PostType)

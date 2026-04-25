@@ -6,12 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum SslStatus {
-  ACTIVE = 'active',
-  EXPIRING_SOON = 'expiring_soon',
-  EXPIRED = 'expired',
-  REVOKED = 'revoked',
-}
+import { SslStatus } from '../enums/ssl-status.enum';
 
 @Entity('ssl_certificates')
 export class SslCertificate {
@@ -42,7 +37,7 @@ export class SslCertificate {
   @Column({
     name: 'status',
     type: 'enum',
-    enum: SslStatus,
+    enum: ['active', 'expiring_soon', 'expired', 'revoked'],
     default: SslStatus.ACTIVE,
   })
   status: SslStatus;

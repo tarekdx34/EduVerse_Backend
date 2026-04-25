@@ -6,7 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
 import { plainToClass } from 'class-transformer';
-import { User, UserStatus } from './entities/user.entity';
+import { UserStatus } from './enums/user-status.enum';
+import { User } from './entities/user.entity';
 import { Role, RoleName } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { UserPreference } from './entities/user-preference.entity';

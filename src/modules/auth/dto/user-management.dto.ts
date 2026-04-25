@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsEmail, IsEnum, IsNumber, IsArray, IsBoolean, MinLength, MaxLength, Matches } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { UserStatus } from '../entities/user.entity';
+import { UserStatus } from '../enums/user-status.enum';
 import { RoleName } from '../entities/role.entity';
 
 export class UserUpdateDto {

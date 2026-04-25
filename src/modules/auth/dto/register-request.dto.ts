@@ -70,8 +70,8 @@ export class RegisterRequestDto {
 
   @ApiPropertyOptional({
     description: 'User role (defaults to student)',
-    enum: RoleName,
-    example: RoleName.STUDENT,
+    enum: ['student', 'instructor', 'ta', 'admin', 'it_admin'],
+    example: 'student',
   })
   @IsOptional()
   @IsEnum(RoleName, { message: 'Invalid role' })

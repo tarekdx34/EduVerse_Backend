@@ -18,7 +18,7 @@ export class StudentAnalyticsQueryDto {
 
   @ApiPropertyOptional({
     description: 'Metric type filter',
-    enum: MetricType,
+    enum: ['engagement', 'performance', 'participation', 'time'],
   })
   @IsOptional()
   @IsEnum(MetricType)

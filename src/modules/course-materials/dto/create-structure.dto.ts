@@ -31,8 +31,8 @@ export class CreateStructureDto {
 
   @ApiProperty({
     description: 'Type of content organization',
-    enum: OrganizationType,
-    example: OrganizationType.LECTURE,
+    enum: ['lecture', 'section', 'lab', 'tutorial'],
+    example: 'lecture',
   })
   @IsEnum(OrganizationType)
   @IsNotEmpty()

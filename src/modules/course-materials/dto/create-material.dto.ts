@@ -32,8 +32,8 @@ export class CreateMaterialDto {
 
   @ApiProperty({
     description: 'Type of material',
-    enum: MaterialType,
-    example: MaterialType.LECTURE,
+    enum: ['lecture', 'slide', 'video', 'reading', 'link', 'document', 'other'],
+    example: 'lecture',
   })
   @IsEnum(MaterialType)
   @IsNotEmpty()

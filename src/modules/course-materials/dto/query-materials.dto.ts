@@ -6,8 +6,8 @@ import { MaterialType } from '../enums';
 export class QueryMaterialsDto {
   @ApiPropertyOptional({
     description: 'Filter by material type',
-    enum: MaterialType,
-    example: MaterialType.LECTURE,
+    enum: ['lecture', 'slide', 'video', 'reading', 'link', 'document', 'other'],
+    example: 'lecture',
   })
   @IsEnum(MaterialType)
   @IsOptional()

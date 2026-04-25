@@ -19,12 +19,7 @@ import { Session } from './session.entity';
 import { PasswordReset } from './password-reset.entity';
 import { TwoFactorAuth } from './two-factor-auth.entity';
 
-export enum UserStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  SUSPENDED = 'suspended',
-  PENDING = 'pending',
-}
+import { UserStatus } from '../enums/user-status.enum';
 
 @Entity('users')
 export class User {
@@ -67,7 +62,7 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: UserStatus,
+    enum: ['active', 'inactive', 'suspended', 'pending'],
     default: UserStatus.PENDING,
   })
   status: UserStatus;

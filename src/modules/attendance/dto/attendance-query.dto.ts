@@ -33,7 +33,7 @@ export class AttendanceQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by session type',
-    enum: SessionType,
+    enum: ['lecture', 'lab', 'tutorial', 'exam'],
   })
   @IsOptional()
   @IsEnum(SessionType)
@@ -41,7 +41,7 @@ export class AttendanceQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by session status',
-    enum: SessionStatus,
+    enum: ['scheduled', 'in_progress', 'completed', 'cancelled'],
   })
   @IsOptional()
   @IsEnum(SessionStatus)

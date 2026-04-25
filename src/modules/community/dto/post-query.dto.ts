@@ -15,7 +15,7 @@ export class PostQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by post type',
-    enum: PostType,
+    enum: ['discussion', 'question', 'announcement', 'resource'],
   })
   @IsOptional()
   @IsEnum(PostType)

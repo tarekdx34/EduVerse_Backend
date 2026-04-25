@@ -109,8 +109,8 @@ export class CreateAssignmentDto {
 
   @ApiPropertyOptional({
     description: 'Assignment status',
-    enum: AssignmentStatus,
-    default: AssignmentStatus.DRAFT,
+    enum: ['draft', 'published', 'closed', 'archived'],
+    default: 'draft',
     example: 'draft',
   })
   @IsEnum(AssignmentStatus)

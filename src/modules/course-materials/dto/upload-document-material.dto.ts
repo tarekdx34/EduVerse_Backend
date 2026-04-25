@@ -34,9 +34,9 @@ export class UploadDocumentMaterialDto {
 
   @ApiPropertyOptional({
     description: 'Material type',
-    enum: MaterialType,
-    example: MaterialType.DOCUMENT,
-    default: MaterialType.DOCUMENT,
+    enum: ['lecture', 'slide', 'video', 'reading', 'link', 'document', 'other'],
+    example: 'document',
+    default: 'document',
   })
   @IsOptional()
   @Transform(({ value }) => value || MaterialType.DOCUMENT)

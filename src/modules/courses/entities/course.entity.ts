@@ -67,7 +67,7 @@ export class Course {
 
   @Column({
     type: 'enum',
-    enum: CourseLevel,
+    enum: ['FRESHMAN', 'SOPHOMORE', 'JUNIOR', 'SENIOR', 'GRADUATE'],
     nullable: false,
     name: 'level',
   })
@@ -104,7 +104,7 @@ export class Course {
 
   @Column({
     type: 'enum',
-    enum: CourseStatus,
+    enum: ['ACTIVE', 'INACTIVE', 'ARCHIVED'],
     default: CourseStatus.ACTIVE,
     name: 'status',
   })

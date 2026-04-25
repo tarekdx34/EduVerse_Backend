@@ -36,7 +36,7 @@ export class CalendarIntegration {
   @Column({
     name: 'calendar_type',
     type: 'enum',
-    enum: CalendarType,
+    enum: ['google', 'outlook', 'ical'],
     nullable: true,
   })
   calendarType: CalendarType | null;
@@ -67,7 +67,7 @@ export class CalendarIntegration {
   @Column({
     name: 'sync_status',
     type: 'enum',
-    enum: SyncStatus,
+    enum: ['active', 'error', 'disabled'],
     nullable: true,
   })
   syncStatus: SyncStatus | null;

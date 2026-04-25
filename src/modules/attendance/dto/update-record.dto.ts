@@ -5,8 +5,8 @@ import { AttendanceStatus } from '../enums';
 export class UpdateRecordDto {
   @ApiPropertyOptional({
     description: 'Attendance status',
-    enum: AttendanceStatus,
-    example: AttendanceStatus.PRESENT,
+    enum: ['present', 'absent', 'late', 'excused'],
+    example: 'present',
   })
   @IsOptional()
   @IsEnum(AttendanceStatus)

@@ -13,7 +13,7 @@ export class UpdateSessionDto {
 
   @ApiPropertyOptional({
     description: 'Type of session',
-    enum: SessionType,
+    enum: ['lecture', 'lab', 'tutorial', 'exam'],
   })
   @IsOptional()
   @IsEnum(SessionType)
@@ -45,7 +45,7 @@ export class UpdateSessionDto {
 
   @ApiPropertyOptional({
     description: 'Session status',
-    enum: SessionStatus,
+    enum: ['scheduled', 'in_progress', 'completed', 'cancelled'],
   })
   @IsOptional()
   @IsEnum(SessionStatus)

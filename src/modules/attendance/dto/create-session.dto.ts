@@ -28,8 +28,8 @@ export class CreateSessionDto {
 
   @ApiPropertyOptional({
     description: 'Type of session',
-    enum: SessionType,
-    default: SessionType.LECTURE,
+    enum: ['lecture', 'lab', 'tutorial', 'exam'],
+    default: 'lecture',
   })
   @IsOptional()
   @IsEnum(SessionType)

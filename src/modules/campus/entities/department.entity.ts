@@ -61,7 +61,7 @@ export class Department {
 
   @Column({
     type: 'enum',
-    enum: Status,
+    enum: ['active', 'inactive'],
     default: Status.ACTIVE,
   })
   status: Status;

@@ -28,8 +28,8 @@ export class CreatePostDto {
 
   @ApiPropertyOptional({
     description: 'Type of post',
-    enum: PostType,
-    default: PostType.DISCUSSION,
+    enum: ['discussion', 'question', 'announcement', 'resource'],
+    default: 'discussion',
   })
   @IsOptional()
   @IsEnum(PostType)

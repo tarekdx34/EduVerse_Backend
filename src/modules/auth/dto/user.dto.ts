@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { UserStatus } from '../entities/user.entity';
+import { UserStatus } from '../enums/user-status.enum';
 import { RoleName } from '../entities/role.entity';
 
 export class UserDto {

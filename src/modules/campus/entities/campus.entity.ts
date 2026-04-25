@@ -53,7 +53,7 @@ export class Campus {
   @Column({
     name: 'status',
     type: 'enum',
-    enum: Status,
+    enum: ['active', 'inactive'],
     default: Status.ACTIVE,
   })
   status: Status;

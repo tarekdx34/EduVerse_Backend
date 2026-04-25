@@ -15,7 +15,7 @@ export class AnnouncementQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by announcement type',
-    enum: AnnouncementType,
+    enum: ['course', 'department', 'campus', 'system'],
   })
   @IsOptional()
   @IsEnum(AnnouncementType)
@@ -23,7 +23,7 @@ export class AnnouncementQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by priority',
-    enum: AnnouncementPriority,
+    enum: ['low', 'medium', 'high', 'urgent'],
   })
   @IsOptional()
   @IsEnum(AnnouncementPriority)

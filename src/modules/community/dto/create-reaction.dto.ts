@@ -5,8 +5,8 @@ import { ReactionType } from '../enums';
 export class CreateReactionDto {
   @ApiProperty({
     description: 'Reaction type to add/toggle',
-    enum: ReactionType,
-    example: ReactionType.LIKE,
+    enum: ['like', 'love', 'haha', 'wow', 'sad', 'angry'],
+    example: 'like',
   })
   @IsEnum(ReactionType)
   reactionType: ReactionType;

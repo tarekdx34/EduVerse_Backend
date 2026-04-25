@@ -33,7 +33,7 @@ export class Semester {
 
   @Column({
     type: 'enum',
-    enum: SemesterStatus,
+    enum: ['upcoming', 'active', 'completed'],
     default: SemesterStatus.UPCOMING,
   })
   status: SemesterStatus;

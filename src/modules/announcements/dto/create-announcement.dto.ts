@@ -29,8 +29,8 @@ export class CreateAnnouncementDto {
 
   @ApiPropertyOptional({
     description: 'Type of announcement',
-    enum: AnnouncementType,
-    default: AnnouncementType.COURSE,
+    enum: ['course', 'department', 'campus', 'system'],
+    default: 'course',
   })
   @IsOptional()
   @IsEnum(AnnouncementType)
@@ -38,8 +38,8 @@ export class CreateAnnouncementDto {
 
   @ApiPropertyOptional({
     description: 'Priority level',
-    enum: AnnouncementPriority,
-    default: AnnouncementPriority.MEDIUM,
+    enum: ['low', 'medium', 'high', 'urgent'],
+    default: 'medium',
   })
   @IsOptional()
   @IsEnum(AnnouncementPriority)
@@ -47,8 +47,8 @@ export class CreateAnnouncementDto {
 
   @ApiPropertyOptional({
     description: 'Target audience for the announcement',
-    enum: TargetAudience,
-    default: TargetAudience.ALL,
+    enum: ['all', 'students', 'instructors', 'tas', 'admins', 'custom'],
+    default: 'all',
   })
   @IsOptional()
   @IsEnum(TargetAudience)

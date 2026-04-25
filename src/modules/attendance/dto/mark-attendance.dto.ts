@@ -28,8 +28,8 @@ export class MarkAttendanceDto {
 
   @ApiProperty({
     description: 'Attendance status',
-    enum: AttendanceStatus,
-    example: AttendanceStatus.PRESENT,
+    enum: ['present', 'absent', 'late', 'excused'],
+    example: 'present',
   })
   @IsNotEmpty()
   @IsEnum(AttendanceStatus)

@@ -48,7 +48,7 @@ export class Program {
 
   @Column({
     type: 'enum',
-    enum: DegreeType,
+    enum: ['bachelor', 'master', 'phd', 'diploma', 'certificate'],
     nullable: false,
     name: 'degree_type', // Map to actual column name
   })
@@ -66,7 +66,7 @@ export class Program {
 
   @Column({
     type: 'enum',
-    enum: Status,
+    enum: ['active', 'inactive'],
     default: Status.ACTIVE,
   })
   status: Status;
