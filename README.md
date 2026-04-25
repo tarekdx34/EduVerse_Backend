@@ -1,35 +1,15 @@
-# EduVerse Backend
+---
+title: Eduverse Backend
+emoji: "🚀"
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
 
-Backend API for EduVerse.
+# EduVerse Backend Space
 
-## Tech Stack
+Dockerized backend deployment for EduVerse.
 
-- NestJS
-- TypeScript
-- MySQL (TypeORM)
-- Docker
-
-## Local Development
-
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Configure environment variables in `.env`.
-
-3. Start development server:
-
-```bash
-npm run start:dev
-```
-
-Default local API URL: `http://localhost:8081`
-
-## Hugging Face Deployment
-
-This repository also supports deployment to a Hugging Face Docker Space.
-
-- Hugging Face metadata README: `README.HF.md`
-- Deployment guide: `README.HF-DEPLOY.md`
+This Space runs the backend API container.
