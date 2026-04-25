@@ -325,10 +325,12 @@ export class AuthService {
     return userDto;
   }
 
-  private detectDeviceType(userAgent: string): string {
-    if (!userAgent) return 'unknown';
-    if (/mobile/i.test(userAgent)) return 'mobile';
-    if (/tablet/i.test(userAgent)) return 'tablet';
-    return 'desktop';
+  private detectDeviceType(userAgent?: string): string {
+    if (!userAgent) return 'web';
+
+    // Keep values aligned with DB enum used in production (ios/android/web).
+    if (/(iphone|ipad|ipod|ios)/i.test(userAgent)) return 'ios';
+    if (/(android)/i.test(userAgent)) return 'android';
+    return 'web';
   }
 }
