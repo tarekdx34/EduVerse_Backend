@@ -60,9 +60,13 @@ async function bootstrap() {
         return callback(null, true);
 
       const normalizedOrigin = normalizeOrigin(origin);
+      const staticAllowedOrigins = [
+        normalizeOrigin('https://eduverse-pi.vercel.app'),
+      ];
       const allowedOrigins = [
         ...normalizeEnvOrigins(process.env.CORS_ORIGIN),
         ...normalizeEnvOrigins(process.env.FRONTEND_URL),
+        ...staticAllowedOrigins,
       ];
 
       if (allowedOrigins.includes(normalizedOrigin)) return callback(null, true);
