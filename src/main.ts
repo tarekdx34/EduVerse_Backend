@@ -37,14 +37,25 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       // Allow: no origin (file://, curl, Postman), localhost on any port, 127.0.0.1 on any port
-      if (!origin) return callback(null, true);
-      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
-        return callback(null, true);
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        callback(null, true);
+        return;
+      }
       const allowedOrigins =
         process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) || [];
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
@@ -66,7 +77,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Swagger Configuration — skip in dev for faster startup
-  const enableSwagger = process.env.NODE_ENV !== 'development' || process.env.ENABLE_SWAGGER === 'true';
+  const enableSwagger =
+    process.env.NODE_ENV !== 'development' ||
+    process.env.ENABLE_SWAGGER === 'true';
   if (enableSwagger) {
     const config = new DocumentBuilder()
       .setTitle('EduVerse API')
@@ -115,7 +128,11 @@ The API implements role-based access control with the following roles:
       `,
       )
       .setVersion('1.0.0')
-      .setContact('EduVerse Team', 'https://eduverse.com', 'support@eduverse.com')
+      .setContact(
+        'EduVerse Team',
+        'https://eduverse.com',
+        'support@eduverse.com',
+      )
       .setLicense('MIT', 'https://opensource.org/licenses/MIT')
       .addBearerAuth(
         {
@@ -180,7 +197,10 @@ The API implements role-based access control with the following roles:
         '🌐 Community Posts',
         'Community forum posts with discussions, questions, and resource sharing',
       )
-      .addTag('💬 Community Comments', 'Comments and replies on community posts')
+      .addTag(
+        '💬 Community Comments',
+        'Comments and replies on community posts',
+      )
       .addTag(
         '📁 Forum Categories',
         'Forum category management for organizing community discussions',
@@ -236,7 +256,9 @@ The API implements role-based access control with the following roles:
       },
     });
   } else {
-    logger.log('Swagger disabled in development (set ENABLE_SWAGGER=true to override)');
+    logger.log(
+      'Swagger disabled in development (set ENABLE_SWAGGER=true to override)',
+    );
   }
 
   const port = process.env.PORT || 8081;
@@ -250,4 +272,4 @@ The API implements role-based access control with the following roles:
   );
   logger.log(`📚 Swagger API Documentation: http://localhost:${port}/api-docs`);
 }
-bootstrap();
+void bootstrap();
