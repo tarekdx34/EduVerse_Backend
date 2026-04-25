@@ -1,6 +1,18 @@
+---
+title: Eduverse Backend
+emoji: "🚀"
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # EduVerse Backend
 
 Backend API for EduVerse.
+
+The YAML header above configures this repository when it is used as a [Hugging Face Docker Space](https://huggingface.co/docs/hub/spaces-sdks-docker).
 
 ## Tech Stack
 
@@ -46,9 +58,9 @@ Use these to build and run container images once a `Dockerfile` is present at th
 4. **Runtime UID 1000**: HF runs the container as user id 1000; follow the [permissions guidance](https://huggingface.co/docs/hub/spaces-sdks-docker#permissions) (`USER`, `COPY --chown`, etc.) to avoid file permission errors.
 5. **Secrets and variables**: configure build-time and runtime values in the Space **Settings** tab ([docs](https://huggingface.co/docs/hub/spaces-overview#managing-secrets)).
 
-This repo keeps the Space card metadata in **`README.HF.md`** (same keys HF expects in `README.md`). When the Space is wired to this Git repository, ensure the root **`README.md`** includes that YAML block (for example by merging or replacing its header with the contents of `README.HF.md`) so the Space builder picks up `sdk: docker` and `app_port`.
+The same keys as in **`README.HF.md`** are kept in this file so the Space builder picks up `sdk: docker` and `app_port`. Edit **`README.HF.md`** when you want a canonical copy of only the card metadata (for example to paste into another repo).
 
-More detail: **`README.HF.md`** (metadata) and **`README.HF-DEPLOY.md`** (checklist).
+More detail: **`README.HF.md`** (metadata notes) and **`README.HF-DEPLOY.md`** (checklist).
 
 ## Hugging Face Deployment
 

@@ -21,4 +21,4 @@ This Space runs the backend API container.
 - **Permissions** — Prefer a non-root user with UID **1000** and `COPY --chown` / `WORKDIR` patterns from the [HF Docker permissions section](https://huggingface.co/docs/hub/spaces-sdks-docker#permissions).
 - **Configuration** — Use Space **Settings** for secrets and environment variables at build and runtime.
 
-When this repository is the source for the Space, the same YAML block should appear at the top of root **`README.md`** (this file is the canonical copy for the EduVerse card). See **`README.HF-DEPLOY.md`** for a short checklist and **`README.md`** for general Docker prerequisites.
+Root **`README.md`** includes the same YAML block for the Space builder; this file documents the card fields only. See **`README.HF-DEPLOY.md`** for a short checklist and **`README.md`** for general Docker prerequisites.
