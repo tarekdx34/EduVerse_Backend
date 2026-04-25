@@ -38,13 +38,34 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: (origin, callback) => {
+      const normalizeOrigin = (value: string): string => {
+        const trimmed = value.trim();
+        if (!trimmed) return '';
+        try {
+          return new URL(trimmed).origin.toLowerCase();
+        } catch {
+          return trimmed.replace(/\/+$/, '').toLowerCase();
+        }
+      };
+
+      const normalizeEnvOrigins = (value?: string): string[] =>
+        (value || '')
+          .split(',')
+          .map((entry) => normalizeOrigin(entry))
+          .filter(Boolean);
+
       // Allow: no origin (file://, curl, Postman), localhost on any port, 127.0.0.1 on any port
       if (!origin) return callback(null, true);
       if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
         return callback(null, true);
-      const allowedOrigins =
-        process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) || [];
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      const normalizedOrigin = normalizeOrigin(origin);
+      const allowedOrigins = [
+        ...normalizeEnvOrigins(process.env.CORS_ORIGIN),
+        ...normalizeEnvOrigins(process.env.FRONTEND_URL),
+      ];
+
+      if (allowedOrigins.includes(normalizedOrigin)) return callback(null, true);
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
