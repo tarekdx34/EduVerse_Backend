@@ -68,11 +68,11 @@ Retrieves all semesters with optional filters.
   @ApiResponse({ status: 200, description: 'List of semesters' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(
-    @Query('status') status?: SemesterStatus,
+    @Query('status') status?: string,
     @Query('year') year?: string,
   ): Promise<SemesterDto[]> {
     const yearNum = year ? parseInt(year, 10) : undefined;
-    return this.semesterService.findAll(status, yearNum) as Promise<
+    return this.semesterService.findAll(status as SemesterStatus, yearNum) as Promise<
       SemesterDto[]
     >;
   }

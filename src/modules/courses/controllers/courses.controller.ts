@@ -68,7 +68,7 @@ Retrieves a paginated list of courses with optional filters.
     @Query('departmentId', new ParseIntPipe({ optional: true }))
     departmentId?: number,
     @Query('level') level?: string,
-    @Query('status') status?: CourseStatus,
+    @Query('status') status?: string,
     @Query('search') search?: string,
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 20,
@@ -76,7 +76,7 @@ Retrieves a paginated list of courses with optional filters.
     return this.coursesService.findAll(
       departmentId,
       level,
-      status,
+      status as CourseStatus,
       search,
       page,
       limit,
