@@ -1,12 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsEnum, IsBoolean, IsString } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { MaterialType } from '../enums';
 
 export class QueryMaterialsDto {
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by material type',
-    enum: MaterialType,
+    enumObject: MaterialType,
     example: MaterialType.LECTURE,
   })
   @IsEnum(MaterialType)

@@ -62,7 +62,13 @@ Retrieves all campuses in the system with optional status filter.
 Use the \`status\` query parameter to filter by campus status.
     `,
   })
-  @ApiQuery({ name: 'status', required: false, enum: Status, description: 'Filter by status' })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filter by status',
+    type: String,
+    schema: { type: 'string', enum: Object.values(Status) },
+  })
   @ApiResponse({ status: 200, description: 'List of campuses' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(@Query('status') status?: Status): Promise<CampusDto[]> {

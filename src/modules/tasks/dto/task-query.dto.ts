@@ -1,6 +1,7 @@
 import { IsOptional, IsEnum, IsNumber, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { TaskStatus, TaskPriority, TaskType } from '../entities/student-task.entity';
 
 export enum TaskSortBy {
@@ -10,17 +11,26 @@ export enum TaskSortBy {
 }
 
 export class TaskQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by status', enum: TaskStatus })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by status',
+    enumObject: TaskStatus,
+  })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;
 
-  @ApiPropertyOptional({ description: 'Filter by priority', enum: TaskPriority })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by priority',
+    enumObject: TaskPriority,
+  })
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
 
-  @ApiPropertyOptional({ description: 'Filter by task type', enum: TaskType })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by task type',
+    enumObject: TaskType,
+  })
   @IsOptional()
   @IsEnum(TaskType)
   taskType?: TaskType;
@@ -39,7 +49,11 @@ export class TaskQueryDto {
   @Type(() => Number)
   limit?: number = 20;
 
-  @ApiPropertyOptional({ description: 'Sort by field', enum: TaskSortBy, default: TaskSortBy.CREATED_AT })
+  @ApiPropertyStringEnumOptional({
+    description: 'Sort by field',
+    enumObject: TaskSortBy,
+    default: TaskSortBy.CREATED_AT,
+  })
   @IsOptional()
   @IsEnum(TaskSortBy)
   sortBy?: TaskSortBy = TaskSortBy.CREATED_AT;

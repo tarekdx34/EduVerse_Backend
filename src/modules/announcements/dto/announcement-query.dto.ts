@@ -1,6 +1,7 @@
 import { IsOptional, IsEnum, IsNumber, IsBoolean, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { AnnouncementType, AnnouncementPriority } from '../enums';
 
 export class AnnouncementQueryDto {
@@ -13,17 +14,17 @@ export class AnnouncementQueryDto {
   @Type(() => Number)
   courseId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by announcement type',
-    enum: AnnouncementType,
+    enumObject: AnnouncementType,
   })
   @IsOptional()
   @IsEnum(AnnouncementType)
   announcementType?: AnnouncementType;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by priority',
-    enum: AnnouncementPriority,
+    enumObject: AnnouncementPriority,
   })
   @IsOptional()
   @IsEnum(AnnouncementPriority)

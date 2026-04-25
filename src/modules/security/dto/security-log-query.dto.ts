@@ -1,15 +1,22 @@
 import { IsOptional, IsNumber, IsDateString, IsEnum, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { SecurityEventType, SecuritySeverity } from '../entities/security-log.entity';
 
 export class SecurityLogQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by event type', enum: SecurityEventType })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by event type',
+    enumObject: SecurityEventType,
+  })
   @IsOptional()
   @IsEnum(SecurityEventType)
   eventType?: SecurityEventType;
 
-  @ApiPropertyOptional({ description: 'Filter by severity', enum: SecuritySeverity })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by severity',
+    enumObject: SecuritySeverity,
+  })
   @IsOptional()
   @IsEnum(SecuritySeverity)
   severity?: SecuritySeverity;

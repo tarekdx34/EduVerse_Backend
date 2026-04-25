@@ -1,6 +1,7 @@
 import { IsString, IsOptional, IsInt, IsEnum, IsBoolean, IsDateString, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { NotificationType, NotificationPriority } from '../enums';
 
 export class CreateNotificationDto {
@@ -70,12 +71,20 @@ export class SendNotificationDto {
 }
 
 export class NotificationQueryDto {
-  @ApiPropertyOptional({ example: 'assignment', enum: NotificationType, description: 'Filter by type' })
+  @ApiPropertyStringEnumOptional({
+    example: 'assignment',
+    description: 'Filter by type',
+    enumObject: NotificationType,
+  })
   @IsOptional()
   @IsEnum(NotificationType)
   type?: NotificationType;
 
-  @ApiPropertyOptional({ example: 'high', enum: NotificationPriority, description: 'Filter by priority' })
+  @ApiPropertyStringEnumOptional({
+    example: 'high',
+    description: 'Filter by priority',
+    enumObject: NotificationPriority,
+  })
   @IsOptional()
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;

@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { MetricType } from '../entities/learning-analytics.entity';
 
 export class StudentAnalyticsQueryDto {
@@ -16,9 +17,9 @@ export class StudentAnalyticsQueryDto {
   @Type(() => Number)
   courseId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Metric type filter',
-    enum: MetricType,
+    enumObject: MetricType,
   })
   @IsOptional()
   @IsEnum(MetricType)

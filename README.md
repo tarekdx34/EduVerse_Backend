@@ -46,7 +46,7 @@ Default local API URL: `http://localhost:8081`
 - **Docker Engine** 20.10 or newer (or **Docker Desktop** with WSL2 on Windows), with the Docker CLI available in your shell.
 - Optional: **Docker Compose** v2 if you use multi-service compose files.
 
-Use these to build and run container images once a `Dockerfile` is present at the repository root (or follow your own compose layout).
+Use these to build and run the image from the repository root (`docker build -t eduverse-backend .`). The root **`Dockerfile`** is what Hugging Face uses for this Space.
 
 ### Hugging Face Spaces (Docker SDK)
 

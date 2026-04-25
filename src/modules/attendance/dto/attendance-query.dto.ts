@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsDateString, IsEnum, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { SessionStatus, SessionType } from '../enums';
 
 export class AttendanceQueryDto {
@@ -31,17 +32,17 @@ export class AttendanceQueryDto {
   @IsNumber()
   instructorId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by session type',
-    enum: SessionType,
+    enumObject: SessionType,
   })
   @IsOptional()
   @IsEnum(SessionType)
   sessionType?: SessionType;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by session status',
-    enum: SessionStatus,
+    enumObject: SessionStatus,
   })
   @IsOptional()
   @IsEnum(SessionStatus)

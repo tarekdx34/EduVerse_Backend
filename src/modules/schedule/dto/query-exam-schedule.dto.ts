@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsEnum, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { ExamType } from '../enums';
 
 export class QueryExamScheduleDto {
@@ -22,9 +23,9 @@ export class QueryExamScheduleDto {
   @IsOptional()
   semesterId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by exam type',
-    enum: ExamType,
+    enumObject: ExamType,
     example: ExamType.MIDTERM,
   })
   @IsEnum(ExamType)

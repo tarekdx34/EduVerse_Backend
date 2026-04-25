@@ -65,8 +65,11 @@ async function bootstrap() {
   // Global class serializer interceptor (for @Exclude() decorator support)
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  // Swagger Configuration — skip in dev for faster startup
-  const enableSwagger = process.env.NODE_ENV !== 'development' || process.env.ENABLE_SWAGGER === 'true';
+  // Swagger: on in non-production by default; in production (e.g. Hugging Face) set ENABLE_SWAGGER=true
+  const nodeEnv = (process.env.NODE_ENV || '').toLowerCase();
+  const isProd = nodeEnv === 'production' || nodeEnv === 'prod';
+  const enableSwagger =
+    process.env.ENABLE_SWAGGER === 'true' || !isProd;
   if (enableSwagger) {
     const config = new DocumentBuilder()
       .setTitle('EduVerse API')

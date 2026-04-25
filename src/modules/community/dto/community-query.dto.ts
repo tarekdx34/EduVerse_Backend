@@ -1,10 +1,14 @@
 import { IsOptional, IsNumber, IsEnum, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { CommunityType } from '../entities/community.entity';
 
 export class CommunityQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by community type', enum: CommunityType })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by community type',
+    enumObject: CommunityType,
+  })
   @IsOptional()
   @IsEnum(CommunityType)
   communityType?: CommunityType;

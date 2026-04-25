@@ -8,12 +8,13 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { TemplateScheduleType } from '../entities/schedule-template.entity';
 
 export class QueryScheduleTemplateDto {
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by schedule type',
-    enum: TemplateScheduleType,
+    enumObject: TemplateScheduleType,
     example: TemplateScheduleType.LECTURE,
   })
   @IsEnum(TemplateScheduleType)

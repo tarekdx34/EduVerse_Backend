@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsEnum, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { EventType, EventStatus } from '../enums';
 
 export class QueryCalendarEventDto {
@@ -13,18 +14,18 @@ export class QueryCalendarEventDto {
   @IsOptional()
   courseId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by event type',
-    enum: EventType,
+    enumObject: EventType,
     example: EventType.LECTURE,
   })
   @IsEnum(EventType)
   @IsOptional()
   eventType?: EventType;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by event status',
-    enum: EventStatus,
+    enumObject: EventStatus,
     example: EventStatus.SCHEDULED,
   })
   @IsEnum(EventStatus)

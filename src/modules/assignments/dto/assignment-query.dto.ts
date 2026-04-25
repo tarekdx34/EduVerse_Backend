@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { AssignmentStatus } from '../enums';
 
 export class AssignmentQueryDto {
@@ -22,7 +23,11 @@ export class AssignmentQueryDto {
   @IsOptional()
   sectionId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by status', enum: AssignmentStatus, example: 'published' })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by status',
+    enumObject: AssignmentStatus,
+    example: 'published',
+  })
   @IsEnum(AssignmentStatus)
   @IsOptional()
   status?: AssignmentStatus;

@@ -1,15 +1,22 @@
 import { IsOptional, IsNumber, IsDateString, IsEnum, IsString, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { ErrorType, ErrorSeverity } from '../entities/system-error.entity';
 
 export class ErrorQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by error type', enum: ErrorType })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by error type',
+    enumObject: ErrorType,
+  })
   @IsOptional()
   @IsEnum(ErrorType)
   errorType?: ErrorType;
 
-  @ApiPropertyOptional({ description: 'Filter by severity', enum: ErrorSeverity })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by severity',
+    enumObject: ErrorSeverity,
+  })
   @IsOptional()
   @IsEnum(ErrorSeverity)
   severity?: ErrorSeverity;

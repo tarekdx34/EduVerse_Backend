@@ -1,6 +1,7 @@
 import { IsString, IsOptional, IsInt, IsEnum, IsNumber, IsDateString, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { LabStatus } from '../enums';
 
 // Re-export upload DTOs
@@ -148,7 +149,11 @@ export class LabQueryDto {
   @IsInt()
   courseId?: number;
 
-  @ApiPropertyOptional({ example: 'published', enum: LabStatus, description: 'Filter by status' })
+  @ApiPropertyStringEnumOptional({
+    example: 'published',
+    description: 'Filter by status',
+    enumObject: LabStatus,
+  })
   @IsOptional()
   @IsEnum(LabStatus)
   status?: LabStatus;

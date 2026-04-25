@@ -1,6 +1,7 @@
 import { IsString, IsOptional, IsEnum, IsNumber, Min, MinLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { SearchEntityType, SearchVisibility } from '../entities/search-index.entity';
 
 export enum SearchSortBy {
@@ -14,7 +15,10 @@ export class GlobalSearchDto {
   @MinLength(1)
   query: string;
 
-  @ApiPropertyOptional({ description: 'Filter by entity type', enum: SearchEntityType })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by entity type',
+    enumObject: SearchEntityType,
+  })
   @IsOptional()
   @IsEnum(SearchEntityType)
   entityType?: SearchEntityType;
@@ -31,7 +35,10 @@ export class GlobalSearchDto {
   @Type(() => Number)
   campusId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by visibility', enum: SearchVisibility })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by visibility',
+    enumObject: SearchVisibility,
+  })
   @IsOptional()
   @IsEnum(SearchVisibility)
   visibility?: SearchVisibility;
@@ -50,7 +57,11 @@ export class GlobalSearchDto {
   @Type(() => Number)
   limit?: number = 20;
 
-  @ApiPropertyOptional({ description: 'Sort by', enum: SearchSortBy, default: SearchSortBy.RELEVANCE })
+  @ApiPropertyStringEnumOptional({
+    description: 'Sort by',
+    enumObject: SearchSortBy,
+    default: SearchSortBy.RELEVANCE,
+  })
   @IsOptional()
   @IsEnum(SearchSortBy)
   sortBy?: SearchSortBy = SearchSortBy.RELEVANCE;

@@ -6,6 +6,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { EventType } from '../enums';
 
 export class QueryScheduleDto {
@@ -51,9 +52,9 @@ export class QueryScheduleDto {
   @IsOptional()
   sectionId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by event type',
-    enum: EventType,
+    enumObject: EventType,
     example: EventType.LECTURE,
   })
   @IsEnum(EventType)

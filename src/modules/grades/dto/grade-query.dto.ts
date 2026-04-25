@@ -1,6 +1,7 @@
 import { IsOptional, IsNumber, IsEnum, IsBoolean } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { GradeType } from '../enums';
 
 export class GradeQueryDto {
@@ -16,7 +17,11 @@ export class GradeQueryDto {
   @Type(() => Number)
   userId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by grade type', enum: GradeType, example: 'assignment' })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by grade type',
+    enumObject: GradeType,
+    example: 'assignment',
+  })
   @IsEnum(GradeType)
   @IsOptional()
   gradeType?: GradeType;

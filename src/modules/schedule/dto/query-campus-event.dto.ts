@@ -8,12 +8,13 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { CampusEventType, CampusEventStatus } from '../entities/campus-event.entity';
 
 export class QueryCampusEventDto {
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by event type',
-    enum: CampusEventType,
+    enumObject: CampusEventType,
     example: CampusEventType.UNIVERSITY_WIDE,
   })
   @IsEnum(CampusEventType)
@@ -29,9 +30,9 @@ export class QueryCampusEventDto {
   @IsOptional()
   scopeId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by status',
-    enum: CampusEventStatus,
+    enumObject: CampusEventStatus,
     example: CampusEventStatus.PUBLISHED,
   })
   @IsEnum(CampusEventStatus)

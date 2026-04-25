@@ -1,6 +1,7 @@
 import { IsOptional, IsEnum, IsNumber, IsString, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { PostType } from '../enums';
 
 export class PostQueryDto {
@@ -13,9 +14,9 @@ export class PostQueryDto {
   @Type(() => Number)
   communityId?: number;
 
-  @ApiPropertyOptional({
+  @ApiPropertyStringEnumOptional({
     description: 'Filter by post type',
-    enum: PostType,
+    enumObject: PostType,
   })
   @IsOptional()
   @IsEnum(PostType)

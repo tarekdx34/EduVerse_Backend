@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsEnum, IsDateString, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
 import { QuizType, AttemptStatus } from '../enums';
 
 export class QuizQueryDto {
@@ -10,7 +11,10 @@ export class QuizQueryDto {
   @IsNumber()
   courseId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by quiz type', enum: QuizType })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by quiz type',
+    enumObject: QuizType,
+  })
   @IsOptional()
   @IsEnum(QuizType)
   quizType?: QuizType;
@@ -50,7 +54,10 @@ export class AttemptQueryDto {
   @IsNumber()
   userId?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by attempt status', enum: AttemptStatus })
+  @ApiPropertyStringEnumOptional({
+    description: 'Filter by attempt status',
+    enumObject: AttemptStatus,
+  })
   @IsOptional()
   @IsEnum(AttemptStatus)
   status?: AttemptStatus;
