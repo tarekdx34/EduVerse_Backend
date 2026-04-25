@@ -307,7 +307,18 @@ export class AuthService {
       rememberMe: rememberMe,
     });
 
-    await this.sessionRepository.save(session);
+    try {
+      await this.sessionRepository.save(session);
+    } catch (error) {
+      if (this.isDeviceTypeTruncationError(error)) {
+        // Some deployments have a stricter enum for sessions.device_type.
+        // Retry without deviceType so auth/login is not blocked by schema drift.
+        session.deviceType = undefined;
+        await this.sessionRepository.save(session);
+      } else {
+        throw error;
+      }
+    }
 
     return {
       accessToken,
@@ -332,5 +343,31 @@ export class AuthService {
     if (/(iphone|ipad|ipod|ios)/i.test(userAgent)) return 'ios';
     if (/(android)/i.test(userAgent)) return 'android';
     return 'web';
+  }
+
+  private isDeviceTypeTruncationError(error: unknown): boolean {
+    const err = error as {
+      sqlMessage?: string;
+      message?: string;
+      code?: string;
+      driverError?: { sqlMessage?: string; message?: string; code?: string };
+    };
+
+    const combinedMessage = [
+      err?.sqlMessage,
+      err?.message,
+      err?.driverError?.sqlMessage,
+      err?.driverError?.message,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    const code = (err?.code || err?.driverError?.code || '').toLowerCase();
+
+    return (
+      combinedMessage.includes('device_type') &&
+      combinedMessage.includes('data truncated')
+    ) || code === 'warn_data_truncated';
   }
 }
