@@ -404,14 +404,16 @@ export class AssignmentsService {
     return Promise.all(submissions.map(sub => this.attachDriveFile(sub)));
   }
 
-  async getMySubmission(assignmentId: number, userId: number): Promise<any> {
+  async getMySubmission(assignmentId: number, userId: number): Promise<any | null> {
     const submission = await this.submissionRepo.findOne({
       where: { assignmentId, userId },
       order: { attemptNumber: 'DESC' },
     });
 
     if (!submission) {
-      throw new SubmissionNotFoundException();
+      // "No submission yet" is a normal student state; return null instead of 404
+      // so dashboard polling/lookups do not spam console/network errors.
+      return null;
     }
 
     return this.attachDriveFile(submission);
