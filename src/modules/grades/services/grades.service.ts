@@ -243,26 +243,99 @@ export class GradesService {
       courseMap.set(grade.courseId, list);
     }
 
-    // Build transcript courses
-    const transcriptCourses: TranscriptCourse[] = [];
+    const dedupedCourseGrades: Array<{ courseId: number; grade: Grade }> = [];
+    for (const [courseId, courseGrades] of courseMap) {
+      // Keep latest published grade per course for transcript/GPA purposes
+      const finalGrade = courseGrades[courseGrades.length - 1];
+      dedupedCourseGrades.push({ courseId, grade: finalGrade });
+    }
+
+    const courseIds = dedupedCourseGrades.map((item) => item.courseId);
+    const courseSemesterRows: Array<{
+      courseId: string | number;
+      semesterId: string | number;
+      semesterName: string;
+    }> = [];
+
+    if (courseIds.length > 0) {
+      // Important: build explicit placeholders for IN (...) so MySQL receives
+      // each course ID as a bound parameter (instead of a single array value).
+      const inPlaceholders = courseIds.map(() => '?').join(', ');
+      courseSemesterRows.push(
+        ...(await this.enrollmentRepo.query(
+          `
+          SELECT
+            cs.course_id AS courseId,
+            MAX(s.semester_id) AS semesterId,
+            SUBSTRING_INDEX(
+              GROUP_CONCAT(s.semester_name ORDER BY s.semester_id DESC SEPARATOR '||'),
+              '||',
+              1
+            ) AS semesterName
+          FROM course_enrollments ce
+          INNER JOIN course_sections cs ON cs.section_id = ce.section_id
+          INNER JOIN semesters s ON s.semester_id = cs.semester_id
+          WHERE ce.user_id = ?
+            AND cs.course_id IN (${inPlaceholders})
+          GROUP BY cs.course_id
+          `,
+          [studentId, ...courseIds],
+        )),
+      );
+    }
+
+    const semesterByCourse = new Map<number, { semesterId: number; semesterName: string }>();
+    for (const row of courseSemesterRows) {
+      semesterByCourse.set(Number(row.courseId), {
+        semesterId: Number(row.semesterId) || 0,
+        semesterName: row.semesterName || 'Unknown Semester',
+      });
+    }
+
+    const semesterBuckets = new Map<
+      number,
+      {
+        semesterId: number;
+        semesterName: string;
+        courses: TranscriptCourse[];
+        totalCredits: number;
+        totalQualityPoints: number;
+      }
+    >();
+
     let totalCredits = 0;
     let totalQualityPoints = 0;
-
-    for (const [courseId, courseGrades] of courseMap) {
-      const course = courseGrades[0].course;
-      // Use the best/final grade for the course
-      const finalGrade = courseGrades[courseGrades.length - 1];
+    for (const { courseId, grade: finalGrade } of dedupedCourseGrades) {
+      const normalizedCourseId = Number(courseId);
+      const course = finalGrade.course;
       const credits = course?.credits || 3;
-      const gradePoint = this.getGradePoint(finalGrade.letterGrade || 'F');
+      const letterGrade = finalGrade.letterGrade || 'N/A';
+      const gradePoint = this.getGradePoint(letterGrade);
+      const semesterInfo = semesterByCourse.get(normalizedCourseId) || {
+        semesterId: 0,
+        semesterName: 'All Courses',
+      };
 
-      transcriptCourses.push({
-        courseId,
+      const transcriptCourse: TranscriptCourse = {
+        courseId: normalizedCourseId,
         courseName: course?.name || '',
         credits,
-        letterGrade: finalGrade.letterGrade || 'N/A',
+        letterGrade,
         score: Number(finalGrade.score),
         maxScore: Number(finalGrade.maxScore),
-      });
+      };
+
+      const existing = semesterBuckets.get(semesterInfo.semesterId) || {
+        semesterId: semesterInfo.semesterId,
+        semesterName: semesterInfo.semesterName,
+        courses: [],
+        totalCredits: 0,
+        totalQualityPoints: 0,
+      };
+      existing.courses.push(transcriptCourse);
+      existing.totalCredits += credits;
+      existing.totalQualityPoints += gradePoint * credits;
+      semesterBuckets.set(semesterInfo.semesterId, existing);
 
       totalCredits += credits;
       totalQualityPoints += gradePoint * credits;
@@ -273,20 +346,33 @@ export class GradesService {
         ? Math.round((totalQualityPoints / totalCredits) * 100) / 100
         : 0;
 
-    // Build a single semester grouping (simplified version)
-    const semester: TranscriptSemester = {
-      semesterId: 0,
-      semesterName: 'All Courses',
-      gpa: cumulativeGpa,
-      courses: transcriptCourses,
-    };
+    const semesters: TranscriptSemester[] = Array.from(semesterBuckets.values())
+      .sort((a, b) => a.semesterId - b.semesterId)
+      .map((bucket) => ({
+        semesterId: bucket.semesterId,
+        semesterName: bucket.semesterName,
+        gpa:
+          bucket.totalCredits > 0
+            ? Math.round((bucket.totalQualityPoints / bucket.totalCredits) * 100) / 100
+            : 0,
+        courses: bucket.courses,
+      }));
 
     const dto = new TranscriptResponseDto();
     dto.studentId = studentId;
     dto.studentName = user ? `${user.firstName} ${user.lastName}` : '';
     dto.cumulativeGpa = cumulativeGpa;
     dto.totalCredits = totalCredits;
-    dto.semesters = [semester];
+    dto.semesters = semesters.length
+      ? semesters
+      : [
+          {
+            semesterId: 0,
+            semesterName: 'All Courses',
+            gpa: cumulativeGpa,
+            courses: [],
+          },
+        ];
 
     return dto;
   }
