@@ -110,6 +110,25 @@ Retrieves all courses offered by a specific department.
     return this.coursesService.findByDepartment(deptId);
   }
 
+  @Get(':id/recent-activity')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.IT_ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Get recent course activity',
+    description:
+      'Returns recent timeline items for a course (assignments, materials, submissions, grading).',
+  })
+  @ApiParam({ name: 'id', description: 'Course ID', type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 8 })
+  @ApiResponse({ status: 200, description: 'Recent activity list' })
+  async getRecentActivity(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 8,
+  ) {
+    return this.coursesService.getRecentActivity(id, limit);
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get course by ID',

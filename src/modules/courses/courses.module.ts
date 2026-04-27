@@ -19,6 +19,8 @@ import { CourseSchedulesController } from './controllers';
 import { CampusModule } from '../campus/campus.module';
 import { Department } from '../campus/entities/department.entity';
 import { Semester } from '../campus/entities/semester.entity';
+import { Assignment, AssignmentSubmission } from '../assignments/entities';
+import { CourseMaterial } from '../course-materials/entities/course-material.entity';
 
 @Module({
   imports: [
@@ -29,6 +31,9 @@ import { Semester } from '../campus/entities/semester.entity';
       CourseSchedule,
       Department,
       Semester,
+      Assignment,
+      AssignmentSubmission,
+      CourseMaterial,
     ]),
     forwardRef(() => CampusModule),
   ],

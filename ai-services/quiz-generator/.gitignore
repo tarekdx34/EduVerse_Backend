@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime/local state
+uploads.json
+quizzes.json
+results/
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
