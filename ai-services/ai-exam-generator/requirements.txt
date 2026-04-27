@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+ollama
+pdfplumber
+python-multipart
+pdfplumber
