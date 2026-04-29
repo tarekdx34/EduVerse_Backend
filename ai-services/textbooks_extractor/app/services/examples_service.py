@@ -1,7 +1,7 @@
-import re
-import json
+mport re
+import fitz
 import pdfplumber
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, List
 from pypdf import PdfReader, PdfWriter
@@ -20,7 +20,125 @@ class Example:
     raw_segments: list[str] = field(default_factory=list)
 
 # ---------------------------------------------------------------------------
-# Regex
+# Chapter detection (ported from chapters_service.py)
+# Uses fitz: tries TOC first, falls back to page scanning.
+# Supports both numeric and word-based chapter numbers (e.g. "Chapter ONE").
+# ---------------------------------------------------------------------------
+
+WORD_TO_NUM = {
+    "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5,
+    "SIX": 6, "SEVEN": 7, "EIGHT": 8, "NINE": 9, "TEN": 10,
+    "ELEVEN": 11, "TWELVE": 12, "THIRTEEN": 13, "FOURTEEN": 14, "FIFTEEN": 15,
+}
+
+
+def _parse_chapter_number(raw: str) -> Optional[int]:
+    raw = raw.strip().upper()
+    if raw.isdigit():
+        return int(raw)
+    return WORD_TO_NUM.get(raw)
+
+
+def _get_page_text(doc: fitz.Document, page_index: int) -> str:
+    try:
+        return doc[page_index].get_text("text")
+    except Exception:
+        return ""
+
+
+def _detect_chapters_from_toc(doc: fitz.Document) -> list:
+    """Phase 1: read chapter entries straight from the PDF's embedded TOC."""
+    toc = doc.get_toc(simple=False)
+    rows = []
+
+    for item in toc:
+        if len(item) < 3:
+            continue
+
+        title = str(item[1]).strip()
+        page  = int(item[2]) - 1  # fitz TOC pages are 1-based
+
+        match = re.search(r"\bCHAPTER\s+([A-Z0-9]+)\b", title, re.I)
+        if not match:
+            continue
+
+        number = _parse_chapter_number(match.group(1))
+        if number is None:
+            continue
+
+        rows.append((number, title, page))
+
+    return rows
+
+
+def _detect_chapters_from_pages(doc: fitz.Document) -> list:
+    """Phase 2 fallback: scan the first 250 pages for a chapter heading."""
+    rows = []
+
+    for p in range(min(len(doc), 250)):
+        text = _get_page_text(doc, p)
+        if not text:
+            continue
+
+        # Only inspect the top of the page to avoid false positives
+        top = "\n".join(text.splitlines()[:12])
+
+        match = re.search(r"\bCHAPTER\s+([A-Z0-9]+)\b", top, re.I)
+        if not match:
+            continue
+
+        number = _parse_chapter_number(match.group(1))
+        if number is None:
+            continue
+
+        title = top.replace("\n", " ")[:80].strip()
+        rows.append((number, title, p))
+
+    return rows
+
+
+def _build_chapter_ranges(pdf_path: Path) -> dict:
+    """
+    Returns {chapter_number: (start_page_1based, end_page_1based)}.
+    Uses fitz for detection (TOC → page scan) then converts to 1-based
+    page numbers so they align with pdfplumber's page numbering.
+    """
+    doc = fitz.open(str(pdf_path))
+
+    try:
+        rows = _detect_chapters_from_toc(doc)
+
+        if len(rows) < 2:
+            rows = _detect_chapters_from_pages(doc)
+
+        total_pages = len(doc)
+
+    finally:
+        doc.close()
+
+    if not rows:
+        return {}
+
+    # Sort by page, deduplicate chapter numbers
+    rows = sorted(rows, key=lambda x: x[2])
+    dedup = []
+    seen = set()
+    for row in rows:
+        if row[0] not in seen:
+            dedup.append(row)
+            seen.add(row[0])
+
+    # Build (start, end) ranges — fitz pages are 0-based, convert to 1-based
+    ranges = {}
+    for i, (number, _title, start_0) in enumerate(dedup):
+        end_0 = dedup[i + 1][2] - 1 if i < len(dedup) - 1 else total_pages - 1
+        # Convert to 1-based for pdfplumber compatibility
+        ranges[number] = (start_0 + 1, end_0 + 1)
+
+    return ranges
+
+# ---------------------------------------------------------------------------
+# Example detection regexes
 # ---------------------------------------------------------------------------
 
 EXAMPLE_HEADER_RE = re.compile(
@@ -34,16 +152,11 @@ SECTION_BREAK_RE = re.compile(
     re.IGNORECASE,
 )
 
-CHAPTER_HEADER_RE = re.compile(
-    r"^\s*(?:Chapter|CHAPTER)\s+(\d+)",
-    re.IGNORECASE,
-)
-
 MIN_SEGMENT_CHARS = 40
 COLUMN_SPLIT_TOLERANCE = 0.08
 
 # ---------------------------------------------------------------------------
-# Layout helpers (FIXED VERSION)
+# Layout helpers
 # ---------------------------------------------------------------------------
 
 def _detect_column_split(page) -> Optional[float]:
@@ -74,45 +187,34 @@ def _detect_column_split(page) -> Optional[float]:
 
 
 def _extract_columns(page) -> list[str]:
-    """
-    SAFE version that handles weird PDF bounding boxes
-    """
+    """Extract text columns from a page, with safe fallback."""
     try:
         split_x = _detect_column_split(page)
 
         if split_x is None:
             return [page.extract_text(layout=True) or ""]
 
-        # ✅ USE REAL BBOX (fixes your error)
         x0, top, x1, bottom = page.bbox
-
-        # clamp split inside page
         split_x = max(x0 + 1, min(split_x, x1 - 1))
 
-        left_bbox  = (x0, top, split_x, bottom)
-        right_bbox = (split_x, top, x1, bottom)
-
-        left_text = ""
-        right_text = ""
+        left_text = right_text = ""
 
         try:
-            left_text = page.within_bbox(left_bbox).extract_text(layout=True) or ""
-        except:
+            left_text = page.within_bbox((x0, top, split_x, bottom)).extract_text(layout=True) or ""
+        except Exception:
             pass
 
         try:
-            right_text = page.within_bbox(right_bbox).extract_text(layout=True) or ""
-        except:
+            right_text = page.within_bbox((split_x, top, x1, bottom)).extract_text(layout=True) or ""
+        except Exception:
             pass
 
-        # fallback if something weird happens
         if not left_text and not right_text:
             return [page.extract_text(layout=True) or ""]
 
         return [left_text, right_text]
 
     except Exception:
-        # 🔥 HARD FALLBACK (never crash again)
         return [page.extract_text(layout=True) or ""]
 
 # ---------------------------------------------------------------------------
@@ -126,44 +228,16 @@ class ExampleExtractor:
         self.verbose = verbose
 
     # ------------------------------------------------------------------
-    # Chapter detection
+    # Chapter range API (now backed by the robust fitz-based detector)
     # ------------------------------------------------------------------
 
-    def detect_chapters(self) -> dict:
-        chapters = {}
-
-        with pdfplumber.open(self.pdf_path) as pdf:
-            for i, page in enumerate(pdf.pages):
-                text = page.extract_text() or ""
-                lines = text.splitlines()
-
-                for line in lines[:5]:
-                    match = CHAPTER_HEADER_RE.search(line)
-                    if match:
-                        chapters[int(match.group(1))] = i + 1
-
-        return chapters
-
     def get_chapter_ranges(self) -> dict:
-        chapters = self.detect_chapters()
-        if not chapters:
-            return {}
-
-        sorted_chapters = sorted(chapters.items())
-        ranges = {}
-
-        with pdfplumber.open(self.pdf_path) as pdf:
-            total_pages = len(pdf.pages)
-
-        for i, (ch, start) in enumerate(sorted_chapters):
-            if i + 1 < len(sorted_chapters):
-                end = sorted_chapters[i + 1][1] - 1
-            else:
-                end = total_pages
-
-            ranges[ch] = (start, end)
-
-        return ranges
+        """
+        Returns {chapter_number: (start_page, end_page)} with 1-based page
+        numbers, using TOC-first then page-scan detection (same logic as
+        chapters_service.py and problems_service.py).
+        """
+        return _build_chapter_ranges(self.pdf_path)
 
     # ------------------------------------------------------------------
     # Extraction APIs
@@ -176,11 +250,16 @@ class ExampleExtractor:
             raise ValueError("No chapters detected.")
 
         selected_pages = []
-
         for ch in selected_chapters:
             if ch in ranges:
                 start, end = ranges[ch]
                 selected_pages.extend(range(start, end + 1))
+
+        if not selected_pages:
+            raise ValueError(
+                f"None of the requested chapters {selected_chapters} were found. "
+                f"Detected chapters: {sorted(ranges.keys())}"
+            )
 
         return self.extract_from_pages(selected_pages)
 
@@ -209,7 +288,7 @@ class ExampleExtractor:
 
                     i = 1
                     while i + 1 <= len(parts) - 1:
-                        ex_id = parts[i].strip()
+                        ex_id   = parts[i].strip()
                         ex_body = parts[i + 1]
 
                         if pending:
