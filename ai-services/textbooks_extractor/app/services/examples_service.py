@@ -138,11 +138,15 @@ def _build_chapter_ranges(pdf_path: Path) -> dict:
     return ranges
 
 # ---------------------------------------------------------------------------
-# Example detection regexes
+# Example detection
 # ---------------------------------------------------------------------------
 
+# Matches "Example 3-1", "EXAMPLE 2–5", "Worked Example 4.2", etc.
+# Crucially includes U+2013 (en-dash) and U+2014 (em-dash) used by many
+# textbook PDFs instead of a plain ASCII hyphen.
 EXAMPLE_HEADER_RE = re.compile(
-    r"(?:Worked\s+|Solved\s+)?Exam(?:ple|PLE)\s*\.?\s*(\d+[\.\-]?\d*)",
+    r"(?:Worked\s+|Solved\s+)?Exam(?:ple|PLE)\s*\.?\s*"
+    r"(\d+[\.\-\u2013\u2014]?\d*)",
     re.IGNORECASE,
 )
 
@@ -152,12 +156,36 @@ SECTION_BREAK_RE = re.compile(
     re.IGNORECASE,
 )
 
-MIN_SEGMENT_CHARS = 40
 COLUMN_SPLIT_TOLERANCE = 0.08
 
 # ---------------------------------------------------------------------------
-# Layout helpers
+# Helpers
 # ---------------------------------------------------------------------------
+
+def _normalize_id(raw: str) -> str:
+    """Replace en/em dashes with ASCII hyphen so '3–1' and '3-1' are the same."""
+    return raw.replace("\u2013", "-").replace("\u2014", "-").strip()
+
+
+def _body_is_junk(body: str) -> bool:
+    """
+    Return True if the body captured after an Example header is just a
+    running footer or page artifact rather than real content.
+
+    Two checks:
+    1. Very few meaningful (non-whitespace / non-punctuation) characters.
+    2. Any line in the body matches a section-break pattern (footer text).
+    """
+    meaningful = len(re.sub(r"[\s\.\,\-\u2013\u2014]+", "", body))
+    if meaningful < 15:
+        return True
+
+    for line in body.splitlines():
+        if SECTION_BREAK_RE.match(line.strip()):
+            return True
+
+    return False
+
 
 def _detect_column_split(page) -> Optional[float]:
     words = page.extract_words()
@@ -168,7 +196,6 @@ def _detect_column_split(page) -> Optional[float]:
     centre = page_width / 2
 
     xs = sorted(w["x0"] for w in words)
-
     best_gap = 0
     best_x = None
     lo = centre - COLUMN_SPLIT_TOLERANCE * page_width
@@ -200,12 +227,18 @@ def _extract_columns(page) -> list[str]:
         left_text = right_text = ""
 
         try:
-            left_text = page.within_bbox((x0, top, split_x, bottom)).extract_text(layout=True) or ""
+            left_text = (
+                page.within_bbox((x0, top, split_x, bottom))
+                    .extract_text(layout=True) or ""
+            )
         except Exception:
             pass
 
         try:
-            right_text = page.within_bbox((split_x, top, x1, bottom)).extract_text(layout=True) or ""
+            right_text = (
+                page.within_bbox((split_x, top, x1, bottom))
+                    .extract_text(layout=True) or ""
+            )
         except Exception:
             pass
 
@@ -228,7 +261,7 @@ class ExampleExtractor:
         self.verbose = verbose
 
     # ------------------------------------------------------------------
-    # Chapter range API (now backed by the robust fitz-based detector)
+    # Chapter range API (backed by the robust fitz-based detector)
     # ------------------------------------------------------------------
 
     def get_chapter_ranges(self) -> dict:
@@ -278,9 +311,14 @@ class ExampleExtractor:
 
                     parts = EXAMPLE_HEADER_RE.split(col_text)
 
+                    # Text before the first Example header on this column
                     pre_text = parts[0]
                     if pending and pre_text.strip():
-                        if not SECTION_BREAK_RE.search(pre_text):
+                        # Check line-by-line for section breaks (handles mid-text footers)
+                        if not any(
+                            SECTION_BREAK_RE.match(l.strip())
+                            for l in pre_text.splitlines()
+                        ):
                             pending["text"] += "\n" + pre_text
                         else:
                             segments.append(pending)
@@ -288,14 +326,29 @@ class ExampleExtractor:
 
                     i = 1
                     while i + 1 <= len(parts) - 1:
-                        ex_id   = parts[i].strip()
+                        raw_id  = parts[i].strip()
+                        norm_id = _normalize_id(raw_id)
                         ex_body = parts[i + 1]
 
+                        # Skip footer/artifact ghost matches
+                        if _body_is_junk(ex_body):
+                            i += 2
+                            continue
+
                         if pending:
+                            pending_norm = _normalize_id(
+                                pending["example_id"].replace("Example ", "")
+                            )
+                            # Same example continuing across columns/pages → stitch
+                            if pending_norm == norm_id:
+                                pending["text"] += "\n" + ex_body
+                                i += 2
+                                continue
+
                             segments.append(pending)
 
                         pending = {
-                            "example_id": f"Example {ex_id}",
+                            "example_id": f"Example {norm_id}",
                             "text": ex_body,
                             "page": page_num,
                             "column": col_idx,
@@ -311,7 +364,7 @@ class ExampleExtractor:
     # Stitching
     # ------------------------------------------------------------------
 
-    def _stitch_segments(self, segments):
+    def _stitch_segments(self, segments: list) -> List[Example]:
         if not segments:
             return []
 
@@ -334,7 +387,7 @@ class ExampleExtractor:
         examples.append(self._finalise(current))
         return examples
 
-    def _finalise(self, acc):
+    def _finalise(self, acc: dict) -> Example:
         return Example(
             example_id=acc["example_id"],
             title=acc["example_id"],
@@ -348,11 +401,11 @@ class ExampleExtractor:
     # Export
     # ------------------------------------------------------------------
 
-    def export_all_in_one(self, examples, output_path):
+    def export_all_in_one(self, examples: List[Example], output_path: str) -> None:
         reader = PdfReader(self.pdf_path)
         writer = PdfWriter()
 
-        seen = set()
+        seen: set[int] = set()
 
         for ex in examples:
             for p in range(ex.page_start, ex.page_end + 1):
