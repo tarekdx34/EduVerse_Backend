@@ -35,6 +35,8 @@ import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
 import { YoutubeModule } from './modules/youtube/youtube.module';
 import { GoogleDriveModule } from './modules/google-drive/google-drive.module';
+import { QuestionBankModule } from './modules/question-bank/question-bank.module';
+import { ExamsModule } from './modules/exams/exams.module';
 
 @Module({
   imports: [
@@ -100,6 +102,8 @@ import { GoogleDriveModule } from './modules/google-drive/google-drive.module';
     StudyGroupsModule,
     OfficeHoursModule,
     PeerReviewModule,
+    QuestionBankModule,
+    ExamsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

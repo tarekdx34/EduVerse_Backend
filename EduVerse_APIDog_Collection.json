@@ -14450,6 +14450,128 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "📝 X. Question Bank & Exams (Added via AI)",
+      "item": [
+        {
+          "name": "Get Chapters for Course 34",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/34/chapters",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "34",
+                "chapters"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{instructorToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Questions for Course 34",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/question-bank/questions?courseId=34&limit=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "question-bank",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "courseId",
+                  "value": "34"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{instructorToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Exam Preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exams/generate-preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "generate-preview"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{instructorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": 34,\n  \"title\": \"Web Development Final Exam\",\n  \"rules\": [\n    {\n      \"chapterId\": 2,\n      \"count\": 5,\n      \"weightPerQuestion\": 2,\n      \"questionType\": \"mcq\"\n    },\n    {\n      \"chapterId\": 2,\n      \"count\": 3,\n      \"weightPerQuestion\": 3,\n      \"questionType\": \"true_false\"\n    },\n    {\n      \"chapterId\": 2,\n      \"count\": 2,\n      \"weightPerQuestion\": 5,\n      \"questionType\": \"essay\"\n    }\n  ]\n}"
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
