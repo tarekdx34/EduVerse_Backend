@@ -5,6 +5,8 @@ import { Course } from '../entities/course.entity';
 import { CoursePrerequisite } from '../entities/course-prerequisite.entity';
 import { CreateCourseDto, UpdateCourseDto } from '../dtos';
 import { CourseStatus } from '../enums';
+import { Assignment, AssignmentSubmission } from '../../assignments/entities';
+import { CourseMaterial } from '../../course-materials/entities/course-material.entity';
 import {
   CourseNotFoundException,
   CourseCodeAlreadyExistsException,
@@ -26,7 +28,89 @@ export class CoursesService {
     private prerequisiteRepository: Repository<CoursePrerequisite>,
     @InjectRepository(Department)
     private departmentRepository: Repository<Department>,
+    @InjectRepository(Assignment)
+    private assignmentRepository: Repository<Assignment>,
+    @InjectRepository(AssignmentSubmission)
+    private submissionRepository: Repository<AssignmentSubmission>,
+    @InjectRepository(CourseMaterial)
+    private materialRepository: Repository<CourseMaterial>,
   ) {}
+
+  async getRecentActivity(
+    courseId: number,
+    limit = 8,
+  ): Promise<
+    Array<{
+      type: 'assignment_created' | 'submission_received' | 'submission_graded' | 'material_uploaded';
+      title: string;
+      description: string;
+      occurredAt: string;
+    }>
+  > {
+    await this.findById(courseId);
+
+    const safeLimit = Math.max(1, Math.min(limit, 20));
+
+    const [recentAssignments, recentMaterials, recentSubmissions, recentGradedSubmissions] =
+      await Promise.all([
+        this.assignmentRepository.find({
+          where: { courseId },
+          order: { createdAt: 'DESC' },
+          take: safeLimit,
+        }),
+        this.materialRepository.find({
+          where: { courseId },
+          order: { createdAt: 'DESC' },
+          take: safeLimit,
+        }),
+        this.submissionRepository
+          .createQueryBuilder('submission')
+          .innerJoinAndSelect('submission.assignment', 'assignment')
+          .where('assignment.courseId = :courseId', { courseId })
+          .orderBy('submission.submittedAt', 'DESC')
+          .take(safeLimit)
+          .getMany(),
+        this.submissionRepository
+          .createQueryBuilder('submission')
+          .innerJoinAndSelect('submission.assignment', 'assignment')
+          .where('assignment.courseId = :courseId', { courseId })
+          .andWhere('submission.gradedAt IS NOT NULL')
+          .orderBy('submission.gradedAt', 'DESC')
+          .take(safeLimit)
+          .getMany(),
+      ]);
+
+    const activity = [
+      ...recentAssignments.map((item) => ({
+        type: 'assignment_created' as const,
+        title: 'Assignment created',
+        description: `"${item.title}" was created.`,
+        occurredAt: item.createdAt?.toISOString?.() ?? new Date(item.createdAt).toISOString(),
+      })),
+      ...recentMaterials.map((item) => ({
+        type: 'material_uploaded' as const,
+        title: 'Material uploaded',
+        description: `"${item.title}" was uploaded.`,
+        occurredAt: item.createdAt?.toISOString?.() ?? new Date(item.createdAt).toISOString(),
+      })),
+      ...recentSubmissions.map((item) => ({
+        type: 'submission_received' as const,
+        title: 'Submission received',
+        description: `A submission was received for "${item.assignment?.title || 'assignment'}".`,
+        occurredAt: item.submittedAt?.toISOString?.() ?? new Date(item.submittedAt).toISOString(),
+      })),
+      ...recentGradedSubmissions.map((item) => ({
+        type: 'submission_graded' as const,
+        title: 'Submission graded',
+        description: `A submission for "${item.assignment?.title || 'assignment'}" was graded.`,
+        occurredAt: item.gradedAt?.toISOString?.() ?? new Date(item.gradedAt as Date).toISOString(),
+      })),
+    ];
+
+    return activity
+      .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime())
+      .slice(0, safeLimit);
+  }
 
   async findAll(
     departmentId?: number,

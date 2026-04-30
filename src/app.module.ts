@@ -30,6 +30,7 @@ import { BackupModule } from './modules/backup/backup.module';
 import { StudyGroupsModule } from './modules/study-groups/study-groups.module';
 import { OfficeHoursModule } from './modules/office-hours/office-hours.module';
 import { PeerReviewModule } from './modules/peer-review/peer-review.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -104,8 +105,9 @@ import { ExamsModule } from './modules/exams/exams.module';
     PeerReviewModule,
     QuestionBankModule,
     ExamsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

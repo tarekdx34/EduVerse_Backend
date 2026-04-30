@@ -239,7 +239,8 @@ export class AttendanceAiService {
     let matchedCount = 0;
 
     for (const record of records) {
-      if (recognizedSet.has(record.userId)) {
+      const recordUserId = Number(record.userId);
+      if (!Number.isNaN(recordUserId) && recognizedSet.has(recordUserId)) {
         // Mark as present
         record.attendanceStatus = AttendanceStatus.PRESENT;
         record.markedBy = MarkedBy.AI;

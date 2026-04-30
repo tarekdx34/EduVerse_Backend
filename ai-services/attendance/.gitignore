@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Local generated/demo assets
+Attendance/
+temp_*
+dataset/*.jpg
+!dataset/README.txt
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
