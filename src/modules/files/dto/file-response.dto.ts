@@ -31,5 +31,8 @@ export class FileResponseDto {
 
   @Expose()
   versionCount?: number;
+
+  @Expose()
+  imageUrl?: string | null;
 }
 

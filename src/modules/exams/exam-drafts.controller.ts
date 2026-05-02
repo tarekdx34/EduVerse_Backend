@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Param,
   ParseIntPipe,
   Query,
   UseGuards,
@@ -35,5 +36,11 @@ export class ExamDraftsController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
     return this.examsService.findDrafts(page, limit);
+  }
+
+  @Get(':draftId')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  getDraftById(@Param('draftId', ParseIntPipe) draftId: number) {
+    return this.examsService.findDraftById(draftId);
   }
 }

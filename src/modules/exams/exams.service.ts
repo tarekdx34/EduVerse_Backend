@@ -87,6 +87,19 @@ export class ExamsService {
     };
   }
 
+  async findDraftById(draftId: number): Promise<ExamDraft> {
+    const draft = await this.draftRepo.findOne({
+      where: { id: draftId },
+      relations: ['items'],
+    });
+
+    if (!draft) {
+      throw new NotFoundException('Draft not found');
+    }
+
+    return draft;
+  }
+
   async generatePreview(dto: GenerateExamPreviewDto, userId: number) {
     await this.ensureCourseExists(dto.courseId);
     try {

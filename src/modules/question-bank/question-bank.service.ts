@@ -33,6 +33,7 @@ export class QuestionBankService {
   private readonly questionImagesBucketName: string;
   private readonly maxQuestionImageSize = 15 * 1024 * 1024;
   private readonly usePublicUrlsForQuestionImages: boolean;
+  private questionImagesBucketReady = false;
 
   constructor(
     @InjectRepository(CourseChapter)
@@ -117,6 +118,7 @@ export class QuestionBankService {
     file: Express.Multer.File,
   ): Promise<FileResponseDto> {
     this.validateQuestionImage(file);
+    await this.ensureQuestionImagesBucketExists();
 
     const uploadedFile = await this.filesService.uploadFile(file, userId);
     const storagePath = this.buildQuestionImageStoragePath(
@@ -501,6 +503,8 @@ export class QuestionBankService {
       return new Map();
     }
 
+    await this.ensureQuestionImagesBucketExists();
+
     if (this.usePublicUrlsForQuestionImages) {
       const map = new Map<string, string | null>();
       for (const storagePath of storagePaths) {
@@ -550,5 +554,46 @@ export class QuestionBankService {
   ): string {
     const extension = this.getExtensionFromMimeType(mimeType || 'image/jpeg');
     return `question-bank/files/${fileId}.${extension}`;
+  }
+
+  private async ensureQuestionImagesBucketExists(): Promise<void> {
+    if (this.questionImagesBucketReady) {
+      return;
+    }
+
+    const { data, error } = await this.supabase.storage.listBuckets();
+    if (error) {
+      throw new InternalServerErrorException(
+        `Failed to check Supabase buckets: ${error.message}`,
+      );
+    }
+
+    const exists = (data || []).some(
+      (bucket: any) =>
+        bucket?.id === this.questionImagesBucketName ||
+        bucket?.name === this.questionImagesBucketName,
+    );
+
+    if (!exists) {
+      const { error: createError } = await this.supabase.storage.createBucket(
+        this.questionImagesBucketName,
+        {
+          public: this.usePublicUrlsForQuestionImages,
+          fileSizeLimit: `${this.maxQuestionImageSize}`,
+          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+        },
+      );
+
+      if (
+        createError &&
+        !/already exists/i.test(createError.message || '')
+      ) {
+        throw new InternalServerErrorException(
+          `Failed to create Supabase bucket "${this.questionImagesBucketName}": ${createError.message}`,
+        );
+      }
+    }
+
+    this.questionImagesBucketReady = true;
   }
 }

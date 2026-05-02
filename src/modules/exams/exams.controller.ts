@@ -65,6 +65,12 @@ export class ExamsController {
     return this.examsService.findDrafts(page, limit);
   }
 
+  @Get('drafts/:draftId')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  getDraftById(@Param('draftId', ParseIntPipe) draftId: number) {
+    return this.examsService.findDraftById(draftId);
+  }
+
   @Post('generate-preview')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
   async generatePreview(@Body() dto: GenerateExamPreviewDto, @Req() req: any) {
