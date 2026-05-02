@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Course } from '../courses/entities/course.entity';
 import { CourseChapter } from '../question-bank/entities/course-chapter.entity';
 import { QuestionBankQuestion } from '../question-bank/entities/question-bank-question.entity';
+import { ExamDraftsController } from './exam-drafts.controller';
 import { ExamsController } from './exams.controller';
 import { ExamsService } from './exams.service';
 import { ExamDraftItem } from './entities/exam-draft-item.entity';
@@ -22,9 +23,8 @@ import { Exam } from './entities/exam.entity';
       ExamItem,
     ]),
   ],
-  controllers: [ExamsController],
+  controllers: [ExamsController, ExamDraftsController],
   providers: [ExamsService],
   exports: [ExamsService],
 })
 export class ExamsModule {}
-

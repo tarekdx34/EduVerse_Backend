@@ -6,7 +6,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Course } from '../courses/entities/course.entity';
+import { FileResponseDto } from '../files/dto/file-response.dto';
 import { File } from '../files/entities/file.entity';
+import { FilesService } from '../files/files.service';
 import { CreateChapterDto, UpdateChapterDto } from './dto/chapter.dto';
 import {
   CreateQuestionBankQuestionDto,
@@ -37,9 +39,13 @@ export class QuestionBankService {
     private readonly courseRepo: Repository<Course>,
     @InjectRepository(File)
     private readonly fileRepo: Repository<File>,
+    private readonly filesService: FilesService,
   ) {}
 
-  async createChapter(courseId: number, dto: CreateChapterDto): Promise<CourseChapter> {
+  async createChapter(
+    courseId: number,
+    dto: CreateChapterDto,
+  ): Promise<CourseChapter> {
     await this.ensureCourseExists(courseId);
     const created = this.chapterRepo.create({ ...dto, courseId });
     return this.chapterRepo.save(created);
@@ -53,8 +59,14 @@ export class QuestionBankService {
     });
   }
 
-  async updateChapter(courseId: number, chapterId: number, dto: UpdateChapterDto): Promise<CourseChapter> {
-    const chapter = await this.chapterRepo.findOne({ where: { id: chapterId, courseId } });
+  async updateChapter(
+    courseId: number,
+    chapterId: number,
+    dto: UpdateChapterDto,
+  ): Promise<CourseChapter> {
+    const chapter = await this.chapterRepo.findOne({
+      where: { id: chapterId, courseId },
+    });
     if (!chapter) {
       throw new NotFoundException('Chapter not found');
     }
@@ -63,14 +75,27 @@ export class QuestionBankService {
   }
 
   async deleteChapter(courseId: number, chapterId: number): Promise<void> {
-    const chapter = await this.chapterRepo.findOne({ where: { id: chapterId, courseId } });
+    const chapter = await this.chapterRepo.findOne({
+      where: { id: chapterId, courseId },
+    });
     if (!chapter) {
       throw new NotFoundException('Chapter not found');
     }
     await this.chapterRepo.remove(chapter);
   }
 
-  async createQuestion(dto: CreateQuestionBankQuestionDto, userId: number): Promise<QuestionBankQuestion> {
+  async uploadQuestionImage(
+    userId: number,
+    file: Express.Multer.File,
+  ): Promise<FileResponseDto> {
+    this.validateQuestionImage(file);
+    return this.filesService.uploadFile(file, userId);
+  }
+
+  async createQuestion(
+    dto: CreateQuestionBankQuestionDto,
+    userId: number,
+  ): Promise<QuestionBankQuestion> {
     await this.ensureCourseExists(dto.courseId);
     await this.ensureChapterExists(dto.courseId, dto.chapterId);
     if (dto.questionFileId) {
@@ -98,7 +123,9 @@ export class QuestionBankService {
     return this.findQuestionById(saved.id);
   }
 
-  async listQuestions(query: QuestionBankQueryDto): Promise<{ data: QuestionBankQuestion[]; total: number }> {
+  async listQuestions(
+    query: QuestionBankQueryDto,
+  ): Promise<{ data: QuestionBankQuestion[]; total: number }> {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const qb = this.questionRepo
@@ -107,14 +134,28 @@ export class QuestionBankService {
       .leftJoinAndSelect('q.fillBlanks', 'fillBlanks')
       .leftJoinAndSelect('q.chapter', 'chapter');
 
-    if (query.courseId) qb.andWhere('q.courseId = :courseId', { courseId: query.courseId });
-    if (query.chapterId) qb.andWhere('q.chapterId = :chapterId', { chapterId: query.chapterId });
-    if (query.questionType) qb.andWhere('q.questionType = :questionType', { questionType: query.questionType });
-    if (query.difficulty) qb.andWhere('q.difficulty = :difficulty', { difficulty: query.difficulty });
-    if (query.bloomLevel) qb.andWhere('q.bloomLevel = :bloomLevel', { bloomLevel: query.bloomLevel });
-    if (query.status) qb.andWhere('q.status = :status', { status: query.status });
+    if (query.courseId)
+      qb.andWhere('q.courseId = :courseId', { courseId: query.courseId });
+    if (query.chapterId)
+      qb.andWhere('q.chapterId = :chapterId', { chapterId: query.chapterId });
+    if (query.questionType)
+      qb.andWhere('q.questionType = :questionType', {
+        questionType: query.questionType,
+      });
+    if (query.difficulty)
+      qb.andWhere('q.difficulty = :difficulty', {
+        difficulty: query.difficulty,
+      });
+    if (query.bloomLevel)
+      qb.andWhere('q.bloomLevel = :bloomLevel', {
+        bloomLevel: query.bloomLevel,
+      });
+    if (query.status)
+      qb.andWhere('q.status = :status', { status: query.status });
 
-    qb.orderBy('q.createdAt', 'DESC').skip((page - 1) * limit).take(limit);
+    qb.orderBy('q.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
     const [data, total] = await qb.getManyAndCount();
     return { data, total };
   }
@@ -146,11 +187,19 @@ export class QuestionBankService {
     const merged = {
       ...question,
       ...dto,
-      questionText: dto.questionText === undefined ? question.questionText : (dto.questionText || null),
-      questionFileId: dto.questionFileId === undefined ? question.questionFileId : (dto.questionFileId || null),
+      questionText:
+        dto.questionText === undefined
+          ? question.questionText
+          : dto.questionText || null,
+      questionFileId:
+        dto.questionFileId === undefined
+          ? question.questionFileId
+          : dto.questionFileId || null,
       expectedAnswerText:
-        dto.expectedAnswerText === undefined ? question.expectedAnswerText : (dto.expectedAnswerText || null),
-      hints: dto.hints === undefined ? question.hints : (dto.hints || null),
+        dto.expectedAnswerText === undefined
+          ? question.expectedAnswerText
+          : dto.expectedAnswerText || null,
+      hints: dto.hints === undefined ? question.hints : dto.hints || null,
       updatedBy: userId,
     } as CreateQuestionBankQuestionDto;
 
@@ -161,11 +210,19 @@ export class QuestionBankService {
       questionType: dto.questionType ?? question.questionType,
       difficulty: dto.difficulty ?? question.difficulty,
       bloomLevel: dto.bloomLevel ?? question.bloomLevel,
-      questionText: dto.questionText === undefined ? question.questionText : (dto.questionText || null),
-      questionFileId: dto.questionFileId === undefined ? question.questionFileId : (dto.questionFileId || null),
+      questionText:
+        dto.questionText === undefined
+          ? question.questionText
+          : dto.questionText || null,
+      questionFileId:
+        dto.questionFileId === undefined
+          ? question.questionFileId
+          : dto.questionFileId || null,
       expectedAnswerText:
-        dto.expectedAnswerText === undefined ? question.expectedAnswerText : (dto.expectedAnswerText || null),
-      hints: dto.hints === undefined ? question.hints : (dto.hints || null),
+        dto.expectedAnswerText === undefined
+          ? question.expectedAnswerText
+          : dto.expectedAnswerText || null,
+      hints: dto.hints === undefined ? question.hints : dto.hints || null,
       status: dto.status ?? question.status,
       updatedBy: userId,
     });
@@ -220,32 +277,48 @@ export class QuestionBankService {
     const hasText = !!payload.questionText?.trim();
     const hasFile = !!payload.questionFileId;
     if (!hasText && !hasFile) {
-      throw new BadRequestException('Either questionText or questionFileId is required');
+      throw new BadRequestException(
+        'Either questionText or questionFileId is required',
+      );
     }
 
     if (payload.questionType === QuestionBankType.MCQ) {
       if (!payload.options || payload.options.length < 2) {
-        throw new BadRequestException('MCQ questions require at least 2 options');
+        throw new BadRequestException(
+          'MCQ questions require at least 2 options',
+        );
       }
-      const correctCount = payload.options.filter((option) => option.isCorrect).length;
+      const correctCount = payload.options.filter(
+        (option) => option.isCorrect,
+      ).length;
       if (correctCount < 1) {
-        throw new BadRequestException('MCQ questions require at least one correct option');
+        throw new BadRequestException(
+          'MCQ questions require at least one correct option',
+        );
       }
     }
 
     if (payload.questionType === QuestionBankType.TRUE_FALSE) {
       if (!payload.options || payload.options.length !== 2) {
-        throw new BadRequestException('True/False questions require exactly 2 options');
+        throw new BadRequestException(
+          'True/False questions require exactly 2 options',
+        );
       }
-      const correctCount = payload.options.filter((option) => option.isCorrect).length;
+      const correctCount = payload.options.filter(
+        (option) => option.isCorrect,
+      ).length;
       if (correctCount !== 1) {
-        throw new BadRequestException('True/False questions require exactly one correct option');
+        throw new BadRequestException(
+          'True/False questions require exactly one correct option',
+        );
       }
     }
 
     if (payload.questionType === QuestionBankType.FILL_BLANKS) {
       if (!payload.fillBlanks || payload.fillBlanks.length < 1) {
-        throw new BadRequestException('Fill in the blanks questions require at least one blank answer');
+        throw new BadRequestException(
+          'Fill in the blanks questions require at least one blank answer',
+        );
       }
     }
 
@@ -254,7 +327,9 @@ export class QuestionBankService {
       payload.questionType === QuestionBankType.ESSAY
     ) {
       if (!payload.expectedAnswerText?.trim()) {
-        throw new BadRequestException('Written/Essay questions require expectedAnswerText');
+        throw new BadRequestException(
+          'Written/Essay questions require expectedAnswerText',
+        );
       }
     }
   }
@@ -266,8 +341,13 @@ export class QuestionBankService {
     }
   }
 
-  private async ensureChapterExists(courseId: number, chapterId: number): Promise<void> {
-    const exists = await this.chapterRepo.exist({ where: { id: chapterId, courseId } });
+  private async ensureChapterExists(
+    courseId: number,
+    chapterId: number,
+  ): Promise<void> {
+    const exists = await this.chapterRepo.exist({
+      where: { id: chapterId, courseId },
+    });
     if (!exists) {
       throw new NotFoundException('Chapter not found for this course');
     }
@@ -279,5 +359,26 @@ export class QuestionBankService {
       throw new NotFoundException('File not found');
     }
   }
-}
 
+  private validateQuestionImage(file?: Express.Multer.File): void {
+    if (!file) {
+      throw new BadRequestException('Question image file is required');
+    }
+
+    if (file.size <= 0) {
+      throw new BadRequestException('Question image file is empty');
+    }
+
+    const allowedMimeTypes = new Set([
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+    ]);
+    if (!allowedMimeTypes.has(file.mimetype)) {
+      throw new BadRequestException(
+        `Unsupported image type: ${file.mimetype}. Allowed: image/jpeg, image/png, image/webp, image/gif`,
+      );
+    }
+  }
+}

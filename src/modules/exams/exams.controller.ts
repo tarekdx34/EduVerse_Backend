@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -14,7 +15,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RoleName } from '../auth/entities/role.entity';
-import { GenerateExamPreviewDto, UpdateDraftItemDto } from './dto/generate-exam.dto';
+import {
+  GenerateExamPreviewDto,
+  UpdateDraftItemDto,
+} from './dto/generate-exam.dto';
 import { Exam } from './entities/exam.entity';
 import { ExamsService } from './exams.service';
 
@@ -24,6 +28,42 @@ import { ExamsService } from './exams.service';
 @Controller('api/exams')
 export class ExamsController {
   constructor(private readonly examsService: ExamsService) {}
+
+  @Get()
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.STUDENT)
+  getExams(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.examsService.findExams(page, limit);
+  }
+
+  @Get('list')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN, RoleName.STUDENT)
+  listExams(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.examsService.findExams(page, limit);
+  }
+
+  @Get('drafts')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  getDrafts(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.examsService.findDrafts(page, limit);
+  }
+
+  @Get('drafts/list')
+  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  listDrafts(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.examsService.findDrafts(page, limit);
+  }
 
   @Post('generate-preview')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
@@ -47,7 +87,10 @@ export class ExamsController {
 
   @Post('drafts/:draftId/save')
   @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
-  saveDraft(@Param('draftId', ParseIntPipe) draftId: number, @Req() req: any): Promise<Exam> {
+  saveDraft(
+    @Param('draftId', ParseIntPipe) draftId: number,
+    @Req() req: any,
+  ): Promise<Exam> {
     return this.examsService.saveDraft(draftId, req.user.userId);
   }
 
@@ -63,4 +106,3 @@ export class ExamsController {
     return this.examsService.exportExamAsWord(id);
   }
 }
-

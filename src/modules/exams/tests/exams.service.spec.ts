@@ -6,6 +6,7 @@ describe('ExamsService', () => {
     ({
       exist: jest.fn(),
       findOne: jest.fn(),
+      findAndCount: jest.fn(),
       save: jest.fn(),
       create: jest.fn((value) => value),
       createQueryBuilder: jest.fn(),
@@ -62,5 +63,50 @@ describe('ExamsService', () => {
       ),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
-});
 
+  it('lists exams with normalized pagination', async () => {
+    const examRepo = makeRepo();
+    examRepo.findAndCount.mockResolvedValue([[], 0]);
+
+    const service = new ExamsService(
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      examRepo,
+      makeRepo(),
+    );
+
+    await service.findExams(0, 500);
+
+    expect(examRepo.findAndCount).toHaveBeenCalledWith({
+      order: { createdAt: 'DESC' },
+      skip: 0,
+      take: 100,
+    });
+  });
+
+  it('lists drafts with normalized pagination', async () => {
+    const draftRepo = makeRepo();
+    draftRepo.findAndCount.mockResolvedValue([[], 0]);
+
+    const service = new ExamsService(
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      draftRepo,
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+    );
+
+    await service.findDrafts(-3, 0);
+
+    expect(draftRepo.findAndCount).toHaveBeenCalledWith({
+      order: { createdAt: 'DESC' },
+      skip: 0,
+      take: 1,
+    });
+  });
+});

@@ -19,6 +19,11 @@ import { ExamDraft } from './entities/exam-draft.entity';
 import { ExamItem } from './entities/exam-item.entity';
 import { Exam } from './entities/exam.entity';
 
+type PaginatedResult<T> = {
+  data: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+};
+
 @Injectable()
 export class ExamsService {
   constructor(
@@ -37,6 +42,50 @@ export class ExamsService {
     @InjectRepository(ExamItem)
     private readonly examItemRepo: Repository<ExamItem>,
   ) {}
+
+  async findExams(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedResult<Exam>> {
+    const { safePage, safeLimit, skip } = this.normalizePagination(page, limit);
+    const [data, total] = await this.examRepo.findAndCount({
+      order: { createdAt: 'DESC' },
+      skip,
+      take: safeLimit,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page: safePage,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit),
+      },
+    };
+  }
+
+  async findDrafts(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedResult<ExamDraft>> {
+    const { safePage, safeLimit, skip } = this.normalizePagination(page, limit);
+    const [data, total] = await this.draftRepo.findAndCount({
+      order: { createdAt: 'DESC' },
+      skip,
+      take: safeLimit,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page: safePage,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit),
+      },
+    };
+  }
 
   async generatePreview(dto: GenerateExamPreviewDto, userId: number) {
     await this.ensureCourseExists(dto.courseId);
@@ -60,7 +109,9 @@ export class ExamsService {
           where: { id: rule.chapterId, courseId: dto.courseId },
         });
         if (!chapterExists) {
-          throw new BadRequestException(`Chapter ${rule.chapterId} does not belong to this course`);
+          throw new BadRequestException(
+            `Chapter ${rule.chapterId} does not belong to this course`,
+          );
         }
 
         const qb = this.questionRepo
@@ -68,14 +119,27 @@ export class ExamsService {
           .select('q.question_id', 'id')
           .where('q.course_id = :courseId', { courseId: dto.courseId })
           .andWhere('q.chapter_id = :chapterId', { chapterId: rule.chapterId })
-          .andWhere('q.status = :status', { status: QuestionBankStatus.APPROVED });
+          .andWhere('q.status = :status', {
+            status: QuestionBankStatus.APPROVED,
+          });
 
-        if (rule.questionType) qb.andWhere('q.question_type = :questionType', { questionType: rule.questionType });
-        if (rule.difficulty) qb.andWhere('q.difficulty = :difficulty', { difficulty: rule.difficulty });
-        if (rule.bloomLevel) qb.andWhere('q.bloom_level = :bloomLevel', { bloomLevel: rule.bloomLevel });
+        if (rule.questionType)
+          qb.andWhere('q.question_type = :questionType', {
+            questionType: rule.questionType,
+          });
+        if (rule.difficulty)
+          qb.andWhere('q.difficulty = :difficulty', {
+            difficulty: rule.difficulty,
+          });
+        if (rule.bloomLevel)
+          qb.andWhere('q.bloom_level = :bloomLevel', {
+            bloomLevel: rule.bloomLevel,
+          });
 
         const rawIds = await qb.getRawMany<{ id: string }>();
-        const candidates = rawIds.map((row) => Number(row.id)).filter((id) => !selectedQuestionIds.has(id));
+        const candidates = rawIds
+          .map((row) => Number(row.id))
+          .filter((id) => !selectedQuestionIds.has(id));
 
         if (candidates.length < rule.count) {
           shortages.push({
@@ -89,7 +153,10 @@ export class ExamsService {
           continue;
         }
 
-        const shuffled = this.seededShuffle(candidates, `${seed}:${rule.chapterId}`);
+        const shuffled = this.seededShuffle(
+          candidates,
+          `${seed}:${rule.chapterId}`,
+        );
         const picked = shuffled.slice(0, rule.count);
         for (const questionId of picked) {
           selectedQuestionIds.add(questionId);
@@ -123,7 +190,9 @@ export class ExamsService {
       const questionEntities = await this.questionRepo.find({
         where: { id: In(Array.from(selectedQuestionIds)) },
       });
-      const questionMap = new Map(questionEntities.map((q) => [Number(q.id), q]));
+      const questionMap = new Map(
+        questionEntities.map((q) => [Number(q.id), q]),
+      );
 
       const draftItems = await this.draftItemRepo.save(
         selectedItems.map((item) =>
@@ -144,7 +213,10 @@ export class ExamsService {
         draftId: draft.id,
         seed,
         totalQuestions: draftItems.length,
-        totalWeight: draftItems.reduce((sum, item) => sum + Number(item.weight), 0),
+        totalWeight: draftItems.reduce(
+          (sum, item) => sum + Number(item.weight),
+          0,
+        ),
         items: draftItems,
       };
     } catch (e) {
@@ -192,7 +264,10 @@ export class ExamsService {
       throw new NotFoundException('Draft not found');
     }
 
-    const totalWeight = draft.items.reduce((sum, item) => sum + Number(item.weight), 0);
+    const totalWeight = draft.items.reduce(
+      (sum, item) => sum + Number(item.weight),
+      0,
+    );
     const exam = await this.examRepo.save(
       this.examRepo.create({
         courseId: draft.courseId,
@@ -233,7 +308,9 @@ export class ExamsService {
     return exam;
   }
 
-  async exportExamAsWord(examId: number): Promise<{ fileName: string; mimeType: string; content: string }> {
+  async exportExamAsWord(
+    examId: number,
+  ): Promise<{ fileName: string; mimeType: string; content: string }> {
     const exam = await this.findExamById(examId);
     const lines = [
       `<html><body><h1>${exam.title}</h1>`,
@@ -277,5 +354,17 @@ export class ExamsService {
       throw new NotFoundException('Course not found');
     }
   }
-}
 
+  private normalizePagination(
+    page?: number,
+    limit?: number,
+  ): { safePage: number; safeLimit: number; skip: number } {
+    const safePage = page && page > 0 ? page : 1;
+    const safeLimit = Math.min(100, Math.max(1, limit ?? 20));
+    return {
+      safePage,
+      safeLimit,
+      skip: (safePage - 1) * safeLimit,
+    };
+  }
+}

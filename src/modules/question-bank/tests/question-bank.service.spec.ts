@@ -12,6 +12,10 @@ describe('QuestionBankService', () => {
       remove: jest.fn(),
       createQueryBuilder: jest.fn(),
     }) as any;
+  const makeFilesService = () =>
+    ({
+      uploadFile: jest.fn(),
+    }) as any;
 
   it('rejects question creation without text and file', async () => {
     const courseRepo = makeRepo();
@@ -26,6 +30,7 @@ describe('QuestionBankService', () => {
       makeRepo(),
       courseRepo,
       makeRepo(),
+      makeFilesService(),
     );
 
     await expect(
@@ -42,5 +47,53 @@ describe('QuestionBankService', () => {
       ),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
-});
 
+  it('uploads question image via files service', async () => {
+    const filesService = makeFilesService();
+    filesService.uploadFile.mockResolvedValue({ fileId: 88 });
+
+    const service = new QuestionBankService(
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      filesService,
+    );
+
+    const image = {
+      mimetype: 'image/png',
+      size: 1000,
+      originalname: 'q.png',
+      buffer: Buffer.from('img'),
+    } as Express.Multer.File;
+
+    await service.uploadQuestionImage(9, image);
+
+    expect(filesService.uploadFile).toHaveBeenCalledWith(image, 9);
+  });
+
+  it('rejects unsupported question image type', async () => {
+    const service = new QuestionBankService(
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeRepo(),
+      makeFilesService(),
+    );
+
+    const image = {
+      mimetype: 'application/pdf',
+      size: 1000,
+      originalname: 'q.pdf',
+      buffer: Buffer.from('pdf'),
+    } as Express.Multer.File;
+
+    await expect(service.uploadQuestionImage(9, image)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+  });
+});
