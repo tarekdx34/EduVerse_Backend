@@ -40,6 +40,12 @@ import {
 } from '../dto';
 import { AssignmentStatus } from '../enums';
 
+type UploadedAssignmentFile = {
+  originalname: string;
+  mimetype: string;
+  buffer: Buffer;
+};
+
 @ApiTags('📝 Assignments')
 @Controller('api/assignments')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -54,8 +60,10 @@ export class AssignmentsController {
       'Filter by course, status, due dates. Supports pagination and sorting.',
   })
   @ApiResponse({ status: 200, description: 'Paginated list of assignments' })
-  async findAll(@Query() query: AssignmentQueryDto) {
-    return this.assignmentsService.findAll(query);
+  async findAll(@Query() query: AssignmentQueryDto, @Request() req) {
+    const userId = req.user.userId || req.user.id;
+    const roles = req.user.roles?.map((role: any) => role.roleName || role.name || role) || [];
+    return this.assignmentsService.findAll(query, userId, roles);
   }
 
   @Post()
@@ -220,7 +228,7 @@ export class AssignmentsController {
   @ApiResponse({ status: 404, description: 'Assignment not found' })
   async uploadInstruction(
     @Param('id') id: number,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: UploadedAssignmentFile,
     @Body() dto: UploadAssignmentInstructionDto,
     @Request() req,
   ) {
@@ -301,7 +309,7 @@ export class AssignmentsController {
   @ApiResponse({ status: 404, description: 'Assignment not found' })
   async uploadSubmission(
     @Param('id') id: number,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: UploadedAssignmentFile,
     @Body() dto: UploadAssignmentSubmissionDto,
     @Request() req,
   ) {

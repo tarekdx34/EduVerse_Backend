@@ -6,6 +6,8 @@ import { AssignmentsController } from './controllers';
 import { Course } from '../courses/entities/course.entity';
 import { CourseSection } from '../courses/entities/course-section.entity';
 import { CourseEnrollment } from '../enrollments/entities/course-enrollment.entity';
+import { CourseInstructor } from '../enrollments/entities/course-instructor.entity';
+import { CourseTA } from '../enrollments/entities/course-ta.entity';
 import { User } from '../auth/entities/user.entity';
 import { CoursesModule } from '../courses/courses.module';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
@@ -22,6 +24,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
       Course,
       CourseSection,
       CourseEnrollment,
+      CourseInstructor,
+      CourseTA,
       User,
       DriveFile,
     ]),

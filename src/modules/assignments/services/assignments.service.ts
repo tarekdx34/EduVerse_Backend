@@ -18,14 +18,23 @@ import { SubmitAssignmentDto } from '../dto/submit-assignment.dto';
 import { GradeSubmissionDto } from '../dto/grade-submission.dto';
 import { Course } from '../../courses/entities/course.entity';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
+import { CourseInstructor } from '../../enrollments/entities/course-instructor.entity';
+import { CourseTA } from '../../enrollments/entities/course-ta.entity';
 import { DriveFolderService } from '../../google-drive/services/drive-folder.service';
 import { GoogleDriveService } from '../../google-drive/google-drive.service';
 import { DriveFileEntityType } from '../../google-drive/entities/drive-file.entity';
 import { GradesService } from '../../grades/services';
 import { GradeType } from '../../grades/enums';
 import { EnrollmentStatus } from '../../enrollments/enums';
+import { RoleName } from '../../auth/entities/role.entity';
 import { NotificationType, NotificationPriority } from '../../notifications/enums';
 import { NotificationsService } from '../../notifications/services/notifications.service';
+
+type UploadedAssignmentFile = {
+  originalname: string;
+  mimetype: string;
+  buffer: Buffer;
+};
 
 @Injectable()
 export class AssignmentsService {
@@ -83,6 +92,10 @@ export class AssignmentsService {
     private courseRepo: Repository<Course>,
     @InjectRepository(CourseEnrollment)
     private enrollmentRepo: Repository<CourseEnrollment>,
+    @InjectRepository(CourseInstructor)
+    private courseInstructorRepo: Repository<CourseInstructor>,
+    @InjectRepository(CourseTA)
+    private courseTARepo: Repository<CourseTA>,
     @InjectRepository(DriveFile)
     private driveFileRepo: Repository<DriveFile>,
     private driveFolderService: DriveFolderService,
@@ -120,7 +133,11 @@ export class AssignmentsService {
     return result!;
   }
 
-  async findAll(query: AssignmentQueryDto): Promise<{
+  async findAll(
+    query: AssignmentQueryDto,
+    userId?: number,
+    roles: string[] = [],
+  ): Promise<{
     data: Assignment[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
@@ -133,8 +150,36 @@ export class AssignmentsService {
       .createQueryBuilder('assignment')
       .leftJoinAndSelect('assignment.course', 'course');
 
+    const accessibleCourseIds = await this.resolveAccessibleCourseIds(userId, roles);
+    if (accessibleCourseIds && accessibleCourseIds.length === 0) {
+      return {
+        data: [],
+        meta: {
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        },
+      };
+    }
+
     if (query.courseId) {
+      if (accessibleCourseIds && !accessibleCourseIds.includes(query.courseId)) {
+        return {
+          data: [],
+          meta: {
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+          },
+        };
+      }
       qb.andWhere('assignment.courseId = :courseId', { courseId: query.courseId });
+    } else if (accessibleCourseIds) {
+      qb.andWhere('assignment.courseId IN (:...courseIds)', {
+        courseIds: accessibleCourseIds,
+      });
     }
 
     if (query.sectionId) {
@@ -177,6 +222,69 @@ export class AssignmentsService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  private async resolveAccessibleCourseIds(
+    userId?: number,
+    roles: string[] = [],
+  ): Promise<number[] | null> {
+    if (!userId) {
+      return null;
+    }
+
+    const normalizedRoles = roles
+      .map((role) => String(role).toLowerCase())
+      .filter((role) => role.length > 0);
+
+    const isAdmin = normalizedRoles.some((role) =>
+      [
+        RoleName.ADMIN,
+        RoleName.IT_ADMIN,
+        RoleName.DEPARTMENT_HEAD,
+      ].map((value) => value.toLowerCase()).includes(role),
+    );
+    if (isAdmin) {
+      return null;
+    }
+
+    const wantsInstructorCourses = normalizedRoles.includes(
+      RoleName.INSTRUCTOR.toLowerCase(),
+    );
+    const wantsTACourses = normalizedRoles.includes(RoleName.TA.toLowerCase());
+
+    if (!wantsInstructorCourses && !wantsTACourses) {
+      return null;
+    }
+
+    const courseIds = new Set<number>();
+
+    if (wantsInstructorCourses) {
+      const assignments = await this.courseInstructorRepo.find({
+        where: { userId },
+        relations: ['section'],
+      });
+      for (const assignment of assignments) {
+        const courseId = Number(assignment.section?.courseId);
+        if (Number.isFinite(courseId) && courseId > 0) {
+          courseIds.add(courseId);
+        }
+      }
+    }
+
+    if (wantsTACourses) {
+      const assignments = await this.courseTARepo.find({
+        where: { userId },
+        relations: ['section'],
+      });
+      for (const assignment of assignments) {
+        const courseId = Number(assignment.section?.courseId);
+        if (Number.isFinite(courseId) && courseId > 0) {
+          courseIds.add(courseId);
+        }
+      }
+    }
+
+    return Array.from(courseIds.values());
   }
 
   async findOne(id: number): Promise<Assignment> {
@@ -490,7 +598,7 @@ export class AssignmentsService {
    */
   async uploadInstructionToDrive(
     assignmentId: number,
-    file: Express.Multer.File,
+    file: UploadedAssignmentFile,
     title: string | undefined,
     orderIndex: number,
     userId: number,
@@ -538,7 +646,7 @@ export class AssignmentsService {
    */
   async uploadSubmissionToDrive(
     assignmentId: number,
-    file: Express.Multer.File,
+    file: UploadedAssignmentFile,
     submissionText: string | undefined,
     submissionLink: string | undefined,
     userId: number,
@@ -718,8 +826,10 @@ export class AssignmentsService {
       this.logger.log(`Deleted instruction file from Google Drive: ${instructionFile.driveId}`);
     } catch (error) {
       driveDeletionFailed = true;
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Failed to delete instruction file from Google Drive: ${instructionFile.driveId} — ${error.message}`,
+        `Failed to delete instruction file from Google Drive: ${instructionFile.driveId} — ${errorMessage}`,
       );
     }
 
