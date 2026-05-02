@@ -274,7 +274,7 @@ export class OfficeHoursService {
   async getMyAppointments(studentId: number) {
     const data = await this.appointmentRepo.find({
       where: { studentId },
-      relations: ['slot', 'slot.instructor'],
+      relations: ['slot', 'slot.instructor', 'student'],
       order: { appointmentDate: 'DESC' },
     });
     return { data };
