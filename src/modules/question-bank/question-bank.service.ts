@@ -1,9 +1,12 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Repository } from 'typeorm';
 import { Course } from '../courses/entities/course.entity';
 import { FileResponseDto } from '../files/dto/file-response.dto';
@@ -26,6 +29,11 @@ import { QuestionBankQuestion } from './entities/question-bank-question.entity';
 
 @Injectable()
 export class QuestionBankService {
+  private readonly supabase: SupabaseClient;
+  private readonly questionImagesBucketName: string;
+  private readonly maxQuestionImageSize = 15 * 1024 * 1024;
+  private readonly usePublicUrlsForQuestionImages: boolean;
+
   constructor(
     @InjectRepository(CourseChapter)
     private readonly chapterRepo: Repository<CourseChapter>,
@@ -40,7 +48,27 @@ export class QuestionBankService {
     @InjectRepository(File)
     private readonly fileRepo: Repository<File>,
     private readonly filesService: FilesService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+    const supabaseServiceRoleKey = this.configService.get<string>(
+      'SUPABASE_SERVICE_ROLE_KEY',
+    );
+    this.questionImagesBucketName =
+      this.configService.get<string>('SUPABASE_BUCKET_QUESTION_IMAGES') ||
+      'question-images';
+    this.usePublicUrlsForQuestionImages =
+      this.configService.get<string>('SUPABASE_QUESTION_IMAGES_PUBLIC') ===
+      'true';
+
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      throw new Error(
+        'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables are required',
+      );
+    }
+
+    this.supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+  }
 
   async createChapter(
     courseId: number,
@@ -89,7 +117,32 @@ export class QuestionBankService {
     file: Express.Multer.File,
   ): Promise<FileResponseDto> {
     this.validateQuestionImage(file);
-    return this.filesService.uploadFile(file, userId);
+
+    const uploadedFile = await this.filesService.uploadFile(file, userId);
+    const storagePath = this.buildQuestionImageStoragePath(
+      uploadedFile.fileId,
+      file.mimetype,
+    );
+
+    const { error: uploadError } = await this.supabase.storage
+      .from(this.questionImagesBucketName)
+      .upload(storagePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      throw new InternalServerErrorException(
+        `Failed to upload question image: ${uploadError.message}`,
+      );
+    }
+
+    const imageUrl = await this.createQuestionImageUrl(storagePath);
+
+    return {
+      ...uploadedFile,
+      imageUrl,
+    } as FileResponseDto;
   }
 
   async createQuestion(
@@ -132,7 +185,8 @@ export class QuestionBankService {
       .createQueryBuilder('q')
       .leftJoinAndSelect('q.options', 'options')
       .leftJoinAndSelect('q.fillBlanks', 'fillBlanks')
-      .leftJoinAndSelect('q.chapter', 'chapter');
+      .leftJoinAndSelect('q.chapter', 'chapter')
+      .leftJoinAndSelect('q.file', 'file');
 
     if (query.courseId)
       qb.andWhere('q.courseId = :courseId', { courseId: query.courseId });
@@ -157,18 +211,20 @@ export class QuestionBankService {
       .skip((page - 1) * limit)
       .take(limit);
     const [data, total] = await qb.getManyAndCount();
-    return { data, total };
+    const withImageUrls = await this.attachQuestionImageUrls(data);
+    return { data: withImageUrls, total };
   }
 
   async findQuestionById(questionId: number): Promise<QuestionBankQuestion> {
     const question = await this.questionRepo.findOne({
       where: { id: questionId },
-      relations: ['options', 'fillBlanks', 'chapter'],
+      relations: ['options', 'fillBlanks', 'chapter', 'file'],
     });
     if (!question) {
       throw new NotFoundException('Question not found');
     }
-    return question;
+    const [withImageUrl] = await this.attachQuestionImageUrls([question]);
+    return withImageUrl;
   }
 
   async updateQuestion(
@@ -365,8 +421,11 @@ export class QuestionBankService {
       throw new BadRequestException('Question image file is required');
     }
 
-    if (file.size <= 0) {
-      throw new BadRequestException('Question image file is empty');
+    if (file.size <= 0 || file.size > this.maxQuestionImageSize) {
+      const maxMb = this.maxQuestionImageSize / (1024 * 1024);
+      throw new BadRequestException(
+        `Invalid question image size. Maximum allowed size is ${maxMb} MB`,
+      );
     }
 
     const allowedMimeTypes = new Set([
@@ -380,5 +439,116 @@ export class QuestionBankService {
         `Unsupported image type: ${file.mimetype}. Allowed: image/jpeg, image/png, image/webp, image/gif`,
       );
     }
+  }
+
+  private getExtensionFromMimeType(mimeType: string): string {
+    switch (mimeType) {
+      case 'image/jpeg':
+        return 'jpg';
+      case 'image/png':
+        return 'png';
+      case 'image/webp':
+        return 'webp';
+      case 'image/gif':
+        return 'gif';
+      default:
+        return 'jpg';
+    }
+  }
+
+  private async attachQuestionImageUrls(
+    questions: QuestionBankQuestion[],
+  ): Promise<QuestionBankQuestion[]> {
+    const questionPathPairs = questions
+      .map((question) => {
+        const file = question.file;
+        if (!file) return null;
+        const storagePath = this.buildQuestionImageStoragePath(
+          Number(file.fileId),
+          file.mimeType || undefined,
+        );
+        return { questionId: question.id, storagePath };
+      })
+      .filter(
+        (
+          pair,
+        ): pair is {
+          questionId: number;
+          storagePath: string;
+        } => !!pair,
+      );
+
+    const storagePaths = questionPathPairs.map((pair) => pair.storagePath);
+    const pathByQuestionId = new Map(
+      questionPathPairs.map((pair) => [pair.questionId, pair.storagePath]),
+    );
+
+    const urlMap = await this.createQuestionImageUrls(storagePaths);
+
+    return questions.map((question) => {
+      const storagePath = pathByQuestionId.get(question.id);
+      (question as any).questionImageUrl = storagePath
+        ? (urlMap.get(storagePath) ?? null)
+        : null;
+      return question;
+    });
+  }
+
+  private async createQuestionImageUrls(
+    storagePaths: string[],
+  ): Promise<Map<string, string | null>> {
+    if (!storagePaths.length) {
+      return new Map();
+    }
+
+    if (this.usePublicUrlsForQuestionImages) {
+      const map = new Map<string, string | null>();
+      for (const storagePath of storagePaths) {
+        const { data } = this.supabase.storage
+          .from(this.questionImagesBucketName)
+          .getPublicUrl(storagePath);
+        map.set(storagePath, data.publicUrl || null);
+      }
+      return map;
+    }
+
+    const uniquePaths = Array.from(new Set(storagePaths));
+    const { data, error } = await this.supabase.storage
+      .from(this.questionImagesBucketName)
+      .createSignedUrls(uniquePaths, 60 * 60);
+
+    if (error || !data) {
+      return new Map(uniquePaths.map((path) => [path, null]));
+    }
+
+    const byPath = new Map<string, string | null>();
+    data.forEach((item) => {
+      if (item.path) {
+        byPath.set(item.path, item.signedUrl || null);
+      }
+    });
+
+    uniquePaths.forEach((path) => {
+      if (!byPath.has(path)) {
+        byPath.set(path, null);
+      }
+    });
+
+    return byPath;
+  }
+
+  private async createQuestionImageUrl(
+    storagePath: string,
+  ): Promise<string | null> {
+    const urlMap = await this.createQuestionImageUrls([storagePath]);
+    return urlMap.get(storagePath) ?? null;
+  }
+
+  private buildQuestionImageStoragePath(
+    fileId: number,
+    mimeType?: string,
+  ): string {
+    const extension = this.getExtensionFromMimeType(mimeType || 'image/jpeg');
+    return `question-bank/files/${fileId}.${extension}`;
   }
 }
