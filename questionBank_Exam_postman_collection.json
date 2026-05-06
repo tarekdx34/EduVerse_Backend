@@ -1,0 +1,485 @@
+{
+  "info": {
+    "name": "EduVerse Question Bank And Exam Generator",
+    "_postman_id": "6a529e2d-4fb2-4d17-83cc-question-bank-exam",
+    "description": "Postman collection for instructor-only question bank and exam generator verification. Run Login requests first, then RBAC checks, then instructor workflows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081" },
+    { "key": "instructorToken", "value": "" },
+    { "key": "studentToken", "value": "" },
+    { "key": "taToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "courseId", "value": "1" },
+    { "key": "chapterId", "value": "" },
+    { "key": "questionId", "value": "" },
+    { "key": "groupId", "value": "" },
+    { "key": "draftId", "value": "" },
+    { "key": "draftItemId", "value": "" },
+    { "key": "draftSectionId", "value": "" },
+    { "key": "examId", "value": "" },
+    { "key": "fileId", "value": "" },
+    { "key": "attachmentId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 Auth",
+      "item": [
+        {
+          "name": "Login Instructor",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amir_instructor@example.com\",\n  \"password\": \"Pass@123\",\n  \"rememberMe\": false\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('login returns 200', () => pm.response.to.have.status(200));",
+                "const json = pm.response.json();",
+                "pm.expect(json.accessToken).to.be.a('string');",
+                "pm.collectionVariables.set('instructorToken', json.accessToken);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Login Student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amir_student@example.com\",\n  \"password\": \"Pass@123\",\n  \"rememberMe\": false\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('login returns 200', () => pm.response.to.have.status(200));",
+                "pm.collectionVariables.set('studentToken', pm.response.json().accessToken);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Login TA",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amir_ta@example.com\",\n  \"password\": \"Pass@123\",\n  \"rememberMe\": false\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('login returns 200', () => pm.response.to.have.status(200));",
+                "pm.collectionVariables.set('taToken', pm.response.json().accessToken);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amir_admin@example.com\",\n  \"password\": \"Pass@123\",\n  \"rememberMe\": false\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('login returns 200', () => pm.response.to.have.status(200));",
+                "pm.collectionVariables.set('adminToken', pm.response.json().accessToken);"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "02 RBAC Denials",
+      "item": [
+        {
+          "name": "Student Cannot List Question Bank",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": "{{baseUrl}}/api/question-bank/questions?limit=1"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('student is forbidden', () => pm.response.to.have.status(403));"] } }]
+        },
+        {
+          "name": "TA Cannot List Question Bank",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{taToken}}" }],
+            "url": "{{baseUrl}}/api/question-bank/questions?limit=1"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('ta is forbidden', () => pm.response.to.have.status(403));"] } }]
+        },
+        {
+          "name": "Admin Cannot List Question Bank",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/question-bank/questions?limit=1"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('admin is forbidden', () => pm.response.to.have.status(403));"] } }]
+        },
+        {
+          "name": "Student Cannot List Exams",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": "{{baseUrl}}/api/exams?limit=1"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('student is forbidden', () => pm.response.to.have.status(403));"] } }]
+        },
+        {
+          "name": "TA Cannot List Exams",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{taToken}}" }],
+            "url": "{{baseUrl}}/api/exams?limit=1"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('ta is forbidden', () => pm.response.to.have.status(403));"] } }]
+        },
+        {
+          "name": "Admin Cannot List Exams",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/exams?limit=1"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('admin is forbidden', () => pm.response.to.have.status(403));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "03 Instructor Question Bank Workflow",
+      "item": [
+        {
+          "name": "Create Chapter",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/courses/{{courseId}}/chapters",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Chapter {{$timestamp}}\",\n  \"chapterOrder\": {{$timestamp}}\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('chapter created', () => pm.response.to.have.status(201));",
+                "pm.collectionVariables.set('chapterId', pm.response.json().id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "List Chapters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{instructorToken}}" }],
+            "url": "{{baseUrl}}/api/courses/{{courseId}}/chapters"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('chapters listed', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Bulk Create Questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/questions/batch",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": {{courseId}},\n  \"questions\": [\n    {\n      \"courseId\": {{courseId}},\n      \"chapterId\": {{chapterId}},\n      \"questionType\": \"written\",\n      \"difficulty\": \"easy\",\n      \"bloomLevel\": \"remembering\",\n      \"questionText\": \"Postman written question {{$timestamp}}\",\n      \"expectedAnswerText\": \"Expected answer\",\n      \"hints\": \"Instructor-only hint\"\n    }\n  ]\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('bulk create returns 201', () => pm.response.to.have.status(201));",
+                "const json = pm.response.json();",
+                "pm.expect(json.count).to.eql(1);",
+                "pm.collectionVariables.set('questionId', json.created[0].id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Approve Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/questions/{{questionId}}/approve",
+            "body": { "mode": "raw", "raw": "{\n  \"comment\": \"Approved from Postman\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('question approved', () => pm.response.to.have.status(201));", "pm.expect(pm.response.json().status).to.eql('approved');"] } }]
+        },
+        {
+          "name": "Create Question Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/groups",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": {{courseId}},\n  \"chapterId\": {{chapterId}},\n  \"title\": \"Postman Group {{$timestamp}}\",\n  \"sharedPrompt\": \"Shared prompt for related questions\",\n  \"groupType\": \"multipart\"\n}"
+            }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('group created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('groupId', pm.response.json().id);"] } }]
+        },
+        {
+          "name": "List Question Groups",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{instructorToken}}" }],
+            "url": "{{baseUrl}}/api/question-bank/groups?courseId={{courseId}}&chapterId={{chapterId}}&limit=10"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('groups listed', () => pm.response.to.have.status(200));", "pm.expect(pm.response.json()).to.have.property('data');", "pm.expect(pm.response.json()).to.have.property('total');"] } }]
+        },
+        {
+          "name": "Bulk Create Grouped Questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/groups/{{groupId}}/questions/batch",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questions\": [\n    {\n      \"courseId\": {{courseId}},\n      \"chapterId\": {{chapterId}},\n      \"questionType\": \"written\",\n      \"difficulty\": \"easy\",\n      \"bloomLevel\": \"remembering\",\n      \"questionText\": \"Grouped Postman question {{$timestamp}}\",\n      \"expectedAnswerText\": \"Grouped expected answer\"\n    }\n  ]\n}"
+            }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('grouped question created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('groupedQuestionId', pm.response.json().questions[0].id);"] } }]
+        },
+        {
+          "name": "List Questions With Filters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{instructorToken}}" }],
+            "url": "{{baseUrl}}/api/question-bank/questions?courseId={{courseId}}&chapterId={{chapterId}}&groupId={{groupId}}&hasAttachments=false&search=Grouped&limit=10"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('filtered questions listed', () => pm.response.to.have.status(200));", "pm.expect(pm.response.json().data.length).to.be.above(0);"] } }]
+        },
+        {
+          "name": "Delete Question Group",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{instructorToken}}" }],
+            "url": "{{baseUrl}}/api/question-bank/groups/{{groupId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('group deleted', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Archive Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/questions/{{questionId}}/archive",
+            "body": { "mode": "raw", "raw": "{\n  \"comment\": \"Archived from Postman\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('question archived', () => pm.response.to.have.status(201));"] } }]
+        },
+        {
+          "name": "Restore Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/questions/{{questionId}}/restore",
+            "body": { "mode": "raw", "raw": "{\n  \"comment\": \"Restored from Postman\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('question restored', () => pm.response.to.have.status(201));", "pm.expect(pm.response.json().status).to.eql('draft');"] } }]
+        },
+        {
+          "name": "Approve Restored Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/questions/{{questionId}}/approve",
+            "body": { "mode": "raw", "raw": "{\n  \"comment\": \"Approved after restore from Postman\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('restored question approved', () => pm.response.to.have.status(201));", "pm.expect(pm.response.json().status).to.eql('approved');"] } }]
+        }
+      ]
+    },
+    {
+      "name": "04 Instructor Exam Workflow",
+      "item": [
+        {
+          "name": "Generate Exam Preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/exams/generate-preview",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": {{courseId}},\n  \"title\": \"Postman Exam {{$timestamp}}\",\n  \"totalMarks\": 10,\n  \"markDistributionMode\": \"equal\",\n  \"roundingPolicy\": \"none\",\n  \"rules\": [\n    {\n      \"chapterId\": {{chapterId}},\n      \"count\": 1,\n      \"weightPerQuestion\": 1,\n      \"questionType\": \"written\",\n      \"difficulty\": \"easy\",\n      \"bloomLevel\": \"remembering\"\n    }\n  ]\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('preview generated', () => pm.response.to.have.status(201));",
+                "const json = pm.response.json();",
+                "pm.collectionVariables.set('draftId', json.draftId);",
+                "if (json.items && json.items.length) pm.collectionVariables.set('draftItemId', json.items[0].id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "List Drafts With Filters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{instructorToken}}" }],
+            "url": "{{baseUrl}}/api/exams/drafts?courseId={{courseId}}&status=open&limit=10"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('filtered drafts listed', () => pm.response.to.have.status(200));", "pm.expect(pm.response.json().data.length).to.be.above(0);"] } }]
+        },
+        {
+          "name": "Save Draft To Exam",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/exams/drafts/{{draftId}}/save",
+            "body": { "mode": "raw", "raw": "{}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('draft saved', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('examId', pm.response.json().id);"] } }]
+        },
+        {
+          "name": "List Exams With Filters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{instructorToken}}" }],
+            "url": "{{baseUrl}}/api/exams?courseId={{courseId}}&limit=10"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('filtered exams listed', () => pm.response.to.have.status(200));", "pm.expect(pm.response.json().data.length).to.be.above(0);"] } }]
+        },
+        {
+          "name": "Export Exam Word",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/exams/{{examId}}/export-word",
+            "body": { "mode": "raw", "raw": "{\n  \"format\": \"html_doc\",\n  \"includeAnswerKey\": false\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('export generated', () => pm.response.to.have.status(201));", "pm.expect(pm.response.json().content).to.be.a('string');"] } }]
+        },
+        {
+          "name": "Publish Exam",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/exams/{{examId}}/publish",
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Published from Postman\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('exam published', () => pm.response.to.have.status(201));", "pm.expect(pm.response.json().status).to.eql('published');"] } }]
+        },
+        {
+          "name": "Archive Exam",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/exams/{{examId}}/archive",
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Archived from Postman\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('exam archived', () => pm.response.to.have.status(201));", "pm.expect(pm.response.json().status).to.eql('archived');"] } }]
+        }
+      ]
+    },
+    {
+      "name": "05 Optional Attachment Requests",
+      "description": "Set fileId first, for example from /api/question-bank/questions/upload-image, then run these requests.",
+      "item": [
+        {
+          "name": "Add Existing File As Question Attachment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/questions/{{questionId}}/attachments",
+            "body": { "mode": "raw", "raw": "{\n  \"fileId\": {{fileId}},\n  \"attachmentType\": \"image\",\n  \"caption\": \"Attachment caption\",\n  \"altText\": \"Attachment alt text\",\n  \"displayOrder\": 0,\n  \"isPrimary\": true\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('attachment created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('attachmentId', pm.response.json().id);"] } }]
+        },
+        {
+          "name": "Update Attachment Metadata",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/question-bank/questions/{{questionId}}/attachments/{{attachmentId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"caption\": \"Updated caption\",\n  \"altText\": \"Updated alt text\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('attachment updated', () => pm.response.to.have.status(200));"] } }]
+        }
+      ]
+    }
+  ]
+}

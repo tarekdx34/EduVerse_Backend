@@ -23,7 +23,9 @@ export enum BloomLevel {
 
 export enum QuestionBankStatus {
   DRAFT = 'draft',
+  UNDER_REVIEW = 'under_review',
   APPROVED = 'approved',
+  REJECTED = 'rejected',
   ARCHIVED = 'archived',
 }
 

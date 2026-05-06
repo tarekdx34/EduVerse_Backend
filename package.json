@@ -26,6 +26,7 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/config/typeorm.config.ts",
     "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d src/config/typeorm.config.ts",
+    "migration:show": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:show -d src/config/typeorm.config.ts",
     "quiz:install": "powershell -ExecutionPolicy Bypass -File ./ai-services/quiz-generator/install-windows.ps1",
     "quiz": "node scripts/run-quiz-generator.cjs",
     "db:campus-events": "node scripts/run-campus-events-sql.cjs",

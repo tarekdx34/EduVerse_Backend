@@ -7,10 +7,11 @@ export class CreateChapterDto {
   @MaxLength(200)
   name: string;
 
-  @ApiProperty({ example: 1 })
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  chapterOrder: number;
+  chapterOrder?: number;
 }
 
 export class UpdateChapterDto {
