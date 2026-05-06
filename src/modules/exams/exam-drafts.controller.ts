@@ -4,14 +4,22 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RoleName } from '../auth/entities/role.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { RoleName } from '../auth/entities/role.entity';
+import { ExamDraftListQueryDto } from './dto/exam-query.dto';
 import { ExamsService } from './exams.service';
+
+type AuthenticatedRequest = {
+  user: {
+    userId: number;
+  };
+};
 
 @ApiTags('Exams')
 @ApiBearerAuth('JWT-auth')
@@ -21,26 +29,39 @@ export class ExamDraftsController {
   constructor(private readonly examsService: ExamsService) {}
 
   @Get()
-  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR)
   getDrafts(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+    @Req() req: AuthenticatedRequest,
+    @Query() query: ExamDraftListQueryDto,
   ) {
-    return this.examsService.findDrafts(page, limit);
+    return this.examsService.findDrafts(
+      req.user.userId,
+      query.page,
+      query.limit,
+      query,
+    );
   }
 
   @Get('list')
-  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
+  @Roles(RoleName.INSTRUCTOR)
   listDrafts(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+    @Req() req: AuthenticatedRequest,
+    @Query() query: ExamDraftListQueryDto,
   ) {
-    return this.examsService.findDrafts(page, limit);
+    return this.examsService.findDrafts(
+      req.user.userId,
+      query.page,
+      query.limit,
+      query,
+    );
   }
 
   @Get(':draftId')
-  @Roles(RoleName.INSTRUCTOR, RoleName.TA, RoleName.ADMIN)
-  getDraftById(@Param('draftId', ParseIntPipe) draftId: number) {
-    return this.examsService.findDraftById(draftId);
+  @Roles(RoleName.INSTRUCTOR)
+  getDraftById(
+    @Param('draftId', ParseIntPipe) draftId: number,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.examsService.findDraftById(draftId, req.user.userId);
   }
 }

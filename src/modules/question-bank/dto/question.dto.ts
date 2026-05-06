@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
@@ -9,6 +9,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Max,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -18,6 +20,15 @@ import {
   QuestionBankStatus,
   QuestionBankType,
 } from '../enums/question-bank.enums';
+import { CreateQuestionAttachmentDto } from './question-attachment.dto';
+
+export enum QuestionBankBatchStatusAction {
+  SUBMIT_FOR_REVIEW = 'submit-for-review',
+  APPROVE = 'approve',
+  REJECT = 'reject',
+  ARCHIVE = 'archive',
+  RESTORE = 'restore',
+}
 
 export class CreateQuestionOptionDto {
   @ApiProperty()
@@ -52,11 +63,13 @@ export class CreateQuestionBankQuestionDto {
   @ApiProperty()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
   courseId: number;
 
   @ApiProperty()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
   chapterId: number;
 
   @ApiProperty({ enum: QuestionBankType })
@@ -80,7 +93,20 @@ export class CreateQuestionBankQuestionDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
   questionFileId?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  questionFileCaption?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  questionFileAltText?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -112,6 +138,13 @@ export class CreateQuestionBankQuestionDto {
   @ValidateNested({ each: true })
   @Type(() => CreateFillBlankDto)
   fillBlanks?: CreateFillBlankDto[];
+
+  @ApiPropertyOptional({ type: [CreateQuestionAttachmentDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuestionAttachmentDto)
+  attachments?: CreateQuestionAttachmentDto[];
 }
 
 export class UpdateQuestionBankQuestionDto {
@@ -119,6 +152,7 @@ export class UpdateQuestionBankQuestionDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
   chapterId?: number;
 
   @ApiPropertyOptional({ enum: QuestionBankType })
@@ -145,7 +179,20 @@ export class UpdateQuestionBankQuestionDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
   questionFileId?: number | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  questionFileCaption?: string | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  questionFileAltText?: string | null;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -182,12 +229,14 @@ export class QuestionBankQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
   courseId?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
   chapterId?: number;
 
   @ApiPropertyOptional({ enum: QuestionBankType })
@@ -210,6 +259,35 @@ export class QuestionBankQueryDto {
   @IsEnum(QuestionBankStatus)
   status?: QuestionBankStatus;
 
+  @ApiPropertyOptional({ description: 'Case-insensitive text search' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value, obj, key }) => {
+    const raw = obj?.[key] ?? value;
+    if (raw === true || raw === 'true') return true;
+    if (raw === false || raw === 'false') return false;
+    return value;
+  })
+  hasAttachments?: boolean | string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  groupId?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  createdBy?: number;
+
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @Type(() => Number)
@@ -222,6 +300,25 @@ export class QuestionBankQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100)
   limit?: number = 20;
 }
 
+export class BatchQuestionStatusDto {
+  @ApiProperty({ type: [Number] })
+  @IsArray()
+  @ArrayMinSize(1)
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  questionIds: number[];
+
+  @ApiProperty({ enum: QuestionBankBatchStatusAction })
+  @IsEnum(QuestionBankBatchStatusAction)
+  action: QuestionBankBatchStatusAction;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  comment?: string;
+}

@@ -19,7 +19,7 @@ export class FileStorageService {
       10485760; // 10MB default
     const allowedTypes =
       this.configService.get<string>('ALLOWED_FILE_TYPES') ||
-      'pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,mp4,mp3,zip,rar';
+      'pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp,gif,mp4,mp3,zip,rar';
     this.allowedFileTypes = allowedTypes.split(',').map((t) => t.trim());
 
     this.ensureStorageDirectoryExists();

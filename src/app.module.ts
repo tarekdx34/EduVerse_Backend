@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
@@ -72,6 +73,7 @@ import { ExamsModule } from './modules/exams/exams.module';
         };
       },
     }),
+    NestScheduleModule.forRoot(),
     AuthModule,
     EmailModule,
     CampusModule,
