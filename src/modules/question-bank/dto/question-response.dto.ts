@@ -32,4 +32,6 @@ export class QuestionBankPrivateResponseDto {
   fillBlanks?: unknown[];
   attachments?: unknown[];
   groups?: QuestionBankGroupSummaryDto[];
+  createdAt: Date;
+  updatedAt: Date;
 }

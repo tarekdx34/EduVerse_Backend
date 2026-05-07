@@ -2264,6 +2264,8 @@ export class QuestionBankService {
           sharedFileAltText: item.group.sharedFileAltText,
           groupType: item.group.groupType,
         })),
+      createdAt: question.createdAt,
+      updatedAt: question.updatedAt,
     };
   }
 }
