@@ -7,6 +7,7 @@ export class QuestionBankGroupSummaryDto {
   title: string | null;
   sharedPrompt: string | null;
   sharedFileId: number | null;
+  sharedImageUrl: string | null;
   sharedFileCaption: string | null;
   sharedFileAltText: string | null;
   groupType: string;

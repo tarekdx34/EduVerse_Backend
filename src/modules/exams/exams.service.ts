@@ -5,7 +5,9 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -161,6 +163,9 @@ type ExamPaperElement = {
 @Injectable()
 export class ExamsService {
   private readonly logger = new Logger(ExamsService.name);
+  private supabase?: SupabaseClient;
+  private questionImagesBucketName = 'question-images';
+  private usePublicUrlsForQuestionImages = false;
 
   constructor(
     private readonly dataSource: DataSource,
@@ -201,7 +206,24 @@ export class ExamsService {
     private readonly instructorCourseAccess: InstructorCourseAccessService,
     @Optional()
     private readonly fileStorageService?: FileStorageService,
-  ) {}
+    @Optional()
+    private readonly configService?: ConfigService,
+  ) {
+    const supabaseUrl = this.configService?.get<string>('SUPABASE_URL');
+    const supabaseServiceRoleKey = this.configService?.get<string>(
+      'SUPABASE_SERVICE_ROLE_KEY',
+    );
+    this.questionImagesBucketName =
+      this.configService?.get<string>('SUPABASE_BUCKET_QUESTION_IMAGES') ||
+      'question-images';
+    this.usePublicUrlsForQuestionImages =
+      this.configService?.get<string>('SUPABASE_QUESTION_IMAGES_PUBLIC') ===
+      'true';
+
+    if (supabaseUrl && supabaseServiceRoleKey) {
+      this.supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    }
+  }
 
   async listPaperTemplates(userId: number, courseId?: number) {
     if (courseId) {
@@ -1691,19 +1713,21 @@ export class ExamsService {
 
   async getFullExamDetail(examId: number, userId: number) {
     const exam = await this.findExamById(examId, userId);
-    const itemDtos = (exam.items || [])
-      .sort((a, b) => a.itemOrder - b.itemOrder)
-      .map((item) => ({
-        id: item.id,
-        examId: item.examId,
-        questionId: item.questionId,
-        sectionId: item.sectionId,
-        weight: item.weight,
-        weightUnits: item.weightUnits,
-        marks: item.marks,
-        itemOrder: item.itemOrder,
-        snapshot: this.decorateSnapshotForPreview(item.snapshot),
-      }));
+    const itemDtos = await Promise.all(
+      (exam.items || [])
+        .sort((a, b) => a.itemOrder - b.itemOrder)
+        .map(async (item) => ({
+          id: item.id,
+          examId: item.examId,
+          questionId: item.questionId,
+          sectionId: item.sectionId,
+          weight: item.weight,
+          weightUnits: item.weightUnits,
+          marks: item.marks,
+          itemOrder: item.itemOrder,
+          snapshot: await this.decorateSnapshotForPreview(item.snapshot),
+        })),
+    );
     return {
       ...this.toExamResponse(exam),
       durationMinutes: exam.durationMinutes,
@@ -3902,28 +3926,34 @@ ${imageTypes}
     return this.asRecord(value) as ExamPaperElement;
   }
 
-  private decorateSnapshotForPreview(snapshot: ExamItemSnapshot | null) {
+  private async decorateSnapshotForPreview(snapshot: ExamItemSnapshot | null) {
     if (!snapshot) {
       return null;
     }
     const attachments = (snapshot.attachmentsJson || []) as Array<
       Record<string, unknown> & { storagePath?: string | null }
     >;
+    const attachmentPreviews = await Promise.all(
+      attachments.map(async (attachment) => ({
+        ...attachment,
+        previewUrl: await this.questionImagePreviewUrl(
+          this.toOptionalNumber(attachment.fileId),
+          attachment.storagePath,
+        ),
+      })),
+    );
     return {
       ...snapshot,
       snapshotCreatedAt: snapshot.createdAt,
-      questionImagePreviewUrl: snapshot.questionFileStoragePath
-        ? this.storagePathToDataUri(snapshot.questionFileStoragePath)
-        : null,
-      sourceGroupImagePreviewUrl: snapshot.sourceGroupFileStoragePath
-        ? this.storagePathToDataUri(snapshot.sourceGroupFileStoragePath)
-        : null,
-      attachmentsJson: attachments.map((attachment) => ({
-        ...attachment,
-        previewUrl: attachment.storagePath
-          ? this.storagePathToDataUri(attachment.storagePath)
-          : null,
-      })),
+      questionImagePreviewUrl: await this.questionImagePreviewUrl(
+        snapshot.questionFileId,
+        snapshot.questionFileStoragePath,
+      ),
+      sourceGroupImagePreviewUrl: await this.questionImagePreviewUrl(
+        snapshot.sourceGroupFileId,
+        snapshot.sourceGroupFileStoragePath,
+      ),
+      attachmentsJson: attachmentPreviews,
     };
   }
 
@@ -3977,6 +4007,110 @@ ${imageTypes}
       this.logger.warn(`Could not read exam image ${storagePath}: ${error}`);
       return null;
     }
+  }
+
+  private async questionImagePreviewUrl(
+    fileId?: number | string | null,
+    storagePath?: string | null,
+    mimeType?: string | null,
+  ): Promise<string | null> {
+    const signedUrl = await this.createQuestionImageUrl(
+      fileId,
+      storagePath,
+      mimeType,
+    );
+    if (signedUrl) {
+      return signedUrl;
+    }
+    return storagePath ? this.storagePathToDataUri(storagePath) : null;
+  }
+
+  private async createQuestionImageUrl(
+    fileId?: number | string | null,
+    storagePath?: string | null,
+    mimeType?: string | null,
+  ): Promise<string | null> {
+    const questionStoragePath = this.buildQuestionImageStoragePath(
+      fileId,
+      storagePath,
+      mimeType,
+    );
+    if (!this.supabase || !questionStoragePath) {
+      return null;
+    }
+
+    try {
+      if (this.usePublicUrlsForQuestionImages) {
+        const { data } = this.supabase.storage
+          .from(this.questionImagesBucketName)
+          .getPublicUrl(questionStoragePath);
+        return data.publicUrl || null;
+      }
+
+      const { data, error } = await this.supabase.storage
+        .from(this.questionImagesBucketName)
+        .createSignedUrls([questionStoragePath], 60 * 60);
+      if (error || !data?.[0]?.signedUrl) {
+        return null;
+      }
+      return data[0].signedUrl;
+    } catch (error) {
+      this.logger.warn(
+        `Could not create exam image preview URL ${questionStoragePath}: ${error}`,
+      );
+      return null;
+    }
+  }
+
+  private buildQuestionImageStoragePath(
+    fileId?: number | string | null,
+    storagePath?: string | null,
+    mimeType?: string | null,
+  ): string | null {
+    if (storagePath?.includes('question-bank/files/')) {
+      return storagePath.slice(storagePath.indexOf('question-bank/files/'));
+    }
+
+    const normalizedFileId = this.toOptionalNumber(fileId);
+    if (!normalizedFileId) {
+      return null;
+    }
+
+    const extension =
+      this.getExtensionFromMimeType(mimeType || '') ||
+      this.getExtensionFromStoragePath(storagePath || '') ||
+      'jpg';
+    return `question-bank/files/${normalizedFileId}.${extension}`;
+  }
+
+  private getExtensionFromMimeType(mimeType: string): string | null {
+    switch (mimeType) {
+      case 'image/jpeg':
+        return 'jpg';
+      case 'image/png':
+        return 'png';
+      case 'image/webp':
+        return 'webp';
+      case 'image/gif':
+        return 'gif';
+      default:
+        return null;
+    }
+  }
+
+  private getExtensionFromStoragePath(storagePath: string): string | null {
+    const extension = path.extname(storagePath).toLowerCase().replace('.', '');
+    return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension)
+      ? extension.replace('jpeg', 'jpg')
+      : null;
+  }
+
+  private toOptionalNumber(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
   }
 
   private resolveStoragePath(storagePath: string): string | null {
@@ -4070,11 +4204,13 @@ ${imageTypes}
       record.sourceQuestionStatus = question?.status ?? null;
       record.sourceQuestionVersionId = latestVersion?.id ?? null;
       record.originRule = item.originRuleJson ?? null;
-      record.questionImagePreviewUrl = question?.file?.filePath
-        ? this.storagePathToDataUri(question.file.filePath)
-        : null;
-      record.supportingAttachments = (question?.attachments || []).map(
-        (attachment) => ({
+      record.questionImagePreviewUrl = await this.questionImagePreviewUrl(
+        question?.questionFileId,
+        question?.file?.filePath,
+        question?.file?.mimeType,
+      );
+      record.supportingAttachments = await Promise.all(
+        (question?.attachments || []).map(async (attachment) => ({
           attachmentId: attachment.id,
           fileId: attachment.fileId,
           caption: attachment.caption,
@@ -4082,12 +4218,12 @@ ${imageTypes}
           displayOrder: attachment.displayOrder,
           isPrimary: attachment.isPrimary,
           storagePath: attachment.storagePath,
-          previewUrl: (() => {
-            const storagePath =
-              attachment.file?.filePath || attachment.storagePath;
-            return storagePath ? this.storagePathToDataUri(storagePath) : null;
-          })(),
-        }),
+          previewUrl: await this.questionImagePreviewUrl(
+            attachment.fileId,
+            attachment.file?.filePath || attachment.storagePath,
+            attachment.file?.mimeType,
+          ),
+        })),
       );
       record.sourceGroupId = groupItem?.groupId ?? item.sourceGroupId ?? null;
       record.sourceGroupTitle = groupItem?.group?.title ?? null;
@@ -4100,9 +4236,11 @@ ${imageTypes}
         groupItem?.group?.sharedFileAltText ?? null;
       record.sourceGroupItemOrder =
         groupItem?.itemOrder ?? item.sourceGroupItemOrder ?? null;
-      record.sourceGroupImagePreviewUrl = groupItem?.group?.sharedFile?.filePath
-        ? this.storagePathToDataUri(groupItem.group.sharedFile.filePath)
-        : null;
+      record.sourceGroupImagePreviewUrl = await this.questionImagePreviewUrl(
+        groupItem?.group?.sharedFileId,
+        groupItem?.group?.sharedFile?.filePath,
+        groupItem?.group?.sharedFile?.mimeType,
+      );
     }
   }
 

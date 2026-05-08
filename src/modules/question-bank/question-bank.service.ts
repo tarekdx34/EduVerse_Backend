@@ -399,6 +399,7 @@ export class QuestionBankService {
       .leftJoinAndSelect('attachments.file', 'attachmentFile')
       .leftJoinAndSelect('q.groupItems', 'questionGroupItems')
       .leftJoinAndSelect('questionGroupItems.group', 'questionGroup')
+      .leftJoinAndSelect('questionGroup.sharedFile', 'questionGroupSharedFile')
       .where('q.courseId IN (:...courseIds)', { courseIds });
 
     if (query.chapterId)
@@ -628,6 +629,7 @@ export class QuestionBankService {
         'attachments.file',
         'groupItems',
         'groupItems.group',
+        'groupItems.group.sharedFile',
       ],
     });
     if (!question) {
@@ -690,9 +692,11 @@ export class QuestionBankService {
           ? question.expectedAnswerText
           : dto.expectedAnswerText || null,
       hints: dto.hints === undefined ? question.hints : dto.hints || null,
-      status: dto.status ?? (shouldResetApprovedStatus
-        ? QuestionBankStatus.DRAFT
-        : question.status),
+      status:
+        dto.status ??
+        (shouldResetApprovedStatus
+          ? QuestionBankStatus.DRAFT
+          : question.status),
       options:
         dto.options !== undefined
           ? dto.options
@@ -1014,7 +1018,7 @@ export class QuestionBankService {
       await this.ensureAttachableFile(dto.sharedFileId, userId);
     }
 
-    return this.groupRepo.save(
+    const saved = await this.groupRepo.save(
       this.groupRepo.create({
         ...dto,
         title: dto.title || null,
@@ -1025,6 +1029,8 @@ export class QuestionBankService {
         createdBy: userId,
       }),
     );
+    const [withImageUrl] = await this.attachQuestionGroupImageUrls([saved]);
+    return withImageUrl;
   }
 
   async listQuestionGroups(
@@ -1067,7 +1073,11 @@ export class QuestionBankService {
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { data: await this.attachQuestionGroupCounts(data), total };
+    const withCounts = await this.attachQuestionGroupCounts(data);
+    return {
+      data: await this.attachQuestionGroupImageUrls(withCounts),
+      total,
+    };
   }
 
   async updateQuestionGroup(
@@ -1080,7 +1090,12 @@ export class QuestionBankService {
       await this.ensureAttachableFile(dto.sharedFileId, userId);
     }
     Object.assign(group, dto);
-    return this.groupRepo.save(group);
+    const saved = await this.groupRepo.save(group);
+    const [withCounts] = await this.attachQuestionGroupCounts([saved]);
+    const [withImageUrl] = await this.attachQuestionGroupImageUrls([
+      withCounts,
+    ]);
+    return withImageUrl;
   }
 
   async deleteQuestionGroup(groupId: number, userId: number): Promise<void> {
@@ -1126,7 +1141,9 @@ export class QuestionBankService {
       const existing = await manager.find(QuestionBankQuestionGroupItem, {
         where: { groupId, questionId: In(questionIds) },
       });
-      const existingIds = new Set(existing.map((item) => Number(item.questionId)));
+      const existingIds = new Set(
+        existing.map((item) => Number(item.questionId)),
+      );
       const [rawMaxOrder] = (await manager.query(
         'SELECT COALESCE(MAX(`item_order`), -1) AS `maxOrder` FROM `question_bank_question_group_items` WHERE `group_id` = ?',
         [groupId],
@@ -1147,7 +1164,9 @@ export class QuestionBankService {
       }
     });
 
-    return Promise.all(questionIds.map((id) => this.findQuestionById(id, userId)));
+    return Promise.all(
+      questionIds.map((id) => this.findQuestionById(id, userId)),
+    );
   }
 
   async unlinkQuestionFromGroup(
@@ -1285,7 +1304,10 @@ export class QuestionBankService {
       group.courseId,
     );
     const [withCounts] = await this.attachQuestionGroupCounts([group]);
-    return withCounts;
+    const [withImageUrl] = await this.attachQuestionGroupImageUrls([
+      withCounts,
+    ]);
+    return withImageUrl;
   }
 
   async batchUpdateQuestionStatus(
@@ -1847,14 +1869,17 @@ export class QuestionBankService {
     if (!groups.length) return groups;
     if (typeof this.dataSource.query !== 'function') {
       return groups.map((group) => {
-        Object.assign(group as QuestionBankQuestionGroup & Record<string, number>, {
-          totalQuestions: group.items?.length ?? 0,
-          approvedQuestions: 0,
-          draftQuestions: 0,
-          underReviewQuestions: 0,
-          rejectedQuestions: 0,
-          archivedQuestions: 0,
-        });
+        Object.assign(
+          group as QuestionBankQuestionGroup & Record<string, number>,
+          {
+            totalQuestions: group.items?.length ?? 0,
+            approvedQuestions: 0,
+            draftQuestions: 0,
+            underReviewQuestions: 0,
+            rejectedQuestions: 0,
+            archivedQuestions: 0,
+          },
+        );
         return group;
       });
     }
@@ -1881,14 +1906,17 @@ export class QuestionBankService {
     const byGroupId = new Map(rows.map((row) => [Number(row.groupId), row]));
     return groups.map((group) => {
       const row = byGroupId.get(Number(group.id));
-      Object.assign(group as QuestionBankQuestionGroup & Record<string, number>, {
-        totalQuestions: Number(row?.totalQuestions || 0),
-        approvedQuestions: Number(row?.approvedQuestions || 0),
-        draftQuestions: Number(row?.draftQuestions || 0),
-        underReviewQuestions: Number(row?.underReviewQuestions || 0),
-        rejectedQuestions: Number(row?.rejectedQuestions || 0),
-        archivedQuestions: Number(row?.archivedQuestions || 0),
-      });
+      Object.assign(
+        group as QuestionBankQuestionGroup & Record<string, number>,
+        {
+          totalQuestions: Number(row?.totalQuestions || 0),
+          approvedQuestions: Number(row?.approvedQuestions || 0),
+          draftQuestions: Number(row?.draftQuestions || 0),
+          underReviewQuestions: Number(row?.underReviewQuestions || 0),
+          rejectedQuestions: Number(row?.rejectedQuestions || 0),
+          archivedQuestions: Number(row?.archivedQuestions || 0),
+        },
+      );
       return group;
     });
   }
@@ -2046,6 +2074,8 @@ export class QuestionBankService {
       propertyName: string;
     }> = [];
 
+    const groupsById = new Map<number, QuestionBankQuestionGroup>();
+
     for (const question of questions) {
       if (question.file) {
         pathPairs.push({
@@ -2074,7 +2104,14 @@ export class QuestionBankService {
           });
         }
       }
+      for (const groupItem of question.groupItems || []) {
+        if (groupItem.group && !groupsById.has(Number(groupItem.group.id))) {
+          groupsById.set(Number(groupItem.group.id), groupItem.group);
+        }
+      }
     }
+
+    await this.attachQuestionGroupImageUrls(Array.from(groupsById.values()));
 
     const urlMap = await this.createQuestionImageUrls(
       pathPairs.map((pair) => pair.storagePath),
@@ -2084,6 +2121,84 @@ export class QuestionBankService {
     }
 
     return questions;
+  }
+
+  private async attachQuestionGroupImageUrls(
+    groups: QuestionBankQuestionGroup[],
+  ): Promise<QuestionBankQuestionGroup[]> {
+    const groupFileIds = Array.from(
+      new Set(
+        groups
+          .map((group) => Number(group.sharedFileId))
+          .filter((fileId) => Number.isFinite(fileId) && fileId > 0),
+      ),
+    );
+    const missingFileIds = groupFileIds.filter(
+      (fileId) =>
+        !groups.some(
+          (group) => Number(group.sharedFile?.fileId) === Number(fileId),
+        ),
+    );
+    const filesById = new Map<number, File>();
+    if (missingFileIds.length) {
+      const files = await this.fileRepo.find({
+        where: { fileId: In(missingFileIds) },
+      });
+      for (const file of files) {
+        filesById.set(Number(file.fileId), file);
+      }
+    }
+
+    const pathPairs: Array<{
+      group: QuestionBankQuestionGroup;
+      storagePath: string;
+    }> = [];
+
+    for (const group of groups) {
+      const sharedFileId = Number(group.sharedFileId);
+      if (!Number.isFinite(sharedFileId) || sharedFileId <= 0) {
+        (
+          group as QuestionBankQuestionGroup & {
+            sharedImageUrl?: string | null;
+          }
+        ).sharedImageUrl = null;
+        continue;
+      }
+
+      const sharedFile =
+        Number(group.sharedFile?.fileId) === sharedFileId
+          ? group.sharedFile
+          : filesById.get(sharedFileId);
+      if (!sharedFile) {
+        (
+          group as QuestionBankQuestionGroup & {
+            sharedImageUrl?: string | null;
+          }
+        ).sharedImageUrl = null;
+        continue;
+      }
+
+      pathPairs.push({
+        group,
+        storagePath: this.buildQuestionImageStoragePath(
+          Number(sharedFile.fileId),
+          sharedFile.mimeType || undefined,
+        ),
+      });
+    }
+
+    const urlMap = await this.createQuestionImageUrls(
+      pathPairs.map((pair) => pair.storagePath),
+    );
+    for (const pair of pathPairs) {
+      (
+        pair.group as QuestionBankQuestionGroup & {
+          sharedImageUrl?: string | null;
+        }
+      ).sharedImageUrl = urlMap.get(pair.storagePath) ?? null;
+    }
+
+    return groups;
   }
 
   private async createQuestionImageUrls(
@@ -2260,6 +2375,12 @@ export class QuestionBankService {
           sharedFileId: item.group.sharedFileId
             ? Number(item.group.sharedFileId)
             : null,
+          sharedImageUrl:
+            (
+              item.group as QuestionBankQuestionGroup & {
+                sharedImageUrl?: string | null;
+              }
+            ).sharedImageUrl ?? null,
           sharedFileCaption: item.group.sharedFileCaption,
           sharedFileAltText: item.group.sharedFileAltText,
           groupType: item.group.groupType,
