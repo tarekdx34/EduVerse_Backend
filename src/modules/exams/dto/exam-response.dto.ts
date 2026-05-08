@@ -6,6 +6,8 @@ export class ExamResponseDto {
   status: string;
   publishedAt?: Date | null;
   archivedAt?: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
   itemCount?: number;
   sectionCount?: number;
 }

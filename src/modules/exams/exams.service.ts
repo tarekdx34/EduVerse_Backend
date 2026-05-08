@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import JSZip from 'jszip';
 import PDFDocument from 'pdfkit';
 import {
   Between,
@@ -135,6 +136,8 @@ type ResolvedExamExportSettings = {
   showCourseCode: boolean;
   pageBreakPerSection: boolean;
   showInstructorName: boolean;
+  showTotalMarks: boolean;
+  showQuestionMarks: boolean;
   answerKeyStyle: ExamAnswerKeyStyle;
   paperTemplateSnapshot?: Record<string, unknown> | null;
 };
@@ -202,16 +205,22 @@ export class ExamsService {
 
   async listPaperTemplates(userId: number, courseId?: number) {
     if (courseId) {
-      await this.instructorCourseAccess.assertInstructorOwnsCourse(userId, courseId);
+      await this.instructorCourseAccess.assertInstructorOwnsCourse(
+        userId,
+        courseId,
+      );
     }
     const query = this.paperTemplateRepo
       .createQueryBuilder('template')
       .where('template.ownerInstructorId = :userId', { userId })
       .orderBy('template.updatedAt', 'DESC');
     if (courseId) {
-      query.andWhere('(template.courseId IS NULL OR template.courseId = :courseId)', {
-        courseId,
-      });
+      query.andWhere(
+        '(template.courseId IS NULL OR template.courseId = :courseId)',
+        {
+          courseId,
+        },
+      );
     }
     const templates = await query.getMany();
     return templates.map((template) => this.toPaperTemplateResponse(template));
@@ -236,7 +245,9 @@ export class ExamsService {
       trailingJson: dto.trailingJson ?? null,
       footerJson: dto.footerJson ?? null,
     });
-    return this.toPaperTemplateResponse(await this.paperTemplateRepo.save(template));
+    return this.toPaperTemplateResponse(
+      await this.paperTemplateRepo.save(template),
+    );
   }
 
   async updatePaperTemplate(
@@ -262,7 +273,9 @@ export class ExamsService {
       trailingJson: dto.trailingJson ?? null,
       footerJson: dto.footerJson ?? null,
     });
-    return this.toPaperTemplateResponse(await this.paperTemplateRepo.save(template));
+    return this.toPaperTemplateResponse(
+      await this.paperTemplateRepo.save(template),
+    );
   }
 
   async deletePaperTemplate(templateId: number, userId: number) {
@@ -292,7 +305,10 @@ export class ExamsService {
     userId: number,
     page: number = 1,
     limit: number = 20,
-    filters: Pick<ExamListQueryDto, 'courseId' | 'status' | 'dateFrom' | 'dateTo'> = {},
+    filters: Pick<
+      ExamListQueryDto,
+      'courseId' | 'status' | 'dateFrom' | 'dateTo'
+    > = {},
   ): Promise<PaginatedResult<ExamResponseDto>> {
     const courseIds = filters.courseId
       ? [filters.courseId]
@@ -330,7 +346,10 @@ export class ExamsService {
     userId: number,
     page: number = 1,
     limit: number = 20,
-    filters: Pick<ExamDraftListQueryDto, 'courseId' | 'status' | 'dateFrom' | 'dateTo'> = {},
+    filters: Pick<
+      ExamDraftListQueryDto,
+      'courseId' | 'status' | 'dateFrom' | 'dateTo'
+    > = {},
   ): Promise<PaginatedResult<ExamDraft>> {
     const courseIds = filters.courseId
       ? [filters.courseId]
@@ -519,7 +538,10 @@ export class ExamsService {
     const buckets = await this.buildAvailabilityBuckets(dto);
     return {
       totalRequired: buckets.reduce((sum, bucket) => sum + bucket.required, 0),
-      totalAvailable: buckets.reduce((sum, bucket) => sum + bucket.available, 0),
+      totalAvailable: buckets.reduce(
+        (sum, bucket) => sum + bucket.available,
+        0,
+      ),
       canGenerate: buckets.every((bucket) => bucket.canGenerate),
       buckets,
     };
@@ -541,7 +563,10 @@ export class ExamsService {
       ? [courseId]
       : await this.instructorCourseAccess.getInstructorCourseIds(userId);
     if (courseId) {
-      await this.instructorCourseAccess.assertInstructorOwnsCourse(userId, courseId);
+      await this.instructorCourseAccess.assertInstructorOwnsCourse(
+        userId,
+        courseId,
+      );
     }
     if (!courseIds.length) {
       return {
@@ -555,30 +580,37 @@ export class ExamsService {
       };
     }
     const expiringBefore = new Date(Date.now() + 1000 * 60 * 60 * 2);
-    const [drafts, openDrafts, expiringSoonDrafts, savedExams, publishedExams, archivedExams, approvedQuestionPool] =
-      await Promise.all([
-        this.draftRepo.count({ where: { courseId: In(courseIds) } }),
-        this.draftRepo.count({
-          where: { courseId: In(courseIds), status: ExamDraftStatus.OPEN },
-        }),
-        this.draftRepo.count({
-          where: {
-            courseId: In(courseIds),
-            status: ExamDraftStatus.OPEN,
-            expiresAt: LessThanOrEqual(expiringBefore),
-          },
-        }),
-        this.examRepo.count({ where: { courseId: In(courseIds) } }),
-        this.examRepo.count({
-          where: { courseId: In(courseIds), status: ExamStatus.PUBLISHED },
-        }),
-        this.examRepo.count({
-          where: { courseId: In(courseIds), status: ExamStatus.ARCHIVED },
-        }),
-        this.questionRepo.count({
-          where: { courseId: In(courseIds), status: QuestionBankStatus.APPROVED },
-        }),
-      ]);
+    const [
+      drafts,
+      openDrafts,
+      expiringSoonDrafts,
+      savedExams,
+      publishedExams,
+      archivedExams,
+      approvedQuestionPool,
+    ] = await Promise.all([
+      this.draftRepo.count({ where: { courseId: In(courseIds) } }),
+      this.draftRepo.count({
+        where: { courseId: In(courseIds), status: ExamDraftStatus.OPEN },
+      }),
+      this.draftRepo.count({
+        where: {
+          courseId: In(courseIds),
+          status: ExamDraftStatus.OPEN,
+          expiresAt: LessThanOrEqual(expiringBefore),
+        },
+      }),
+      this.examRepo.count({ where: { courseId: In(courseIds) } }),
+      this.examRepo.count({
+        where: { courseId: In(courseIds), status: ExamStatus.PUBLISHED },
+      }),
+      this.examRepo.count({
+        where: { courseId: In(courseIds), status: ExamStatus.ARCHIVED },
+      }),
+      this.questionRepo.count({
+        where: { courseId: In(courseIds), status: QuestionBankStatus.APPROVED },
+      }),
+    ]);
     return {
       drafts,
       openDrafts,
@@ -602,7 +634,10 @@ export class ExamsService {
     byDifficulty: Array<{ value: string; count: number }>;
     byBloom: Array<{ value: string; count: number }>;
   }> {
-    await this.instructorCourseAccess.assertInstructorOwnsCourse(userId, courseId);
+    await this.instructorCourseAccess.assertInstructorOwnsCourse(
+      userId,
+      courseId,
+    );
     const base = this.questionRepo
       .createQueryBuilder('q')
       .leftJoin('q.groupItems', 'qgi')
@@ -619,13 +654,21 @@ export class ExamsService {
           .getCount(),
         base
           .clone()
-          .innerJoin(CourseChapter, 'chapter', 'chapter.chapter_id = q.chapter_id')
+          .innerJoin(
+            CourseChapter,
+            'chapter',
+            'chapter.chapter_id = q.chapter_id',
+          )
           .select('q.chapter_id', 'chapterId')
           .addSelect('chapter.name', 'chapterName')
           .addSelect('COUNT(DISTINCT q.question_id)', 'count')
           .groupBy('q.chapter_id')
           .addGroupBy('chapter.name')
-          .getRawMany<{ chapterId: string; chapterName: string; count: string }>(),
+          .getRawMany<{
+            chapterId: string;
+            chapterName: string;
+            count: string;
+          }>(),
         base
           .clone()
           .select('q.question_type', 'value')
@@ -655,16 +698,25 @@ export class ExamsService {
         chapterName: row.chapterName,
         count: Number(row.count),
       })),
-      byType: byType.map((row) => ({ value: row.value, count: Number(row.count) })),
+      byType: byType.map((row) => ({
+        value: row.value,
+        count: Number(row.count),
+      })),
       byDifficulty: byDifficulty.map((row) => ({
         value: row.value,
         count: Number(row.count),
       })),
-      byBloom: byBloom.map((row) => ({ value: row.value, count: Number(row.count) })),
+      byBloom: byBloom.map((row) => ({
+        value: row.value,
+        count: Number(row.count),
+      })),
     };
   }
 
-  async validateDraft(draftId: number, userId: number): Promise<{
+  async validateDraft(
+    draftId: number,
+    userId: number,
+  ): Promise<{
     canSave: boolean;
     warnings: string[];
     errors: string[];
@@ -690,23 +742,30 @@ export class ExamsService {
     const errors: string[] = [];
     const warnings: string[] = [];
     if (!draft.items.length) errors.push('Draft has no questions');
-    if (draft.status !== ExamDraftStatus.OPEN) errors.push(`Draft is ${draft.status}`);
-    if (draft.expiresAt.getTime() <= Date.now()) errors.push('Draft has expired');
+    if (draft.status !== ExamDraftStatus.OPEN)
+      errors.push(`Draft is ${draft.status}`);
+    if (draft.expiresAt.getTime() <= Date.now())
+      errors.push('Draft has expired');
     const sectionSummaries = (draft.sections || []).map((section) => {
       const items = (draft.items || []).filter(
         (item) => Number(item.draftSectionId) === Number(section.id),
       );
       const itemMarksTotal = Number(
-        items.reduce((sum, item) => sum + Number(item.marks || 0), 0).toFixed(2),
+        items
+          .reduce((sum, item) => sum + Number(item.marks || 0), 0)
+          .toFixed(2),
       );
-      if (!items.length) errors.push(`Section "${section.title}" has no questions`);
+      if (!items.length)
+        errors.push(`Section "${section.title}" has no questions`);
       if (
         section.totalMarks !== null &&
         section.totalMarks !== undefined &&
         section.answerPolicy !== 'answer_any' &&
         Math.abs(itemMarksTotal - Number(section.totalMarks)) > 0.01
       ) {
-        warnings.push(`Section "${section.title}" item marks do not match section total`);
+        warnings.push(
+          `Section "${section.title}" item marks do not match section total`,
+        );
       }
       return {
         sectionId: Number(section.id),
@@ -730,7 +789,9 @@ export class ExamsService {
     const allQuestionsApproved = (draft.items || []).every(
       (item) => item.question?.status === QuestionBankStatus.APPROVED,
     );
-    const groupedItems = (draft.items || []).filter((item) => item.sourceGroupId);
+    const groupedItems = (draft.items || []).filter(
+      (item) => item.sourceGroupId,
+    );
     const groupPromptsIncluded = groupedItems.every(
       (item) =>
         (item as unknown as Record<string, unknown>)['sourceGroupPrompt'] ||
@@ -738,7 +799,9 @@ export class ExamsService {
     );
     const imagesAccessible = (draft.items || []).every((item) => {
       const record = item as unknown as Record<string, unknown>;
-      return !item.question?.questionFileId || !!record['questionImagePreviewUrl'];
+      return (
+        !item.question?.questionFileId || !!record['questionImagePreviewUrl']
+      );
     });
     const checklist = [
       this.checklistItem(
@@ -841,7 +904,10 @@ export class ExamsService {
     return {
       ...generated,
       preservedManualEdits,
-      replacedGeneratedItems: Math.max(draft.items.length - preservedManualEdits, 0),
+      replacedGeneratedItems: Math.max(
+        draft.items.length - preservedManualEdits,
+        0,
+      ),
       warnings: preservedManualEdits
         ? [`Preserved ${preservedManualEdits} manual edit(s)`]
         : [],
@@ -947,7 +1013,9 @@ export class ExamsService {
     requiresOverrideReason: boolean;
   }> {
     const draft = await this.findEditableDraft(draftId, userId);
-    const item = draft.items.find((entry) => Number(entry.id) === Number(itemId));
+    const item = draft.items.find(
+      (entry) => Number(entry.id) === Number(itemId),
+    );
     if (!item) {
       throw new NotFoundException('Draft item not found');
     }
@@ -959,7 +1027,9 @@ export class ExamsService {
       throw new NotFoundException('Replacement question not found');
     }
     if (Number(question.courseId) !== Number(draft.courseId)) {
-      throw new BadRequestException('Replacement question belongs to another course');
+      throw new BadRequestException(
+        'Replacement question belongs to another course',
+      );
     }
     const rule = (item.originRuleJson || {}) as Partial<ExamGenerationRuleDto>;
     const fallback: Partial<ExamGenerationRuleDto> = {
@@ -997,17 +1067,22 @@ export class ExamsService {
       where: { draftId },
       order: { sectionOrder: 'ASC', id: 'ASC' },
     });
-    const section = sections.find((item) => Number(item.id) === Number(sectionId));
+    const section = sections.find(
+      (item) => Number(item.id) === Number(sectionId),
+    );
     if (!section) {
       throw new NotFoundException('Draft section not found');
     }
-    const request = draft.generationRequestJson as Partial<GenerateExamPreviewDto>;
+    const request =
+      draft.generationRequestJson as Partial<GenerateExamPreviewDto>;
     const sectionIndex = sections.findIndex(
       (item) => Number(item.id) === Number(sectionId),
     );
     const sectionRequest = request.sections?.[sectionIndex];
     if (!sectionRequest?.rules?.length) {
-      throw new BadRequestException('This section has no saved generation rules');
+      throw new BadRequestException(
+        'This section has no saved generation rules',
+      );
     }
     const existingItems = await this.draftItemRepo.find({
       where: { draftId },
@@ -1034,7 +1109,9 @@ export class ExamsService {
         request.groupSelectionMode || ExamGroupSelectionMode.INDEPENDENT,
       );
       if (picked.length < rule.count) {
-        throw new BadRequestException('Not enough matching questions to reshuffle section');
+        throw new BadRequestException(
+          'Not enough matching questions to reshuffle section',
+        );
       }
       for (const candidate of picked) {
         selectedQuestionIds.add(candidate.questionId);
@@ -1061,8 +1138,11 @@ export class ExamsService {
     }
     this.applyMarks(
       pickedItems,
-      Number(section.totalMarks ?? sectionRequest.totalMarks ?? pickedItems.length),
-      request.markDistributionMode || ExamMarkDistributionMode.WEIGHT_NORMALIZED,
+      Number(
+        section.totalMarks ?? sectionRequest.totalMarks ?? pickedItems.length,
+      ),
+      request.markDistributionMode ||
+        ExamMarkDistributionMode.WEIGHT_NORMALIZED,
       request.roundingPolicy || ExamRoundingPolicy.NONE,
     );
     const oldSectionItems = existingItems.filter(
@@ -1079,12 +1159,16 @@ export class ExamsService {
       const questions = await this.questionRepo.find({
         where: { id: In(pickedItems.map((item) => item.questionId)) },
       });
-      const questionMap = new Map(questions.map((question) => [Number(question.id), question]));
+      const questionMap = new Map(
+        questions.map((question) => [Number(question.id), question]),
+      );
       await manager.save(
         pickedItems.map((item, index) => {
           const question = questionMap.get(item.questionId);
           if (!question) {
-            throw new NotFoundException(`Question ${item.questionId} not found`);
+            throw new NotFoundException(
+              `Question ${item.questionId} not found`,
+            );
           }
           return manager.create(ExamDraftItem, {
             draftId,
@@ -1128,11 +1212,15 @@ export class ExamsService {
       order: { itemOrder: 'ASC', id: 'ASC' },
     });
     if (!items.length) {
-      throw new BadRequestException('Cannot normalize marks for an empty section');
+      throw new BadRequestException(
+        'Cannot normalize marks for an empty section',
+      );
     }
     const totalMarks = dto.totalMarks ?? Number(section.totalMarks ?? 0);
     if (totalMarks <= 0) {
-      throw new BadRequestException('Section total marks must be greater than zero');
+      throw new BadRequestException(
+        'Section total marks must be greater than zero',
+      );
     }
     const draftItems = items.map((item) => ({
       questionId: item.questionId,
@@ -1156,7 +1244,10 @@ export class ExamsService {
       item.marks = draftItems[index].marks;
     }
     await this.draftItemRepo.save(items);
-    if (section.totalMarks === null || Number(section.totalMarks) !== totalMarks) {
+    if (
+      section.totalMarks === null ||
+      Number(section.totalMarks) !== totalMarks
+    ) {
       section.totalMarks = totalMarks;
       await this.draftSectionRepo.save(section);
     }
@@ -1331,7 +1422,9 @@ export class ExamsService {
       this.assertQuestionMatchesDraftGeneration(
         draft,
         question,
-        dto.draftSectionId === undefined ? item.draftSectionId : dto.draftSectionId,
+        dto.draftSectionId === undefined
+          ? item.draftSectionId
+          : dto.draftSectionId,
         dto.overrideReason,
       );
       item.overrideReason = dto.overrideReason?.trim() || null;
@@ -1490,7 +1583,9 @@ export class ExamsService {
         sectionIdByDraftSectionId.set(section.id, savedSection.id);
       }
 
-      for (const item of draft.items.sort((a, b) => a.itemOrder - b.itemOrder)) {
+      for (const item of draft.items.sort(
+        (a, b) => a.itemOrder - b.itemOrder,
+      )) {
         const examItem = await manager.save(
           manager.create(ExamItem, {
             examId: exam.id,
@@ -1572,7 +1667,13 @@ export class ExamsService {
   async findExamById(examId: number, userId: number): Promise<Exam> {
     const exam = await this.examRepo.findOne({
       where: { id: examId },
-      relations: ['course', 'items', 'items.snapshot', 'items.question', 'sections'],
+      relations: [
+        'course',
+        'items',
+        'items.snapshot',
+        'items.question',
+        'sections',
+      ],
       order: {
         sections: { sectionOrder: 'ASC' },
         items: { itemOrder: 'ASC' },
@@ -1590,6 +1691,19 @@ export class ExamsService {
 
   async getFullExamDetail(examId: number, userId: number) {
     const exam = await this.findExamById(examId, userId);
+    const itemDtos = (exam.items || [])
+      .sort((a, b) => a.itemOrder - b.itemOrder)
+      .map((item) => ({
+        id: item.id,
+        examId: item.examId,
+        questionId: item.questionId,
+        sectionId: item.sectionId,
+        weight: item.weight,
+        weightUnits: item.weightUnits,
+        marks: item.marks,
+        itemOrder: item.itemOrder,
+        snapshot: this.decorateSnapshotForPreview(item.snapshot),
+      }));
     return {
       ...this.toExamResponse(exam),
       durationMinutes: exam.durationMinutes,
@@ -1603,6 +1717,19 @@ export class ExamsService {
       answerKeyStyle: exam.answerKeyStyle,
       paperTemplateId: exam.paperTemplateId,
       paperTemplateSnapshot: exam.paperTemplateSnapshotJson,
+      snapshot: exam.snapshotJson,
+      seed:
+        typeof exam.snapshotJson?.seed === 'string'
+          ? exam.snapshotJson.seed
+          : null,
+      generatedAt:
+        typeof exam.snapshotJson?.generatedAt === 'string'
+          ? exam.snapshotJson.generatedAt
+          : null,
+      savedAt:
+        typeof exam.snapshotJson?.savedAt === 'string'
+          ? exam.snapshotJson.savedAt
+          : null,
       statusReason: exam.statusReason,
       createdAt: exam.createdAt,
       snapshotCreatedAt: exam.createdAt,
@@ -1622,20 +1749,11 @@ export class ExamsService {
         totalMarks: section.totalMarks,
         answerPolicy: section.answerPolicy,
         requiredAnswerCount: section.requiredAnswerCount,
+        items: itemDtos.filter(
+          (item) => Number(item.sectionId) === Number(section.id),
+        ),
       })),
-      items: (exam.items || [])
-        .sort((a, b) => a.itemOrder - b.itemOrder)
-        .map((item) => ({
-          id: item.id,
-          examId: item.examId,
-          questionId: item.questionId,
-          sectionId: item.sectionId,
-          weight: item.weight,
-          weightUnits: item.weightUnits,
-          marks: item.marks,
-          itemOrder: item.itemOrder,
-          snapshot: this.decorateSnapshotForPreview(item.snapshot),
-        })),
+      items: itemDtos,
     };
   }
 
@@ -1667,7 +1785,8 @@ export class ExamsService {
         showInstructorName: settings.showInstructorName ? 1 : 0,
         answerKeyStyle: settings.answerKeyStyle,
         paperTemplateId: dto.paperTemplateId ?? exam.paperTemplateId ?? null,
-        paperTemplateSnapshotJson: (settings.paperTemplateSnapshot ?? null) as any,
+        paperTemplateSnapshotJson: (settings.paperTemplateSnapshot ??
+          null) as any,
       } as any);
       Object.assign(exam, {
         studentNameLine: settings.studentNameLine ? 1 : 0,
@@ -1682,7 +1801,7 @@ export class ExamsService {
     const content =
       format === ExamExportFormat.PDF
         ? await this.buildExamPdf(exam, includeAnswerKey, settings)
-        : Buffer.from(this.buildExamHtml(exam, includeAnswerKey, settings));
+        : await this.buildExamDocx(exam, includeAnswerKey, settings);
     await this.exportRepo.save(
       this.exportRepo.create({
         examId: exam.id,
@@ -1692,12 +1811,16 @@ export class ExamsService {
         completedAt: new Date(),
       }),
     );
-    this.logger.log(
-      `Exported exam=${exam.id} format=${format} user=${userId}`,
-    );
+    this.logger.log(`Exported exam=${exam.id} format=${format} user=${userId}`);
     return {
-      fileName: format === ExamExportFormat.PDF ? `exam-${exam.id}.pdf` : `exam-${exam.id}.doc`,
-      mimeType: format === ExamExportFormat.PDF ? 'application/pdf' : 'application/msword',
+      fileName:
+        format === ExamExportFormat.PDF
+          ? `exam-${exam.id}.pdf`
+          : `exam-${exam.id}.docx`,
+      mimeType:
+        format === ExamExportFormat.PDF
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       content: content.toString('base64'),
     };
   }
@@ -1808,7 +1931,8 @@ export class ExamsService {
         this.applyMarks(
           sectionItems,
           entry.section.totalMarks,
-          dto.markDistributionMode || ExamMarkDistributionMode.WEIGHT_NORMALIZED,
+          dto.markDistributionMode ||
+            ExamMarkDistributionMode.WEIGHT_NORMALIZED,
           dto.roundingPolicy || ExamRoundingPolicy.NONE,
         );
       }
@@ -1980,7 +2104,9 @@ export class ExamsService {
       throw new BadRequestException('chapterId is required for chapter rules');
     }
     if (scope === ExamGenerationScope.CHAPTERS && !chapterIds.length) {
-      throw new BadRequestException('chapterIds are required for multi-chapter rules');
+      throw new BadRequestException(
+        'chapterIds are required for multi-chapter rules',
+      );
     }
     if (scope === ExamGenerationScope.GROUP && !groupIds.length) {
       throw new BadRequestException('groupIds are required for group rules');
@@ -2003,7 +2129,11 @@ export class ExamsService {
   > {
     const normalized = this.normalizeGenerationRule(rule);
     if (groupSelectionMode === ExamGroupSelectionMode.KEEP_GROUP_TOGETHER) {
-      return this.findGroupedCandidateQuestions(courseId, rule, selectedQuestionIds);
+      return this.findGroupedCandidateQuestions(
+        courseId,
+        rule,
+        selectedQuestionIds,
+      );
     }
 
     const qb = this.questionRepo
@@ -2072,11 +2202,16 @@ export class ExamsService {
       selectedQuestionIds,
     );
     const grouped = independent.filter((candidate) => candidate.sourceGroupId);
-    const ungrouped = independent.filter((candidate) => !candidate.sourceGroupId);
+    const ungrouped = independent.filter(
+      (candidate) => !candidate.sourceGroupId,
+    );
     const groupedByGroup = new Map<number, typeof grouped>();
     for (const candidate of grouped) {
       const groupId = candidate.sourceGroupId!;
-      groupedByGroup.set(groupId, [...(groupedByGroup.get(groupId) || []), candidate]);
+      groupedByGroup.set(groupId, [
+        ...(groupedByGroup.get(groupId) || []),
+        candidate,
+      ]);
     }
     const completeGroups: typeof grouped = [];
     for (const [groupId, candidates] of groupedByGroup.entries()) {
@@ -2091,7 +2226,9 @@ export class ExamsService {
       if (approvedCount === candidates.length) {
         completeGroups.push(
           ...candidates.sort(
-            (a, b) => Number(a.sourceGroupItemOrder || 0) - Number(b.sourceGroupItemOrder || 0),
+            (a, b) =>
+              Number(a.sourceGroupItemOrder || 0) -
+              Number(b.sourceGroupItemOrder || 0),
           ),
         );
       }
@@ -2111,7 +2248,11 @@ export class ExamsService {
     largestSkippedGroupSize: number;
   }> {
     if (groupSelectionMode !== ExamGroupSelectionMode.KEEP_GROUP_TOGETHER) {
-      return { skippedGroupsTooLarge: 0, matchingGroupCount: 0, largestSkippedGroupSize: 0 };
+      return {
+        skippedGroupsTooLarge: 0,
+        matchingGroupCount: 0,
+        largestSkippedGroupSize: 0,
+      };
     }
     const independent = await this.findCandidateQuestions(
       courseId,
@@ -2166,9 +2307,13 @@ export class ExamsService {
         .filter(Boolean) as typeof candidates;
     }
 
-    const ungrouped = candidates.filter((candidate) => !candidate.sourceGroupId);
+    const ungrouped = candidates.filter(
+      (candidate) => !candidate.sourceGroupId,
+    );
     const groupedByGroup = new Map<number, typeof candidates>();
-    for (const candidate of candidates.filter((candidate) => candidate.sourceGroupId)) {
+    for (const candidate of candidates.filter(
+      (candidate) => candidate.sourceGroupId,
+    )) {
       const groupId = candidate.sourceGroupId!;
       groupedByGroup.set(groupId, [
         ...(groupedByGroup.get(groupId) || []),
@@ -2179,7 +2324,9 @@ export class ExamsService {
     const selected: typeof candidates = [];
     for (const groupId of groupIds) {
       const block = [...(groupedByGroup.get(groupId) || [])].sort(
-        (a, b) => Number(a.sourceGroupItemOrder || 0) - Number(b.sourceGroupItemOrder || 0),
+        (a, b) =>
+          Number(a.sourceGroupItemOrder || 0) -
+          Number(b.sourceGroupItemOrder || 0),
       );
       if (selected.length + block.length <= count) {
         selected.push(...block);
@@ -2344,7 +2491,8 @@ export class ExamsService {
         sourceGroupType: groupItem?.group?.groupType ?? null,
         sourceGroupPrompt: groupItem?.group?.sharedPrompt ?? null,
         sourceGroupFileId: groupItem?.group?.sharedFileId ?? null,
-        sourceGroupFileStoragePath: groupItem?.group?.sharedFile?.filePath ?? null,
+        sourceGroupFileStoragePath:
+          groupItem?.group?.sharedFile?.filePath ?? null,
         sourceGroupFileCaption: groupItem?.group?.sharedFileCaption ?? null,
         sourceGroupFileAltText: groupItem?.group?.sharedFileAltText ?? null,
         sourceGroupItemOrder:
@@ -2386,9 +2534,7 @@ export class ExamsService {
     const sectionsById = new Map(
       (exam.sections || []).map((section) => [section.id, section]),
     );
-    const items = [...(exam.items || [])].sort(
-      (a, b) => a.itemOrder - b.itemOrder,
-    );
+    const orderedItems = this.orderExamItemsForPaper(exam);
     const paperTemplate =
       settings.paperTemplateSnapshot || this.defaultPaperTemplateSnapshot(exam);
     const lines = [
@@ -2406,21 +2552,24 @@ export class ExamsService {
       '.paper-free { position: relative; min-height: 1px; }',
       '.paper-free .paper-element { position: absolute; white-space: pre-wrap; }',
       '.paper-question { margin: 12px 0; page-break-inside: avoid; }',
+      '.question-image { display:block; max-width: 520px; max-height: 320px; margin: 8px auto; }',
       '.paper-trailing { margin-top: 42px; text-align: center; font-size: 12pt; }',
       '.paper-examiners { margin-top: 54px; text-align: center; font-size: 10.5pt; }',
-      'footer { margin-top: 42px; text-align: center; font-size: 9pt; }',
+      'footer { margin-top: 42px; text-align: center; font-size: 9pt; mso-element:footer; }',
       '</style></head><body>',
       this.renderPaperHeaderHtml(exam, paperTemplate, settings),
     ].filter(Boolean);
     if (exam.durationMinutes) {
-      lines.push(`<p>Duration: ${this.escapeHtml(String(exam.durationMinutes))} minutes</p>`);
+      lines.push(
+        `<p>Duration: ${this.escapeHtml(String(exam.durationMinutes))} minutes</p>`,
+      );
     }
     if (exam.instructions) {
       lines.push(`<p>${this.escapeHtml(exam.instructions)}</p>`);
     }
     let currentSectionId: number | null | undefined = undefined;
-    let currentGroupKey: string | null = null;
-    for (const item of items) {
+    let questionNumber = 1;
+    for (const item of orderedItems) {
       if (item.sectionId !== currentSectionId) {
         currentSectionId = item.sectionId;
         const section = currentSectionId
@@ -2431,7 +2580,11 @@ export class ExamsService {
             lines.push('<div style="page-break-before: always;"></div>');
           }
           lines.push(`<h2>${this.escapeHtml(section.title)}</h2>`);
-          if (section.totalMarks !== null && section.totalMarks !== undefined) {
+          if (
+            settings.showTotalMarks &&
+            section.totalMarks !== null &&
+            section.totalMarks !== undefined
+          ) {
             lines.push(
               `<p>Section Marks: ${this.escapeHtml(String(section.totalMarks))}</p>`,
             );
@@ -2442,53 +2595,28 @@ export class ExamsService {
         }
       }
       const snapshot = item.snapshot;
-      const groupKey = snapshot?.sourceGroupId
-        ? `${snapshot.sourceGroupId}:${item.sectionId ?? 'none'}`
-        : null;
-      if (groupKey && groupKey !== currentGroupKey) {
-        currentGroupKey = groupKey;
-        lines.push('<section>');
-        if (snapshot?.sourceGroupTitle) {
-          lines.push(`<h3>${this.escapeHtml(snapshot.sourceGroupTitle)}</h3>`);
-        }
-        if (snapshot?.sourceGroupPrompt) {
-          lines.push(`<p>${this.escapeHtml(snapshot.sourceGroupPrompt)}</p>`);
-        }
-        if (snapshot?.sourceGroupFileStoragePath) {
-          lines.push(
-            this.renderHtmlImage(
-              snapshot.sourceGroupFileStoragePath,
-              snapshot.sourceGroupFileCaption ||
-                snapshot.sourceGroupFileAltText ||
-                'Group image',
-              snapshot.sourceGroupFileAltText || snapshot.sourceGroupFileCaption,
-            ),
-          );
-        }
-        lines.push('</section>');
-      } else if (!groupKey) {
-        currentGroupKey = null;
-      }
       const questionText =
         snapshot?.questionText ||
         (item.question as QuestionBankQuestion | undefined)?.questionText ||
         '[Image Question]';
-      lines.push('<div>');
-      lines.push(`<p><strong>${item.itemOrder + 1}.</strong> ${this.escapeHtml(questionText)}</p>`);
+      lines.push('<div class="paper-question">');
+      lines.push(
+        `<p><strong>${questionNumber++}.</strong> ${this.escapeHtml(questionText)}</p>`,
+      );
       if (snapshot?.questionFileStoragePath) {
         lines.push(
           this.renderHtmlImage(
             snapshot.questionFileStoragePath,
-            snapshot.questionFileCaption ||
-              snapshot.questionFileAltText ||
-              'Prompt image',
+            snapshot.questionFileCaption || snapshot.questionFileAltText || '',
             snapshot.questionFileAltText || snapshot.questionFileCaption,
           ),
         );
       }
-      lines.push(
-        `<p>Marks: ${this.escapeHtml(String(snapshot?.marks ?? item.marks ?? item.weight))}</p>`,
-      );
+      if (settings.showQuestionMarks) {
+        lines.push(
+          `<p>Marks: ${this.escapeHtml(String(snapshot?.marks ?? item.marks ?? item.weight))}</p>`,
+        );
+      }
       const attachments = (snapshot?.attachmentsJson || []) as Array<{
         caption?: string | null;
         altText?: string | null;
@@ -2506,7 +2634,11 @@ export class ExamsService {
             attachment.storagePath ||
             'Question attachment';
           const image = attachment.storagePath
-            ? this.renderHtmlImage(attachment.storagePath, label, attachment.altText)
+            ? this.renderHtmlImage(
+                attachment.storagePath,
+                label,
+                attachment.altText,
+              )
             : null;
           lines.push(`<li>${image || this.escapeHtml(label)}</li>`);
         }
@@ -2558,12 +2690,458 @@ export class ExamsService {
     return lines.join('\n');
   }
 
+  private async buildExamDocx(
+    exam: Exam,
+    includeAnswerKey: boolean,
+    settings: ResolvedExamExportSettings,
+  ): Promise<Buffer> {
+    const zip = new JSZip();
+    const media: Array<{
+      id: string;
+      fileName: string;
+      contentType: string;
+      bytes: Buffer;
+    }> = [];
+    const nextImage = (storagePath: string): string | null => {
+      const fullPath = this.resolveStoragePath(storagePath);
+      if (!fullPath) return null;
+      const bytes = fs.readFileSync(fullPath);
+      const ext =
+        path.extname(fullPath).toLowerCase().replace('.', '') || 'png';
+      const contentType =
+        ext === 'jpg' || ext === 'jpeg'
+          ? 'image/jpeg'
+          : ext === 'gif'
+            ? 'image/gif'
+            : 'image/png';
+      const id = `rIdImage${media.length + 1}`;
+      const fileName = `image${media.length + 1}.${ext === 'jpg' ? 'jpeg' : ext}`;
+      media.push({ id, fileName, contentType, bytes });
+      return id;
+    };
+    const sectionsById = new Map(
+      (exam.sections || []).map((section) => [section.id, section]),
+    );
+    const orderedItems = this.orderExamItemsForPaper(exam);
+    const paperTemplate =
+      settings.paperTemplateSnapshot || this.defaultPaperTemplateSnapshot(exam);
+    const body: string[] = [this.docxHeaderXml(exam, paperTemplate, settings)];
+    let currentSectionId: number | null | undefined = undefined;
+    let questionNumber = 1;
+    for (const item of orderedItems) {
+      if (item.sectionId !== currentSectionId) {
+        currentSectionId = item.sectionId;
+        const section = currentSectionId
+          ? sectionsById.get(currentSectionId)
+          : null;
+        if (section) {
+          body.push(
+            this.docxParagraph(section.title, {
+              heading: true,
+              pageBreakBefore: settings.pageBreakPerSection && body.length > 1,
+            }),
+          );
+          if (
+            settings.showTotalMarks &&
+            section.totalMarks !== null &&
+            section.totalMarks !== undefined
+          ) {
+            body.push(
+              this.docxParagraph(`Section Marks: ${section.totalMarks}`),
+            );
+          }
+          if (section.instructions) {
+            body.push(this.docxParagraph(section.instructions));
+          }
+        }
+      }
+      const snapshot = item.snapshot;
+      const questionText =
+        snapshot?.questionText ||
+        (item.question as QuestionBankQuestion | undefined)?.questionText ||
+        '[Image Question]';
+      body.push(
+        this.docxParagraph(`${questionNumber++}. ${questionText}`, {
+          bold: true,
+        }),
+      );
+      if (snapshot?.questionFileStoragePath) {
+        const imageId = nextImage(snapshot.questionFileStoragePath);
+        if (imageId) body.push(this.docxImageParagraph(imageId));
+      }
+      if (settings.showQuestionMarks) {
+        body.push(
+          this.docxParagraph(
+            `Marks: ${snapshot?.marks ?? item.marks ?? item.weight}`,
+          ),
+        );
+      }
+      const attachments = (snapshot?.attachmentsJson || []) as Array<{
+        caption?: string | null;
+        altText?: string | null;
+        storagePath?: string | null;
+        displayOrder?: number;
+      }>;
+      for (const attachment of [...attachments].sort(
+        (a, b) => Number(a.displayOrder || 0) - Number(b.displayOrder || 0),
+      )) {
+        if (attachment.storagePath) {
+          const imageId = nextImage(attachment.storagePath);
+          if (imageId) body.push(this.docxImageParagraph(imageId));
+        }
+      }
+      const options = (snapshot?.optionsJson || []) as Array<{
+        optionText?: string;
+        isCorrect?: number | boolean;
+      }>;
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      options.forEach((option, index) => {
+        const marker =
+          includeAnswerKey && Boolean(option.isCorrect) ? ' (correct)' : '';
+        body.push(
+          this.docxParagraph(
+            `${letters[index] || `${index + 1}`}. ${option.optionText || ''}${marker}`,
+          ),
+        );
+      });
+      if (includeAnswerKey) {
+        const fillBlanks = (snapshot?.fillBlanksJson || []) as Array<{
+          blankKey?: string;
+          acceptableAnswer?: string;
+        }>;
+        for (const blank of fillBlanks) {
+          body.push(
+            this.docxParagraph(
+              `${blank.blankKey || ''}: ${blank.acceptableAnswer || ''}`,
+            ),
+          );
+        }
+        if (snapshot?.expectedAnswerText) {
+          body.push(
+            this.docxParagraph(
+              `Expected Answer: ${snapshot.expectedAnswerText}`,
+            ),
+          );
+        }
+        if (snapshot?.hints) {
+          body.push(this.docxParagraph(`Hints: ${snapshot.hints}`));
+        }
+      }
+    }
+    body.push(this.docxTrailingXml(exam, paperTemplate));
+    body.push(this.docxSectionProperties());
+    const documentXml = this.docxDocumentXml(body.join(''));
+    const footerXml = this.docxFooterXml(exam, paperTemplate);
+    const rels = [
+      '<Relationship Id="rIdFooter1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>',
+      ...media.map(
+        (image) =>
+          `<Relationship Id="${image.id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${image.fileName}"/>`,
+      ),
+    ].join('');
+    zip.file('[Content_Types].xml', this.docxContentTypesXml(media));
+    zip.file(
+      '_rels/.rels',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+    );
+    zip.file('word/document.xml', documentXml);
+    zip.file('word/footer1.xml', footerXml);
+    zip.file('word/styles.xml', this.docxStylesXml());
+    zip.file('word/settings.xml', this.docxSettingsXml());
+    zip.file(
+      'word/_rels/document.xml.rels',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels}</Relationships>`,
+    );
+    for (const image of media) {
+      zip.file(`word/media/${image.fileName}`, image.bytes);
+    }
+    return zip.generateAsync({ type: 'nodebuffer' });
+  }
+
+  private docxDocumentXml(bodyXml: string): string {
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+<w:body>${bodyXml}</w:body></w:document>`;
+  }
+
+  private docxContentTypesXml(
+    media: Array<{ fileName: string; contentType: string }>,
+  ): string {
+    const imageTypes = [...new Set(media.map((image) => image.contentType))]
+      .map((contentType) => {
+        const extension =
+          contentType === 'image/jpeg'
+            ? 'jpeg'
+            : contentType === 'image/gif'
+              ? 'gif'
+              : 'png';
+        return `<Default Extension="${extension}" ContentType="${contentType}"/>`;
+      })
+      .join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+${imageTypes}
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>
+<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
+</Types>`;
+  }
+
+  private docxStylesXml(): string {
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:style>
+</w:styles>`;
+  }
+
+  private docxSettingsXml(): string {
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:displayBackgroundShape/><w:compat/></w:settings>`;
+  }
+
+  private docxHeaderXml(
+    exam: Exam,
+    template: Record<string, unknown>,
+    settings: ResolvedExamExportSettings,
+  ): string {
+    const header = this.asRecord(template.headerJson);
+    const left = this.asArray(header.leftLines).map((line) =>
+      this.resolvePaperElementText(exam, this.asElement(line)),
+    );
+    const normalizedLeft = left.length
+      ? left
+      : this.asArray(header.left).map((line) =>
+          this.resolvePaperElementText(exam, this.asElement(line)),
+        );
+    const center = this.asArray(header.centerLines).map((line) =>
+      this.resolvePaperElementText(exam, this.asElement(line)),
+    );
+    const normalizedCenter = center.length
+      ? center
+      : this.asArray(header.center).map((line) =>
+          this.resolvePaperElementText(exam, this.asElement(line)),
+        );
+    const right = this.asArray(header.rightLines).map((line) =>
+      this.resolvePaperElementText(exam, this.asElement(line)),
+    );
+    const normalizedRight = right.length
+      ? right
+      : this.asArray(header.right).map((line) =>
+          this.resolvePaperElementText(exam, this.asElement(line)),
+        );
+    const metaLeft = this.asArray(header.metadataLeftLines).map((line) =>
+      this.resolvePaperElementText(exam, this.asElement(line)),
+    );
+    const normalizedMetaLeft = metaLeft.length
+      ? metaLeft
+      : this.asArray(header.metadataLeft).map((line) =>
+          this.resolvePaperElementText(exam, this.asElement(line)),
+        );
+    const metaRight = this.asArray(header.metadataRightLines).map((line) =>
+      this.resolvePaperElementText(exam, this.asElement(line)),
+    );
+    const normalizedMetaRight = metaRight.length
+      ? metaRight
+      : this.asArray(header.metadataRight).map((line) =>
+          this.resolvePaperElementText(exam, this.asElement(line)),
+        );
+    const rows = [
+      this.docxThreeCellRow(normalizedLeft, normalizedCenter, normalizedRight),
+      this.docxThreeCellRow(
+        normalizedMetaLeft,
+        [exam.title],
+        normalizedMetaRight,
+      ),
+    ];
+    const extraRows: string[] = [];
+    if (settings.showTotalMarks && exam.totalMarks !== null) {
+      extraRows.push(`Total Marks: ${exam.totalMarks}`);
+    }
+    if (settings.studentNameLine) {
+      extraRows.push('Student Name: ____________________');
+    }
+    if (settings.showCourseCode) {
+      extraRows.push(
+        `Course: ${[exam.course?.code, exam.course?.name]
+          .filter(Boolean)
+          .join(' - ')}`,
+      );
+    }
+    if (settings.showInstructorName) {
+      extraRows.push('Instructor Name: ____________________');
+    }
+    return [
+      `<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:bottom w:val="single" w:sz="8" w:space="0" w:color="000000"/></w:tblBorders></w:tblPr>${rows.join('')}</w:tbl>`,
+      ...extraRows.map((row) => this.docxParagraph(row)),
+    ].join('');
+  }
+
+  private docxThreeCellRow(
+    left: string[],
+    center: string[],
+    right: string[],
+  ): string {
+    return `<w:tr>${this.docxCell(left, 'left')}${this.docxCell(center, 'center')}${this.docxCell(right, 'right')}</w:tr>`;
+  }
+
+  private docxCell(
+    lines: string[],
+    align: 'left' | 'center' | 'right',
+  ): string {
+    const content = lines.length ? lines : [''];
+    return `<w:tc><w:tcPr><w:tcW w:w="3120" w:type="dxa"/></w:tcPr>${content
+      .map((line) =>
+        this.docxParagraph(line, {
+          align,
+          rtl: align === 'right' || this.containsArabic(line),
+        }),
+      )
+      .join('')}</w:tc>`;
+  }
+
+  private docxTrailingXml(
+    exam: Exam,
+    template: Record<string, unknown>,
+  ): string {
+    const trailing = this.asRecord(template.trailingJson);
+    const lines: string[] = [];
+    for (const raw of this.asArray(trailing.lines)) {
+      lines.push(this.resolvePaperElementText(exam, this.asElement(raw)));
+    }
+    const examiners = String(trailing.examiners || exam.footerText || '');
+    if (examiners) {
+      lines.push(this.resolvePaperText(exam, examiners));
+    }
+    return lines
+      .filter((line) => line.trim().length > 0)
+      .map((line) => this.docxParagraph(line, { align: 'center' }))
+      .join('');
+  }
+
+  private docxFooterXml(exam: Exam, template: Record<string, unknown>): string {
+    const footer = this.asRecord(template.footerJson);
+    const format = String(
+      footer.pageNumberFormat || 'Page {page} of {totalPages}',
+    );
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="center"/></w:pPr>${this.docxPageFieldRuns(exam, format)}</w:p></w:ftr>`;
+  }
+
+  private docxPageFieldRuns(exam: Exam, format: string): string {
+    const resolved = this.resolvePaperText(exam, format, {
+      page: '{page}',
+      totalPages: '{totalPages}',
+    });
+    const parts = resolved.split(/(\{page\}|\{totalPages\})/g);
+    return parts
+      .map((part) => {
+        if (part === '{page}') {
+          return '<w:fldSimple w:instr="PAGE"><w:r><w:t>1</w:t></w:r></w:fldSimple>';
+        }
+        if (part === '{totalPages}') {
+          return '<w:fldSimple w:instr="NUMPAGES"><w:r><w:t>1</w:t></w:r></w:fldSimple>';
+        }
+        return part ? this.docxRun(part) : '';
+      })
+      .join('');
+  }
+
+  private docxSectionProperties(): string {
+    return '<w:sectPr><w:footerReference w:type="default" r:id="rIdFooter1"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="907" w:right="907" w:bottom="907" w:left="907" w:header="454" w:footer="454" w:gutter="0"/></w:sectPr>';
+  }
+
+  private docxParagraph(
+    text: string,
+    options: {
+      align?: 'left' | 'center' | 'right';
+      bold?: boolean;
+      heading?: boolean;
+      rtl?: boolean;
+      pageBreakBefore?: boolean;
+    } = {},
+  ): string {
+    const rtl = options.rtl || this.containsArabic(text);
+    const align = options.align || (rtl ? 'right' : 'left');
+    const pageBreak = options.pageBreakBefore ? '<w:pageBreakBefore/>' : '';
+    const heading = options.heading
+      ? '<w:spacing w:before="180" w:after="80"/><w:outlineLvl w:val="1"/>'
+      : '';
+    return `<w:p><w:pPr>${pageBreak}${heading}<w:jc w:val="${align}"/>${rtl ? '<w:bidi/>' : ''}</w:pPr>${this.docxRun(text, { bold: options.bold || options.heading, rtl })}</w:p>`;
+  }
+
+  private docxRun(
+    text: string,
+    options: { bold?: boolean; rtl?: boolean } = {},
+  ): string {
+    const rtl = options.rtl || this.containsArabic(text);
+    return `<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${options.bold ? '<w:b/><w:bCs/>' : ''}${rtl ? '<w:rtl/>' : ''}</w:rPr><w:t xml:space="preserve">${this.escapeXml(text)}</w:t></w:r>`;
+  }
+
+  private docxImageParagraph(imageId: string): string {
+    return `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="3429000" cy="2286000"/><wp:docPr id="${imageId.replace(/\D/g, '') || '1'}" name="${imageId}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="${imageId}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${imageId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="3429000" cy="2286000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+  }
+
+  private escapeXml(value: string): string {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  }
+
+  private containsArabic(value: string): boolean {
+    return /[\u0600-\u06FF]/.test(value);
+  }
+
+  private orderExamItemsForPaper(exam: Exam): ExamItem[] {
+    const items = [...(exam.items || [])];
+    const bySection = new Map<number, ExamItem[]>();
+    for (const item of items) {
+      if (item.sectionId === null || item.sectionId === undefined) {
+        continue;
+      }
+      const key = Number(item.sectionId);
+      bySection.set(key, [...(bySection.get(key) || []), item]);
+    }
+    const sortItems = (a: ExamItem, b: ExamItem) =>
+      Number(a.itemOrder) - Number(b.itemOrder) || Number(a.id) - Number(b.id);
+    const consumedSections = new Set<number>();
+    const blocks: { order: number; id: number; items: ExamItem[] }[] = [];
+    for (const item of items.sort(sortItems)) {
+      if (item.sectionId === null || item.sectionId === undefined) {
+        blocks.push({
+          order: Number(item.itemOrder),
+          id: Number(item.id),
+          items: [item],
+        });
+        continue;
+      }
+      const sectionId = Number(item.sectionId);
+      if (consumedSections.has(sectionId)) continue;
+      const sectionItems = (bySection.get(sectionId) || []).sort(sortItems);
+      consumedSections.add(sectionId);
+      blocks.push({
+        order: sectionItems.length
+          ? Number(sectionItems[0].itemOrder)
+          : Number(item.itemOrder),
+        id: sectionId,
+        items: sectionItems,
+      });
+    }
+    return blocks
+      .sort((a, b) => a.order - b.order || a.id - b.id)
+      .flatMap((block) => block.items);
+  }
+
   private async buildExamPdf(
     exam: Exam,
     includeAnswerKey: boolean,
     settings: ResolvedExamExportSettings,
   ): Promise<Buffer> {
-    const doc = new PDFDocument({ margin: 48, size: 'A4' });
+    const doc = new PDFDocument({ margin: 48, size: 'A4', bufferPages: true });
+    this.registerExamPdfFonts(doc);
     const chunks: Buffer[] = [];
     doc.on('data', (chunk: Buffer) => chunks.push(chunk));
     const finished = new Promise<Buffer>((resolve, reject) => {
@@ -2574,9 +3152,7 @@ export class ExamsService {
     const sectionsById = new Map(
       (exam.sections || []).map((section) => [section.id, section]),
     );
-    const items = [...(exam.items || [])].sort(
-      (a, b) => a.itemOrder - b.itemOrder,
-    );
+    const orderedItems = this.orderExamItemsForPaper(exam);
     const paperTemplate =
       settings.paperTemplateSnapshot || this.defaultPaperTemplateSnapshot(exam);
 
@@ -2584,75 +3160,60 @@ export class ExamsService {
     doc.moveDown();
 
     let currentSectionId: number | null | undefined = undefined;
-    let currentGroupKey: string | null = null;
-    for (const item of items) {
+    let questionNumber = 1;
+    for (const item of orderedItems) {
       if (item.sectionId !== currentSectionId) {
         currentSectionId = item.sectionId;
         const section = currentSectionId
           ? sectionsById.get(currentSectionId)
           : null;
         if (section) {
-          if (settings.pageBreakPerSection && item.itemOrder > 0) {
+          if (settings.pageBreakPerSection && questionNumber > 1) {
             doc.addPage();
           }
           this.ensurePdfSpace(doc, 96);
-          doc.moveDown(0.5).fontSize(15).text(section.title);
+          this.writePdfText(doc.moveDown(0.5).fontSize(15), section.title);
           doc.fontSize(10);
-          if (section.totalMarks !== null && section.totalMarks !== undefined) {
-            doc.text(`Section Marks: ${String(section.totalMarks)}`);
+          if (
+            settings.showTotalMarks &&
+            section.totalMarks !== null &&
+            section.totalMarks !== undefined
+          ) {
+            this.writePdfText(
+              doc,
+              `Section Marks: ${String(section.totalMarks)}`,
+            );
           }
           if (section.instructions) {
-            doc.text(section.instructions);
+            this.writePdfText(doc, section.instructions);
           }
           doc.moveDown(0.5);
         }
       }
 
       const snapshot = item.snapshot;
-      const groupKey = snapshot?.sourceGroupId
-        ? `${snapshot.sourceGroupId}:${item.sectionId ?? 'none'}`
-        : null;
-      if (groupKey && groupKey !== currentGroupKey) {
-        currentGroupKey = groupKey;
-        this.ensurePdfSpace(doc, 120);
-        if (snapshot?.sourceGroupTitle) {
-          doc.fontSize(13).text(snapshot.sourceGroupTitle);
-        }
-        if (snapshot?.sourceGroupPrompt) {
-          doc.fontSize(10).text(snapshot.sourceGroupPrompt);
-        }
-        if (snapshot?.sourceGroupFileStoragePath) {
-          this.addPdfImage(
-            doc,
-            snapshot.sourceGroupFileStoragePath,
-            snapshot.sourceGroupFileCaption ||
-              snapshot.sourceGroupFileAltText ||
-              'Group image',
-          );
-        }
-        doc.moveDown(0.5);
-      } else if (!groupKey) {
-        currentGroupKey = null;
-      }
-
       this.ensurePdfSpace(doc, 140);
       const questionText =
         snapshot?.questionText ||
         (item.question as QuestionBankQuestion | undefined)?.questionText ||
         '[Image Question]';
-      doc
-        .fontSize(11)
-        .text(`${item.itemOrder + 1}. ${questionText}`, { continued: false });
+      this.writePdfText(
+        doc.fontSize(11),
+        `${questionNumber++}. ${questionText}`,
+      );
       if (snapshot?.questionFileStoragePath) {
         this.addPdfImage(
           doc,
           snapshot.questionFileStoragePath,
-          snapshot.questionFileCaption ||
-            snapshot.questionFileAltText ||
-            'Prompt image',
+          snapshot.questionFileCaption || snapshot.questionFileAltText || '',
         );
       }
-      doc.fontSize(10).text(`Marks: ${String(snapshot?.marks ?? item.marks ?? item.weight)}`);
+      if (settings.showQuestionMarks) {
+        this.writePdfText(
+          doc.fontSize(10),
+          `Marks: ${String(snapshot?.marks ?? item.marks ?? item.weight)}`,
+        );
+      }
 
       const attachments = (snapshot?.attachmentsJson || []) as Array<{
         caption?: string | null;
@@ -2671,7 +3232,7 @@ export class ExamsService {
         if (attachment.storagePath) {
           this.addPdfImage(doc, attachment.storagePath, label);
         } else {
-          doc.text(`Attachment: ${label}`);
+          this.writePdfText(doc, `Attachment: ${label}`);
         }
       }
 
@@ -2683,7 +3244,10 @@ export class ExamsService {
         const letter = String.fromCharCode(65 + index);
         const marker =
           includeAnswerKey && Boolean(option.isCorrect) ? ' (correct)' : '';
-        doc.text(`${letter}. ${option.optionText || ''}${marker}`);
+        this.writePdfText(
+          doc,
+          `${letter}. ${option.optionText || ''}${marker}`,
+        );
       });
 
       if (includeAnswerKey) {
@@ -2692,13 +3256,19 @@ export class ExamsService {
           acceptableAnswer?: string;
         }>;
         for (const blank of fillBlanks) {
-          doc.text(`${blank.blankKey || ''}: ${blank.acceptableAnswer || ''}`);
+          this.writePdfText(
+            doc,
+            `${blank.blankKey || ''}: ${blank.acceptableAnswer || ''}`,
+          );
         }
         if (snapshot?.expectedAnswerText) {
-          doc.text(`Expected Answer: ${snapshot.expectedAnswerText}`);
+          this.writePdfText(
+            doc,
+            `Expected Answer: ${snapshot.expectedAnswerText}`,
+          );
         }
         if (snapshot?.hints) {
-          doc.text(`Hints: ${snapshot.hints}`);
+          this.writePdfText(doc, `Hints: ${snapshot.hints}`);
         }
       }
       doc.moveDown();
@@ -2716,6 +3286,42 @@ export class ExamsService {
     }
   }
 
+  private writePdfText(
+    doc: PDFKit.PDFDocument,
+    text: string,
+    options: PDFKit.Mixins.TextOptions = {},
+  ): void {
+    const x = doc.page.margins.left;
+    const width =
+      doc.page.width - doc.page.margins.left - doc.page.margins.right;
+    doc.text(text, x, doc.y, { width, ...options });
+  }
+
+  private registerExamPdfFonts(doc: PDFKit.PDFDocument): void {
+    const regular = this.resolveSystemFontPath([
+      'C:\\Windows\\Fonts\\arial.ttf',
+      'C:\\Windows\\Fonts\\tahoma.ttf',
+      '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+      '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
+    ]);
+    const bold = this.resolveSystemFontPath([
+      'C:\\Windows\\Fonts\\arialbd.ttf',
+      'C:\\Windows\\Fonts\\tahomabd.ttf',
+      '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+      '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+    ]);
+    if (!regular) {
+      return;
+    }
+    doc.registerFont('ExamRegular', regular);
+    doc.registerFont('ExamBold', bold || regular);
+    doc.font('ExamRegular');
+  }
+
+  private resolveSystemFontPath(candidates: string[]): string | null {
+    return candidates.find((candidate) => fs.existsSync(candidate)) ?? null;
+  }
+
   private addPdfImage(
     doc: PDFKit.PDFDocument,
     storagePath: string,
@@ -2730,11 +3336,15 @@ export class ExamsService {
       this.ensurePdfSpace(doc, 180);
       doc.moveDown(0.25);
       doc.image(fullPath, { fit: [440, 180], align: 'center' });
-      doc.fontSize(9).text(label, { align: 'center' });
+      if (label.trim()) {
+        this.writePdfText(doc.fontSize(9), label, { align: 'center' });
+      }
       doc.moveDown(0.25);
     } catch (error) {
       this.logger.warn(`Could not embed exam image ${storagePath}: ${error}`);
-      doc.fontSize(9).text(label);
+      if (label.trim()) {
+        this.writePdfText(doc.fontSize(9), label);
+      }
     }
   }
 
@@ -2745,15 +3355,17 @@ export class ExamsService {
   ): string {
     const dataUri = this.storagePathToDataUri(storagePath);
     if (!dataUri) {
-      return `<p>${this.escapeHtml(label)}</p>`;
+      return label.trim() ? `<p>${this.escapeHtml(label)}</p>` : '';
     }
     const escapedAlt = this.escapeHtml(altText || label);
     return [
       '<figure>',
-      `<img src="${dataUri}" alt="${escapedAlt}" style="max-width: 520px; max-height: 320px;" />`,
-      `<figcaption>${this.escapeHtml(label)}</figcaption>`,
+      `<img class="question-image" src="${dataUri}" alt="${escapedAlt}" />`,
+      label.trim() ? `<figcaption>${this.escapeHtml(label)}</figcaption>` : '',
       '</figure>',
-    ].join('');
+    ]
+      .filter(Boolean)
+      .join('');
   }
 
   private async findPaperTemplateForOwner(
@@ -2819,12 +3431,19 @@ export class ExamsService {
         dto.paperTemplateId,
         userId,
       );
-      if (template.courseId && Number(template.courseId) !== Number(exam.courseId)) {
-        throw new BadRequestException('Paper template does not belong to this course');
+      if (
+        template.courseId &&
+        Number(template.courseId) !== Number(exam.courseId)
+      ) {
+        throw new BadRequestException(
+          'Paper template does not belong to this course',
+        );
       }
       return this.paperTemplateToSnapshot(template);
     }
-    return exam.paperTemplateSnapshotJson || this.defaultPaperTemplateSnapshot(exam);
+    return (
+      exam.paperTemplateSnapshotJson || this.defaultPaperTemplateSnapshot(exam)
+    );
   }
 
   private defaultPaperTemplateSnapshot(exam: Exam): Record<string, unknown> {
@@ -2836,8 +3455,18 @@ export class ExamsService {
       marginsJson: { top: 16, right: 16, bottom: 16, left: 16 },
       headerJson: {
         left: [
-          { type: 'token', token: 'universityEnglish', value: 'Alexandria University', bold: true },
-          { type: 'token', token: 'facultyEnglish', value: 'Faculty of Engineering', bold: true },
+          {
+            type: 'token',
+            token: 'universityEnglish',
+            value: 'Alexandria University',
+            bold: true,
+          },
+          {
+            type: 'token',
+            token: 'facultyEnglish',
+            value: 'Faculty of Engineering',
+            bold: true,
+          },
           { type: 'token', token: 'departmentEnglish', value: 'Department' },
         ],
         center: [
@@ -2845,19 +3474,41 @@ export class ExamsService {
           { type: 'text', value: '[Logo]' },
         ],
         right: [
-          { type: 'token', token: 'universityArabic', value: 'جامعة الإسكندرية', bold: true },
-          { type: 'token', token: 'facultyArabic', value: 'كلية الهندسة', bold: true },
+          {
+            type: 'token',
+            token: 'universityArabic',
+            value: 'جامعة الإسكندرية',
+            bold: true,
+          },
+          {
+            type: 'token',
+            token: 'facultyArabic',
+            value: 'كلية الهندسة',
+            bold: true,
+          },
           { type: 'token', token: 'departmentArabic', value: 'القسم' },
         ],
         metadataLeft: [
           { type: 'token', token: 'date', value: 'Date: {date}' },
           { type: 'token', token: 'courseName', value: '{courseName}' },
-          { type: 'token', token: 'duration', value: 'Time allowed: {duration}' },
+          {
+            type: 'token',
+            token: 'duration',
+            value: 'Time allowed: {duration}',
+          },
         ],
         metadataRight: [
-          { type: 'token', token: 'academicYear', value: 'العام الجامعي: {academicYear}' },
+          {
+            type: 'token',
+            token: 'academicYear',
+            value: 'العام الجامعي: {academicYear}',
+          },
           { type: 'token', token: 'courseCode', value: 'المادة: {courseCode}' },
-          { type: 'token', token: 'durationArabic', value: 'الزمن: {duration}' },
+          {
+            type: 'token',
+            token: 'durationArabic',
+            value: 'الزمن: {duration}',
+          },
         ],
         freeElements: [],
       },
@@ -2880,9 +3531,21 @@ export class ExamsService {
     settings: ResolvedExamExportSettings,
   ): string {
     const header = this.asRecord(template.headerJson);
-    const left = this.renderHeaderZoneHtml(exam, this.asArray(header.left), 'left');
-    const center = this.renderHeaderZoneHtml(exam, this.asArray(header.center), 'center');
-    const right = this.renderHeaderZoneHtml(exam, this.asArray(header.right), 'right');
+    const left = this.renderHeaderZoneHtml(
+      exam,
+      this.asArray(header.left),
+      'left',
+    );
+    const center = this.renderHeaderZoneHtml(
+      exam,
+      this.asArray(header.center),
+      'center',
+    );
+    const right = this.renderHeaderZoneHtml(
+      exam,
+      this.asArray(header.right),
+      'right',
+    );
     const metadataLeft = this.renderHeaderZoneHtml(
       exam,
       this.asArray(header.metadataLeft),
@@ -2893,7 +3556,10 @@ export class ExamsService {
       this.asArray(header.metadataRight),
       'right',
     );
-    const free = this.renderFreeElementsHtml(exam, this.asArray(header.freeElements));
+    const free = this.renderFreeElementsHtml(
+      exam,
+      this.asArray(header.freeElements),
+    );
     return [
       '<header class="paper-header">',
       '<table class="paper-header-grid"><tr>',
@@ -2908,9 +3574,22 @@ export class ExamsService {
       `<td style="text-align: right; direction: rtl;">${metadataRight}</td>`,
       '</tr></table>',
       exam.instructions ? `<p>${this.escapeHtml(exam.instructions)}</p>` : '',
-      settings.studentNameLine ? '<p>Student Name: ____________________</p>' : '',
+      settings.showTotalMarks
+        ? `<p>Total Marks: ${this.escapeHtml(String(exam.totalMarks ?? exam.totalWeight ?? ''))}</p>`
+        : '',
+      settings.studentNameLine
+        ? '<p>Student Name: ____________________</p>'
+        : '',
+      settings.showCourseCode
+        ? `<p>Course: ${this.escapeHtml([exam.course?.code, exam.course?.name].filter(Boolean).join(' - '))}</p>`
+        : '',
+      settings.showInstructorName
+        ? '<p>Instructor Name: ____________________</p>'
+        : '',
       '</header>',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   private renderPaperTrailingHtml(
@@ -2937,8 +3616,12 @@ export class ExamsService {
     template: Record<string, unknown>,
   ): string {
     const footer = this.asRecord(template.footerJson);
-    const text = String(footer.pageNumberFormat || 'Page {page} of {totalPages}');
-    return `<footer>${this.escapeHtml(this.resolvePaperText(exam, text))}</footer>`;
+    const text = String(
+      footer.pageNumberFormat || 'Page {page} of {totalPages}',
+    );
+    return `<footer>${this.escapeHtml(
+      this.resolvePaperText(exam, text, { page: '1', totalPages: '1' }),
+    )}</footer>`;
   }
 
   private renderHeaderZoneHtml(
@@ -2947,7 +3630,9 @@ export class ExamsService {
     align: 'left' | 'center' | 'right',
   ): string {
     return items
-      .map((item) => this.renderPaperTextHtml(exam, { ...this.asElement(item), align }))
+      .map((item) =>
+        this.renderPaperTextHtml(exam, { ...this.asElement(item), align }),
+      )
       .join('');
   }
 
@@ -2961,7 +3646,9 @@ export class ExamsService {
       item.italic ? 'font-style:italic' : '',
       item.align ? `text-align:${item.align}` : '',
       item.fontSize ? `font-size:${Number(item.fontSize)}pt` : '',
-    ].filter(Boolean).join(';');
+    ]
+      .filter(Boolean)
+      .join(';');
     return `<div style="${styles}">${this.escapeHtml(text)}</div>`;
   }
 
@@ -2979,7 +3666,9 @@ export class ExamsService {
           element.italic ? 'font-style:italic' : '',
           element.fontSize ? `font-size:${Number(element.fontSize)}pt` : '',
           element.align ? `text-align:${element.align}` : '',
-        ].filter(Boolean).join(';');
+        ]
+          .filter(Boolean)
+          .join(';');
         return `<div class="paper-element" style="${style}">${this.escapeHtml(text)}</div>`;
       })
       .join('');
@@ -2996,23 +3685,88 @@ export class ExamsService {
     const leftX = doc.page.margins.left;
     const rightX = doc.page.width - doc.page.margins.right;
     const width = rightX - leftX;
-    doc.fontSize(10);
-    this.drawPdfZone(doc, exam, this.asArray(header.left), leftX, top, width / 3, 'left');
-    this.drawPdfZone(doc, exam, this.asArray(header.center), leftX + width / 3, top, width / 3, 'center');
-    this.drawPdfZone(doc, exam, this.asArray(header.right), leftX + (width * 2) / 3, top, width / 3, 'right');
+    doc.font('ExamRegular').fontSize(10);
+    this.drawPdfZone(
+      doc,
+      exam,
+      this.asArray(header.left),
+      leftX,
+      top,
+      width / 3,
+      'left',
+    );
+    this.drawPdfZone(
+      doc,
+      exam,
+      this.asArray(header.center),
+      leftX + width / 3,
+      top,
+      width / 3,
+      'center',
+    );
+    this.drawPdfZone(
+      doc,
+      exam,
+      this.asArray(header.right),
+      leftX + (width * 2) / 3,
+      top,
+      width / 3,
+      'right',
+    );
     doc.y = top + 70;
+    doc.x = leftX;
     doc.moveTo(leftX, doc.y).lineTo(rightX, doc.y).stroke();
     doc.moveDown(0.35);
     const metaTop = doc.y;
-    this.drawPdfZone(doc, exam, this.asArray(header.metadataLeft), leftX, metaTop, width / 3, 'left');
-    doc.fontSize(10).text(exam.title, leftX + width / 3, metaTop, { width: width / 3, align: 'center' });
-    this.drawPdfZone(doc, exam, this.asArray(header.metadataRight), leftX + (width * 2) / 3, metaTop, width / 3, 'right');
+    this.drawPdfZone(
+      doc,
+      exam,
+      this.asArray(header.metadataLeft),
+      leftX,
+      metaTop,
+      width / 3,
+      'left',
+    );
+    doc.fontSize(10).text(exam.title, leftX + width / 3, metaTop, {
+      width: width / 3,
+      align: 'center',
+    });
+    this.drawPdfZone(
+      doc,
+      exam,
+      this.asArray(header.metadataRight),
+      leftX + (width * 2) / 3,
+      metaTop,
+      width / 3,
+      'right',
+    );
     doc.y = metaTop + 48;
+    doc.x = leftX;
     if (exam.instructions) {
-      doc.fontSize(10).text(exam.instructions);
+      this.writePdfText(doc.fontSize(10), exam.instructions);
+    }
+    if (settings.showTotalMarks) {
+      this.writePdfText(
+        doc.fontSize(10),
+        `Total Marks: ${String(exam.totalMarks ?? exam.totalWeight ?? '')}`,
+      );
     }
     if (settings.studentNameLine) {
-      doc.fontSize(10).text('Student Name: ____________________');
+      this.writePdfText(doc.fontSize(10), 'Student Name: ____________________');
+    }
+    if (settings.showCourseCode) {
+      this.writePdfText(
+        doc.fontSize(10),
+        `Course: ${[exam.course?.code, exam.course?.name]
+          .filter(Boolean)
+          .join(' - ')}`,
+      );
+    }
+    if (settings.showInstructorName) {
+      this.writePdfText(
+        doc.fontSize(10),
+        'Instructor Name: ____________________',
+      );
     }
     doc.moveTo(leftX, doc.y).lineTo(rightX, doc.y).stroke();
     doc.moveDown();
@@ -3031,12 +3785,12 @@ export class ExamsService {
     for (const raw of rawItems) {
       const item = this.asElement(raw);
       const text = this.resolvePaperElementText(exam, item);
-      doc.font(item.bold ? 'Times-Bold' : 'Times-Roman');
+      doc.font(item.bold ? 'ExamBold' : 'ExamRegular');
       doc.fontSize(Number(item.fontSize || 10));
       doc.text(text, x, currentY, { width, align: item.align || align });
       currentY += Number(item.fontSize || 10) + 3;
     }
-    doc.font('Times-Roman');
+    doc.font('ExamRegular');
   }
 
   private renderPaperTrailingPdf(
@@ -3053,9 +3807,12 @@ export class ExamsService {
     }
     const examiners = String(trailing.examiners || exam.footerText || '');
     if (examiners) {
-      doc.moveDown(3).fontSize(10).text(this.resolvePaperText(exam, examiners), {
-        align: 'center',
-      });
+      doc
+        .moveDown(3)
+        .fontSize(10)
+        .text(this.resolvePaperText(exam, examiners), {
+          align: 'center',
+        });
     }
   }
 
@@ -3065,14 +3822,28 @@ export class ExamsService {
     template: Record<string, unknown>,
   ): void {
     const footer = this.asRecord(template.footerJson);
-    const text = this.resolvePaperText(
-      exam,
-      String(footer.pageNumberFormat || 'Page {page} of {totalPages}'),
+    const format = String(
+      footer.pageNumberFormat || 'Page {page} of {totalPages}',
     );
-    doc.fontSize(8).text(text, doc.page.margins.left, doc.page.height - 42, {
-      width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-      align: 'center',
-    });
+    const range = doc.bufferedPageRange();
+    for (let i = range.start; i < range.start + range.count; i++) {
+      doc.switchToPage(i);
+      const pageNumber = i - range.start + 1;
+      const text = this.resolvePaperText(exam, format, {
+        page: String(pageNumber),
+        totalPages: String(range.count),
+      });
+      const footerY = doc.page.height - doc.page.margins.bottom - 12;
+      doc
+        .font('ExamRegular')
+        .fontSize(8)
+        .text(text, doc.page.margins.left, footerY, {
+          width:
+            doc.page.width - doc.page.margins.left - doc.page.margins.right,
+          align: 'center',
+          lineBreak: false,
+        });
+    }
   }
 
   private resolvePaperElementText(exam: Exam, item: ExamPaperElement): string {
@@ -3082,10 +3853,16 @@ export class ExamsService {
     );
   }
 
-  private resolvePaperText(exam: Exam, value: string): string {
+  private resolvePaperText(
+    exam: Exam,
+    value: string,
+    overrides: Record<string, string> = {},
+  ): string {
     const courseCode = exam.course?.code || '';
     const courseName = exam.course?.name || exam.title;
-    const duration = exam.durationMinutes ? `${exam.durationMinutes} minutes` : '';
+    const duration = exam.durationMinutes
+      ? `${exam.durationMinutes} minutes`
+      : '';
     const now = new Date();
     const academicYear = `${now.getFullYear()}/${now.getFullYear() + 1}`;
     const replacements: Record<string, string> = {
@@ -3098,6 +3875,7 @@ export class ExamsService {
       academicYear,
       page: '1',
       totalPages: '{totalPages}',
+      ...overrides,
       universityEnglish: 'Alexandria University',
       facultyEnglish: 'Faculty of Engineering',
       departmentEnglish: '',
@@ -3162,7 +3940,10 @@ export class ExamsService {
         dto?.pageBreakPerSection ??
         Boolean(Number(exam.pageBreakPerSection ?? 0)),
       showInstructorName:
-        dto?.showInstructorName ?? Boolean(Number(exam.showInstructorName ?? 0)),
+        dto?.showInstructorName ??
+        Boolean(Number(exam.showInstructorName ?? 0)),
+      showTotalMarks: dto?.showTotalMarks ?? true,
+      showQuestionMarks: dto?.showQuestionMarks ?? true,
       answerKeyStyle:
         dto?.answerKeyStyle ||
         ((exam.answerKeyStyle as ExamAnswerKeyStyle | null) ??
@@ -3248,7 +4029,10 @@ export class ExamsService {
     const versions = versionsResult || [];
     const groupItems = groupItemsResult || [];
 
-    const latestVersionByQuestionId = new Map<number, QuestionBankQuestionVersion>();
+    const latestVersionByQuestionId = new Map<
+      number,
+      QuestionBankQuestionVersion
+    >();
     for (const version of versions) {
       const questionId = Number(version.questionId);
       if (!latestVersionByQuestionId.has(questionId)) {
@@ -3256,7 +4040,10 @@ export class ExamsService {
       }
     }
 
-    const groupItemsByQuestionId = new Map<number, QuestionBankQuestionGroupItem[]>();
+    const groupItemsByQuestionId = new Map<
+      number,
+      QuestionBankQuestionGroupItem[]
+    >();
     for (const groupItem of groupItems) {
       const questionId = Number(groupItem.questionId);
       groupItemsByQuestionId.set(questionId, [
@@ -3268,8 +4055,11 @@ export class ExamsService {
     for (const item of items) {
       const question = item.question as QuestionBankQuestion | undefined;
       const record = item as unknown as Record<string, unknown>;
-      const latestVersion = latestVersionByQuestionId.get(Number(item.questionId));
-      const itemGroups = groupItemsByQuestionId.get(Number(item.questionId)) || [];
+      const latestVersion = latestVersionByQuestionId.get(
+        Number(item.questionId),
+      );
+      const itemGroups =
+        groupItemsByQuestionId.get(Number(item.questionId)) || [];
       const groupItem =
         itemGroups.find(
           (entry) => Number(entry.groupId) === Number(item.sourceGroupId),
@@ -3293,7 +4083,8 @@ export class ExamsService {
           isPrimary: attachment.isPrimary,
           storagePath: attachment.storagePath,
           previewUrl: (() => {
-            const storagePath = attachment.file?.filePath || attachment.storagePath;
+            const storagePath =
+              attachment.file?.filePath || attachment.storagePath;
             return storagePath ? this.storagePathToDataUri(storagePath) : null;
           })(),
         }),
@@ -3303,8 +4094,10 @@ export class ExamsService {
       record.sourceGroupType = groupItem?.group?.groupType ?? null;
       record.sourceGroupPrompt = groupItem?.group?.sharedPrompt ?? null;
       record.sourceGroupFileId = groupItem?.group?.sharedFileId ?? null;
-      record.sourceGroupFileCaption = groupItem?.group?.sharedFileCaption ?? null;
-      record.sourceGroupFileAltText = groupItem?.group?.sharedFileAltText ?? null;
+      record.sourceGroupFileCaption =
+        groupItem?.group?.sharedFileCaption ?? null;
+      record.sourceGroupFileAltText =
+        groupItem?.group?.sharedFileAltText ?? null;
       record.sourceGroupItemOrder =
         groupItem?.itemOrder ?? item.sourceGroupItemOrder ?? null;
       record.sourceGroupImagePreviewUrl = groupItem?.group?.sharedFile?.filePath
@@ -3330,7 +4123,7 @@ export class ExamsService {
       key,
       status: passed ? 'ok' : failStatus,
       message: passed ? okMessage : failMessage,
-      action: passed ? null : action ?? null,
+      action: passed ? null : (action ?? null),
     };
   }
 
@@ -3398,7 +4191,9 @@ export class ExamsService {
       draft.expiresAt.getTime() <= Date.now()
     ) {
       draft.status = ExamDraftStatus.EXPIRED;
-      await this.draftRepo.update(draft.id, { status: ExamDraftStatus.EXPIRED });
+      await this.draftRepo.update(draft.id, {
+        status: ExamDraftStatus.EXPIRED,
+      });
     }
   }
 
@@ -3415,7 +4210,9 @@ export class ExamsService {
       relations: ['groupItems'],
     });
     if (!question) {
-      throw new NotFoundException('Approved question not found for this course');
+      throw new NotFoundException(
+        'Approved question not found for this course',
+      );
     }
     return question;
   }
@@ -3426,7 +4223,8 @@ export class ExamsService {
     draftSectionId: number | null | undefined,
     overrideReason?: string,
   ): void {
-    const request = draft.generationRequestJson as Partial<GenerateExamPreviewDto>;
+    const request =
+      draft.generationRequestJson as Partial<GenerateExamPreviewDto>;
     const rules = this.getGenerationRulesForDraftSection(
       draft,
       request,
@@ -3483,7 +4281,9 @@ export class ExamsService {
     const scopeMatches =
       normalized.scope === ExamGenerationScope.COURSE ||
       (normalized.scope === ExamGenerationScope.GROUP &&
-        normalized.groupIds.some((groupId) => questionGroupIds.includes(groupId))) ||
+        normalized.groupIds.some((groupId) =>
+          questionGroupIds.includes(groupId),
+        )) ||
       normalized.chapterIds.includes(Number(question.chapterId));
     return (
       scopeMatches &&
@@ -3665,6 +4465,8 @@ export class ExamsService {
       status: exam.status,
       publishedAt: exam.publishedAt,
       archivedAt: exam.archivedAt,
+      createdAt: exam.createdAt,
+      updatedAt: exam.updatedAt,
       itemCount: exam.items?.length,
       sectionCount: exam.sections?.length,
     };

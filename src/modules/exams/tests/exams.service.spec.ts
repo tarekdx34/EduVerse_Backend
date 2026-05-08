@@ -1,8 +1,16 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import JSZip from 'jszip';
 import { ExamsService } from '../exams.service';
 import { ExamGroupSelectionMode } from '../dto/generate-exam.dto';
 
 describe('ExamsService', () => {
+  const readDocxXml = async (content: string, path: string) => {
+    const zip = await JSZip.loadAsync(Buffer.from(content, 'base64'));
+    const file = zip.file(path);
+    if (!file) throw new Error(`Missing ${path}`);
+    return file.async('string');
+  };
+
   const makeRepo = () =>
     ({
       exist: jest.fn(),
@@ -211,6 +219,8 @@ describe('ExamsService', () => {
           snapshot: {
             questionText: '<Question>',
             marks: 10,
+            sourceGroupTitle: 'Hidden group title',
+            sourceGroupPrompt: 'Hidden group prompt',
             optionsJson: [{ optionText: '<A>', isCorrect: 1 }],
             fillBlanksJson: [{ blankKey: 'x', acceptableAnswer: '<ans>' }],
             expectedAnswerText: '<Expected>',
@@ -232,12 +242,151 @@ describe('ExamsService', () => {
       { includeAnswerKey: true, format: 'html_doc' as any },
       10,
     );
-    const html = Buffer.from(result.content, 'base64').toString('utf8');
+    const documentXml = await readDocxXml(result.content, 'word/document.xml');
+    const footerXml = await readDocxXml(result.content, 'word/footer1.xml');
 
-    expect(html).toContain('&lt;Question&gt;');
-    expect(html).toContain('&lt;Caption&gt;');
-    expect(html).toContain('(correct)');
-    expect(html).toContain('&lt;Expected&gt;');
-    expect(html).not.toContain('<Question>');
+    expect(result.fileName).toBe('exam-7.docx');
+    expect(result.mimeType).toBe(
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    );
+    expect(documentXml).toContain('Alexandria University');
+    expect(documentXml).toContain('Faculty of Engineering');
+    expect(documentXml).toContain('جامعة الإسكندرية');
+    expect(documentXml).toContain('&lt;Question&gt;');
+    expect(documentXml).toContain('(correct)');
+    expect(documentXml).toContain('&lt;Expected&gt;');
+    expect(documentXml).not.toContain('<Question>');
+    expect(documentXml).not.toContain('Hidden group title');
+    expect(documentXml).not.toContain('Hidden group prompt');
+    expect(footerXml).toContain('PAGE');
+    expect(footerXml).toContain('NUMPAGES');
+  });
+
+  it('can hide total and question marks in paper export', async () => {
+    const exportRepo = makeRepo();
+    exportRepo.create.mockImplementation((value) => value);
+    exportRepo.save.mockResolvedValue({});
+    const { service } = makeService({ exportRepo });
+    jest.spyOn(service, 'findExamById').mockResolvedValue({
+      id: 8,
+      title: 'Final',
+      totalMarks: 20,
+      totalWeight: 20,
+      sections: [
+        {
+          id: 3,
+          title: 'MCQ',
+          totalMarks: 20,
+          sectionOrder: 0,
+        },
+      ],
+      items: [
+        {
+          id: 1,
+          itemOrder: 1,
+          sectionId: 3,
+          marks: 5,
+          weight: 1,
+          snapshot: { questionText: 'Section question', marks: 5 },
+        },
+        {
+          id: 2,
+          itemOrder: 0,
+          sectionId: null,
+          marks: 5,
+          weight: 1,
+          snapshot: { questionText: 'Pool question', marks: 5 },
+        },
+        {
+          id: 3,
+          itemOrder: 3,
+          sectionId: 3,
+          marks: 5,
+          weight: 1,
+          snapshot: { questionText: 'Second section question', marks: 5 },
+        },
+        {
+          id: 4,
+          itemOrder: 2,
+          sectionId: null,
+          marks: 5,
+          weight: 1,
+          snapshot: { questionText: 'Later pool question', marks: 5 },
+        },
+      ],
+    } as any);
+
+    const result = await service.exportExamAsWord(
+      8,
+      {
+        format: 'html_doc' as any,
+        showTotalMarks: false,
+        showQuestionMarks: false,
+      },
+      10,
+    );
+    const documentXml = await readDocxXml(result.content, 'word/document.xml');
+    const footerXml = await readDocxXml(result.content, 'word/footer1.xml');
+
+    expect(documentXml).toContain('1. Pool question');
+    expect(documentXml).toContain('2. Section question');
+    expect(documentXml).toContain('3. Second section question');
+    expect(documentXml).toContain('4. Later pool question');
+    expect(documentXml.indexOf('Second section question')).toBeLessThan(
+      documentXml.indexOf('Later pool question'),
+    );
+    expect(documentXml).not.toContain('Section Marks:');
+    expect(documentXml).not.toContain('Marks: 5');
+    expect(footerXml).not.toContain('{totalPages}');
+    expect(footerXml).toContain('NUMPAGES');
+  });
+
+  it('exports PDF with unicode paper text and real content bytes', async () => {
+    const exportRepo = makeRepo();
+    exportRepo.create.mockImplementation((value) => value);
+    exportRepo.save.mockResolvedValue({});
+    const { service } = makeService({ exportRepo });
+    jest.spyOn(service, 'findExamById').mockResolvedValue({
+      id: 9,
+      title: 'Final',
+      totalMarks: 10,
+      totalWeight: 10,
+      durationMinutes: 120,
+      course: { code: 'CS505', name: 'Web Development' },
+      sections: [],
+      items: [
+        {
+          id: 1,
+          itemOrder: 0,
+          sectionId: null,
+          marks: 5,
+          weight: 1,
+          snapshot: {
+            questionText: 'ما نتيجة الكود؟',
+            marks: 5,
+            optionsJson: [{ optionText: 'الإجابة الأولى', isCorrect: 1 }],
+          },
+        },
+      ],
+      paperTemplateSnapshotJson: {
+        headerJson: {
+          right: [{ value: 'جامعة الإسكندرية', bold: true }],
+          metadataRight: [{ value: 'المادة: {courseCode}' }],
+        },
+        trailingJson: { lines: [{ value: 'بالتوفيق' }] },
+        footerJson: { pageNumberFormat: 'Page {page} of {totalPages}' },
+      },
+    } as any);
+
+    const result = await service.exportExamAsWord(
+      9,
+      { format: 'pdf' as any },
+      10,
+    );
+    const bytes = Buffer.from(result.content, 'base64');
+
+    expect(result.mimeType).toBe('application/pdf');
+    expect(bytes.subarray(0, 4).toString()).toBe('%PDF');
+    expect(bytes.length).toBeGreaterThan(1000);
   });
 });

@@ -1,6 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsBoolean, IsEnum, IsInt, IsObject, Min } from 'class-validator';
+import {
+  IsOptional,
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsObject,
+  Min,
+} from 'class-validator';
 import { ExamExportFormat } from '../entities/exam-export.entity';
 
 export enum ExamExportVariant {
@@ -49,6 +56,16 @@ export class ExportExamDto {
   @IsOptional()
   @IsBoolean()
   showInstructorName?: boolean;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  showTotalMarks?: boolean;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  showQuestionMarks?: boolean;
 
   @ApiPropertyOptional({ enum: ExamAnswerKeyStyle })
   @IsOptional()
