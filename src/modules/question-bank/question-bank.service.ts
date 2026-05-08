@@ -2266,7 +2266,6 @@ export class QuestionBankService {
         })),
       createdAt: question.createdAt,
       updatedAt: question.updatedAt,
-      createdBy: Number(question.createdBy),
     };
   }
 }

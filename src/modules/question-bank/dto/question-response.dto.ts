@@ -34,5 +34,4 @@ export class QuestionBankPrivateResponseDto {
   groups?: QuestionBankGroupSummaryDto[];
   createdAt: Date;
   updatedAt: Date;
-  createdBy: number;
 }
