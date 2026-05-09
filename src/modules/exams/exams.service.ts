@@ -34,6 +34,7 @@ import { QuestionBankQuestionGroupItem } from '../question-bank/entities/questio
 import { QuestionBankQuestion } from '../question-bank/entities/question-bank-question.entity';
 import { QuestionBankStatus } from '../question-bank/enums/question-bank.enums';
 import { InstructorCourseAccessService } from '../question-bank/services/instructor-course-access.service';
+import { FilesService } from '../files/files.service';
 import { FileStorageService } from '../files/file-storage.service';
 import {
   AddDraftItemDto,
@@ -160,6 +161,21 @@ type ExamPaperElement = {
   fontSize?: number;
 };
 
+type ExportImageAsset = {
+  bytes: Buffer;
+  extension: string;
+  contentType: string;
+};
+
+type ExportTextRun = {
+  text: string;
+  script?: 'superscript' | 'subscript';
+};
+
+type ExportMathFormatOptions = {
+  unicodeScripts?: boolean;
+};
+
 @Injectable()
 export class ExamsService {
   private readonly logger = new Logger(ExamsService.name);
@@ -204,6 +220,8 @@ export class ExamsService {
     @InjectRepository(ExamPaperTemplate)
     private readonly paperTemplateRepo: Repository<ExamPaperTemplate>,
     private readonly instructorCourseAccess: InstructorCourseAccessService,
+    @Optional()
+    private readonly filesService?: FilesService,
     @Optional()
     private readonly fileStorageService?: FileStorageService,
     @Optional()
@@ -1849,6 +1867,58 @@ export class ExamsService {
     };
   }
 
+  async registerClientPdfExport(
+    examId: number,
+    file: Express.Multer.File | undefined,
+    body: Record<string, unknown> | undefined,
+    userId: number,
+  ) {
+    const exam = await this.findExamById(examId, userId);
+    if (!file) {
+      throw new BadRequestException('PDF export file is required');
+    }
+    const format = body?.format?.toString() || ExamExportFormat.PDF;
+    if (format !== ExamExportFormat.PDF) {
+      throw new BadRequestException(
+        'Client export currently supports PDF only',
+      );
+    }
+    const extension = path.extname(file.originalname || '').toLowerCase();
+    if (file.mimetype !== 'application/pdf' && extension !== '.pdf') {
+      throw new BadRequestException('Client export file must be a PDF');
+    }
+    if (!this.filesService) {
+      throw new BadRequestException('File storage service is unavailable');
+    }
+
+    const savedFile = await this.filesService.uploadFile(file, userId);
+    const completedAt = new Date();
+    const exportRecord = await this.exportRepo.save(
+      this.exportRepo.create({
+        examId: exam.id,
+        format: ExamExportFormat.PDF,
+        status: ExamExportStatus.COMPLETED,
+        fileId: savedFile.fileId,
+        requestedBy: userId,
+        completedAt,
+        failureReason: null,
+      }),
+    );
+
+    return {
+      exportId: exportRecord.id,
+      examId: exam.id,
+      status: ExamExportStatus.COMPLETED,
+      format: ExamExportFormat.PDF,
+      fileId: savedFile.fileId,
+      fileName: savedFile.fileName,
+      originalFileName: savedFile.originalFileName,
+      mimeType: savedFile.mimeType,
+      fileSize: savedFile.fileSize,
+      completedAt,
+    };
+  }
+
   private async prepareGeneratedDraftItems(
     dto: GenerateExamPreviewDto,
     seed: string,
@@ -2726,21 +2796,27 @@ export class ExamsService {
       contentType: string;
       bytes: Buffer;
     }> = [];
-    const nextImage = (storagePath: string): string | null => {
-      const fullPath = this.resolveStoragePath(storagePath);
-      if (!fullPath) return null;
-      const bytes = fs.readFileSync(fullPath);
-      const ext =
-        path.extname(fullPath).toLowerCase().replace('.', '') || 'png';
-      const contentType =
-        ext === 'jpg' || ext === 'jpeg'
-          ? 'image/jpeg'
-          : ext === 'gif'
-            ? 'image/gif'
-            : 'image/png';
+    const nextImage = async (
+      storagePath: string,
+      fileId?: number | string | null,
+      mimeType?: string | null,
+    ): Promise<string | null> => {
+      const asset = await this.resolveExportImageAsset(
+        storagePath,
+        fileId,
+        mimeType,
+      );
+      if (!asset) return null;
       const id = `rIdImage${media.length + 1}`;
-      const fileName = `image${media.length + 1}.${ext === 'jpg' ? 'jpeg' : ext}`;
-      media.push({ id, fileName, contentType, bytes });
+      const fileName = `image${media.length + 1}.${
+        asset.extension === 'jpg' ? 'jpeg' : asset.extension
+      }`;
+      media.push({
+        id,
+        fileName,
+        contentType: asset.contentType,
+        bytes: asset.bytes,
+      });
       return id;
     };
     const sectionsById = new Map(
@@ -2790,7 +2866,10 @@ export class ExamsService {
         }),
       );
       if (snapshot?.questionFileStoragePath) {
-        const imageId = nextImage(snapshot.questionFileStoragePath);
+        const imageId = await nextImage(
+          snapshot.questionFileStoragePath,
+          snapshot.questionFileId,
+        );
         if (imageId) body.push(this.docxImageParagraph(imageId));
       }
       if (settings.showQuestionMarks) {
@@ -2810,7 +2889,10 @@ export class ExamsService {
         (a, b) => Number(a.displayOrder || 0) - Number(b.displayOrder || 0),
       )) {
         if (attachment.storagePath) {
-          const imageId = nextImage(attachment.storagePath);
+          const imageId = await nextImage(
+            attachment.storagePath,
+            (attachment as { fileId?: number | string | null }).fileId,
+          );
           if (imageId) body.push(this.docxImageParagraph(imageId));
         }
       }
@@ -3098,12 +3180,389 @@ ${imageTypes}
     text: string,
     options: { bold?: boolean; rtl?: boolean } = {},
   ): string {
-    const rtl = options.rtl || this.containsArabic(text);
-    return `<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${options.bold ? '<w:b/><w:bCs/>' : ''}${rtl ? '<w:rtl/>' : ''}</w:rPr><w:t xml:space="preserve">${this.escapeXml(text)}</w:t></w:r>`;
+    const runs = this.exportTextRuns(text);
+    const rtl =
+      options.rtl || this.containsArabic(runs.map((run) => run.text).join(''));
+    return runs
+      .map((run) => this.docxTextRun(run, { ...options, rtl }))
+      .join('');
+  }
+
+  private docxTextRun(
+    run: ExportTextRun,
+    options: { bold?: boolean; rtl?: boolean } = {},
+  ): string {
+    const verticalAlign = run.script
+      ? `<w:vertAlign w:val="${run.script}"/>`
+      : '';
+    return `<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${options.bold ? '<w:b/><w:bCs/>' : ''}${options.rtl ? '<w:rtl/>' : ''}${verticalAlign}</w:rPr><w:t xml:space="preserve">${this.escapeXml(run.text)}</w:t></w:r>`;
   }
 
   private docxImageParagraph(imageId: string): string {
     return `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="3429000" cy="2286000"/><wp:docPr id="${imageId.replace(/\D/g, '') || '1'}" name="${imageId}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="${imageId}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${imageId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="3429000" cy="2286000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+  }
+
+  private formatExportMathText(
+    value: string,
+    options: ExportMathFormatOptions = {},
+  ): string {
+    if (!value) return '';
+    return this.prettifyLatexForExport(
+      this.stripMathDelimiters(String(value)),
+      options,
+    );
+  }
+
+  private exportTextRuns(value: string): ExportTextRun[] {
+    const renderedText = this.formatExportMathText(value);
+    if (!renderedText) return [{ text: '' }];
+    const runs: ExportTextRun[] = [];
+    let plain = '';
+    let index = 0;
+
+    const pushPlain = () => {
+      if (!plain) return;
+      this.pushExportTextRun(runs, { text: plain });
+      plain = '';
+    };
+
+    while (index < renderedText.length) {
+      const marker = renderedText[index];
+      if (marker === '^' || marker === '_') {
+        const script = this.readExportScriptBody(renderedText, index + 1);
+        if (script) {
+          pushPlain();
+          this.pushExportTextRun(runs, {
+            text: script.text,
+            script: marker === '^' ? 'superscript' : 'subscript',
+          });
+          index = script.end;
+          continue;
+        }
+      }
+      plain += marker;
+      index++;
+    }
+    pushPlain();
+    return runs.length > 0 ? runs : [{ text: renderedText }];
+  }
+
+  private pushExportTextRun(runs: ExportTextRun[], run: ExportTextRun): void {
+    if (!run.text) return;
+    const previous = runs[runs.length - 1];
+    if (previous && previous.script === run.script) {
+      previous.text += run.text;
+      return;
+    }
+    runs.push(run);
+  }
+
+  private readExportScriptBody(
+    value: string,
+    start: number,
+  ): { text: string; end: number } | null {
+    if (start >= value.length) return null;
+    if (value[start] === '(') {
+      let depth = 1;
+      for (let index = start + 1; index < value.length; index++) {
+        if (value[index] === '(') depth++;
+        if (value[index] === ')') depth--;
+        if (depth === 0) {
+          const text = value.substring(start + 1, index);
+          return text ? { text, end: index + 1 } : null;
+        }
+      }
+      return null;
+    }
+    const char = value[start];
+    return /[A-Za-z0-9+\-=.]/.test(char)
+      ? { text: char, end: start + 1 }
+      : null;
+  }
+
+  private stripMathDelimiters(value: string): string {
+    let output = value.replace(/\\\$/g, '$');
+    output = output.replace(/\\\(([\s\S]*?)\\\)/g, (_, math: string) => math);
+    output = output.replace(/\\\[([\s\S]*?)\\\]/g, (_, math: string) => math);
+    output = output.replace(/\$\$([\s\S]*?)\$\$/g, (_, math: string) => math);
+    output = output.replace(
+      /(^|[^\\])\$([^$\n]+?)\$/g,
+      (_, prefix: string, math: string) => `${prefix}${math}`,
+    );
+    return output;
+  }
+
+  private prettifyLatexForExport(
+    value: string,
+    options: ExportMathFormatOptions = {},
+  ): string {
+    let output = value;
+    output = this.normalizeLatexExpression(output);
+
+    const fractionPattern =
+      /\\(?:dfrac|tfrac|frac)\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g;
+    let previous = '';
+    while (previous !== output) {
+      previous = output;
+      output = output.replace(
+        fractionPattern,
+        (_, numerator: string, denominator: string) =>
+          `(${numerator.trim()})/(${denominator.trim()})`,
+      );
+    }
+    output = output.replace(
+      /\\(?:dfrac|tfrac|frac)\s*([A-Za-z0-9])\s*([A-Za-z0-9])/g,
+      (_, numerator: string, denominator: string) =>
+        `(${numerator})/(${denominator})`,
+    );
+
+    output = this.unwrapLatexTextCommands(output);
+    output = output.replace(
+      /\\begin\{([^}]+)\}([\s\S]*?)\\end\{\1\}/g,
+      (_, _environment: string, body: string) =>
+        `[${body.replace(/&/g, '  ').replace(/\\\\/g, '; ')}]`,
+    );
+
+    const replacements: Array<[RegExp, string]> = [
+      [/\\left/g, ''],
+      [/\\right/g, ''],
+      [/\\cdot/g, ' · '],
+      [/\\times/g, ' × '],
+      [/\\pm/g, ' ± '],
+      [/\\mp/g, ' ∓ '],
+      [/\\le\b/g, ' ≤ '],
+      [/\\leq/g, ' ≤ '],
+      [/\\ge\b/g, ' ≥ '],
+      [/\\geq/g, ' ≥ '],
+      [/\\neq/g, ' ≠ '],
+      [/\\ne\b/g, ' ≠ '],
+      [/\\equiv/g, ' ≡ '],
+      [/\\approx/g, ' ≈ '],
+      [/\\sim/g, ' ∼ '],
+      [/\\propto/g, ' ∝ '],
+      [/\\infty/g, '∞'],
+      [/\\circ/g, '°'],
+      [/\\degree/g, '°'],
+      [/\\partial/g, '∂'],
+      [/\\nabla/g, '∇'],
+      [/\\int/g, '∫'],
+      [/\\sum/g, '∑'],
+      [/\\prod/g, '∏'],
+      [/\\quad/g, ' '],
+      [/\\qquad/g, ' '],
+      [/\\\s/g, ' '],
+      [/\\,/g, ' '],
+      [/\\;/g, ' '],
+      [/\\:/g, ' '],
+      [/\\!/g, ''],
+      [/\\Omega/g, 'Ω'],
+      [/\\Delta/g, 'Δ'],
+      [/\\Gamma/g, 'Γ'],
+      [/\\Theta/g, 'Θ'],
+      [/\\Lambda/g, 'Λ'],
+      [/\\Pi/g, 'Π'],
+      [/\\Sigma/g, 'Σ'],
+      [/\\Phi/g, 'Φ'],
+      [/\\Psi/g, 'Ψ'],
+      [/\\alpha/g, 'α'],
+      [/\\beta/g, 'β'],
+      [/\\gamma/g, 'γ'],
+      [/\\delta/g, 'δ'],
+      [/\\varepsilon/g, 'ε'],
+      [/\\epsilon/g, 'ε'],
+      [/\\zeta/g, 'ζ'],
+      [/\\eta/g, 'η'],
+      [/\\theta/g, 'θ'],
+      [/\\vartheta/g, 'ϑ'],
+      [/\\kappa/g, 'κ'],
+      [/\\lambda/g, 'λ'],
+      [/\\mu/g, 'μ'],
+      [/\\nu/g, 'ν'],
+      [/\\xi/g, 'ξ'],
+      [/\\pi/g, 'π'],
+      [/\\rho/g, 'ρ'],
+      [/\\sigma/g, 'σ'],
+      [/\\tau/g, 'τ'],
+      [/\\upsilon/g, 'υ'],
+      [/\\phi/g, 'φ'],
+      [/\\varphi/g, 'φ'],
+      [/\\chi/g, 'χ'],
+      [/\\psi/g, 'ψ'],
+      [/\\omega/g, 'ω'],
+      [/\\sin\b/g, 'sin'],
+      [/\\cos\b/g, 'cos'],
+      [/\\tan\b/g, 'tan'],
+      [/\\cot\b/g, 'cot'],
+      [/\\sec\b/g, 'sec'],
+      [/\\csc\b/g, 'csc'],
+      [/\\sinh\b/g, 'sinh'],
+      [/\\cosh\b/g, 'cosh'],
+      [/\\tanh\b/g, 'tanh'],
+      [/\\exp\b/g, 'exp'],
+      [/\\min\b/g, 'min'],
+      [/\\max\b/g, 'max'],
+      [/\\log\b/g, 'log'],
+      [/\\ln\b/g, 'ln'],
+      [/\\lim\b/g, 'lim'],
+      [/\\to\b/g, '→'],
+      [/\\rightarrow/g, '→'],
+      [/\\leftarrow/g, '←'],
+      [/\\leftrightarrow/g, '↔'],
+    ];
+    for (const [pattern, replacement] of replacements) {
+      output = output.replace(pattern, replacement);
+    }
+
+    output = output.replace(
+      /\\sqrt\s*\{([^{}]+)\}/g,
+      (_, body: string) => `√(${body})`,
+    );
+    output = output.replace(
+      /\\dot\s*\{([^{}]+)\}/g,
+      (_, body: string) => `${body}\u0307`,
+    );
+    output = output.replace(
+      /\\ddot\s*\{([^{}]+)\}/g,
+      (_, body: string) => `${body}\u0308`,
+    );
+    output = output.replace(
+      /\\(?:hat|bar|vec)\s*\{([^{}]+)\}/g,
+      (_, body: string) => body,
+    );
+    output = output.replace(/\\([A-Za-z]+)/g, '$1');
+    output = options.unicodeScripts
+      ? this.unicodeSimpleScripts(output)
+      : this.asciiSimpleScripts(output);
+    output = output.replace(/[{}]/g, '');
+    return output
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\s+\n/g, '\n')
+      .trim();
+  }
+
+  private unwrapLatexTextCommands(value: string): string {
+    let output = value;
+    const commandPattern =
+      /\\(?:text|textrm|textnormal|mathrm|mathbf|mathit|mathsf|mathtt|operatorname)\s*\{([^{}]*)\}/g;
+    let previous = '';
+    while (previous !== output) {
+      previous = output;
+      output = output.replace(commandPattern, (_, body: string) => body);
+    }
+    return output;
+  }
+
+  private normalizeLatexExpression(value: string): string {
+    return value
+      .replace(
+        /\\(begin|end)(bmatrix|pmatrix|matrix|vmatrix|Vmatrix|Bmatrix|cases|array|aligned|align|gathered)\b/g,
+        (_match, command: string, environment: string) =>
+          `\\${command}{${environment}}`,
+      )
+      .replace(/\\begin\s*bmatrix/g, '\\begin{bmatrix}')
+      .replace(/\\end\s*bmatrix/g, '\\end{bmatrix}')
+      .replace(/\\begin\s*pmatrix/g, '\\begin{pmatrix}')
+      .replace(/\\end\s*pmatrix/g, '\\end{pmatrix}')
+      .replace(/\\begin\s*matrix/g, '\\begin{bmatrix}')
+      .replace(/\\end\s*matrix/g, '\\end{bmatrix}')
+      .replace(/\\beginmatrix/g, '\\begin{bmatrix}')
+      .replace(/\\endmatrix/g, '\\end{bmatrix}')
+      .replace(/\\beginbmatrix/g, '\\begin{bmatrix}')
+      .replace(/\\endbmatrix/g, '\\end{bmatrix}')
+      .replace(/\\beginpmatrix/g, '\\begin{pmatrix}')
+      .replace(/\\endpmatrix/g, '\\end{pmatrix}')
+      .replace(/\\(dot|ddot|hat|bar|vec)([A-Za-z])/g, '\\$1{$2}')
+      .replace(/\\sqrt\s*([A-Za-z0-9])/g, '\\sqrt{$1}')
+      .replace(/\\(sin|cos|tan|log|ln|lim)([A-Za-z])/g, '\\$1 $2');
+  }
+
+  private asciiSimpleScripts(value: string): string {
+    const script = (marker: '^' | '_', body: string) => {
+      const trimmed = body.trim();
+      if (!trimmed) return '';
+      return /^[A-Za-z0-9]$/.test(trimmed)
+        ? `${marker}${trimmed}`
+        : `${marker}(${trimmed})`;
+    };
+    return value
+      .replace(/\^\{([^{}]+)\}/g, (_, body: string) => script('^', body))
+      .replace(/_\{([^{}]+)\}/g, (_, body: string) => script('_', body))
+      .replace(/\^([A-Za-z0-9+\-=])/g, (_, body: string) => script('^', body))
+      .replace(/_([A-Za-z0-9+\-=])/g, (_, body: string) => script('_', body));
+  }
+
+  private unicodeSimpleScripts(value: string): string {
+    const superscripts: Record<string, string> = {
+      '0': '⁰',
+      '1': '¹',
+      '2': '²',
+      '3': '³',
+      '4': '⁴',
+      '5': '⁵',
+      '6': '⁶',
+      '7': '⁷',
+      '8': '⁸',
+      '9': '⁹',
+      '+': '⁺',
+      '-': '⁻',
+      '=': '⁼',
+      '(': '⁽',
+      ')': '⁾',
+      n: 'ⁿ',
+      i: 'ⁱ',
+      t: 'ᵗ',
+      T: 'ᵀ',
+    };
+    const subscripts: Record<string, string> = {
+      '0': '₀',
+      '1': '₁',
+      '2': '₂',
+      '3': '₃',
+      '4': '₄',
+      '5': '₅',
+      '6': '₆',
+      '7': '₇',
+      '8': '₈',
+      '9': '₉',
+      '+': '₊',
+      '-': '₋',
+      '=': '₌',
+      '(': '₍',
+      ')': '₎',
+      a: 'ₐ',
+      e: 'ₑ',
+      h: 'ₕ',
+      i: 'ᵢ',
+      j: 'ⱼ',
+      k: 'ₖ',
+      l: 'ₗ',
+      m: 'ₘ',
+      n: 'ₙ',
+      o: 'ₒ',
+      p: 'ₚ',
+      r: 'ᵣ',
+      s: 'ₛ',
+      t: 'ₜ',
+      u: 'ᵤ',
+      v: 'ᵥ',
+      x: 'ₓ',
+    };
+    const convert = (source: string, map: Record<string, string>) =>
+      source
+        .split('')
+        .map((char) => map[char] ?? char)
+        .join('');
+    return value
+      .replace(/\^\{([^{}]+)\}/g, (_, body: string) =>
+        convert(body, superscripts),
+      )
+      .replace(/_\{([^{}]+)\}/g, (_, body: string) => convert(body, subscripts))
+      .replace(/\^([A-Za-z0-9+\-=()])/g, (_, body: string) =>
+        convert(body, superscripts),
+      )
+      .replace(/_([A-Za-z0-9+\-=()])/g, (_, body: string) =>
+        convert(body, subscripts),
+      );
   }
 
   private escapeXml(value: string): string {
@@ -3226,10 +3685,11 @@ ${imageTypes}
         `${questionNumber++}. ${questionText}`,
       );
       if (snapshot?.questionFileStoragePath) {
-        this.addPdfImage(
+        await this.addPdfImage(
           doc,
           snapshot.questionFileStoragePath,
           snapshot.questionFileCaption || snapshot.questionFileAltText || '',
+          snapshot.questionFileId,
         );
       }
       if (settings.showQuestionMarks) {
@@ -3254,7 +3714,12 @@ ${imageTypes}
           attachment.storagePath ||
           'Question attachment';
         if (attachment.storagePath) {
-          this.addPdfImage(doc, attachment.storagePath, label);
+          await this.addPdfImage(
+            doc,
+            attachment.storagePath,
+            label,
+            (attachment as { fileId?: number | string | null }).fileId,
+          );
         } else {
           this.writePdfText(doc, `Attachment: ${label}`);
         }
@@ -3318,7 +3783,15 @@ ${imageTypes}
     const x = doc.page.margins.left;
     const width =
       doc.page.width - doc.page.margins.left - doc.page.margins.right;
-    doc.text(text, x, doc.y, { width, ...options });
+    doc.text(
+      this.formatExportMathText(text, { unicodeScripts: true }),
+      x,
+      doc.y,
+      {
+        width,
+        ...options,
+      },
+    );
   }
 
   private registerExamPdfFonts(doc: PDFKit.PDFDocument): void {
@@ -3346,20 +3819,26 @@ ${imageTypes}
     return candidates.find((candidate) => fs.existsSync(candidate)) ?? null;
   }
 
-  private addPdfImage(
+  private async addPdfImage(
     doc: PDFKit.PDFDocument,
     storagePath: string,
     label: string,
-  ): void {
-    const fullPath = this.resolveStoragePath(storagePath);
-    if (!fullPath) {
-      doc.fontSize(9).text(label);
+    fileId?: number | string | null,
+    mimeType?: string | null,
+  ): Promise<void> {
+    const asset = await this.resolveExportImageAsset(
+      storagePath,
+      fileId,
+      mimeType,
+    );
+    if (!asset) {
+      this.writePdfText(doc.fontSize(9), label);
       return;
     }
     try {
       this.ensurePdfSpace(doc, 180);
       doc.moveDown(0.25);
-      doc.image(fullPath, { fit: [440, 180], align: 'center' });
+      doc.image(asset.bytes, { fit: [440, 180], align: 'center' });
       if (label.trim()) {
         this.writePdfText(doc.fontSize(9), label, { align: 'center' });
       }
@@ -3808,7 +4287,10 @@ ${imageTypes}
     let currentY = y;
     for (const raw of rawItems) {
       const item = this.asElement(raw);
-      const text = this.resolvePaperElementText(exam, item);
+      const text = this.formatExportMathText(
+        this.resolvePaperElementText(exam, item),
+        { unicodeScripts: true },
+      );
       doc.font(item.bold ? 'ExamBold' : 'ExamRegular');
       doc.fontSize(Number(item.fontSize || 10));
       doc.text(text, x, currentY, { width, align: item.align || align });
@@ -4009,6 +4491,90 @@ ${imageTypes}
     }
   }
 
+  private async resolveExportImageAsset(
+    storagePath: string,
+    fileId?: number | string | null,
+    mimeType?: string | null,
+  ): Promise<ExportImageAsset | null> {
+    const localPath = this.resolveStoragePath(storagePath);
+    if (localPath) {
+      try {
+        const extension =
+          this.getExtensionFromStoragePath(localPath) ||
+          this.getExtensionFromMimeType(mimeType || '') ||
+          'png';
+        return {
+          bytes: fs.readFileSync(localPath),
+          extension,
+          contentType: this.imageContentType(extension, mimeType),
+        };
+      } catch (error) {
+        this.logger.warn(
+          `Could not read local exam image ${storagePath}: ${error}`,
+        );
+      }
+    }
+
+    const questionStoragePath = this.buildQuestionImageStoragePath(
+      fileId,
+      storagePath,
+      mimeType,
+    );
+    if (!this.supabase || !questionStoragePath) {
+      return null;
+    }
+
+    try {
+      const { data, error } = await this.supabase.storage
+        .from(this.questionImagesBucketName)
+        .download(questionStoragePath);
+      if (error || !data) {
+        if (error) {
+          this.logger.warn(
+            `Could not download exam image ${questionStoragePath}: ${error.message}`,
+          );
+        }
+        return null;
+      }
+      const bytes = Buffer.from(await data.arrayBuffer());
+      const extension =
+        this.getExtensionFromStoragePath(questionStoragePath) ||
+        this.getExtensionFromMimeType(mimeType || '') ||
+        'png';
+      return {
+        bytes,
+        extension,
+        contentType: this.imageContentType(extension, mimeType),
+      };
+    } catch (error) {
+      this.logger.warn(
+        `Could not resolve Supabase exam image ${questionStoragePath}: ${error}`,
+      );
+      return null;
+    }
+  }
+
+  private imageContentType(
+    extension: string,
+    mimeType?: string | null,
+  ): string {
+    if (mimeType?.startsWith('image/')) {
+      return mimeType;
+    }
+    switch (extension.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'gif':
+        return 'image/gif';
+      case 'webp':
+        return 'image/webp';
+      case 'png':
+      default:
+        return 'image/png';
+    }
+  }
+
   private async questionImagePreviewUrl(
     fileId?: number | string | null,
     storagePath?: string | null,
@@ -4129,7 +4695,7 @@ ${imageTypes}
   }
 
   private escapeHtml(value: string): string {
-    return value
+    return this.formatExportMathText(value, { unicodeScripts: true })
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')

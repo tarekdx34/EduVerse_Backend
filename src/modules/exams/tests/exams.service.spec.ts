@@ -74,6 +74,9 @@ describe('ExamsService', () => {
         repos.exportRepo,
         repos.paperTemplateRepo,
         overrides.accessService || makeAccessService(),
+        overrides.filesService,
+        overrides.fileStorageService,
+        overrides.configService,
       ),
     };
   };
@@ -339,6 +342,164 @@ describe('ExamsService', () => {
     expect(documentXml).not.toContain('Marks: 5');
     expect(footerXml).not.toContain('{totalPages}');
     expect(footerXml).toContain('NUMPAGES');
+  });
+
+  it('renders common LaTeX markers as readable math text in DOCX export', async () => {
+    const exportRepo = makeRepo();
+    exportRepo.create.mockImplementation((value) => value);
+    exportRepo.save.mockResolvedValue({});
+    const { service } = makeService({ exportRepo });
+    jest.spyOn(service, 'findExamById').mockResolvedValue({
+      id: 10,
+      title: 'Math Final',
+      totalMarks: 10,
+      totalWeight: 10,
+      sections: [],
+      items: [
+        {
+          id: 1,
+          itemOrder: 0,
+          sectionId: null,
+          marks: 10,
+          weight: 1,
+          snapshot: {
+            questionText:
+              'Find $C(s)/R(s)$ when $G(s)=\\frac{10}{s^2+2s+10}$ and $R_0=10,000 \\Omega$. A thermistor is represented by $R=R_0 e^{-0.1T}$. Find $K_1$ for $t \\ge 0$ at $t=1.0\\ \\text{s}$.',
+            marks: 10,
+            optionsJson: [
+              {
+                optionText: '$\\sqrt{19}$',
+                isCorrect: 1,
+              },
+            ],
+          },
+        },
+      ],
+    } as any);
+
+    const result = await service.exportExamAsWord(
+      10,
+      { format: 'html_doc' as any },
+      10,
+    );
+    const documentXml = await readDocxXml(result.content, 'word/document.xml');
+
+    expect(documentXml).toContain('C(s)/R(s)');
+    expect(documentXml).toContain('(10)/(s');
+    expect(documentXml).toContain('<w:vertAlign w:val="superscript"/>');
+    expect(documentXml).toContain('<w:vertAlign w:val="subscript"/>');
+    expect(documentXml).toContain('R</w:t></w:r><w:r><w:rPr>');
+    expect(documentXml).toContain('0</w:t></w:r>');
+    expect(documentXml).toContain('-0.1T');
+    expect(documentXml).toContain('K</w:t></w:r><w:r><w:rPr>');
+    expect(documentXml).toContain('1</w:t></w:r>');
+    expect(documentXml).toContain('≥ 0');
+    expect(documentXml).toContain('t=1.0 s');
+    expect(documentXml).toContain('√(19)');
+    expect(documentXml).not.toContain('K□');
+    expect(documentXml).not.toContain('tge0');
+    expect(documentXml).not.toContain('text{s}');
+    expect(documentXml).not.toContain('$C(s)/R(s)$');
+    expect(documentXml).not.toContain('e^(-0.1T)');
+    expect(documentXml).not.toContain('\\frac');
+    expect(documentXml).not.toContain('\\Omega');
+  });
+
+  it('registers a Flutter-rendered PDF client export', async () => {
+    const examRepo = makeRepo();
+    examRepo.findOne.mockResolvedValue({
+      id: 77,
+      courseId: 5,
+      items: [],
+      sections: [],
+    });
+    const exportRepo = makeRepo();
+    exportRepo.create.mockImplementation((value) => value);
+    exportRepo.save.mockImplementation((value) =>
+      Promise.resolve({ id: 123, ...value }),
+    );
+    const filesService = {
+      uploadFile: jest.fn().mockResolvedValue({
+        fileId: 456,
+        fileName: 'exam-77.pdf',
+        originalFileName: 'exam-77.pdf',
+        mimeType: 'application/pdf',
+        fileSize: 12,
+      }),
+    };
+    const accessService = makeAccessService();
+    const { service } = makeService({
+      examRepo,
+      exportRepo,
+      filesService,
+      accessService,
+    });
+    const file = {
+      originalname: 'exam-77.pdf',
+      mimetype: 'application/pdf',
+      size: 12,
+      buffer: Buffer.from('%PDF'),
+    } as any;
+
+    const result = await service.registerClientPdfExport(
+      77,
+      file,
+      { format: 'pdf', variant: 'student' },
+      9,
+    );
+
+    expect(accessService.assertInstructorOwnsCourse).toHaveBeenCalledWith(9, 5);
+    expect(filesService.uploadFile).toHaveBeenCalledWith(file, 9);
+    expect(exportRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        examId: 77,
+        format: 'pdf',
+        status: 'completed',
+        fileId: 456,
+        requestedBy: 9,
+      }),
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        exportId: 123,
+        examId: 77,
+        status: 'completed',
+        format: 'pdf',
+        fileId: 456,
+      }),
+    );
+  });
+
+  it('rejects invalid client export uploads', async () => {
+    const examRepo = makeRepo();
+    examRepo.findOne.mockResolvedValue({
+      id: 77,
+      courseId: 5,
+      items: [],
+      sections: [],
+    });
+    const { service } = makeService({
+      examRepo,
+      filesService: { uploadFile: jest.fn() },
+    });
+
+    await expect(
+      service.registerClientPdfExport(77, undefined, { format: 'pdf' }, 9),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    await expect(
+      service.registerClientPdfExport(
+        77,
+        {
+          originalname: 'exam-77.txt',
+          mimetype: 'text/plain',
+          size: 12,
+          buffer: Buffer.from('nope'),
+        } as any,
+        { format: 'pdf' },
+        9,
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('exports PDF with unicode paper text and real content bytes', async () => {

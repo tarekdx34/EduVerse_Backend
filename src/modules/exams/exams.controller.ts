@@ -9,8 +9,11 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RoleName } from '../auth/entities/role.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -63,10 +66,7 @@ export class ExamsController {
 
   @Get()
   @Roles(RoleName.INSTRUCTOR)
-  getExams(
-    @Req() req: AuthenticatedRequest,
-    @Query() query: ExamListQueryDto,
-  ) {
+  getExams(@Req() req: AuthenticatedRequest, @Query() query: ExamListQueryDto) {
     return this.examsService.findExams(
       req.user.userId,
       query.page,
@@ -474,5 +474,22 @@ export class ExamsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.examsService.exportExamAsWord(id, dto, req.user.userId);
+  }
+
+  @Post(':id/client-export')
+  @Roles(RoleName.INSTRUCTOR)
+  @UseInterceptors(FileInterceptor('file'))
+  registerClientExport(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: Record<string, unknown>,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.examsService.registerClientPdfExport(
+      id,
+      file,
+      body,
+      req.user.userId,
+    );
   }
 }

@@ -66,6 +66,9 @@ export const makeExamsService = (overrides: Record<string, any> = {}) => {
       repos.exportRepo,
       repos.paperTemplateRepo,
       accessService,
+      overrides.filesService,
+      overrides.fileStorageService,
+      overrides.configService,
     ),
   };
 };
