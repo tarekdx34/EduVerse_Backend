@@ -18,6 +18,13 @@ ENV NODE_ENV=production \
   PORT=7860
 
 COPY --chown=node:node package.json package-lock.json ./
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  fonts-dejavu-core \
+  fonts-liberation \
+  fonts-noto-core \
+  fonts-noto-extra \
+  fonts-noto-unhinted \
+  && rm -rf /var/lib/apt/lists/*
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --chown=node:node --from=builder /app/dist ./dist
