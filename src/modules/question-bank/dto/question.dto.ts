@@ -306,12 +306,101 @@ export class QuestionBankQueryDto {
 
 export class BatchQuestionStatusDto {
   @ApiProperty({ type: [Number] })
+  @IsOptional()
   @IsArray()
   @ArrayMinSize(1)
   @Type(() => Number)
   @IsInt({ each: true })
   @Min(1, { each: true })
-  questionIds: number[];
+  questionIds?: number[];
+
+  @ApiPropertyOptional({
+    description:
+      'When true, applies the batch action to every question matching the provided filters.',
+  })
+  @IsOptional()
+  @Transform(({ value, obj, key }) => {
+    const raw = obj?.[key] ?? value;
+    if (raw === true || raw === 'true') return true;
+    if (raw === false || raw === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  allMatchingFilters?: boolean;
+
+  @ApiPropertyOptional({ type: [Number] })
+  @IsOptional()
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  excludeQuestionIds?: number[];
+
+  @ApiPropertyOptional({
+    description:
+      'Client-side selected count. The server refuses the batch if the resolved question count differs.',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  expectedQuestionCount?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  courseId?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  chapterId?: number;
+
+  @ApiPropertyOptional({ enum: QuestionBankType })
+  @IsOptional()
+  @IsEnum(QuestionBankType)
+  questionType?: QuestionBankType;
+
+  @ApiPropertyOptional({ enum: QuestionBankDifficulty })
+  @IsOptional()
+  @IsEnum(QuestionBankDifficulty)
+  difficulty?: QuestionBankDifficulty;
+
+  @ApiPropertyOptional({ enum: BloomLevel })
+  @IsOptional()
+  @IsEnum(BloomLevel)
+  bloomLevel?: BloomLevel;
+
+  @ApiPropertyOptional({ enum: QuestionBankStatus })
+  @IsOptional()
+  @IsEnum(QuestionBankStatus)
+  status?: QuestionBankStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value, obj, key }) => {
+    const raw = obj?.[key] ?? value;
+    if (raw === true || raw === 'true') return true;
+    if (raw === false || raw === 'false') return false;
+    return value;
+  })
+  hasAttachments?: boolean | string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  groupId?: number;
 
   @ApiProperty({ enum: QuestionBankBatchStatusAction })
   @IsEnum(QuestionBankBatchStatusAction)

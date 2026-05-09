@@ -1,5 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Repository } from 'typeorm';
 import { File } from './entities/file.entity';
 import { FileVersion } from './entities/file-version.entity';
@@ -17,6 +19,10 @@ import * as path from 'path';
 
 @Injectable()
 export class FilesService {
+  private readonly logger = new Logger(FilesService.name);
+  private readonly supabase?: SupabaseClient;
+  private readonly questionImagesBucketName: string;
+
   constructor(
     @InjectRepository(File)
     private fileRepository: Repository<File>,
@@ -26,7 +32,20 @@ export class FilesService {
     private folderRepository: Repository<Folder>,
     private fileStorageService: FileStorageService,
     private filePermissionService: FilePermissionService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+    const supabaseServiceRoleKey = this.configService.get<string>(
+      'SUPABASE_SERVICE_ROLE_KEY',
+    );
+    this.questionImagesBucketName =
+      this.configService.get<string>('SUPABASE_BUCKET_QUESTION_IMAGES') ||
+      'question-images';
+
+    if (supabaseUrl && supabaseServiceRoleKey) {
+      this.supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    }
+  }
 
   async uploadFile(
     file: Express.Multer.File,
@@ -111,7 +130,10 @@ export class FilesService {
     return this.mapToFileResponseDto(file);
   }
 
-  async downloadFile(fileId: number, userId: number): Promise<{
+  async downloadFile(
+    fileId: number,
+    userId: number,
+  ): Promise<{
     file: File;
     filePath: string;
   }> {
@@ -200,11 +222,19 @@ export class FilesService {
       PermissionType.DELETE,
     );
 
+    await this.fileRepository.update(fileId, { status: 'deleted' });
+
     // Soft delete file record
     await this.fileRepository.softDelete(fileId);
 
-    // Delete physical file (optional - you might want to keep it for recovery)
-    // await this.fileStorageService.deleteFile(file.filePath);
+    await this.deleteStorageArtifactsForFile(file);
+  }
+
+  async deleteStorageArtifactsForFile(
+    file: Pick<File, 'fileId' | 'filePath' | 'mimeType' | 'fileExtension'>,
+  ): Promise<void> {
+    await this.deleteLocalStorageArtifact(file.filePath);
+    await this.deleteQuestionBankSupabaseArtifact(file);
   }
 
   async createVersion(
@@ -235,9 +265,7 @@ export class FilesService {
     });
 
     const nextVersionNumber =
-      existingVersions.length > 0
-        ? existingVersions[0].versionNumber + 1
-        : 1;
+      existingVersions.length > 0 ? existingVersions[0].versionNumber + 1 : 1;
 
     // Save new version file
     const storagePath = await this.fileStorageService.saveFile(
@@ -277,7 +305,10 @@ export class FilesService {
     return this.mapToFileVersionResponseDto(versionWithRelations);
   }
 
-  async getFileVersions(fileId: number, userId: number): Promise<FileVersionResponseDto[]> {
+  async getFileVersions(
+    fileId: number,
+    userId: number,
+  ): Promise<FileVersionResponseDto[]> {
     const file = await this.fileRepository.findOne({
       where: { fileId },
     });
@@ -368,10 +399,9 @@ export class FilesService {
     }
 
     // Filter by user's accessible files
-    query.andWhere(
-      '(file.uploadedBy = :userId OR file.isPublic = 1)',
-      { userId },
-    );
+    query.andWhere('(file.uploadedBy = :userId OR file.isPublic = 1)', {
+      userId,
+    });
 
     const page = searchDto.page || 1;
     const limit = searchDto.limit || 20;
@@ -452,6 +482,61 @@ export class FilesService {
     };
   }
 
+  private async deleteLocalStorageArtifact(filePath?: string): Promise<void> {
+    if (!filePath) return;
+    try {
+      await this.fileStorageService.deleteFile(filePath);
+    } catch (error) {
+      this.logger.warn(
+        `Failed to delete local file artifact "${filePath}": ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
+
+  private async deleteQuestionBankSupabaseArtifact(
+    file: Pick<File, 'fileId' | 'filePath' | 'mimeType' | 'fileExtension'>,
+  ): Promise<void> {
+    if (!this.supabase || !file.mimeType?.startsWith('image/')) return;
+    const storagePath = this.buildQuestionBankImageStoragePath(file);
+    const { error } = await this.supabase.storage
+      .from(this.questionImagesBucketName)
+      .remove([storagePath]);
+    if (error) {
+      this.logger.warn(
+        `Failed to delete Supabase question-bank image "${storagePath}": ${error.message}`,
+      );
+    }
+  }
+
+  private buildQuestionBankImageStoragePath(
+    file: Pick<File, 'fileId' | 'filePath' | 'mimeType' | 'fileExtension'>,
+  ): string {
+    const extension =
+      file.fileExtension ||
+      path.extname(file.filePath || '').replace('.', '') ||
+      this.getExtensionFromMimeType(file.mimeType) ||
+      'jpg';
+    return `question-bank/files/${file.fileId}.${extension}`;
+  }
+
+  private getExtensionFromMimeType(mimeType?: string): string | null {
+    switch (mimeType) {
+      case 'image/jpeg':
+      case 'image/jpg':
+        return 'jpg';
+      case 'image/png':
+        return 'png';
+      case 'image/webp':
+        return 'webp';
+      case 'image/gif':
+        return 'gif';
+      default:
+        return null;
+    }
+  }
+
   private mapToFileVersionResponseDto(
     version: FileVersion,
   ): FileVersionResponseDto {
@@ -468,4 +553,3 @@ export class FilesService {
     };
   }
 }
-

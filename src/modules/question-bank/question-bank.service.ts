@@ -10,7 +10,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import {
+  DataSource,
+  EntityManager,
+  In,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { Course } from '../courses/entities/course.entity';
 import { FileResponseDto } from '../files/dto/file-response.dto';
 import {
@@ -1314,26 +1320,353 @@ export class QuestionBankService {
     dto: BatchQuestionStatusDto,
     userId: number,
   ): Promise<{ updated: QuestionBankQuestion[]; count: number }> {
-    const questionIds = Array.from(new Set(dto.questionIds.map(Number)));
-    const updated: QuestionBankQuestion[] = [];
-    for (const questionId of questionIds) {
-      if (dto.action === QuestionBankBatchStatusAction.RESTORE) {
-        updated.push(
-          await this.restoreQuestion(questionId, userId, dto.comment),
-        );
-        continue;
-      }
+    const questionIds = await this.resolveBatchQuestionIds(dto, userId);
+    this.assertBatchSelectionCountMatches(
+      questionIds.length,
+      dto.expectedQuestionCount,
+    );
+    if (!questionIds.length) {
+      return { updated: [], count: 0 };
+    }
 
-      updated.push(
-        await this.updateQuestionReviewStatus(
-          questionId,
-          this.toStatusForBatchAction(dto.action),
-          userId,
-          dto.comment,
-        ),
+    if (dto.action === QuestionBankBatchStatusAction.RESTORE) {
+      await this.restoreQuestionsInBatch(questionIds, userId, dto.comment);
+    } else {
+      await this.updateQuestionReviewStatusInBatch(
+        questionIds,
+        this.toStatusForBatchAction(dto.action),
+        userId,
+        dto.comment,
       );
     }
+
+    const updated = await this.loadQuestionsForBatchResponse(
+      questionIds,
+      userId,
+    );
     return { updated, count: updated.length };
+  }
+
+  private assertBatchSelectionCountMatches(
+    resolvedCount: number,
+    expectedCount?: number,
+  ): void {
+    if (expectedCount === undefined || expectedCount === null) return;
+    if (resolvedCount === expectedCount) return;
+    throw new BadRequestException(
+      'Selected questions changed before the batch action was applied. Refresh the question bank and try again.',
+    );
+  }
+
+  private async updateQuestionReviewStatusInBatch(
+    questionIds: number[],
+    toStatus: QuestionBankStatus,
+    userId: number,
+    comment?: string,
+  ): Promise<void> {
+    const questions = await this.loadQuestionsForBatchMutation(questionIds);
+    await this.assertInstructorOwnsBatchQuestions(questions, userId);
+    for (const question of questions) {
+      this.assertQuestionStatusTransition(question.status, toStatus);
+    }
+
+    const reviewedAt = new Date();
+    const reviewComment = comment || null;
+    await this.dataSource.transaction(async (manager) => {
+      await manager.update(
+        QuestionBankQuestion,
+        { id: In(questionIds) },
+        {
+          status: toStatus,
+          reviewedBy: userId,
+          reviewedAt,
+          reviewComment,
+          updatedBy: userId,
+        },
+      );
+
+      await this.createReviewEventsInBatch(
+        manager,
+        questions.map((question) => ({
+          questionId: Number(question.id),
+          fromStatus: question.status,
+          toStatus,
+        })),
+        userId,
+        reviewComment,
+      );
+
+      for (const question of questions) {
+        question.status = toStatus;
+        question.reviewedBy = userId;
+        question.reviewedAt = reviewedAt;
+        question.reviewComment = reviewComment;
+        question.updatedBy = userId;
+      }
+      await this.createQuestionVersionsFromLoadedQuestions(
+        manager,
+        questions,
+        userId,
+      );
+    });
+  }
+
+  private async restoreQuestionsInBatch(
+    questionIds: number[],
+    userId: number,
+    comment?: string,
+  ): Promise<void> {
+    const questions = await this.loadQuestionsForBatchMutation(
+      questionIds,
+      true,
+    );
+    await this.assertInstructorOwnsBatchQuestions(questions, userId);
+
+    const reviewedAt = new Date();
+    const reviewComment = comment || 'Restored';
+    await this.dataSource.transaction(async (manager) => {
+      await manager.restore(QuestionBankQuestion, { id: In(questionIds) });
+      await manager.update(
+        QuestionBankQuestion,
+        { id: In(questionIds) },
+        {
+          status: QuestionBankStatus.DRAFT,
+          reviewedBy: userId,
+          reviewedAt,
+          reviewComment,
+          updatedBy: userId,
+        },
+      );
+
+      await this.createReviewEventsInBatch(
+        manager,
+        questions.map((question) => ({
+          questionId: Number(question.id),
+          fromStatus: question.status,
+          toStatus: QuestionBankStatus.DRAFT,
+        })),
+        userId,
+        reviewComment,
+      );
+
+      for (const question of questions) {
+        question.status = QuestionBankStatus.DRAFT;
+        question.reviewedBy = userId;
+        question.reviewedAt = reviewedAt;
+        question.reviewComment = reviewComment;
+        question.updatedBy = userId;
+        question.deletedAt = null;
+      }
+      await this.createQuestionVersionsFromLoadedQuestions(
+        manager,
+        questions,
+        userId,
+      );
+    });
+  }
+
+  private async loadQuestionsForBatchMutation(
+    questionIds: number[],
+    withDeleted = false,
+  ): Promise<QuestionBankQuestion[]> {
+    const questions = await this.questionRepo.find({
+      where: { id: In(questionIds) },
+      relations: ['options', 'fillBlanks', 'attachments'],
+      withDeleted,
+    });
+    this.assertBatchQuestionsWereFound(questions, questionIds);
+    return this.sortQuestionsByInputIds(questions, questionIds);
+  }
+
+  private async loadQuestionsForBatchResponse(
+    questionIds: number[],
+    userId: number,
+  ): Promise<QuestionBankQuestion[]> {
+    const questions = await this.questionRepo.find({
+      where: { id: In(questionIds) },
+      relations: [
+        'options',
+        'fillBlanks',
+        'chapter',
+        'file',
+        'attachments',
+        'attachments.file',
+        'groupItems',
+        'groupItems.group',
+        'groupItems.group.sharedFile',
+      ],
+    });
+    this.assertBatchQuestionsWereFound(questions, questionIds);
+    await this.assertInstructorOwnsBatchQuestions(questions, userId);
+    const sorted = this.sortQuestionsByInputIds(questions, questionIds);
+    return this.attachQuestionImageUrls(sorted);
+  }
+
+  private assertBatchQuestionsWereFound(
+    questions: QuestionBankQuestion[],
+    questionIds: number[],
+  ): void {
+    const foundIds = new Set(questions.map((question) => Number(question.id)));
+    const missingIds = questionIds.filter((id) => !foundIds.has(Number(id)));
+    if (missingIds.length) {
+      throw new NotFoundException(
+        'One or more selected questions were not found',
+      );
+    }
+  }
+
+  private async assertInstructorOwnsBatchQuestions(
+    questions: QuestionBankQuestion[],
+    userId: number,
+  ): Promise<void> {
+    const courseIds = Array.from(
+      new Set(
+        questions
+          .map((question) => Number(question.courseId))
+          .filter((courseId) => Number.isFinite(courseId) && courseId > 0),
+      ),
+    );
+    await Promise.all(
+      courseIds.map((courseId) =>
+        this.instructorCourseAccess.assertInstructorOwnsCourse(
+          userId,
+          courseId,
+        ),
+      ),
+    );
+  }
+
+  private sortQuestionsByInputIds(
+    questions: QuestionBankQuestion[],
+    questionIds: number[],
+  ): QuestionBankQuestion[] {
+    const questionById = new Map(
+      questions.map((question) => [Number(question.id), question]),
+    );
+    return questionIds
+      .map((id) => questionById.get(Number(id)))
+      .filter((question): question is QuestionBankQuestion => !!question);
+  }
+
+  private async resolveBatchQuestionIds(
+    dto: BatchQuestionStatusDto,
+    userId: number,
+  ): Promise<number[]> {
+    if (!dto.allMatchingFilters) {
+      const questionIds = Array.from(
+        new Set((dto.questionIds || []).map(Number)),
+      ).filter((id) => Number.isFinite(id) && id > 0);
+      if (!questionIds.length) {
+        throw new BadRequestException('questionIds are required');
+      }
+      return questionIds;
+    }
+
+    const courseIds = await this.resolveQuestionQueryCourseIds(dto, userId);
+    if (!courseIds.length) return [];
+
+    const qb = this.questionRepo
+      .createQueryBuilder('q')
+      .select(['q.id'])
+      .leftJoin('q.groupItems', 'questionGroupItems')
+      .where('q.courseId IN (:...courseIds)', { courseIds });
+
+    this.applyQuestionQueryFilters(qb, dto);
+
+    const excludedIds = Array.from(
+      new Set((dto.excludeQuestionIds || []).map(Number)),
+    ).filter((id) => Number.isFinite(id) && id > 0);
+    if (excludedIds.length) {
+      qb.andWhere('q.id NOT IN (:...excludedIds)', { excludedIds });
+    }
+
+    const questions = await qb.getMany();
+    const questionIds = questions.map((question) => Number(question.id));
+    if (!questionIds.length) {
+      throw new BadRequestException('No questions match the selected filters');
+    }
+    return questionIds;
+  }
+
+  private async resolveQuestionQueryCourseIds(
+    query: Pick<QuestionBankQueryDto, 'courseId'>,
+    userId: number,
+  ): Promise<number[]> {
+    if (query.courseId) {
+      await this.instructorCourseAccess.assertInstructorOwnsCourse(
+        userId,
+        query.courseId,
+      );
+      return [query.courseId];
+    }
+    return this.instructorCourseAccess.getInstructorCourseIds(userId);
+  }
+
+  private applyQuestionQueryFilters(
+    qb: SelectQueryBuilder<QuestionBankQuestion>,
+    query: Pick<
+      QuestionBankQueryDto,
+      | 'chapterId'
+      | 'questionType'
+      | 'difficulty'
+      | 'bloomLevel'
+      | 'status'
+      | 'search'
+      | 'hasAttachments'
+      | 'groupId'
+      | 'createdBy'
+    >,
+  ): void {
+    if (query.chapterId)
+      qb.andWhere('q.chapterId = :chapterId', { chapterId: query.chapterId });
+    if (query.questionType)
+      qb.andWhere('q.questionType = :questionType', {
+        questionType: query.questionType,
+      });
+    if (query.difficulty)
+      qb.andWhere('q.difficulty = :difficulty', {
+        difficulty: query.difficulty,
+      });
+    if (query.bloomLevel)
+      qb.andWhere('q.bloomLevel = :bloomLevel', {
+        bloomLevel: query.bloomLevel,
+      });
+    if (query.status)
+      qb.andWhere('q.status = :status', { status: query.status });
+    if (query.search?.trim()) {
+      qb.andWhere('LOWER(q.questionText) LIKE :search', {
+        search: `%${query.search.trim().toLowerCase()}%`,
+      });
+    }
+    const hasAttachments = this.parseOptionalBoolean(query.hasAttachments);
+    if (hasAttachments === true) {
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM question_bank_question_attachments qa
+          WHERE qa.question_id = q.question_id
+            AND qa.deleted_at IS NULL
+        )`,
+      );
+    }
+    if (hasAttachments === false) {
+      qb.andWhere(
+        `NOT EXISTS (
+          SELECT 1
+          FROM question_bank_question_attachments qa
+          WHERE qa.question_id = q.question_id
+            AND qa.deleted_at IS NULL
+        )`,
+      );
+    }
+    if (query.groupId) {
+      qb.andWhere('questionGroupItems.groupId = :groupId', {
+        groupId: query.groupId,
+      });
+    }
+    if (query.createdBy) {
+      qb.andWhere('q.createdBy = :createdBy', { createdBy: query.createdBy });
+    }
   }
 
   async updateQuestionReviewStatus(
@@ -1514,6 +1847,31 @@ export class QuestionBankService {
     );
   }
 
+  private async createReviewEventsInBatch(
+    manager: EntityManager,
+    events: Array<{
+      questionId: number;
+      fromStatus: QuestionBankStatus | null;
+      toStatus: QuestionBankStatus;
+    }>,
+    userId: number,
+    comment?: string | null,
+  ): Promise<void> {
+    if (!events.length) return;
+    await manager.save(
+      events.map((event) =>
+        manager.create(QuestionBankReviewEvent, {
+          questionId: event.questionId,
+          fromStatus: event.fromStatus,
+          toStatus: event.toStatus,
+          comment: comment || null,
+          createdBy: userId,
+        }),
+      ),
+      { chunk: 100 },
+    );
+  }
+
   private async replaceQuestionChildren(
     manager: EntityManager,
     questionId: number,
@@ -1669,6 +2027,41 @@ export class QuestionBankService {
       questionId,
       userId,
       this.buildQuestionSnapshot(question),
+    );
+  }
+
+  private async createQuestionVersionsFromLoadedQuestions(
+    manager: EntityManager,
+    questions: QuestionBankQuestion[],
+    userId: number,
+  ): Promise<void> {
+    if (!questions.length) return;
+    const questionIds = questions.map((question) => Number(question.id));
+    const rawVersions = await manager
+      .createQueryBuilder(QuestionBankQuestionVersion, 'version')
+      .select('version.question_id', 'questionId')
+      .addSelect('MAX(version.version_number)', 'maxVersion')
+      .where('version.question_id IN (:...questionIds)', { questionIds })
+      .groupBy('version.question_id')
+      .getRawMany<{ questionId: string | number; maxVersion: string | null }>();
+    const nextVersionByQuestionId = new Map<number, number>();
+    for (const row of rawVersions) {
+      nextVersionByQuestionId.set(
+        Number(row.questionId),
+        Number(row.maxVersion || 0) + 1,
+      );
+    }
+
+    await manager.save(
+      questions.map((question) =>
+        manager.create(QuestionBankQuestionVersion, {
+          questionId: Number(question.id),
+          versionNumber: nextVersionByQuestionId.get(Number(question.id)) ?? 1,
+          snapshotJson: this.buildQuestionSnapshot(question),
+          createdBy: userId,
+        }),
+      ),
+      { chunk: 100 },
     );
   }
 
