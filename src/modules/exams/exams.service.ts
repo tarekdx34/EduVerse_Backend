@@ -51,6 +51,7 @@ import {
   ApplyExamPaperTemplateDto,
   SaveExamPaperTemplateDto,
 } from './dto/exam-paper-template.dto';
+import { BatchDeleteExamRecordsDto } from './dto/exam-batch.dto';
 import {
   ArchiveExamDto,
   PublishExamDto,
@@ -367,15 +368,30 @@ export class ExamsService {
     const where: Record<string, unknown> = { courseId: In(courseIds) };
     if (filters.status) where.status = filters.status;
     this.applyCreatedAtFilter(where, filters.dateFrom, filters.dateTo);
-    const [data, total] = await this.examRepo.findAndCount({
-      where,
-      order: { createdAt: 'DESC' },
-      skip,
-      take: safeLimit,
-    });
+    const query = this.examRepo
+      .createQueryBuilder('exam')
+      .where(where)
+      .loadRelationCountAndMap('exam.itemCount', 'exam.items')
+      .loadRelationCountAndMap('exam.sectionCount', 'exam.sections')
+      .orderBy('exam.createdAt', 'DESC')
+      .skip(skip)
+      .take(safeLimit);
+    const [data, total] = await query.getManyAndCount();
+
+    const examIds = data.map((exam) => Number(exam.id));
+    const [itemCounts, sectionCounts] = await Promise.all([
+      this.countExamItemsByExamIds(examIds),
+      this.countExamSectionsByExamIds(examIds),
+    ]);
 
     return this.page(
-      data.map((exam) => this.toExamResponse(exam)),
+      data.map((exam) =>
+        this.toExamResponse(
+          exam,
+          itemCounts.get(Number(exam.id)) ?? 0,
+          sectionCounts.get(Number(exam.id)) ?? 0,
+        ),
+      ),
       total,
       safePage,
       safeLimit,
@@ -413,6 +429,18 @@ export class ExamsService {
       order: { createdAt: 'DESC' },
       skip,
       take: safeLimit,
+    });
+
+    const draftIds = data.map((draft) => Number(draft.id));
+    const [itemCounts, sectionCounts] = await Promise.all([
+      this.countDraftItemsByDraftIds(draftIds),
+      this.countDraftSectionsByDraftIds(draftIds),
+    ]);
+    data.forEach((draft) => {
+      Object.assign(draft, {
+        itemCount: itemCounts.get(Number(draft.id)) ?? 0,
+        sectionCount: sectionCounts.get(Number(draft.id)) ?? 0,
+      });
     });
 
     return this.page(data, total, safePage, safeLimit);
@@ -1702,6 +1730,115 @@ export class ExamsService {
       statusReason: dto.reason || null,
     });
     return this.findExamById(exam.id, userId);
+  }
+
+  async deleteExam(examId: number, userId: number): Promise<void> {
+    const exam = await this.findExamById(examId, userId);
+    await this.dataSource.transaction(async (manager) => {
+      const finalizedDrafts = await manager.find(ExamDraft, {
+        where: { finalizedExamId: exam.id },
+        relations: ['items', 'sections'],
+      });
+      if (finalizedDrafts.length) {
+        await manager.remove(ExamDraft, finalizedDrafts);
+      }
+      await manager.remove(Exam, exam);
+    });
+  }
+
+  async deleteDraft(draftId: number, userId: number): Promise<void> {
+    const draft = await this.findDraftById(draftId, userId);
+    await this.draftRepo.remove(draft);
+  }
+
+  async batchDeleteRecords(
+    dto: BatchDeleteExamRecordsDto,
+    userId: number,
+  ): Promise<{ deletedExamIds: number[]; deletedDraftIds: number[] }> {
+    const examIds = this.uniquePositiveIds(dto.examIds);
+    const draftIds = this.uniquePositiveIds(dto.draftIds);
+    if (!examIds.length && !draftIds.length) {
+      throw new BadRequestException('Select at least one exam or draft');
+    }
+
+    const exams = examIds.length
+      ? await this.examRepo.find({
+          where: { id: In(examIds) },
+          relations: ['items', 'items.snapshot', 'sections'],
+        })
+      : [];
+    const drafts = draftIds.length
+      ? await this.draftRepo.find({
+          where: { id: In(draftIds) },
+          relations: ['items', 'sections'],
+        })
+      : [];
+
+    this.assertIdsFound(
+      exams.map((exam) => exam.id),
+      examIds,
+      'exam',
+    );
+    this.assertIdsFound(
+      drafts.map((draft) => draft.id),
+      draftIds,
+      'draft',
+    );
+
+    await Promise.all([
+      ...exams.map((exam) =>
+        this.instructorCourseAccess.assertInstructorOwnsCourse(
+          userId,
+          exam.courseId,
+        ),
+      ),
+      ...drafts.map((draft) =>
+        this.instructorCourseAccess.assertInstructorOwnsCourse(
+          userId,
+          draft.courseId,
+        ),
+      ),
+    ]);
+
+    await this.dataSource.transaction(async (manager) => {
+      const finalizedDrafts = examIds.length
+        ? await manager.find(ExamDraft, {
+            where: { finalizedExamId: In(examIds) },
+            relations: ['items', 'sections'],
+          })
+        : [];
+      const selectedDraftIds = new Set(draftIds);
+      const additionalDrafts = finalizedDrafts.filter(
+        (draft) => !selectedDraftIds.has(draft.id),
+      );
+      if (additionalDrafts.length) {
+        await manager.remove(ExamDraft, additionalDrafts);
+      }
+      if (drafts.length) {
+        await manager.remove(ExamDraft, drafts);
+      }
+      if (exams.length) {
+        await manager.remove(Exam, exams);
+      }
+    });
+
+    return { deletedExamIds: examIds, deletedDraftIds: draftIds };
+  }
+
+  async batchSaveDrafts(
+    draftIds: number[],
+    userId: number,
+  ): Promise<{ savedExamIds: number[]; savedDraftIds: number[] }> {
+    const ids = this.uniquePositiveIds(draftIds);
+    if (!ids.length) {
+      throw new BadRequestException('Select at least one draft');
+    }
+    const savedExamIds: number[] = [];
+    for (const draftId of ids) {
+      const exam = await this.saveDraft(draftId, userId);
+      savedExamIds.push(exam.id);
+    }
+    return { savedExamIds, savedDraftIds: ids };
   }
 
   async findExamById(examId: number, userId: number): Promise<Exam> {
@@ -4321,7 +4458,11 @@ ${imageTypes}
       colW,
       'right',
     );
-    const metaBottom = Math.max(metaLeftBottom, metaTop + titleH, metaRightBottom);
+    const metaBottom = Math.max(
+      metaLeftBottom,
+      metaTop + titleH,
+      metaRightBottom,
+    );
     doc.y = metaBottom + 6;
     doc.x = leftX;
     if (exam.instructions) {
@@ -4374,7 +4515,8 @@ ${imageTypes}
       doc.font(item.bold ? 'ExamBold' : 'ExamRegular');
       const fontSize = Number(item.fontSize || 10);
       doc.fontSize(fontSize);
-      const textAlign = (item.align as PDFKit.Mixins.TextOptions['align']) || align;
+      const textAlign =
+        (item.align as PDFKit.Mixins.TextOptions['align']) || align;
       const blockHeight =
         doc.heightOfString(text, { width, align: textAlign }) + 5;
       doc.text(text, x, currentY, { width, align: textAlign });
@@ -5202,6 +5344,89 @@ ${imageTypes}
     };
   }
 
+  private uniquePositiveIds(ids?: number[]): number[] {
+    return [...new Set((ids ?? []).map((id) => Number(id)))].filter(
+      (id) => Number.isInteger(id) && id > 0,
+    );
+  }
+
+  private assertIdsFound(
+    foundIds: number[],
+    requestedIds: number[],
+    label: string,
+  ) {
+    if (foundIds.length === requestedIds.length) return;
+    const found = new Set(foundIds.map((id) => Number(id)));
+    const missing = requestedIds.filter((id) => !found.has(Number(id)));
+    throw new NotFoundException(
+      `Some selected ${label} records were not found: ${missing.join(', ')}`,
+    );
+  }
+
+  private async countExamItemsByExamIds(
+    examIds: number[],
+  ): Promise<Map<number, number>> {
+    if (!examIds.length) return new Map<number, number>();
+    const rows = await this.examItemRepo
+      .createQueryBuilder('item')
+      .select('item.examId', 'id')
+      .addSelect('COUNT(item.id)', 'count')
+      .where('item.examId IN (:...examIds)', { examIds })
+      .groupBy('item.examId')
+      .getRawMany<{ id: string | number; count: string | number }>();
+    return this.countRowsToMap(rows);
+  }
+
+  private async countExamSectionsByExamIds(
+    examIds: number[],
+  ): Promise<Map<number, number>> {
+    if (!examIds.length) return new Map<number, number>();
+    const rows = await this.examSectionRepo
+      .createQueryBuilder('section')
+      .select('section.examId', 'id')
+      .addSelect('COUNT(section.id)', 'count')
+      .where('section.examId IN (:...examIds)', { examIds })
+      .groupBy('section.examId')
+      .getRawMany<{ id: string | number; count: string | number }>();
+    return this.countRowsToMap(rows);
+  }
+
+  private async countDraftItemsByDraftIds(
+    draftIds: number[],
+  ): Promise<Map<number, number>> {
+    if (!draftIds.length) return new Map<number, number>();
+    const rows = await this.draftItemRepo
+      .createQueryBuilder('item')
+      .select('item.draftId', 'id')
+      .addSelect('COUNT(item.id)', 'count')
+      .where('item.draftId IN (:...draftIds)', { draftIds })
+      .groupBy('item.draftId')
+      .getRawMany<{ id: string | number; count: string | number }>();
+    return this.countRowsToMap(rows);
+  }
+
+  private async countDraftSectionsByDraftIds(
+    draftIds: number[],
+  ): Promise<Map<number, number>> {
+    if (!draftIds.length) return new Map<number, number>();
+    const rows = await this.draftSectionRepo
+      .createQueryBuilder('section')
+      .select('section.draftId', 'id')
+      .addSelect('COUNT(section.id)', 'count')
+      .where('section.draftId IN (:...draftIds)', { draftIds })
+      .groupBy('section.draftId')
+      .getRawMany<{ id: string | number; count: string | number }>();
+    return this.countRowsToMap(rows);
+  }
+
+  private countRowsToMap(
+    rows: { id: string | number; count: string | number }[],
+  ): Map<number, number> {
+    return new Map(
+      rows.map((row) => [Number(row.id), Number(row.count)] as const),
+    );
+  }
+
   private page<T>(
     data: T[],
     total: number,
@@ -5245,7 +5470,15 @@ ${imageTypes}
     }
   }
 
-  toExamResponse(exam: Exam): ExamResponseDto {
+  toExamResponse(
+    exam: Exam,
+    itemCount?: number,
+    sectionCount?: number,
+  ): ExamResponseDto {
+    const relationCounts = exam as Exam & {
+      itemCount?: number;
+      sectionCount?: number;
+    };
     return {
       id: Number(exam.id),
       courseId: Number(exam.courseId),
@@ -5256,8 +5489,9 @@ ${imageTypes}
       archivedAt: exam.archivedAt,
       createdAt: exam.createdAt,
       updatedAt: exam.updatedAt,
-      itemCount: exam.items?.length,
-      sectionCount: exam.sections?.length,
+      itemCount: itemCount ?? relationCounts.itemCount ?? exam.items?.length,
+      sectionCount:
+        sectionCount ?? relationCounts.sectionCount ?? exam.sections?.length,
     };
   }
 }

@@ -31,6 +31,10 @@ import {
   SaveExamPaperTemplateDto,
 } from './dto/exam-paper-template.dto';
 import {
+  BatchDeleteExamRecordsDto,
+  BatchSaveExamDraftsDto,
+} from './dto/exam-batch.dto';
+import {
   ArchiveExamDto,
   PublishExamDto,
   UnpublishExamDto,
@@ -124,6 +128,34 @@ export class ExamsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.examsService.findDraftById(draftId, req.user.userId);
+  }
+
+  @Delete('drafts/:draftId')
+  @Roles(RoleName.INSTRUCTOR)
+  async deleteDraft(
+    @Param('draftId', ParseIntPipe) draftId: number,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    await this.examsService.deleteDraft(draftId, req.user.userId);
+    return { message: 'Draft deleted successfully', deletedDraftId: draftId };
+  }
+
+  @Post('drafts/save/batch')
+  @Roles(RoleName.INSTRUCTOR)
+  async batchSaveDrafts(
+    @Body() dto: BatchSaveExamDraftsDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.examsService.batchSaveDrafts(dto.draftIds, req.user.userId);
+  }
+
+  @Post('records/delete/batch')
+  @Roles(RoleName.INSTRUCTOR)
+  async batchDeleteRecords(
+    @Body() dto: BatchDeleteExamRecordsDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.examsService.batchDeleteRecords(dto, req.user.userId);
   }
 
   @Get('stats')
@@ -428,6 +460,16 @@ export class ExamsController {
     return this.examsService
       .findExamById(id, req.user.userId)
       .then((exam) => this.examsService.toExamResponse(exam));
+  }
+
+  @Delete(':id')
+  @Roles(RoleName.INSTRUCTOR)
+  async deleteExam(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    await this.examsService.deleteExam(id, req.user.userId);
+    return { message: 'Exam deleted successfully', deletedExamId: id };
   }
 
   @Post(':id/publish')
