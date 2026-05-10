@@ -331,10 +331,14 @@ describe('ExamsService', () => {
     const documentXml = await readDocxXml(result.content, 'word/document.xml');
     const footerXml = await readDocxXml(result.content, 'word/footer1.xml');
 
-    expect(documentXml).toContain('1. Pool question');
-    expect(documentXml).toContain('2. Section question');
-    expect(documentXml).toContain('3. Second section question');
-    expect(documentXml).toContain('4. Later pool question');
+    expect(documentXml).toContain('>1. </w:t>');
+    expect(documentXml).toContain('Pool question');
+    expect(documentXml).toContain('>2. </w:t>');
+    expect(documentXml).toContain('Section question');
+    expect(documentXml).toContain('>3. </w:t>');
+    expect(documentXml).toContain('Second section question');
+    expect(documentXml).toContain('>4. </w:t>');
+    expect(documentXml).toContain('Later pool question');
     expect(documentXml.indexOf('Second section question')).toBeLessThan(
       documentXml.indexOf('Later pool question'),
     );
@@ -386,13 +390,9 @@ describe('ExamsService', () => {
 
     expect(documentXml).toContain('C(s)/R(s)');
     expect(documentXml).toContain('(10)/(s');
-    expect(documentXml).toContain('<w:vertAlign w:val="superscript"/>');
-    expect(documentXml).toContain('<w:vertAlign w:val="subscript"/>');
-    expect(documentXml).toContain('R</w:t></w:r><w:r><w:rPr>');
-    expect(documentXml).toContain('0</w:t></w:r>');
-    expect(documentXml).toContain('-0.1T');
-    expect(documentXml).toContain('K</w:t></w:r><w:r><w:rPr>');
-    expect(documentXml).toContain('1</w:t></w:r>');
+    expect(documentXml).toContain('R₀');
+    expect(documentXml).toContain('K₁');
+    expect(documentXml).toMatch(/e⁻|⁻⁰\.¹ᵀ/);
     expect(documentXml).toContain('≥ 0');
     expect(documentXml).toContain('t=1.0 s');
     expect(documentXml).toContain('√(19)');

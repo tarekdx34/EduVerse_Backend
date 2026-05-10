@@ -16,6 +16,7 @@ import { FileResponseDto } from './dto/file-response.dto';
 import { FileVersionResponseDto } from './dto/file-version-response.dto';
 import { FileSearchDto } from './dto/file-search.dto';
 import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class FilesService {
@@ -158,6 +159,10 @@ export class FilesService {
       this.fileStorageService.getStoragePath(),
       file.filePath,
     );
+
+    if (!fs.existsSync(fullPath)) {
+      throw new NotFoundException(`File ${fileId} not found on disk`);
+    }
 
     return { file, filePath: fullPath };
   }

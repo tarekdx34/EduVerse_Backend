@@ -2635,7 +2635,7 @@ export class ExamsService {
       '<html><head><meta charset="utf-8">',
       '<style>',
       '@page { size: A4; margin: 16mm; }',
-      'body { font-family: "Times New Roman", serif; color: #111; }',
+      'body { font-family: "Times New Roman", "DejaVu Serif", serif; color: #111; font-size: 11pt; }',
       '.paper-header { border-bottom: 1px solid #111; padding-bottom: 8px; margin-bottom: 18px; }',
       '.paper-header-grid { width: 100%; border-collapse: collapse; }',
       '.paper-header-grid td { vertical-align: top; width: 33.33%; font-size: 11pt; line-height: 1.25; }',
@@ -2645,7 +2645,9 @@ export class ExamsService {
       '.paper-meta td { font-size: 10.5pt; padding-top: 3px; }',
       '.paper-free { position: relative; min-height: 1px; }',
       '.paper-free .paper-element { position: absolute; white-space: pre-wrap; }',
-      '.paper-question { margin: 12px 0; page-break-inside: avoid; }',
+      '.paper-question { margin: 12px 0; page-break-inside: avoid; font-size: 11pt; }',
+      '.paper-question .q-num { font-weight: 700; margin-right: 0.25em; }',
+      '.paper-question .q-marks { font-size: 10pt; margin-top: 0.35em; color: #222; }',
       '.question-image { display:block; max-width: 520px; max-height: 320px; margin: 8px auto; }',
       '.paper-trailing { margin-top: 42px; text-align: center; font-size: 12pt; }',
       '.paper-examiners { margin-top: 54px; text-align: center; font-size: 10.5pt; }',
@@ -2694,8 +2696,12 @@ export class ExamsService {
         (item.question as QuestionBankQuestion | undefined)?.questionText ||
         '[Image Question]';
       lines.push('<div class="paper-question">');
+      const qn = questionNumber++;
+      const qBody = this.escapeHtml(
+        this.formatExportMathText(questionText, { unicodeScripts: true }),
+      );
       lines.push(
-        `<p><strong>${questionNumber++}.</strong> ${this.escapeHtml(questionText)}</p>`,
+        `<p><span class="q-num">${qn}.</span><span class="q-body">${qBody}</span></p>`,
       );
       if (snapshot?.questionFileStoragePath) {
         lines.push(
@@ -2708,7 +2714,7 @@ export class ExamsService {
       }
       if (settings.showQuestionMarks) {
         lines.push(
-          `<p>Marks: ${this.escapeHtml(String(snapshot?.marks ?? item.marks ?? item.weight))}</p>`,
+          `<p class="q-marks">Marks: ${this.escapeHtml(String(snapshot?.marks ?? item.marks ?? item.weight))}</p>`,
         );
       }
       const attachments = (snapshot?.attachmentsJson || []) as Array<{
@@ -2860,11 +2866,7 @@ export class ExamsService {
         snapshot?.questionText ||
         (item.question as QuestionBankQuestion | undefined)?.questionText ||
         '[Image Question]';
-      body.push(
-        this.docxParagraph(`${questionNumber++}. ${questionText}`, {
-          bold: true,
-        }),
-      );
+      body.push(this.docxQuestionParagraph(questionNumber++, questionText));
       if (snapshot?.questionFileStoragePath) {
         const imageId = await nextImage(
           snapshot.questionFileStoragePath,
@@ -2876,6 +2878,7 @@ export class ExamsService {
         body.push(
           this.docxParagraph(
             `Marks: ${snapshot?.marks ?? item.marks ?? item.weight}`,
+            { fontHalfPoints: 20 },
           ),
         );
       }
@@ -2999,7 +3002,7 @@ ${imageTypes}
   private docxStylesXml(): string {
     return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:style>
 </w:styles>`;
   }
 
@@ -3079,8 +3082,11 @@ ${imageTypes}
       extraRows.push('Instructor Name: ____________________');
     }
     return [
-      `<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:bottom w:val="single" w:sz="8" w:space="0" w:color="000000"/></w:tblBorders></w:tblPr>${rows.join('')}</w:tbl>`,
+      `<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="000000"/><w:insideH w:val="single" w:sz="6" w:space="0" w:color="000000"/><w:bottom w:val="single" w:sz="8" w:space="0" w:color="000000"/></w:tblBorders></w:tblPr>${rows.join('')}</w:tbl>`,
       ...extraRows.map((row) => this.docxParagraph(row)),
+      this.docxParagraph('', {
+        borderBottom: true,
+      }),
     ].join('');
   }
 
@@ -3165,6 +3171,8 @@ ${imageTypes}
       heading?: boolean;
       rtl?: boolean;
       pageBreakBefore?: boolean;
+      fontHalfPoints?: number;
+      borderBottom?: boolean;
     } = {},
   ): string {
     const rtl = options.rtl || this.containsArabic(text);
@@ -3173,29 +3181,70 @@ ${imageTypes}
     const heading = options.heading
       ? '<w:spacing w:before="180" w:after="80"/><w:outlineLvl w:val="1"/>'
       : '';
-    return `<w:p><w:pPr>${pageBreak}${heading}<w:jc w:val="${align}"/>${rtl ? '<w:bidi/>' : ''}</w:pPr>${this.docxRun(text, { bold: options.bold || options.heading, rtl })}</w:p>`;
+    const border = options.borderBottom
+      ? '<w:pBdr><w:bottom w:val="single" w:sz="8" w:space="0" w:color="000000"/></w:pBdr>'
+      : '';
+    const inner =
+      text || !options.borderBottom
+        ? this.docxRun(text, {
+            bold: options.bold || options.heading,
+            rtl,
+            fontHalfPoints: options.fontHalfPoints,
+          })
+        : `<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="8"/><w:szCs w:val="8"/></w:rPr><w:t xml:space="preserve">\u200b</w:t></w:r>`;
+    return `<w:p><w:pPr>${pageBreak}${heading}<w:jc w:val="${align}"/>${rtl ? '<w:bidi/>' : ''}${border}</w:pPr>${inner}</w:p>`;
+  }
+
+  private docxQuestionParagraph(qNum: number, rawText: string): string {
+    const runs = this.exportTextRuns(rawText);
+    const combined = `${qNum}. ` + runs.map((r) => r.text).join('');
+    const rtl = this.containsArabic(combined);
+    const align = rtl ? 'right' : 'left';
+    const numRun = this.docxTextRun(
+      { text: `${qNum}. ` },
+      { bold: true, rtl: false, fontHalfPoints: 22 },
+    );
+    const bodyRuns = runs
+      .map((run) =>
+        this.docxTextRun(run, {
+          bold: false,
+          rtl: this.containsArabic(run.text),
+          fontHalfPoints: 22,
+        }),
+      )
+      .join('');
+    return `<w:p><w:pPr><w:jc w:val="${align}"/>${
+      rtl ? '<w:bidi/>' : ''
+    }</w:pPr>${numRun}${bodyRuns}</w:p>`;
   }
 
   private docxRun(
     text: string,
-    options: { bold?: boolean; rtl?: boolean } = {},
+    options: { bold?: boolean; rtl?: boolean; fontHalfPoints?: number } = {},
   ): string {
     const runs = this.exportTextRuns(text);
     const rtl =
       options.rtl || this.containsArabic(runs.map((run) => run.text).join(''));
     return runs
-      .map((run) => this.docxTextRun(run, { ...options, rtl }))
+      .map((run) =>
+        this.docxTextRun(run, {
+          ...options,
+          rtl: rtl || this.containsArabic(run.text),
+        }),
+      )
       .join('');
   }
 
   private docxTextRun(
     run: ExportTextRun,
-    options: { bold?: boolean; rtl?: boolean } = {},
+    options: { bold?: boolean; rtl?: boolean; fontHalfPoints?: number } = {},
   ): string {
     const verticalAlign = run.script
       ? `<w:vertAlign w:val="${run.script}"/>`
       : '';
-    return `<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${options.bold ? '<w:b/><w:bCs/>' : ''}${options.rtl ? '<w:rtl/>' : ''}${verticalAlign}</w:rPr><w:t xml:space="preserve">${this.escapeXml(run.text)}</w:t></w:r>`;
+    const fp = options.fontHalfPoints ?? 22;
+    const sz = `<w:sz w:val="${fp}"/><w:szCs w:val="${fp}"/>`;
+    return `<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>${options.bold ? '<w:b/><w:bCs/>' : ''}${options.rtl ? '<w:rtl/>' : ''}${verticalAlign}${sz}</w:rPr><w:t xml:space="preserve">${this.escapeXml(run.text)}</w:t></w:r>`;
   }
 
   private docxImageParagraph(imageId: string): string {
@@ -3214,7 +3263,9 @@ ${imageTypes}
   }
 
   private exportTextRuns(value: string): ExportTextRun[] {
-    const renderedText = this.formatExportMathText(value);
+    const renderedText = this.formatExportMathText(value, {
+      unicodeScripts: true,
+    });
     if (!renderedText) return [{ text: '' }];
     const runs: ExportTextRun[] = [];
     let plain = '';
@@ -3680,10 +3731,17 @@ ${imageTypes}
         snapshot?.questionText ||
         (item.question as QuestionBankQuestion | undefined)?.questionText ||
         '[Image Question]';
-      this.writePdfText(
-        doc.fontSize(11),
-        `${questionNumber++}. ${questionText}`,
-      );
+      const x = doc.page.margins.left;
+      const qWidth =
+        doc.page.width - doc.page.margins.left - doc.page.margins.right;
+      const qPrefix = `${questionNumber++}. `;
+      const qBody = this.formatExportMathText(questionText, {
+        unicodeScripts: true,
+      });
+      this.ensurePdfSpace(doc, 40);
+      doc.font('ExamBold').fontSize(11);
+      doc.text(qPrefix, x, doc.y, { continued: true, lineBreak: false });
+      doc.font('ExamRegular').text(qBody, { width: qWidth, align: 'left' });
       if (snapshot?.questionFileStoragePath) {
         await this.addPdfImage(
           doc,
@@ -3694,9 +3752,10 @@ ${imageTypes}
       }
       if (settings.showQuestionMarks) {
         this.writePdfText(
-          doc.fontSize(10),
+          doc.font('ExamRegular').fontSize(9.5),
           `Marks: ${String(snapshot?.marks ?? item.marks ?? item.weight)}`,
         );
+        doc.font('ExamRegular').fontSize(11);
       }
 
       const attachments = (snapshot?.attachmentsJson || []) as Array<{
@@ -3796,13 +3855,21 @@ ${imageTypes}
 
   private registerExamPdfFonts(doc: PDFKit.PDFDocument): void {
     const regular = this.resolveSystemFontPath([
+      'C:\\Windows\\Fonts\\times.ttf',
       'C:\\Windows\\Fonts\\arial.ttf',
+      '/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf',
+      '/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf',
+      '/Library/Fonts/Times New Roman.ttf',
       'C:\\Windows\\Fonts\\tahoma.ttf',
       '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
       '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
     ]);
     const bold = this.resolveSystemFontPath([
+      'C:\\Windows\\Fonts\\timesbd.ttf',
       'C:\\Windows\\Fonts\\arialbd.ttf',
+      '/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf',
+      '/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf',
+      '/Library/Fonts/Times New Roman Bold.ttf',
       'C:\\Windows\\Fonts\\tahomabd.ttf',
       '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
       '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
@@ -4073,7 +4140,7 @@ ${imageTypes}
       `<div class="paper-free">${free}</div>`,
       '<table class="paper-meta"><tr>',
       `<td>${metadataLeft}</td>`,
-      `<td style="text-align: center;">${this.escapeHtml(exam.title)}</td>`,
+      `<td style="text-align: center; font-weight: 700; font-size: 12.5pt;">${this.escapeHtml(exam.title)}</td>`,
       `<td style="text-align: right; direction: rtl;">${metadataRight}</td>`,
       '</tr></table>',
       exam.instructions ? `<p>${this.escapeHtml(exam.instructions)}</p>` : '',
@@ -4188,62 +4255,74 @@ ${imageTypes}
     const leftX = doc.page.margins.left;
     const rightX = doc.page.width - doc.page.margins.right;
     const width = rightX - leftX;
+    const colW = width / 3;
     doc.font('ExamRegular').fontSize(10);
-    this.drawPdfZone(
-      doc,
-      exam,
-      this.asArray(header.left),
-      leftX,
-      top,
-      width / 3,
-      'left',
+    const row1Bottom = Math.max(
+      this.drawPdfColumn(
+        doc,
+        exam,
+        this.asArray(header.left),
+        leftX,
+        top,
+        colW,
+        'left',
+      ),
+      this.drawPdfColumn(
+        doc,
+        exam,
+        this.asArray(header.center),
+        leftX + colW,
+        top,
+        colW,
+        'center',
+      ),
+      this.drawPdfColumn(
+        doc,
+        exam,
+        this.asArray(header.right),
+        leftX + colW * 2,
+        top,
+        colW,
+        'right',
+      ),
     );
-    this.drawPdfZone(
-      doc,
-      exam,
-      this.asArray(header.center),
-      leftX + width / 3,
-      top,
-      width / 3,
-      'center',
-    );
-    this.drawPdfZone(
-      doc,
-      exam,
-      this.asArray(header.right),
-      leftX + (width * 2) / 3,
-      top,
-      width / 3,
-      'right',
-    );
-    doc.y = top + 70;
+    doc.y = row1Bottom + 4;
     doc.x = leftX;
     doc.moveTo(leftX, doc.y).lineTo(rightX, doc.y).stroke();
     doc.moveDown(0.35);
     const metaTop = doc.y;
-    this.drawPdfZone(
+    const metaLeftBottom = this.drawPdfColumn(
       doc,
       exam,
       this.asArray(header.metadataLeft),
       leftX,
       metaTop,
-      width / 3,
+      colW,
       'left',
     );
-    doc.fontSize(10).text(exam.title, leftX + width / 3, metaTop, {
-      width: width / 3,
-      align: 'center',
+    const titleText = String(exam.title || '');
+    doc.font('ExamBold').fontSize(12);
+    const titleAlign: PDFKit.Mixins.TextOptions['align'] = 'center';
+    const titleH = doc.heightOfString(titleText, {
+      width: colW,
+      align: titleAlign,
     });
-    this.drawPdfZone(
+    doc.text(titleText, leftX + colW, metaTop, {
+      width: colW,
+      align: titleAlign,
+    });
+    doc.font('ExamRegular').fontSize(10);
+    const metaRightBottom = this.drawPdfColumn(
       doc,
       exam,
       this.asArray(header.metadataRight),
-      leftX + (width * 2) / 3,
+      leftX + colW * 2,
       metaTop,
-      width / 3,
+      colW,
       'right',
     );
-    doc.y = metaTop + 48;
+    const metaBottom = Math.max(metaLeftBottom, metaTop + titleH, metaRightBottom);
+    doc.y = metaBottom + 6;
     doc.x = leftX;
     if (exam.instructions) {
       this.writePdfText(doc.fontSize(10), exam.instructions);
@@ -4275,7 +4354,8 @@ ${imageTypes}
     doc.moveDown();
   }
 
-  private drawPdfZone(
+  /** Renders a header column; returns Y just below the last line (explicit layout). */
+  private drawPdfColumn(
     doc: PDFKit.PDFDocument,
     exam: Exam,
     rawItems: unknown[],
@@ -4283,7 +4363,7 @@ ${imageTypes}
     y: number,
     width: number,
     align: 'left' | 'center' | 'right',
-  ): void {
+  ): number {
     let currentY = y;
     for (const raw of rawItems) {
       const item = this.asElement(raw);
@@ -4292,11 +4372,16 @@ ${imageTypes}
         { unicodeScripts: true },
       );
       doc.font(item.bold ? 'ExamBold' : 'ExamRegular');
-      doc.fontSize(Number(item.fontSize || 10));
-      doc.text(text, x, currentY, { width, align: item.align || align });
-      currentY += Number(item.fontSize || 10) + 3;
+      const fontSize = Number(item.fontSize || 10);
+      doc.fontSize(fontSize);
+      const textAlign = (item.align as PDFKit.Mixins.TextOptions['align']) || align;
+      const blockHeight =
+        doc.heightOfString(text, { width, align: textAlign }) + 5;
+      doc.text(text, x, currentY, { width, align: textAlign });
+      currentY += blockHeight;
     }
-    doc.font('ExamRegular');
+    doc.font('ExamRegular').fontSize(10);
+    return currentY;
   }
 
   private renderPaperTrailingPdf(
