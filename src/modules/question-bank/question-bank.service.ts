@@ -42,6 +42,7 @@ import {
   UpdateQuestionGroupDto,
 } from './dto/question-group.dto';
 import {
+  BatchQuestionDeleteDto,
   BatchQuestionStatusDto,
   CreateQuestionBankQuestionDto,
   QuestionBankBatchStatusAction,
@@ -776,6 +777,37 @@ export class QuestionBankService {
       updatedBy: userId,
     });
     await this.questionRepo.softDelete(question.id);
+  }
+
+  async batchDeleteQuestions(
+    dto: BatchQuestionDeleteDto,
+    userId: number,
+  ): Promise<{ deletedIds: number[]; count: number }> {
+    const questionIds = await this.resolveBatchQuestionIds(dto, userId);
+    this.assertBatchSelectionCountMatches(
+      questionIds.length,
+      dto.expectedQuestionCount,
+    );
+    if (!questionIds.length) {
+      return { deletedIds: [], count: 0 };
+    }
+
+    const questions = await this.loadQuestionsForBatchMutation(questionIds);
+    await this.assertInstructorOwnsBatchQuestions(questions, userId);
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.update(
+        QuestionBankQuestion,
+        { id: In(questionIds) },
+        {
+          status: QuestionBankStatus.ARCHIVED,
+          updatedBy: userId,
+        },
+      );
+      await manager.softDelete(QuestionBankQuestion, { id: In(questionIds) });
+    });
+
+    return { deletedIds: questionIds, count: questionIds.length };
   }
 
   async restoreQuestion(
@@ -1549,7 +1581,7 @@ export class QuestionBankService {
   }
 
   private async resolveBatchQuestionIds(
-    dto: BatchQuestionStatusDto,
+    dto: BatchQuestionStatusDto | BatchQuestionDeleteDto,
     userId: number,
   ): Promise<number[]> {
     if (!dto.allMatchingFilters) {

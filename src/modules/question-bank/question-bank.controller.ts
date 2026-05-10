@@ -44,6 +44,7 @@ import {
   UpdateQuestionGroupDto,
 } from './dto/question-group.dto';
 import {
+  BatchQuestionDeleteDto,
   BatchQuestionStatusDto,
   CreateQuestionBankQuestionDto,
   QuestionBankQueryDto,
@@ -294,6 +295,23 @@ export class QuestionBankController {
       updated: result.updated.map((question) =>
         this.questionBankService.toPrivateResponse(question),
       ),
+    };
+  }
+
+  @Post('question-bank/questions/delete/batch')
+  @Roles(RoleName.INSTRUCTOR)
+  async batchDeleteQuestions(
+    @Body() dto: BatchQuestionDeleteDto,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{ deletedIds: number[]; count: number; message: string }> {
+    const result = await this.questionBankService.batchDeleteQuestions(
+      dto,
+      req.user.userId,
+    );
+    return {
+      count: result.count,
+      deletedIds: result.deletedIds,
+      message: 'Selected questions deleted successfully',
     };
   }
 
