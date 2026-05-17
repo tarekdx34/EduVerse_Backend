@@ -83,3 +83,6 @@ ai-services/quiz-generator/uploads.json
 
 # Runtime uploads should never be versioned
 uploads/
+
+# Local summarizer sample/input PDFs are binary data and cannot be pushed to Hugging Face Spaces via normal Git.
+ai-services/summarize/input/*.pdf
