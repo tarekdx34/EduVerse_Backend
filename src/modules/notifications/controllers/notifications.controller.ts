@@ -31,6 +31,8 @@ import {
   SendNotificationDto,
   NotificationQueryDto,
   UpdatePreferencesDto,
+  RegisterDeviceTokenDto,
+  UnregisterDeviceTokenDto,
 } from '../dto';
 
 @ApiTags('Notifications')
@@ -45,7 +47,8 @@ export class NotificationsController {
   @Get()
   @ApiOperation({
     summary: 'List notifications',
-    description: 'List current user\'s notifications with optional filters. Supports pagination.',
+    description:
+      "List current user's notifications with optional filters. Supports pagination.",
   })
   @ApiResponse({ status: 200, description: 'Notifications retrieved' })
   async findAll(@Query() query: NotificationQueryDto, @Req() req: any) {
@@ -58,7 +61,11 @@ export class NotificationsController {
     summary: 'Get unread count',
     description: 'Get the count of unread notifications for the current user.',
   })
-  @ApiResponse({ status: 200, description: 'Unread count', schema: { example: { count: 5 } } })
+  @ApiResponse({
+    status: 200,
+    description: 'Unread count',
+    schema: { example: { count: 5 } },
+  })
   async getUnreadCount(@Req() req: any) {
     const userId = req.user.userId || req.user.id;
     return this.notificationsService.getUnreadCount(userId);
@@ -67,9 +74,13 @@ export class NotificationsController {
   @Patch('read-all')
   @ApiOperation({
     summary: 'Mark all as read',
-    description: 'Mark all of the current user\'s notifications as read.',
+    description: "Mark all of the current user's notifications as read.",
   })
-  @ApiResponse({ status: 200, description: 'All notifications marked as read', schema: { example: { affected: 10 } } })
+  @ApiResponse({
+    status: 200,
+    description: 'All notifications marked as read',
+    schema: { example: { affected: 10 } },
+  })
   async markAllAsRead(@Req() req: any) {
     const userId = req.user.userId || req.user.id;
     return this.notificationsService.markAllAsRead(userId);
@@ -80,7 +91,11 @@ export class NotificationsController {
     summary: 'Clear all notifications',
     description: 'Delete all notifications for the current user.',
   })
-  @ApiResponse({ status: 200, description: 'All notifications cleared', schema: { example: { affected: 10 } } })
+  @ApiResponse({
+    status: 200,
+    description: 'All notifications cleared',
+    schema: { example: { affected: 10 } },
+  })
   async clearAll(@Req() req: any) {
     const userId = req.user.userId || req.user.id;
     return this.notificationsService.clearAll(userId);
@@ -91,7 +106,11 @@ export class NotificationsController {
     summary: 'Clear read notifications',
     description: 'Delete all read notifications for the current user.',
   })
-  @ApiResponse({ status: 200, description: 'Read notifications cleared', schema: { example: { affected: 10 } } })
+  @ApiResponse({
+    status: 200,
+    description: 'Read notifications cleared',
+    schema: { example: { affected: 10 } },
+  })
   async clearRead(@Req() req: any) {
     const userId = req.user.userId || req.user.id;
     return this.notificationsService.clearRead(userId);
@@ -100,7 +119,8 @@ export class NotificationsController {
   @Get('preferences')
   @ApiOperation({
     summary: 'Get notification preferences',
-    description: 'Get the current user\'s notification preferences. Creates default preferences if none exist.',
+    description:
+      "Get the current user's notification preferences. Creates default preferences if none exist.",
   })
   @ApiResponse({ status: 200, description: 'Preferences retrieved' })
   async getPreferences(@Req() req: any) {
@@ -111,13 +131,63 @@ export class NotificationsController {
   @Put('preferences')
   @ApiOperation({
     summary: 'Update notification preferences',
-    description: 'Update the current user\'s notification preferences (email, push, quiet hours, etc.).',
+    description:
+      "Update the current user's notification preferences (email, push, quiet hours, etc.).",
   })
   @ApiBody({ type: UpdatePreferencesDto })
   @ApiResponse({ status: 200, description: 'Preferences updated' })
   async updatePreferences(@Body() dto: UpdatePreferencesDto, @Req() req: any) {
     const userId = req.user.userId || req.user.id;
     return this.notificationsService.updatePreferences(userId, dto);
+  }
+
+  @Post('device-tokens')
+  @ApiOperation({
+    summary: 'Register Android push token',
+    description:
+      "Register or refresh the current user's Firebase Cloud Messaging token. Existing web/socket notification behavior is unchanged.",
+  })
+  @ApiBody({ type: RegisterDeviceTokenDto })
+  @ApiResponse({ status: 201, description: 'Device token registered' })
+  async registerDeviceToken(
+    @Body() dto: RegisterDeviceTokenDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    return this.notificationsService.registerDeviceToken(userId, dto);
+  }
+
+  @Post('device-tokens/unregister')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Unregister Android push token',
+    description:
+      'Deactivate one Firebase Cloud Messaging token for the current user.',
+  })
+  @ApiBody({ type: UnregisterDeviceTokenDto })
+  @ApiResponse({ status: 200, description: 'Device token deactivated' })
+  async unregisterDeviceTokenWithPost(
+    @Body() dto: UnregisterDeviceTokenDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    return this.notificationsService.unregisterDeviceToken(userId, dto);
+  }
+
+  @Delete('device-tokens')
+  @ApiOperation({
+    summary: 'Delete Android push token',
+    description:
+      'Deactivate one Firebase Cloud Messaging token for the current user.',
+  })
+  @ApiBody({ type: UnregisterDeviceTokenDto })
+  @ApiResponse({ status: 200, description: 'Device token deactivated' })
+  async unregisterDeviceToken(
+    @Body() dto: UnregisterDeviceTokenDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId || req.user.id;
+    return this.notificationsService.unregisterDeviceToken(userId, dto);
   }
 
   @Patch(':id/read')
@@ -153,11 +223,15 @@ export class NotificationsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Send notification (Admin)',
-    description: 'Send a notification to one or more users. Requires ADMIN or IT_ADMIN role.',
+    description:
+      'Send a notification to one or more users. Requires ADMIN or IT_ADMIN role.',
   })
   @ApiBody({ type: SendNotificationDto })
   @ApiResponse({ status: 201, description: 'Notifications sent' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   async send(@Body() dto: SendNotificationDto) {
     return this.notificationsService.send(dto);
   }

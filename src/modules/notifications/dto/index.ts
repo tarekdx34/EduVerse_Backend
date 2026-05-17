@@ -1,4 +1,16 @@
-import { IsString, IsOptional, IsInt, IsEnum, IsBoolean, IsDateString, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  IsEnum,
+  IsBoolean,
+  Min,
+  Max,
+  IsIn,
+  IsNotEmpty,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ApiPropertyStringEnumOptional } from '../../../common/swagger/string-enum.schema';
@@ -9,19 +21,32 @@ export class CreateNotificationDto {
   @IsInt()
   userId: number;
 
-  @ApiProperty({ example: 'assignment', enum: NotificationType, description: 'Notification type' })
+  @ApiProperty({
+    example: 'assignment',
+    enum: NotificationType,
+    description: 'Notification type',
+  })
   @IsEnum(NotificationType)
   notificationType: NotificationType;
 
-  @ApiProperty({ example: 'New Assignment Posted', description: 'Notification title' })
+  @ApiProperty({
+    example: 'New Assignment Posted',
+    description: 'Notification title',
+  })
   @IsString()
   title: string;
 
-  @ApiProperty({ example: 'A new assignment has been posted in CS101', description: 'Notification body' })
+  @ApiProperty({
+    example: 'A new assignment has been posted in CS101',
+    description: 'Notification body',
+  })
   @IsString()
   body: string;
 
-  @ApiPropertyOptional({ example: 'assignment', description: 'Related entity type' })
+  @ApiPropertyOptional({
+    example: 'assignment',
+    description: 'Related entity type',
+  })
   @IsOptional()
   @IsString()
   relatedEntityType?: string;
@@ -31,12 +56,19 @@ export class CreateNotificationDto {
   @IsInt()
   relatedEntityId?: number;
 
-  @ApiPropertyOptional({ example: 'medium', enum: NotificationPriority, description: 'Priority level' })
+  @ApiPropertyOptional({
+    example: 'medium',
+    enum: NotificationPriority,
+    description: 'Priority level',
+  })
   @IsOptional()
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;
 
-  @ApiPropertyOptional({ example: '/assignments/3', description: 'Action URL for frontend routing' })
+  @ApiPropertyOptional({
+    example: '/assignments/3',
+    description: 'Action URL for frontend routing',
+  })
   @IsOptional()
   @IsString()
   actionUrl?: string;
@@ -47,15 +79,25 @@ export class SendNotificationDto {
   @IsInt({ each: true })
   userIds: number[];
 
-  @ApiProperty({ example: 'system', enum: NotificationType, description: 'Notification type' })
+  @ApiProperty({
+    example: 'system',
+    enum: NotificationType,
+    description: 'Notification type',
+  })
   @IsEnum(NotificationType)
   notificationType: NotificationType;
 
-  @ApiProperty({ example: 'System Maintenance', description: 'Notification title' })
+  @ApiProperty({
+    example: 'System Maintenance',
+    description: 'Notification title',
+  })
   @IsString()
   title: string;
 
-  @ApiProperty({ example: 'System will be down for maintenance on Sunday', description: 'Body' })
+  @ApiProperty({
+    example: 'System will be down for maintenance on Sunday',
+    description: 'Body',
+  })
   @IsString()
   body: string;
 
@@ -64,7 +106,10 @@ export class SendNotificationDto {
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;
 
-  @ApiPropertyOptional({ example: '/system/maintenance', description: 'Action URL' })
+  @ApiPropertyOptional({
+    example: '/system/maintenance',
+    description: 'Action URL',
+  })
   @IsOptional()
   @IsString()
   actionUrl?: string;
@@ -112,22 +157,34 @@ export class NotificationQueryDto {
 }
 
 export class UpdatePreferencesDto {
-  @ApiPropertyOptional({ example: true, description: 'Enable email notifications' })
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Enable email notifications',
+  })
   @IsOptional()
   @IsBoolean()
   emailEnabled?: boolean;
 
-  @ApiPropertyOptional({ example: true, description: 'Enable push notifications' })
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Enable push notifications',
+  })
   @IsOptional()
   @IsBoolean()
   pushEnabled?: boolean;
 
-  @ApiPropertyOptional({ example: false, description: 'Enable SMS notifications' })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Enable SMS notifications',
+  })
   @IsOptional()
   @IsBoolean()
   smsEnabled?: boolean;
 
-  @ApiPropertyOptional({ example: true, description: 'Email for announcements' })
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Email for announcements',
+  })
   @IsOptional()
   @IsBoolean()
   announcementEmail?: boolean;
@@ -147,20 +204,96 @@ export class UpdatePreferencesDto {
   @IsBoolean()
   messageEmail?: boolean;
 
-  @ApiPropertyOptional({ example: 2, description: 'Days before deadline to send reminder' })
+  @ApiPropertyOptional({
+    example: 2,
+    description: 'Days before deadline to send reminder',
+  })
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(30)
   deadlineReminderDays?: number;
 
-  @ApiPropertyOptional({ example: '22:00:00', description: 'Quiet hours start (HH:mm:ss)' })
+  @ApiPropertyOptional({
+    example: '22:00:00',
+    description: 'Quiet hours start (HH:mm:ss)',
+  })
   @IsOptional()
   @IsString()
   quietHoursStart?: string;
 
-  @ApiPropertyOptional({ example: '07:00:00', description: 'Quiet hours end (HH:mm:ss)' })
+  @ApiPropertyOptional({
+    example: '07:00:00',
+    description: 'Quiet hours end (HH:mm:ss)',
+  })
   @IsOptional()
   @IsString()
   quietHoursEnd?: string;
+}
+
+export class RegisterDeviceTokenDto {
+  @ApiProperty({
+    example: 'fcm_registration_token',
+    description:
+      'Firebase Cloud Messaging registration token for this Android device',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(20)
+  @MaxLength(4096)
+  token: string;
+
+  @ApiPropertyOptional({
+    example: 'android',
+    description: 'Device platform',
+    enum: ['android'],
+  })
+  @IsOptional()
+  @IsIn(['android'])
+  platform?: 'android';
+
+  @ApiPropertyOptional({
+    example: 'SM-N975F',
+    description: 'Client-generated device identifier or model',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  deviceId?: string;
+
+  @ApiPropertyOptional({
+    example: 'Amir phone',
+    description: 'Friendly device name',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  deviceName?: string;
+
+  @ApiPropertyOptional({
+    example: '1.0.0+42',
+    description: 'Installed app version',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  appVersion?: string;
+
+  @ApiPropertyOptional({ example: 'en', description: 'Current app locale' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  locale?: string;
+}
+
+export class UnregisterDeviceTokenDto {
+  @ApiProperty({
+    example: 'fcm_registration_token',
+    description: 'Firebase Cloud Messaging registration token to deactivate',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(20)
+  @MaxLength(4096)
+  token: string;
 }

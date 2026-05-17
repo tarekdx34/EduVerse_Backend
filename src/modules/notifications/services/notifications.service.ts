@@ -1,23 +1,34 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { createHash } from 'crypto';
 import { Notification } from '../entities/notification.entity';
 import { NotificationPreference } from '../entities/notification-preference.entity';
 import { ScheduledNotification } from '../entities/scheduled-notification.entity';
+import {
+  NotificationDevicePlatform,
+  NotificationDeviceToken,
+} from '../entities/notification-device-token.entity';
 import {
   CreateNotificationDto,
   SendNotificationDto,
   NotificationQueryDto,
   UpdatePreferencesDto,
+  RegisterDeviceTokenDto,
+  UnregisterDeviceTokenDto,
 } from '../dto';
 import { NotificationsGateway } from '../notifications.gateway';
+import { FirebasePushService } from './firebase-push.service';
 import { CourseEnrollment } from '../../enrollments/entities/course-enrollment.entity';
 import { EnrollmentStatus } from '../../enrollments/enums';
 import { CourseInstructor } from '../../enrollments/entities/course-instructor.entity';
 import { CourseTA } from '../../enrollments/entities/course-ta.entity';
 import { User } from '../../auth/entities/user.entity';
 import { RoleName } from '../../auth/entities/role.entity';
-import { CampusEventRegistration, RegistrationStatus } from '../../schedule/entities/campus-event-registration.entity';
+import {
+  CampusEventRegistration,
+  RegistrationStatus,
+} from '../../schedule/entities/campus-event-registration.entity';
 import { ScheduledNotificationStatus } from '../enums';
 
 @Injectable()
@@ -31,6 +42,8 @@ export class NotificationsService {
     private preferenceRepository: Repository<NotificationPreference>,
     @InjectRepository(ScheduledNotification)
     private scheduledRepository: Repository<ScheduledNotification>,
+    @InjectRepository(NotificationDeviceToken)
+    private deviceTokenRepository: Repository<NotificationDeviceToken>,
     @InjectRepository(CourseEnrollment)
     private enrollmentRepository: Repository<CourseEnrollment>,
     @InjectRepository(CourseInstructor)
@@ -42,16 +55,134 @@ export class NotificationsService {
     @InjectRepository(CampusEventRegistration)
     private campusEventRegistrationRepository: Repository<CampusEventRegistration>,
     private notificationsGateway: NotificationsGateway,
+    private firebasePushService: FirebasePushService,
   ) {}
 
   private dedupeUserIds(userIds: number[]): number[] {
-    return [...new Set((userIds || []).map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0))];
+    return [
+      ...new Set(
+        (userIds || [])
+          .map((id) => Number(id))
+          .filter((id) => Number.isInteger(id) && id > 0),
+      ),
+    ];
   }
 
   private normalizeScheduledFor(scheduledFor: Date): Date {
     const normalized = new Date(scheduledFor);
     normalized.setSeconds(0, 0);
     return normalized;
+  }
+
+  private hashDeviceToken(token: string): string {
+    return createHash('sha256').update(token.trim()).digest('hex');
+  }
+
+  private toDeviceTokenResponse(deviceToken: NotificationDeviceToken) {
+    return {
+      id: deviceToken.id,
+      platform: deviceToken.platform,
+      deviceId: deviceToken.deviceId,
+      deviceName: deviceToken.deviceName,
+      appVersion: deviceToken.appVersion,
+      locale: deviceToken.locale,
+      isActive: deviceToken.isActive,
+      lastSeenAt: deviceToken.lastSeenAt,
+      firebaseEnabled: this.firebasePushService.isEnabled(),
+    };
+  }
+
+  private queuePushNotifications(notifications: Notification[]): void {
+    this.dispatchPushNotifications(notifications).catch((error) => {
+      this.logger.error(
+        `Failed to dispatch Firebase push notifications: ${error.message}`,
+      );
+    });
+  }
+
+  private async dispatchPushNotifications(
+    notifications: Notification[],
+  ): Promise<void> {
+    const savedNotifications = notifications.filter(
+      (notification) => notification?.userId,
+    );
+    if (!savedNotifications.length || !this.firebasePushService.isEnabled()) {
+      return;
+    }
+
+    const userIds = this.dedupeUserIds(
+      savedNotifications.map((notification) => notification.userId),
+    );
+    const [preferences, deviceTokens] = await Promise.all([
+      this.preferenceRepository.find({
+        where: { userId: In(userIds) },
+        select: ['userId', 'pushEnabled'],
+      }),
+      this.deviceTokenRepository.find({
+        where: {
+          userId: In(userIds),
+          isActive: true as any,
+          platform: NotificationDevicePlatform.ANDROID,
+        },
+      }),
+    ]);
+
+    if (!deviceTokens.length) {
+      return;
+    }
+
+    const pushDisabledUserIds = new Set(
+      preferences
+        .filter(
+          (preference) =>
+            preference.pushEnabled === false ||
+            Number(preference.pushEnabled) === 0,
+        )
+        .map((preference) => Number(preference.userId)),
+    );
+
+    const tokensByUserId = new Map<number, NotificationDeviceToken[]>();
+    for (const deviceToken of deviceTokens) {
+      if (pushDisabledUserIds.has(Number(deviceToken.userId))) {
+        continue;
+      }
+
+      const userTokens = tokensByUserId.get(Number(deviceToken.userId)) ?? [];
+      userTokens.push(deviceToken);
+      tokensByUserId.set(Number(deviceToken.userId), userTokens);
+    }
+
+    const unreadCountsByUserId = new Map<number, number>();
+    await Promise.all(
+      [...tokensByUserId.keys()].map(async (userId) => {
+        const { count } = await this.getUnreadCount(userId);
+        unreadCountsByUserId.set(userId, count);
+      }),
+    );
+
+    const invalidTokenHashes = new Set<string>();
+    for (const notification of savedNotifications) {
+      const userTokens = tokensByUserId.get(Number(notification.userId)) ?? [];
+      if (!userTokens.length) {
+        continue;
+      }
+
+      const result = await this.firebasePushService.sendNotification(
+        userTokens,
+        notification,
+        unreadCountsByUserId.get(Number(notification.userId)),
+      );
+      result.invalidTokenHashes.forEach((tokenHash) =>
+        invalidTokenHashes.add(tokenHash),
+      );
+    }
+
+    if (invalidTokenHashes.size > 0) {
+      await this.deviceTokenRepository.update(
+        { tokenHash: In([...invalidTokenHashes]) },
+        { isActive: false, lastSeenAt: new Date() } as any,
+      );
+    }
   }
 
   private async updateUnreadCountsForUsers(userIds: number[]): Promise<void> {
@@ -72,19 +203,24 @@ export class NotificationsService {
 
   async findAll(userId: number, query: NotificationQueryDto) {
     const { type, priority, isRead, page = 1, limit = 20 } = query;
-    const qb = this.notificationRepository.createQueryBuilder('n')
+    const qb = this.notificationRepository
+      .createQueryBuilder('n')
       .where('n.userId = :userId', { userId });
 
     if (type) qb.andWhere('n.notificationType = :type', { type });
     if (priority) qb.andWhere('n.priority = :priority', { priority });
-    if (isRead !== undefined) qb.andWhere('n.isRead = :isRead', { isRead: isRead ? 1 : 0 });
+    if (isRead !== undefined)
+      qb.andWhere('n.isRead = :isRead', { isRead: isRead ? 1 : 0 });
 
     qb.orderBy('n.createdAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
 
     const [data, total] = await qb.getManyAndCount();
-    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async getUnreadCount(userId: number): Promise<{ count: number }> {
@@ -94,20 +230,24 @@ export class NotificationsService {
     return { count };
   }
 
-  async markAsRead(userId: number, notificationId: number): Promise<Notification> {
+  async markAsRead(
+    userId: number,
+    notificationId: number,
+  ): Promise<Notification> {
     const notification = await this.notificationRepository.findOne({
       where: { id: notificationId, userId },
     });
-    if (!notification) throw new NotFoundException(`Notification ${notificationId} not found`);
+    if (!notification)
+      throw new NotFoundException(`Notification ${notificationId} not found`);
 
     notification.isRead = true;
     notification.readAt = new Date();
     const saved = await this.notificationRepository.save(notification);
-    
+
     // Update unread count via socket
     const { count } = await this.getUnreadCount(userId);
     this.notificationsGateway.sendUnreadCountUpdate(userId, count);
-    
+
     return saved;
   }
 
@@ -124,7 +264,8 @@ export class NotificationsService {
     const notification = await this.notificationRepository.findOne({
       where: { id: notificationId, userId },
     });
-    if (!notification) throw new NotFoundException(`Notification ${notificationId} not found`);
+    if (!notification)
+      throw new NotFoundException(`Notification ${notificationId} not found`);
     await this.notificationRepository.remove(notification);
   }
 
@@ -134,7 +275,59 @@ export class NotificationsService {
   }
 
   async clearRead(userId: number): Promise<{ affected: number }> {
-    const result = await this.notificationRepository.delete({ userId, isRead: true as any });
+    const result = await this.notificationRepository.delete({
+      userId,
+      isRead: true as any,
+    });
+    return { affected: result.affected || 0 };
+  }
+
+  // ============ DEVICE TOKENS ============
+
+  async registerDeviceToken(userId: number, dto: RegisterDeviceTokenDto) {
+    const token = dto.token.trim();
+    const tokenHash = this.hashDeviceToken(token);
+    let deviceToken = await this.deviceTokenRepository.findOne({
+      where: { tokenHash },
+    });
+
+    if (!deviceToken) {
+      deviceToken = this.deviceTokenRepository.create({
+        userId,
+        fcmToken: token,
+        tokenHash,
+      });
+    }
+
+    deviceToken.userId = userId;
+    deviceToken.fcmToken = token;
+    deviceToken.platform = NotificationDevicePlatform.ANDROID;
+    deviceToken.deviceId = dto.deviceId ?? deviceToken.deviceId ?? null;
+    deviceToken.deviceName = dto.deviceName ?? deviceToken.deviceName ?? null;
+    deviceToken.appVersion = dto.appVersion ?? deviceToken.appVersion ?? null;
+    deviceToken.locale = dto.locale ?? deviceToken.locale ?? null;
+    deviceToken.isActive = true;
+    deviceToken.lastSeenAt = new Date();
+
+    const saved = await this.deviceTokenRepository.save(deviceToken);
+    return this.toDeviceTokenResponse(saved);
+  }
+
+  async unregisterDeviceToken(
+    userId: number,
+    dto: UnregisterDeviceTokenDto,
+  ): Promise<{ affected: number }> {
+    const result = await this.deviceTokenRepository.update(
+      {
+        userId,
+        tokenHash: this.hashDeviceToken(dto.token),
+      },
+      {
+        isActive: false,
+        lastSeenAt: new Date(),
+      } as any,
+    );
+
     return { affected: result.affected || 0 };
   }
 
@@ -149,7 +342,10 @@ export class NotificationsService {
     return prefs;
   }
 
-  async updatePreferences(userId: number, dto: UpdatePreferencesDto): Promise<NotificationPreference> {
+  async updatePreferences(
+    userId: number,
+    dto: UpdatePreferencesDto,
+  ): Promise<NotificationPreference> {
     let prefs = await this.preferenceRepository.findOne({ where: { userId } });
     if (!prefs) {
       prefs = this.preferenceRepository.create({ userId });
@@ -173,7 +369,10 @@ export class NotificationsService {
       });
       notifications.push(await this.notificationRepository.save(notification));
     }
-    this.logger.log(`Sent ${notifications.length} notifications: "${dto.title}"`);
+    this.logger.log(
+      `Sent ${notifications.length} notifications: "${dto.title}"`,
+    );
+    this.queuePushNotifications(notifications);
     return notifications;
   }
 
@@ -191,46 +390,62 @@ export class NotificationsService {
       actionUrl: dto.actionUrl,
     });
     const saved = await this.notificationRepository.save(notification);
-    this.logger.log(`Notification created for user ${dto.userId}: "${dto.title}"`);
-    
+    this.logger.log(
+      `Notification created for user ${dto.userId}: "${dto.title}"`,
+    );
+
     // Send realtime notification
     this.notificationsGateway.sendNotificationToUser(dto.userId, saved);
     const { count } = await this.getUnreadCount(dto.userId);
     this.notificationsGateway.sendUnreadCountUpdate(dto.userId, count);
+    this.queuePushNotifications([saved]);
 
     return saved;
   }
 
-  async createBulkNotifications(userIds: number[], dto: Omit<CreateNotificationDto, 'userId'>): Promise<Notification[]> {
+  async createBulkNotifications(
+    userIds: number[],
+    dto: Omit<CreateNotificationDto, 'userId'>,
+  ): Promise<Notification[]> {
     const dedupedUserIds = this.dedupeUserIds(userIds);
     if (!dedupedUserIds.length) {
       return [];
     }
-    
-    const entities = dedupedUserIds.map(userId => this.notificationRepository.create({
-      userId,
-      notificationType: dto.notificationType,
-      title: dto.title,
-      body: dto.body,
-      relatedEntityType: dto.relatedEntityType,
-      relatedEntityId: dto.relatedEntityId,
-      priority: dto.priority || 'medium',
-      actionUrl: dto.actionUrl,
-    }));
+
+    const entities = dedupedUserIds.map((userId) =>
+      this.notificationRepository.create({
+        userId,
+        notificationType: dto.notificationType,
+        title: dto.title,
+        body: dto.body,
+        relatedEntityType: dto.relatedEntityType,
+        relatedEntityId: dto.relatedEntityId,
+        priority: dto.priority || 'medium',
+        actionUrl: dto.actionUrl,
+      }),
+    );
 
     // Save in chunks to avoid query length limits
-    const saved = await this.notificationRepository.save(entities, { chunk: 50 });
-    this.logger.log(`Bulk notifications created for ${saved.length} users: "${dto.title}"`);
-    
+    const saved = await this.notificationRepository.save(entities, {
+      chunk: 50,
+    });
+    this.logger.log(
+      `Bulk notifications created for ${saved.length} users: "${dto.title}"`,
+    );
+
     // Send realtime updates
     for (const notification of saved) {
-      this.notificationsGateway.sendNotificationToUser(notification.userId, notification);
+      this.notificationsGateway.sendNotificationToUser(
+        notification.userId,
+        notification,
+      );
     }
-    
+
     // Update unread counts asynchronously
     this.updateUnreadCountsForUsers(dedupedUserIds).catch((err) =>
       this.logger.error(`Error updating bulk unread counts: ${err.message}`),
     );
+    this.queuePushNotifications(saved);
 
     return saved;
   }
@@ -241,7 +456,9 @@ export class NotificationsService {
       .innerJoin('enrollment.section', 'section')
       .select('enrollment.userId', 'userId')
       .where('section.courseId = :courseId', { courseId })
-      .andWhere('enrollment.status = :status', { status: EnrollmentStatus.ENROLLED })
+      .andWhere('enrollment.status = :status', {
+        status: EnrollmentStatus.ENROLLED,
+      })
       .getRawMany<{ userId: string }>();
 
     return this.dedupeUserIds(enrollments.map((row) => Number(row.userId)));
@@ -278,7 +495,9 @@ export class NotificationsService {
       select: ['userId'],
     });
 
-    return this.dedupeUserIds(registrations.map((registration) => Number(registration.userId)));
+    return this.dedupeUserIds(
+      registrations.map((registration) => Number(registration.userId)),
+    );
   }
 
   async getOperationalAdminIds(): Promise<number[]> {
@@ -318,7 +537,9 @@ export class NotificationsService {
       select: ['userId'],
     });
 
-    const existingUserIds = new Set(existingRows.map((row) => Number(row.userId)));
+    const existingUserIds = new Set(
+      existingRows.map((row) => Number(row.userId)),
+    );
     const scheduledRows = dedupedUserIds
       .filter((userId) => !existingUserIds.has(userId))
       .map((userId) =>
@@ -377,7 +598,9 @@ export class NotificationsService {
         { id: In(scheduledRows.map((row) => row.id)) as any },
         { status: ScheduledNotificationStatus.FAILED } as any,
       );
-      this.logger.error(`Failed to dispatch scheduled notifications "${dto.title}": ${error.message}`);
+      this.logger.error(
+        `Failed to dispatch scheduled notifications "${dto.title}": ${error.message}`,
+      );
       throw error;
     }
   }

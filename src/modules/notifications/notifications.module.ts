@@ -4,8 +4,10 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { Notification } from './entities/notification.entity';
 import { NotificationPreference } from './entities/notification-preference.entity';
 import { ScheduledNotification } from './entities/scheduled-notification.entity';
+import { NotificationDeviceToken } from './entities/notification-device-token.entity';
 import { NotificationsService } from './services/notifications.service';
 import { NotificationCronService } from './services/notification-cron.service';
+import { FirebasePushService } from './services/firebase-push.service';
 import { NotificationsController } from './controllers/notifications.controller';
 import { NotificationsGateway } from './notifications.gateway';
 import { CourseEnrollment } from '../enrollments/entities/course-enrollment.entity';
@@ -29,6 +31,7 @@ import { CampusEvent } from '../schedule/entities/campus-event.entity';
       Notification,
       NotificationPreference,
       ScheduledNotification,
+      NotificationDeviceToken,
       CourseEnrollment,
       CourseInstructor,
       CourseTA,
@@ -47,7 +50,12 @@ import { CampusEvent } from '../schedule/entities/campus-event.entity';
     ScheduleModule.forRoot(),
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService, NotificationsGateway, NotificationCronService],
+  providers: [
+    NotificationsService,
+    NotificationsGateway,
+    NotificationCronService,
+    FirebasePushService,
+  ],
   exports: [NotificationsService, NotificationsGateway],
 })
 export class NotificationsModule {}
